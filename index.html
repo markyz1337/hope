@@ -264,6 +264,16 @@ input[type="text"]:focus {
 
 .hidden { display: none; }
 
+
+.glass-effect, .timeline-item, .reason-card {
+    /* Spune browserului să folosească placa video pentru aceste elemente */
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+
+
 footer { 
     text-align: center; 
     padding: 40px; 
@@ -314,23 +324,39 @@ footer {
     </header>
 
     <!-- TIMELINE -->
-    <section id="timeline-sec" class="section">
-        <h2 class="section-title">Drumul nostru împreună</h2>
-        <div class="timeline">
-            <div class="timeline-item">
-                <h3>Ziua în care ne-am cunoscut</h3>
-                <p>Data: [Adaugă Data] - A fost momentul în care am știut că viața mea nu va mai fi la fel.</p>
-            </div>
-            <div class="timeline-item">
-                <h3>Prima noastră vacanță</h3>
-                <p>La [Locație], unde am adunat amintiri pe care le păstrez și acum în suflet.</p>
-            </div>
-            <div class="timeline-item">
-                <h3>Un moment doar al nostru</h3>
-                <p>Când am realizat că tu ești „acasă" pentru mine.</p>
-            </div>
+<!-- TIMER SECTION -->
+<section class="section">
+    <div class="glass-effect" style="padding: 40px; text-align: center;">
+        <h2 style="margin-bottom: 20px;">Timpul petrecut împreună</h2>
+        <div id="timer" style="font-size: 1.5rem; font-weight: 600; color: var(--dark-pink); letter-spacing: 1px;">
+            <span id="years">0</span> ani 
+            <span id="days">0</span> zile 
+            <span id="hours">0</span> ore 
+            <span id="minutes">0</span> min 
+            <span id="seconds">0</span> sec
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline-sec" class="section">
+    <h2 class="section-title" style="text-align: center;">Drumul nostru împreună</h2>
+    <div class="timeline">
+        <div class="timeline-item">
+            <h3>Ziua în care ne-am cunoscut</h3>
+            <p>Data: 01.01.2010 - A fost momentul în care am știut că viața mea nu va mai fi la fel.</p>
+        </div>
+        <div class="timeline-item">
+            <h3>Prima noastră vacanță</h3>
+            <p>La [Locație], unde am adunat amintiri pe care le păstrez și acum în suflet.</p>
+        </div>
+        <div class="timeline-item">
+            <h3>Un moment doar al nostru</h3>
+            <p>Când am realizat că tu ești „acasă" pentru mine.</p>
+        </div>
+    </div>
+</section>
+
 
     <!-- MOTIVE INTERACTIVE -->
     <section class="section">
@@ -369,6 +395,36 @@ footer {
 
 
 
+function updateTimer() {
+    const startDate = new Date("2010-01-01T00:00:00");
+    const now = new Date();
+    const diff = now - startDate;
+
+    const msPerSecond = 1000;
+    const msPerMinute = msPerSecond * 60;
+    const msPerHour = msPerMinute * 60;
+    const msPerDay = msPerHour * 24;
+    const msPerYear = msPerDay * 365.25; // Aproximație pentru anii bisecți
+
+    const years = Math.floor(diff / msPerYear);
+    const days = Math.floor((diff % msPerYear) / msPerDay);
+    const hours = Math.floor((diff % msPerDay) / msPerHour);
+    const minutes = Math.floor((diff % msPerHour) / msPerMinute);
+    const seconds = Math.floor((diff % msPerMinute) / msPerSecond);
+
+    document.getElementById("years").innerText = years;
+    document.getElementById("days").innerText = days;
+    document.getElementById("hours").innerText = hours;
+    document.getElementById("minutes").innerText = minutes;
+    document.getElementById("seconds").innerText = seconds;
+}
+
+// Pornim timer-ul imediat și îl actualizăm la fiecare secundă
+setInterval(updateTimer, 1000);
+updateTimer();
+
+
+
 let savedScrollPosition = 0;
 
 function savePosition() {
@@ -389,15 +445,46 @@ function restorePosition() {
 
 
 
-        // 1. PORNIRE MUZICĂ ȘI SCROLL
 function startExperience() {
     audio.play().catch(e => console.log("Audio necesită interacțiune directă."));
     
-    // APELĂM FUNCȚIA NOUĂ AICI
     startLetterSequence(); 
     
-    document.getElementById('timeline-sec').scrollIntoView({ behavior: 'smooth' });
+    // Identificăm elementul către care mergem
+    const target = document.getElementById('timeline-sec');
+    
+    // Folosim funcția noastră custom pentru scroll lent (2000ms = 2 secunde)
+    smoothScrollTo(target, 5000); 
 }
+
+
+function smoothScrollTo(element, duration) {
+    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset;
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    let startTime = null;
+
+    // Folosim o funcție de "Cubic Easing" - este mult mai naturală și elimină senzația de sacadare
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function step(currentTime) {
+        if (!startTime) startTime = currentTime;
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        window.scrollTo(0, startPosition + distance * easedProgress);
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    }
+
+    window.requestAnimationFrame(step);
+}
+
+
 
 
         // 2. GENERATOR DE INIMI (ANIMATIE)
