@@ -267,23 +267,31 @@ input[type="text"]:focus {
 .hidden { display: none; }
 
 
-/* 1. Definirea tranziției pe elementele cu blur */
 .glass-effect, .timeline-item, .reason-card, .vault-box {
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    /* Adăugăm tranziție pentru blur și fundal */
-    transition: backdrop-filter 1.2s ease, -webkit-backdrop-filter 1.2s ease, background 1.2s ease;
-    will-change: backdrop-filter;
+    transition: backdrop-filter 1.2s ease, background 1.2s ease;
+    will-change: transform, backdrop-filter;
+    
+    /* ACEASTA ESTE LINIA MAGICĂ: */
+    transform: translateZ(0); 
 }
 
-/* 2. Starea din timpul scroll-ului */
+
+/* Starea de scroll: eliminăm DURATA tranziției (0s) ca să eliberăm procesorul IMEDIAT */
 .is-scrolling .glass-effect, 
 .is-scrolling .timeline-item, 
 .is-scrolling .reason-card,
 .is-scrolling .vault-box {
     backdrop-filter: blur(0px) !important;
     -webkit-backdrop-filter: blur(0px) !important;
-    background: rgba(255, 255, 255, 0.75); /* O culoare ușor mai opacă ca să rămână lizibil */
+    transition: none !important; /* CRITICAL: Nu mai lăsa browserul să calculeze pașii intermediari */
+}
+
+
+.is-scrolling {
+    pointer-events: none; /* Ignoră orice atingere în timpul mișcării */
+    user-select: none;    /* Previne selectarea accidentală a textului */
 }
 
 
@@ -298,7 +306,7 @@ input[type="text"]:focus {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     
     /* EFECTUL DE DARK MODE PRIN FILTRE */
-    filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    filter: invert(0%) hue-rotate(10deg) brightness(90%) contrast(100%);
     
     transition: all 0.5s ease;
 }
@@ -399,7 +407,7 @@ footer {
             height="145" 
             style="border:0;" 
             allowfullscreen="" 
-            loading="lazy">
+            loading="eager">
         </iframe>
     </div>
 </div>
@@ -509,7 +517,7 @@ function startExperience() {
     const target = document.getElementById('timeline-sec');
     
     // Folosim funcția noastră custom pentru scroll lent (2000ms = 2 secunde)
-    smoothScrollTo(target, 4500); 
+    smoothScrollTo(target, 3000); 
 }
 
 
@@ -519,33 +527,34 @@ function smoothScrollTo(element, duration) {
     const distance = targetPosition - startPosition;
     let startTime = null;
 
-    // Activăm modul de performanță (eliminăm blur-ul)
+    // 1. Adăugăm clasa de performanță imediat
     document.body.classList.add('is-scrolling');
 
-    function easeInOutCubic(t) {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    function easeInOutQuart(t) {
+        return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
     }
 
     function step(currentTime) {
         if (!startTime) startTime = currentTime;
-        const progress = Math.min((currentTime - startTime) / duration, 1);
-        const easedProgress = easeInOutCubic(progress);
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
 
+        const easedProgress = easeInOutQuart(progress);
         window.scrollTo(0, startPosition + distance * easedProgress);
 
         if (progress < 1) {
             window.requestAnimationFrame(step);
         } else {
-            // Așteptăm un moment după ce s-a oprit scroll-ul 
-            // pentru a asigura stabilitatea imaginii, apoi readucem blur-ul fluid
+            // 2. Curățăm clasa după ce scroll-ul s-a terminat complet
             setTimeout(() => {
                 document.body.classList.remove('is-scrolling');
-            }, 150); 
+            }, 200); 
         }
     }
 
     window.requestAnimationFrame(step);
 }
+
 
 
 
