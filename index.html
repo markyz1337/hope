@@ -1,1 +1,519 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pentru Iubirea Mea ❤️</title>
+    
+    <!-- FONTURI -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 
+    <!-- CSS (Designul site-ului) -->
+    <style>
+:root {
+    --primary-pink: #ff4d6d;
+    --secondary-pink: #ffb3c1;
+    --dark-pink: #c9184a;
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --text-color: #4a0e1c;
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden; /* Taie orice conținut care iese în lateral */
+    position: relative;
+    width: 100%;
+    touch-action: pan-y; /* Permite doar scroll sus-jos, blochează gesturile laterale de browser */
+}
+
+* {
+    box-sizing: border-box; /* Previne lățirea elementelor din cauza padding-ului */
+}
+
+/* De asemenea, asigură-te că literele individuale nu sunt forțate pe rânduri noi */
+.letter {
+    display: inline-block;
+    white-space: pre; /* Menține spațiile și previne ruperea ciudată */
+    opacity: 0;
+    transform: translateY(5px);
+    animation: fadeLetter 0.4s ease forwards;
+}
+
+@keyframes fadeLetter {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#reason-display {
+    min-height: 80px;
+    margin-top: 40px;    /* Ajustează valoarea (20px, 300px, 40px) după bunul plac */
+    display: block;
+    line-height: 1.6;
+    padding: 0 10px;
+    
+    /* SOLUȚIA: Previne ruperea cuvintelor */
+    word-break: keep-all;     /* Nu rupe cuvântul sub nicio formă */
+    overflow-wrap: normal;    /* Se asigură că textul curge normal */
+    hyphens: none;            /* Dezactivează cratimele automate */
+}
+
+
+
+
+
+/* 1. FUNDAL DINAMIC CU GRADIENT ȘI FORME */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #fff0f3;
+    /* Adăugăm un gradient complex în spate pentru contrast */
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(343, 100%, 76%, 0.3) 0, transparent 50%), 
+        radial-gradient(at 100% 100%, hsla(350, 100%, 88%, 0.5) 0, transparent 50%),
+        radial-gradient(at 50% 50%, hsla(340, 100%, 92%, 0.2) 0, transparent 100%);
+    color: var(--text-color);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    min-height: 100vh;
+}
+
+h1, h2 {
+    font-family: 'Dancing Script', cursive;
+    color: var(--dark-pink);
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+/* 2. EFECTUL DE STICLĂ (REUTILIZABIL) */
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+    box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2);
+}
+
+/* 3. HERO SECTION */
+header {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: transparent;
+}
+
+.hero-title { 
+    font-size: 5rem; /* Mărimea pe desktop */
+    margin: 0; 
+    animation: float 3s ease-in-out infinite;
+    background: linear-gradient(45deg, var(--dark-pink), var(--primary-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    width: 100%;
+    padding: 0 10px; /* Previne tăierea literelor la margine */
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    font-weight: 800; /* Textul mai gros ajută la vizibilitate când culoarea e similară cu fundalul */
+    padding: 0 40px;
+    max-width: 600px;
+    margin: 20px auto;
+    line-height: 1.5;
+    text-align: center;
+    opacity: 0.7;
+
+    /* CULOARE ROZ ÎNCHIS (TON PE TON) */
+    color: #c9184a; /* Un roz închis, derivat din paleta ta, care oferă contrast dar rămâne în temă */
+    
+    /* EFECT DE PROFUNZIME ȘI SUAVE GLOW */
+    text-shadow: 
+        1px 1px 0px rgba(255, 255, 255, 0.5), /* O mică bordură albă în spate pentru a "ridica" textul */
+        0px 0px 10px rgba(255, 77, 109, 0.2); /* Un glow roz foarte discret */
+}
+
+
+
+
+
+/* Ajustare pentru ecrane foarte mici (telefoane) */
+@media (max-width: 480px) {
+    .hero-subtitle {
+        font-size: 1.1rem;
+        padding: 0 40px; /* Padding și mai mare pe ecrane mici ca să fie sigur centrat */
+    }
+    .hero-title {
+        font-size: 5.5rem; /* Micșorăm puțin titlul să nu dea overflow */
+    }
+}
+
+
+/* 4. BUTOANE */
+.btn-main {
+    background: rgba(255, 77, 109, 0.7);
+    backdrop-filter: blur(5px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 15px 40px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+    margin-top: 25px;
+}
+
+.btn-main:hover {
+    background: var(--dark-pink);
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(255, 77, 109, 0.5);
+}
+
+/* 5. TIMELINE & CARDS */
+.section { 
+    padding: 80px 25px; /* 80px sus/jos, 25px stânga/dreapta */
+    max-width: 900px; 
+    margin: 0 auto; 
+    width: 100%; /* Ne asigurăm că ocupă spațiul dar respectă padding-ul */
+}
+
+.timeline-item { 
+    margin-bottom: 40px; 
+    padding: 30px; 
+    position: relative;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(255, 77, 109, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.timeline-item:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.45);
+}
+
+
+.timeline-item p {
+    padding: 0 15px; /* Adaugă spațiu în stânga și dreapta textului */
+    line-height: 1.6; /* Îmbunătățește citirea prin spațiere verticală */
+    margin-bottom: 10px;
+}
+
+/* Și pentru titlurile din interiorul cardurilor */
+.timeline-item h3 {
+    padding: 0 15px;
+    margin-top: 0;
+}
+
+
+/* 6. GENERATOR ȘI SEIF (STIL GLASS COMPLET) */
+.reason-card, .vault-box {
+    padding: 50px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+}
+
+/* 7. FORMULARE GLASS */
+input[type="text"] {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 20px;
+    width: 80%;
+    margin-bottom: 20px;
+    color: var(--dark-pink);
+    font-weight: 600;
+    outline: none;
+    transition: 0.3s;
+}
+
+input[type="text"]:focus {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: var(--primary-pink);
+    width: 85%;
+}
+
+/* 8. ANIMATII */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(1deg); }
+}
+
+.hearts-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hidden { display: none; }
+
+footer { 
+    text-align: center; 
+    padding: 40px; 
+    font-size: 0.8rem; 
+    opacity: 0.7; 
+}
+    </style>
+</head>
+<body>
+
+<div style="
+    position: fixed;
+    top: 20%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,77,109,0.4) 0%, rgba(255,179,193,0) 70%);
+    z-index: -1;
+    filter: blur(50px);
+"></div>
+
+<div style="
+    position: fixed;
+    bottom: 10%;
+    right: 5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(201,24,74,0.3) 0%, rgba(255,240,243,0) 70%);
+    z-index: -1;
+    filter: blur(60px);
+"></div>
+
+
+
+    <!-- AUDIO PLAYER -->
+    <audio id="romanticMusic" loop>
+        <source src="https://raw.githubusercontent.com/markyz1337/hope/refs/heads/main/music/The%20Motans%20-%20Inainte%20Sa%20Ne%20Fi%20Nascut%20%EF%BD%9C%20Videoclip%20Oficial.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- FUNDAL ANIMAT -->
+    <div class="hearts-bg" id="hearts-container"></div>
+
+    <!-- START SITE -->
+    <header>
+        <h1 class="hero-title">Hope</h1>
+        <p class="hero-subtitle">Astăzi este ziua noastră, ia un loc liber și bucură-te de moment...</p>
+        <button class="btn-main" onclick="startExperience()">Începe călătoria 💛</button>
+    </header>
+
+    <!-- TIMELINE -->
+    <section id="timeline-sec" class="section">
+        <h2 class="section-title">Drumul nostru împreună</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h3>Ziua în care ne-am cunoscut</h3>
+                <p>Data: [Adaugă Data] - A fost momentul în care am știut că viața mea nu va mai fi la fel.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>Prima noastră vacanță</h3>
+                <p>La [Locație], unde am adunat amintiri pe care le păstrez și acum în suflet.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>Un moment doar al nostru</h3>
+                <p>Când am realizat că tu ești „acasă" pentru mine.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOTIVE INTERACTIVE -->
+    <section class="section">
+        <div class="reason-card">
+            <h2>De ce te iubesc?</h2>
+            <p>Sunt mii de motive, dar iată unul la întâmplare:</p>
+            <button class="btn-main" onclick="generateReason()">Apasă pentru un motiv</button>
+            <p id="reason-display">Aștept să mă descoperi... ✨</p>
+        </div>
+    </section>
+
+    <!-- SEIFUL SECRET -->
+    <section id="vault" class="section">
+        <div class="vault-box">
+            <h2>🔐 Seiful cu Amintiri</h2>
+            <p>Introdu parola<br>(hint: toate literele pe care le-ai salvat)</p>
+<input type="text" id="passwordInput" placeholder="Parola secretă..." onfocus="savePosition()" onblur="restorePosition()">
+            <br>
+            <button class="btn-main" onclick="checkPassword()">Deschide Seiful</button>
+            
+            <div id="secretMessage" class="hidden" style="margin-top: 30px;">
+                <h3>Ai reușit! ❤️</h3>
+                <p>Această melodie este pentru tine. Te iubesc mai mult decât pot spune în cuvinte!</p>
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJmZzR6ZzZ6ZzZ6ZzZ6ZzZ6ZzZ6ZzZ6ZzZ6ZzZ6ZzZ6ZzZ6JmU9YyZ3PTE/kZzH671zP8-I0/giphy.gif" alt="Hearts" style="width:100%; max-width:300px; border-radius: 15px;">
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Creat cu toată dragostea de [Numele Tău] | 2026</p>
+    </footer>
+
+    <!-- JAVASCRIPT (Logica Interactivă) -->
+    <script>
+        const audio = document.getElementById('romanticMusic');
+
+
+
+let savedScrollPosition = 0;
+
+function savePosition() {
+    // Salvăm poziția actuală de scroll înainte ca tastatura să se deschidă
+    savedScrollPosition = window.scrollY;
+}
+
+function restorePosition() {
+    // Returnăm pagina exact unde a fost după ce tastatura se închide
+    // Folosim un mic timeout pentru a lăsa browserul să proceseze închiderea tastaturii
+    setTimeout(() => {
+        window.scrollTo({
+            top: savedScrollPosition,
+            behavior: 'smooth'
+        });
+    }, 100);
+}
+
+
+
+        // 1. PORNIRE MUZICĂ ȘI SCROLL
+        function startExperience() {
+            audio.play().catch(e => console.log("Audio necesită interacțiune directă."));
+            document.getElementById('timeline-sec').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 2. GENERATOR DE INIMI (ANIMATIE)
+        function createHeart() {
+            const container = document.getElementById('hearts-container');
+            const heart = document.createElement('div');
+            
+            heart.innerHTML = '❤️';
+            heart.style.position = 'fixed';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = '100vh';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            heart.style.opacity = Math.random();
+            heart.style.pointerEvents = 'none';
+            heart.style.transition = 'transform 6s linear, opacity 6s';
+            
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.style.transform = `translateY(-110vh) rotate(${Math.random() * 360}deg)`;
+                heart.style.opacity = '0';
+            }, 100);
+
+            setTimeout(() => { heart.remove(); }, 6000);
+        }
+        setInterval(createHeart, 400); // Creează o inimă la fiecare 0.4 secunde
+
+        
+// 1. Lista originală
+const motiveOriginale = [
+    "Pentru modul în care mă asculți când am o zi grea.",
+    "Pentru că ești singura persoană care mă face să râd cu adevărat.",
+    "Pentru bunătatea ta care nu cunoaște limite.",
+    "Pentru că ești cea mai frumoasă persoană, atât la interior cât și la exterior.",
+    "Pentru toate momentele în care ne înțelegem doar din priviri.",
+    "Pentru că mă inspiri să fiu o versiune mai bună a mea."
+];
+
+// 2. Copia listei (din care vom șterge pe rând)
+let motiveRamase = [...motiveOriginale];
+let isTyping = false; 
+
+function generateReason() {
+    if (isTyping) return; 
+    
+    // Dacă am terminat toate motivele, resetăm lista
+    if (motiveRamase.length === 0) {
+        motiveRamase = [...motiveOriginale];
+        console.log("Lista a fost resetată!"); // Doar pentru control în consolă
+    }
+
+    const display = document.getElementById('reason-display');
+    
+    // Alegem un index la întâmplare din cele rămase
+    const randomIndex = Math.floor(Math.random() * motiveRamase.length);
+    // Extragem motivul (splice îl scoate din listă și ni-l returnează)
+    const randomMotiv = motiveRamase.splice(randomIndex, 1)[0];
+    
+    display.innerHTML = '';
+    isTyping = true;
+
+    const words = randomMotiv.split(" ");
+    let globalLetterIndex = 0;
+
+    words.forEach((word, wordIndex) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.style.display = 'inline-block';
+        wordSpan.style.whiteSpace = 'nowrap';
+
+        const letters = word.split("");
+        letters.forEach((char) => {
+            const charSpan = document.createElement('span');
+            charSpan.textContent = char;
+            charSpan.className = 'letter';
+            charSpan.style.animationDelay = `${globalLetterIndex * 0.04}s`;
+            
+            wordSpan.appendChild(charSpan);
+            globalLetterIndex++;
+        });
+
+        display.appendChild(wordSpan);
+
+        if (wordIndex < words.length - 1) {
+            const space = document.createElement('span');
+            space.innerHTML = '&nbsp;';
+            display.appendChild(space);
+            globalLetterIndex++;
+        }
+    });
+
+    const totalDuration = globalLetterIndex * 40 + 400;
+    setTimeout(() => {
+        isTyping = false;
+    }, totalDuration);
+}
+
+
+
+
+function checkPassword() {
+    // Forțăm închiderea tastaturii pe mobil
+    document.getElementById('passwordInput').blur(); 
+    
+    const input = document.getElementById('passwordInput').value.toLowerCase();
+    const secret = document.getElementById('secretMessage');
+    
+    if(input === "15mai") { 
+        secret.classList.remove('hidden');
+        secret.style.animation = "float 2s infinite";
+        
+        // Scroll lin către mesajul secret care tocmai a apărut
+        setTimeout(() => {
+            secret.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+
+        alert("Cod corect! Te iubesc! ❤️");
+    } else {
+        alert("Hopa! Nu e parola corectă. Încearcă data noastră specială.");
+    }
+}
+
+    </script>
+</body>
+</html>
