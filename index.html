@@ -265,12 +265,27 @@ input[type="text"]:focus {
 .hidden { display: none; }
 
 
-.glass-effect, .timeline-item, .reason-card {
-    /* Spune browserului să folosească placa video pentru aceste elemente */
-    will-change: transform;
-    backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
+/* 1. Definirea tranziției pe elementele cu blur */
+.glass-effect, .timeline-item, .reason-card, .vault-box {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    /* Adăugăm tranziție pentru blur și fundal */
+    transition: backdrop-filter 1.2s ease, -webkit-backdrop-filter 1.2s ease, background 1.2s ease;
+    will-change: backdrop-filter;
 }
+
+/* 2. Starea din timpul scroll-ului */
+.is-scrolling .glass-effect, 
+.is-scrolling .timeline-item, 
+.is-scrolling .reason-card,
+.is-scrolling .vault-box {
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    background: rgba(255, 255, 255, 0.75); /* O culoare ușor mai opacă ca să rămână lizibil */
+}
+
+
+
 
 
 
@@ -454,7 +469,7 @@ function startExperience() {
     const target = document.getElementById('timeline-sec');
     
     // Folosim funcția noastră custom pentru scroll lent (2000ms = 2 secunde)
-    smoothScrollTo(target, 5000); 
+    smoothScrollTo(target, 4500); 
 }
 
 
@@ -464,7 +479,9 @@ function smoothScrollTo(element, duration) {
     const distance = targetPosition - startPosition;
     let startTime = null;
 
-    // Folosim o funcție de "Cubic Easing" - este mult mai naturală și elimină senzația de sacadare
+    // Activăm modul de performanță (eliminăm blur-ul)
+    document.body.classList.add('is-scrolling');
+
     function easeInOutCubic(t) {
         return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
@@ -478,11 +495,19 @@ function smoothScrollTo(element, duration) {
 
         if (progress < 1) {
             window.requestAnimationFrame(step);
+        } else {
+            // Așteptăm un moment după ce s-a oprit scroll-ul 
+            // pentru a asigura stabilitatea imaginii, apoi readucem blur-ul fluid
+            setTimeout(() => {
+                document.body.classList.remove('is-scrolling');
+            }, 150); 
         }
     }
 
     window.requestAnimationFrame(step);
 }
+
+
 
 
 
@@ -499,7 +524,7 @@ function smoothScrollTo(element, duration) {
             heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
             heart.style.opacity = Math.random();
             heart.style.pointerEvents = 'none';
-            heart.style.transition = 'transform 6s linear, opacity 6s';
+            heart.style.transition = 'transform 6s linear, opacity 8s';
             
             container.appendChild(heart);
 
