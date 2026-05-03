@@ -390,10 +390,15 @@ function restorePosition() {
 
 
         // 1. PORNIRE MUZICĂ ȘI SCROLL
-        function startExperience() {
-            audio.play().catch(e => console.log("Audio necesită interacțiune directă."));
-            document.getElementById('timeline-sec').scrollIntoView({ behavior: 'smooth' });
-        }
+function startExperience() {
+    audio.play().catch(e => console.log("Audio necesită interacțiune directă."));
+    
+    // APELĂM FUNCȚIA NOUĂ AICI
+    startLetterSequence(); 
+    
+    document.getElementById('timeline-sec').scrollIntoView({ behavior: 'smooth' });
+}
+
 
         // 2. GENERATOR DE INIMI (ANIMATIE)
         function createHeart() {
@@ -490,6 +495,74 @@ function generateReason() {
 }
 
 
+// --- LOGICĂ MEDIA SESSION CU IMAGINI RANDOM (FĂRĂ REPETARE) ---
+
+const imaginiPoveste = [
+    "https://www.publicdomainpictures.net/pictures/270000/nahled/senior-couple-watching-sunset.jpg",
+    "https://images.stockcake.com/public/d/c/f/dcf17efe-f386-413e-8c7d-994c99836f33_large/romantic-sunset-silhouette-stockcake.jpg",
+    "https://www.shutterstock.com/image-photo/romantic-day-walk-sunset-600nw-2724656517.jpg"
+];
+
+let imaginiRamase = [];
+const mesajLitere = ["T", "E", " ", "I", "U", "B", "E", "S", "C"];
+let letterIndex = 0;
+
+// 1. Funcția care amestecă imaginile și le preîncarcă
+function prepareImages() {
+    // Facem o copie a listei originale și o amestecăm
+    imaginiRamase = [...imaginiPoveste].sort(() => Math.random() - 0.5);
+    
+    // Pre-loading în cache-ul browserului pentru tranziții fine
+    imaginiPoveste.forEach(url => {
+        const img = new Image();
+        img.src = url;
+    });
+}
+
+// 2. Funcția care alege următoarea imagine fără să repete
+function getNextImage() {
+    if (imaginiRamase.length === 0) {
+        // Dacă s-au terminat, reîmprospătăm lista și o amestecăm din nou
+        imaginiRamase = [...imaginiPoveste].sort(() => Math.random() - 0.5);
+    }
+    // Extragem ultima imagine din lista amestecată
+    return imaginiRamase.pop();
+}
+
+// 3. Actualizarea metadatelor Media Session
+function updateMediaMetadata() {
+    if ('mediaSession' in navigator) {
+        const imagineCurenta = getNextImage();
+        const literaCurenta = mesajLitere[letterIndex];
+        const charDisplay = literaCurenta === " " ? "❤️" : literaCurenta;
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: charDisplay, 
+            artist: 'Pentru Hope ❤️',
+            album: 'Amintirile Noastre',
+            artwork: [
+                { 
+                    src: imagineCurenta, 
+                    sizes: '512x512', 
+                    type: 'image/jpeg' 
+                }
+            ]
+        });
+
+        // Avansăm litera din "T E I U B E S C"
+        letterIndex = (letterIndex + 1) % mesajLitere.length;
+    }
+}
+
+// 4. Pornirea experienței (apelează asta în startExperience)
+function startLetterSequence() {
+    prepareImages();
+    updateMediaMetadata();
+    // Schimbă imaginea și litera la fiecare 2.5 secunde pentru a lăsa timp de vizionare
+    setInterval(updateMediaMetadata, 6500);
+}
+
+
 
 
 function checkPassword() {
@@ -499,7 +572,7 @@ function checkPassword() {
     const input = document.getElementById('passwordInput').value.toLowerCase();
     const secret = document.getElementById('secretMessage');
     
-    if(input === "15mai") { 
+    if(input === "7") { 
         secret.classList.remove('hidden');
         secret.style.animation = "float 2s infinite";
         
