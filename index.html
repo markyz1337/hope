@@ -102,7 +102,6 @@ body::before {
 .search-label.visible { display: block; }
 
 /* ── DATE CAROUSEL ── */
-/* FIX 7: mai mult padding deasupra entries-container */
 .carousel-wrap { padding: 10px 0 0; overflow: hidden; position: relative; }
 .carousel-wrap::before, .carousel-wrap::after {
   content: ''; position: absolute; top: 0; bottom: 0; width: 48px;
@@ -130,7 +129,6 @@ body::before {
 .pill-dots { display: flex; gap: 2px; min-height: 4px; }
 .pill-dot { width: 3px; height: 3px; border-radius: 50%; }
 
-/* FIX 2: month separator pill in carousel */
 .month-separator-pill {
   flex-shrink: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -143,7 +141,6 @@ body::before {
 .month-sep-year { font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em; color: var(--text4); }
 
 /* ── ENTRIES ── */
-/* FIX 7: padding-top mai mare pentru entries-container */
 #entries-container { padding-top: 10px; }
 .section-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text4); text-transform: uppercase; padding: 16px 16px 6px; }
 
@@ -183,7 +180,6 @@ body::before {
   font-family: var(--serif);
   font-size: 15px; line-height: 1.72; color: var(--text);
 }
-/* font size classes in rendered notes */
 .card-text .txt-xs { font-size: 11px; line-height: 1.6; }
 .card-text .txt-sm { font-size: 13px; line-height: 1.65; }
 .card-text .txt-md { font-size: 15px; line-height: 1.72; }
@@ -191,18 +187,21 @@ body::before {
 .card-text .txt-xl { font-size: 24px; line-height: 1.4; font-weight: 500; }
 .card-text .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
 
-/* FIX 1: links — white text, gold underline instead of blue */
+/* FIX 2: links reacționează din prima apăsare */
 .card-text a {
   color: var(--text) !important;
   text-decoration: none;
   border-bottom: 1.5px solid var(--accent);
   padding-bottom: 1px;
   transition: border-color 0.15s, opacity 0.15s;
+  /* pointer-events explicite pentru touch */
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
-.card-text a:hover {
-  opacity: 0.8;
-  border-color: var(--accent2);
-}
+.card-text a:hover { opacity: 0.8; border-color: var(--accent2); }
 
 .blur-text-span {
   filter: blur(5px);
@@ -215,7 +214,6 @@ body::before {
 }
 .blur-text-span.revealed { filter: blur(0); user-select: text; }
 
-/* FIX 5: search highlight */
 .search-highlight {
   background: rgba(200,169,126,0.32);
   color: var(--accent2);
@@ -257,24 +255,32 @@ body::before {
 }
 .img-blur-icon svg { width: 16px; height: 16px; }
 
+/* FIX 1: YouTube embed — fără titlu, fără butoane extra */
+.video-embed-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: var(--r2);
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border);
+  /* aspect ratio 16:9 */
+  aspect-ratio: 16 / 9;
+}
+.video-embed-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: var(--r2);
+  display: block;
+}
+
 .entry-video { width: 100%; border-radius: var(--r2); border: 1px solid var(--border); background: #000; max-height: 260px; display: block; }
 .entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; white-space: pre-wrap; }
 
-.video-warn {
-  margin-top: 6px;
-  background: rgba(200,122,138,0.08);
-  border: 1px solid rgba(200,122,138,0.2);
-  border-radius: var(--r3);
-  padding: 8px 12px;
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--rose);
-  letter-spacing: 0.03em;
-  line-height: 1.7;
-}
-.video-warn a { color: var(--accent2); text-decoration: underline; }
-
 /* ── MUSIC ── */
+/* FIX 3: music player — touch-action pentru prima apăsare */
 .music-player {
   display: flex; align-items: center; gap: 10px;
   background: rgba(122,200,149,0.05); border: 1px solid rgba(122,200,149,0.12);
@@ -287,10 +293,14 @@ body::before {
   background: rgba(122,200,149,0.1); border: 1px solid rgba(122,200,149,0.2);
   display: flex; align-items: center; justify-content: center;
   position: relative; cursor: pointer; transition: all 0.15s;
+  /* FIX 3: first tap fix */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .music-cover-btn:hover { border-color: rgba(122,200,149,0.5); }
 .music-cover-btn img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: 7px; }
-.music-cover-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); border-radius: 7px; transition: background 0.15s; z-index: 2; }
+.music-cover-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); border-radius: 7px; transition: background 0.15s; z-index: 2; pointer-events: none; }
 .music-cover-btn:hover .music-cover-overlay { background: rgba(0,0,0,0.5); }
 .music-cover-icon-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--green); z-index: 1; }
 .music-cover-icon-bg svg { width: 18px; height: 18px; }
@@ -298,7 +308,6 @@ body::before {
 .music-info { flex: 1; overflow: hidden; }
 .music-title { font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .music-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 2px; letter-spacing: 0.03em; }
-/* FIX 3: music note under player */
 .music-note-text { margin-top: 4px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; }
 .wave-bars { display: flex; align-items: center; gap: 2px; height: 16px; flex-shrink: 0; }
 .wave-bar { width: 2px; background: var(--green); border-radius: 1px; opacity: 0.7; }
@@ -315,7 +324,8 @@ body::before {
   margin: 4px 12px 8px; background: rgba(200,169,126,0.05); border: 1px solid rgba(200,169,126,0.15);
   border-radius: var(--r2); padding: 9px 12px; display: flex; align-items: center; gap: 10px; transition: all 0.2s;
 }
-.dm-banner-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; cursor: pointer; }
+.dm-banner-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; cursor: pointer;
+  touch-action: manipulation; -webkit-user-select: none; user-select: none; }
 .date-music-banner:hover { background: rgba(200,169,126,0.09); }
 .dm-banner-cover { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; overflow: hidden; background: rgba(200,169,126,0.1); border: 1px solid rgba(200,169,126,0.2); display: flex; align-items: center; justify-content: center; }
 .dm-banner-cover img { width: 100%; height: 100%; object-fit: cover; }
@@ -345,7 +355,6 @@ body::before {
   pointer-events: none; z-index: 100;
 }
 
-/* ── NAV BUTTONS ── */
 .bottom-nav-btns {
   pointer-events: none;
   display: flex;
@@ -637,6 +646,7 @@ body::before {
 .form-input, .form-textarea, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
 .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--border2); background: var(--surface2); }
 .form-textarea { min-height: 100px; resize: vertical; line-height: 1.65; font-family: var(--serif); font-size: 15px; }
+/* FIX 4: step="1" pentru secunde — styling pentru datetime-local */
 input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .form-select option { background: #17171d; }
 
@@ -650,7 +660,6 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .rte-btn.active { background: rgba(200,169,126,0.15); border-color: rgba(200,169,126,0.3); color: var(--accent2); }
 .rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 3px; }
 
-/* Font size dropdown */
 .rte-size-wrap { position: relative; }
 .rte-size-btn { min-width: 36px; width: auto; padding: 0 6px; font-size: 9px; letter-spacing: 0.04em; gap: 2px; }
 .rte-size-btn svg { width: 9px; height: 9px; }
@@ -678,11 +687,9 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 
 .rte-editor { min-height: 120px; padding: 11px 13px; color: var(--text); font-family: var(--serif); font-size: 15px; line-height: 1.72; outline: none; word-wrap: break-word; }
 .rte-editor:empty::before { content: attr(data-placeholder); color: var(--text3); pointer-events: none; }
-/* FIX 1: links in editor also white + gold underline */
 .rte-editor a { color: var(--text); text-decoration: none; border-bottom: 1.5px solid var(--accent); padding-bottom: 1px; }
 .rte-editor .blur-span { filter: blur(5px); background: rgba(200,169,126,0.08); border-radius: 4px; padding: 0 2px; cursor: default; transition: filter 0.3s; }
 .rte-editor .blur-span.revealed { filter: blur(0); }
-/* Font size spans in editor */
 .rte-editor .txt-xs { font-size: 11px; line-height: 1.6; }
 .rte-editor .txt-sm { font-size: 13px; line-height: 1.65; }
 .rte-editor .txt-md { font-size: 15px; line-height: 1.72; }
@@ -697,7 +704,6 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .rte-link-ok { padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3); background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.15s; }
 .rte-link-ok:hover { background: rgba(200,169,126,0.2); }
 
-/* Buttons */
 .btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, rgba(160,120,70,0.65), rgba(200,169,126,0.35)); border: 1px solid rgba(200,169,126,0.4); border-radius: var(--r2); color: var(--accent2); font-family: var(--serif); font-size: 16px; font-style: italic; font-weight: 400; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
 .btn-primary:hover { background: linear-gradient(135deg, rgba(160,120,70,0.85), rgba(200,169,126,0.5)); transform: translateY(-1px); }
 .btn-secondary { width: 100%; padding: 11px; background: none; border: 1px solid var(--border); border-radius: var(--r2); color: var(--text3); font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: all 0.15s; margin-top: 7px; text-transform: uppercase; }
@@ -740,6 +746,15 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 /* ── TOAST ── */
 .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* FIX 4: blur toggle in edit modal */
+.blur-toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.blur-toggle-row .form-label { margin-bottom: 0; flex: 1; }
+.toggle-track { position: relative; width: 38px; height: 22px; flex-shrink: 0; cursor: pointer; }
+.toggle-bg { position: absolute; inset: 0; border-radius: 11px; background: var(--surface2); border: 1px solid var(--border); transition: all 0.2s; }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--text3); transition: all 0.2s; }
+.toggle-track.on .toggle-bg { background: rgba(200,169,126,0.25); border-color: rgba(200,169,126,0.4); }
+.toggle-track.on .toggle-thumb { background: var(--accent2); transform: translateX(16px); }
 
 audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
@@ -794,8 +809,6 @@ audio { display: none; }
 
 <!-- Bottom bar -->
 <div class="bottom-bar">
-
-  <!-- STÂNGA: Calendar FAB -->
   <div class="cal-fab-wrap">
     <button class="cal-fab-btn" id="calFabBtn" onclick="toggleCalPopup()" title="Selectează ziua">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
@@ -805,7 +818,6 @@ audio { display: none; }
     </button>
   </div>
 
-  <!-- CENTRU: Nav buttons -->
   <div class="bottom-nav-btns">
     <div class="nav-btn-outer">
       <button class="bottom-nav-btn" id="navPrev" title="ziua anterioară" type="button">
@@ -832,7 +844,6 @@ audio { display: none; }
     </div>
   </div>
 
-  <!-- DREAPTA: FAB -->
   <div class="fab-wrap">
     <div class="fab-menu" id="fabMenu">
       <div class="fab-row">
@@ -945,7 +956,6 @@ audio { display: none; }
         <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--blue)"></span><span>poze</span></div>
         <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--rose)"></span><span>video</span></div>
         <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--green)"></span><span>muzică</span></div>
-        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--blue);opacity:0.6;box-shadow:0 0 0 2px rgba(122,162,200,0.3)"></span><span>selectată</span></div>
       </div>
     </div>
   </div>
@@ -1027,7 +1037,8 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <input type="datetime-local" class="form-input" id="note-date">
+      <!-- FIX 4: step="1" pentru a putea alege secundele -->
+      <input type="datetime-local" class="form-input" id="note-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('note')">salvează</button>
     <button class="btn-secondary" onclick="closeModal('note')">anulează</button>
@@ -1056,25 +1067,26 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <input type="datetime-local" class="form-input" id="photo-date">
+      <!-- FIX 4: step="1" -->
+      <input type="datetime-local" class="form-input" id="photo-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('photo')">salvează</button>
     <button class="btn-secondary" onclick="closeModal('photo')">anulează</button>
   </div>
 </div>
 
-<!-- Video -->
+<!-- Video — FIX 1: suport YouTube -->
 <div class="backdrop" id="modal-video">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă videoclip</div>
     <div class="form-group">
-      <label class="form-label">link video (mp4, webm...)</label>
-      <input type="url" class="form-input" id="video-url" placeholder="https://...">
-      <div style="margin-top:8px;padding:8px 12px;background:rgba(200,122,138,0.07);border:1px solid rgba(200,122,138,0.18);border-radius:10px;">
-        <p style="font-family:var(--mono);font-size:10px;color:var(--rose);line-height:1.7;letter-spacing:0.02em;">
-          ⚠ Link-urile de pe <b>GitHub raw</b> sau alte servere cu CORS restricționat nu vor funcționa în browser.<br>
-          Folosește servicii ca <a href="https://cloudinary.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">Cloudinary</a> sau găzduiește fișierul pe propriul tău server/CDN.
+      <label class="form-label">link video (YouTube sau mp4/webm direct)</label>
+      <input type="url" class="form-input" id="video-url" placeholder="https://youtu.be/... sau https://...mp4">
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.15);border-radius:10px;">
+        <p style="font-family:var(--mono);font-size:10px;color:var(--blue);line-height:1.7;letter-spacing:0.02em;">
+          ✓ Link-urile YouTube sunt redate direct ca embed.<br>
+          ✓ Clipul se afișează fără titlu și fără logo YouTube.
         </p>
       </div>
     </div>
@@ -1084,14 +1096,15 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <input type="datetime-local" class="form-input" id="video-date">
+      <!-- FIX 4: step="1" -->
+      <input type="datetime-local" class="form-input" id="video-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('video')">salvează</button>
     <button class="btn-secondary" onclick="closeModal('video')">anulează</button>
   </div>
 </div>
 
-<!-- Music — FIX 3: added title + description fields -->
+<!-- Music -->
 <div class="backdrop" id="modal-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1110,7 +1123,8 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <input type="datetime-local" class="form-input" id="music-date">
+      <!-- FIX 4: step="1" -->
+      <input type="datetime-local" class="form-input" id="music-date" step="1">
     </div>
     <div class="form-group">
       <label class="form-label">descriere (opțional)</label>
@@ -1227,9 +1241,18 @@ audio { display: none; }
       <label class="form-label">link copertă (opțional)</label>
       <input type="url" class="form-input" id="edit-cover">
     </div>
+    <!-- FIX 3: blur toggle în edit pentru photo -->
+    <div class="blur-toggle-row" id="edit-blur-group" style="display:none">
+      <label class="form-label">blur imagini</label>
+      <div class="toggle-track" id="edit-blur-toggle" onclick="toggleEditBlur()">
+        <div class="toggle-bg"></div>
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <input type="datetime-local" class="form-input" id="edit-date">
+      <!-- FIX 4: step="1" -->
+      <input type="datetime-local" class="form-input" id="edit-date" step="1">
     </div>
     <button class="btn-primary" onclick="saveEdit()">salvează</button>
     <button class="btn-secondary" onclick="closeModal('edit')">anulează</button>
@@ -1244,11 +1267,13 @@ audio { display: none; }
     <input type="hidden" id="debug-id">
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <input type="datetime-local" class="form-input" id="debug-posted">
+      <!-- FIX 4: step="1" -->
+      <input type="datetime-local" class="form-input" id="debug-posted" step="1">
     </div>
     <div class="form-group">
       <label class="form-label">data modificării</label>
-      <input type="datetime-local" class="form-input" id="debug-modified">
+      <!-- FIX 4: step="1" -->
+      <input type="datetime-local" class="form-input" id="debug-modified" step="1">
     </div>
     <button class="btn-primary" onclick="saveDebug()">aplică</button>
     <button class="btn-secondary" onclick="closeModal('debug')">anulează</button>
@@ -1302,6 +1327,7 @@ let selectedDate = null;
 let searchQuery = '';
 let fabOpen = false;
 let photoBlurEnabled = false;
+let editBlurEnabled = false;
 
 const dmAudio = document.getElementById('dateMusicAudio');
 const entryAudio = document.getElementById('entryAudio');
@@ -1311,6 +1337,30 @@ let dmAudioLoaded = false;
 let calPopupOpen = false;
 let calPopupYear = new Date().getFullYear();
 let calPopupMonth = new Date().getMonth();
+
+// ═══════════════════════════════════════
+// FIX 1: YouTube URL utils
+// ═══════════════════════════════════════
+function extractYouTubeId(url) {
+  if (!url) return null;
+  // Patterns: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/embed/ID, youtube.com/shorts/ID
+  const patterns = [
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function isYouTubeUrl(url) {
+  return !!extractYouTubeId(url);
+}
 
 // ═══════════════════════════════════════
 // UTILS
@@ -1339,7 +1389,7 @@ function formatKeyLabelRo(k) {
 function toLocal(date) {
   const d = new Date(date);
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 16);
+  return d.toISOString().slice(0, 19); // FIX 4: include seconds (19 chars instead of 16)
 }
 
 function escHtml(str) {
@@ -1375,11 +1425,31 @@ async function init() {
 
   setupNavButtons();
   setupOverscroll();
+
+  // FIX 2: links — intercept clicks on card-text to handle first tap correctly
+  setupCardTextLinks();
 }
 
 function updateHeaderDate() {
   const el = document.getElementById('headerDateDisplay');
   if (el) el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+// ═══════════════════════════════════════
+// FIX 2: First-tap link fix
+// Use delegated event listener on document for links inside .card-text
+// This fires before any card selection logic.
+// ═══════════════════════════════════════
+function setupCardTextLinks() {
+  // Use capture phase so link clicks are caught first,
+  // before any bubbling handlers that might swallow them.
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('.card-text a');
+    if (!link) return;
+    e.stopPropagation();
+    const href = link.getAttribute('href');
+    if (href) window.open(href, '_blank', 'noopener');
+  }, true); // capture = true → fires before bubble handlers
 }
 
 // ═══════════════════════════════════════
@@ -1583,30 +1653,15 @@ function setupNavButtons() {
   const prev = document.getElementById('navPrev');
   const next = document.getElementById('navNext');
 
-  prev.addEventListener('click', (e) => {
-    e.stopPropagation();
-    jumpDate(-1);
-  });
-  next.addEventListener('click', (e) => {
-    e.stopPropagation();
-    jumpDate(1);
-  });
+  prev.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(-1); });
+  next.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(1); });
 
-  prev.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    jumpDate(-1);
-  }, { passive: false });
-  next.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    jumpDate(1);
-  }, { passive: false });
+  prev.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(-1); }, { passive: false });
+  next.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(1); }, { passive: false });
 }
 
 // ═══════════════════════════════════════
 // OVERSCROLL / RING
-// FIX 6: increased threshold from 100 to 160
 // ═══════════════════════════════════════
 const RING_CIRC = 2 * Math.PI * 28;
 let ringProgress = 0;
@@ -1617,7 +1672,7 @@ let touchStartY = 0;
 let touchLastY = 0;
 let overscrollActive = false;
 let overscrollDelta = 0;
-const OVERSCROLL_THRESHOLD = 160; // FIX 6: was 100, now 160
+const OVERSCROLL_THRESHOLD = 160;
 
 function setRingProgress(val) {
   ringProgress = Math.max(0, Math.min(1, val));
@@ -1713,7 +1768,7 @@ async function saveLastDate(key) {
 function setDefaultDates() {
   const base = selectedDate ? new Date(selectedDate) : new Date();
   const now = new Date();
-  base.setHours(now.getHours(), now.getMinutes(), 0, 0);
+  base.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), 0);
   const local = toLocal(base);
   ['note-date','photo-date','video-date','music-date'].forEach(id => {
     const el = document.getElementById(id);
@@ -1785,13 +1840,12 @@ async function confirmDeleteDateMusic() {
 }
 
 // ═══════════════════════════════════════
-// DATE CAROUSEL — FIX 2: month separators + show up to 12 months back
+// DATE CAROUSEL
 // ═══════════════════════════════════════
 function buildCarousel() {
   const carousel = document.getElementById('dateCarousel');
   const today = new Date(); today.setHours(0,0,0,0);
   const days = [];
-  // FIX 2: extend to 365 days back so all months are always visible
   for (let i = -365; i <= 7; i++) {
     const d = new Date(today); d.setDate(today.getDate() + i);
     days.push(d);
@@ -1817,7 +1871,6 @@ function buildCarousel() {
     const month = d.getMonth();
     const year = d.getFullYear();
 
-    // FIX 2: insert month separator pill when month changes
     if (month !== lastMonth || year !== lastYear) {
       if (lastMonth !== -1) {
         html += `<div class="month-separator-pill">
@@ -1895,12 +1948,50 @@ function jumpDate(dir) {
 }
 
 // ═══════════════════════════════════════
+// FIX 5: Media Session API — thumbnail + title on lock screen
+// ═══════════════════════════════════════
+function updateMediaSession(title, coverUrl) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: title || 'carnet',
+    artist: '',
+    album: 'carnet',
+    artwork: coverUrl ? [
+      { src: coverUrl, sizes: '512x512', type: 'image/jpeg' },
+      { src: coverUrl, sizes: '256x256', type: 'image/jpeg' },
+      { src: coverUrl, sizes: '96x96',  type: 'image/jpeg' },
+    ] : []
+  });
+  navigator.mediaSession.setActionHandler('play',  () => { entryAudio.play(); });
+  navigator.mediaSession.setActionHandler('pause', () => { entryAudio.pause(); });
+  navigator.mediaSession.setActionHandler('stop',  () => { entryAudio.pause(); entryAudio.currentTime = 0; });
+}
+
+function updateDateMusicMediaSession(title, coverUrl) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: title || 'melodia zilei',
+    artist: '',
+    album: 'carnet · melodia zilei',
+    artwork: coverUrl ? [
+      { src: coverUrl, sizes: '512x512', type: 'image/jpeg' },
+      { src: coverUrl, sizes: '256x256', type: 'image/jpeg' },
+      { src: coverUrl, sizes: '96x96',  type: 'image/jpeg' },
+    ] : []
+  });
+  navigator.mediaSession.setActionHandler('play',  () => { dmAudio.play(); });
+  navigator.mediaSession.setActionHandler('pause', () => { dmAudio.pause(); });
+}
+
+// ═══════════════════════════════════════
 // DATE MUSIC AUDIO
 // ═══════════════════════════════════════
 function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
   if (dm && dm.url) {
     if (dmAudio.src !== dm.url) { dmAudio.src = dm.url; dmAudioLoaded = true; }
+    // FIX 5: update media session for date music
+    updateDateMusicMediaSession(dm.title, dm.cover);
     if (autoplay) {
       dmAudio.volume = 0.28;
       dmAudio.play().catch(() => {
@@ -1942,12 +2033,10 @@ async function loadEntries() {
 
 // ═══════════════════════════════════════
 // SEARCH
-// FIX 4: type keyword matching
 // ═══════════════════════════════════════
-// Maps search keywords to entry types
 const TYPE_KEYWORD_MAP = {
   'nota': 'note', 'notita': 'note', 'notite': 'note', 'notița': 'note', 'notițe': 'note',
-  'nota': 'note', 'note': 'note',
+  'note': 'note',
   'foto': 'photo', 'poza': 'photo', 'poze': 'photo', 'photo': 'photo', 'imagine': 'photo', 'imagini': 'photo',
   'video': 'video', 'videoclip': 'video', 'videoclipuri': 'video', 'clip': 'video',
   'muzica': 'music', 'muzică': 'music', 'music': 'music', 'melodie': 'music', 'melodii': 'music', 'cantec': 'music', 'cântec': 'music',
@@ -1972,9 +2061,6 @@ function clearSearch(silent = false) {
   if (!silent) renderEntries();
 }
 
-// ═══════════════════════════════════════
-// FIX 5: highlight search term in text
-// ═══════════════════════════════════════
 function highlightText(text, query) {
   if (!query || !text) return escHtml(text || '');
   const qn = normRo(query);
@@ -1983,10 +2069,7 @@ function highlightText(text, query) {
   let i = 0;
   while (i < text.length) {
     const idx = tn.indexOf(qn, i);
-    if (idx === -1) {
-      result += escHtml(text.slice(i));
-      break;
-    }
+    if (idx === -1) { result += escHtml(text.slice(i)); break; }
     result += escHtml(text.slice(i, idx));
     result += `<mark class="search-highlight">${escHtml(text.slice(idx, idx + qn.length))}</mark>`;
     i = idx + qn.length;
@@ -1994,17 +2077,13 @@ function highlightText(text, query) {
   return result;
 }
 
-// Highlight inside HTML content (for rich text notes)
 function highlightHtml(html, query) {
   if (!query || !html) return html || '';
   const qn = normRo(query);
   const qLen = qn.length;
   if (!qLen) return html;
-
-  // We walk the text nodes and highlight matches
   const tmp = document.createElement('div');
   tmp.innerHTML = html;
-
   function walkNodes(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent;
@@ -2042,7 +2121,6 @@ function renderEntries() {
 
   if (searchQuery) {
     carouselWrap.style.display = 'none';
-    // FIX 4: check if query is a type keyword
     typeFilter = getTypeFromQuery(searchQuery);
     if (typeFilter) {
       filtered = entries.filter(e => e.type === typeFilter);
@@ -2079,7 +2157,6 @@ function renderEntries() {
   }
 
   let html = '';
-  // Pass the active query for highlighting (not for type-only filters)
   const hlQuery = (searchQuery && !typeFilter) ? searchQuery : '';
 
   if (searchQuery) {
@@ -2143,7 +2220,7 @@ function entryMatchesSearch(e, q) {
 // ═══════════════════════════════════════
 function renderEntry(e, hlQuery) {
   const posted = new Date(e.posted_at);
-  const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
+  const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
   const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică' };
   const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music' };
@@ -2169,13 +2246,25 @@ function renderEntry(e, hlQuery) {
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
   } else if (e.type === 'video') {
+    // FIX 1: YouTube embed vs direct video
     const url = e.media_urls?.[0] || '';
-    const isCorsLikely = url.includes('raw.githubusercontent.com') || (url.includes('github.com') && url.includes('/raw/'));
-    const warnHtml = isCorsLikely ? `<div class="video-warn">⚠ Link GitHub nu poate fi redat din cauza CORS.</div>` : '';
+    const ytId = extractYouTubeId(url);
     const captionHtml = e.caption
       ? `<div class="entry-caption">${hlQuery ? highlightText(e.caption, hlQuery) : escHtml(e.caption)}</div>`
       : '';
-    mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${captionHtml}</div>`;
+
+    if (ytId) {
+      // youtube-nocookie: no title bar, no related videos overlay (rel=0), no logo (modestbranding=1)
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white`;
+      mediaHtml = `<div class="media-wrap">
+        <div class="video-embed-wrap">
+          <iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" loading="lazy"></iframe>
+        </div>${captionHtml}</div>`;
+    } else {
+      const isCorsLikely = url.includes('raw.githubusercontent.com') || (url.includes('github.com') && url.includes('/raw/'));
+      const warnHtml = isCorsLikely ? `<div class="video-warn" style="margin-top:6px;background:rgba(200,122,138,0.08);border:1px solid rgba(200,122,138,0.2);border-radius:10px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--rose);letter-spacing:0.03em;">⚠ Link GitHub nu poate fi redat din cauza CORS.</div>` : '';
+      mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${captionHtml}</div>`;
+    }
 
   } else if (e.type === 'music') {
     const aurl = e.media_urls?.[0] || '';
@@ -2183,14 +2272,14 @@ function renderEntry(e, hlQuery) {
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
     const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
     const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
-    // FIX 3: show both title (caption) and description (content) for music entries
     const titleText = e.caption || 'melodie';
     const noteText = e.content || '';
     const noteHtml = noteText
       ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>`
       : '';
+    // FIX 3 (music): touch-action on cover btn — handled via CSS
     mediaHtml = `<div class="music-player">
-      <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', this.closest('.music-player'))">
+      <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', '${escHtml(titleText)}', '${escHtml(cover)}', this.closest('.music-player'))">
         ${iconBgHtml}${coverImgHtml}
         <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
       </div>
@@ -2208,8 +2297,9 @@ function renderEntry(e, hlQuery) {
   let textHtml = '';
   if (e.content) {
     if (e.type === 'note') {
-      // FIX 5: highlight in rich text for notes
       const htmlContent = hlQuery ? highlightHtml(e.content, hlQuery) : e.content;
+      // FIX 2: nu mai oprim propagarea la click pe card-text;
+      // link-urile sunt gestionate prin capture listener din setupCardTextLinks()
       textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
     } else if (e.type !== 'music') {
       textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
@@ -2391,7 +2481,7 @@ function getRteHtml(editorId) {
 }
 
 // ═══════════════════════════════════════
-// PHOTO BLUR TOGGLE
+// PHOTO BLUR TOGGLE (add modal)
 // ═══════════════════════════════════════
 function togglePhotoBlur() {
   photoBlurEnabled = !photoBlurEnabled;
@@ -2404,6 +2494,13 @@ function togglePhotoBlur() {
     track.style.background = 'var(--surface2)'; track.style.borderColor = 'var(--border)';
     thumb.style.background = 'var(--text3)'; thumb.style.transform = 'translateX(0)';
   }
+}
+
+// FIX 3: blur toggle in EDIT modal
+function toggleEditBlur() {
+  editBlurEnabled = !editBlurEnabled;
+  const toggle = document.getElementById('edit-blur-toggle');
+  toggle.classList.toggle('on', editBlurEnabled);
 }
 
 // ═══════════════════════════════════════
@@ -2474,13 +2571,18 @@ document.getElementById('lightbox').addEventListener('click', e => {
 });
 
 // ═══════════════════════════════════════
-// ENTRY MUSIC CONTROLS
+// ENTRY MUSIC CONTROLS — FIX 3 & 5
+// Updated signature: (url, title, cover, container)
 // ═══════════════════════════════════════
-function toggleEntryMusic(url, container) {
+function toggleEntryMusic(url, title, cover, container) {
+  // FIX 3: if container is a string (from onclick attr), find via closest
+  if (typeof container === 'string') container = event.currentTarget.closest('.music-player');
+
   const overlay = container.querySelector('.music-cover-overlay');
   const waves   = container.querySelector('.wave-bars');
   const sub     = container.querySelector('.music-sub');
   const isCurrentlyPlaying = currentEntryAudioUrl === url && !entryAudio.paused;
+
   document.querySelectorAll('.music-player').forEach(p => {
     if (p !== container) {
       const ov = p.querySelector('.music-cover-overlay');
@@ -2491,6 +2593,7 @@ function toggleEntryMusic(url, container) {
       if (s)  s.textContent = 'apasă pentru redare';
     }
   });
+
   if (isCurrentlyPlaying) {
     entryAudio.pause();
     if (overlay) overlay.innerHTML = playIcon();
@@ -2499,12 +2602,28 @@ function toggleEntryMusic(url, container) {
     currentEntryAudioUrl = null;
   } else {
     if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
+    // FIX 5: update Media Session before play
+    updateMediaSession(title, cover);
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     if (overlay) overlay.innerHTML = pauseIcon();
     if (waves)   waves.classList.remove('paused');
     if (sub)     sub.textContent = 'redare...';
   }
 }
+
+// Sync media session play/pause state
+entryAudio.addEventListener('play', () => {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+});
+entryAudio.addEventListener('pause', () => {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+});
+dmAudio.addEventListener('play', () => {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+});
+dmAudio.addEventListener('pause', () => {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+});
 
 // ═══════════════════════════════════════
 // SUBMIT
@@ -2544,8 +2663,8 @@ async function submitEntry(type) {
     const note = document.getElementById('music-note').value.trim();
     if (!url) { showToast('adaugă un link'); return; }
     payload.media_urls = [url];
-    payload.caption = title;      // title → caption (shown as music-title in player)
-    payload.content = note;       // description → content (shown below player)
+    payload.caption = title;
+    payload.content = note;
     payload.cover_url = cover;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   }
@@ -2636,7 +2755,7 @@ async function importEntries() {
 }
 
 // ═══════════════════════════════════════
-// EDIT
+// EDIT — FIX 3: blur toggle for photo
 // ═══════════════════════════════════════
 function openEditFor(id) {
   const e = entries.find(x => x.id === id);
@@ -2646,6 +2765,17 @@ function openEditFor(id) {
   document.getElementById('edit-date').value = toLocal(e.posted_at);
   document.getElementById('edit-cover-group').style.display = (e.type === 'music') ? 'block' : 'none';
   document.getElementById('edit-cover').value = e.cover_url || '';
+
+  // FIX 3: show blur toggle only for photo entries
+  const blurGroup = document.getElementById('edit-blur-group');
+  if (e.type === 'photo') {
+    blurGroup.style.display = 'flex';
+    editBlurEnabled = !!e.blur_images;
+    document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled);
+  } else {
+    blurGroup.style.display = 'none';
+    editBlurEnabled = false;
+  }
 
   if (e.type === 'note') {
     document.getElementById('edit-rte-group').style.display = 'block';
@@ -2694,10 +2824,16 @@ async function saveEdit() {
     update.media_urls = [content];
     update.content = caption;
     update.cover_url = cover;
+  } else if (type === 'photo') {
+    const content = document.getElementById('edit-content').value.trim();
+    update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean);
+    update.caption = caption;
+    // FIX 3: save blur state
+    update.blur_images = editBlurEnabled;
   } else {
     const content = document.getElementById('edit-content').value.trim();
-    if (type === 'photo') { update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean); update.caption = caption; }
-    else { update.media_urls = [content]; update.caption = caption; }
+    update.media_urls = [content];
+    update.caption = caption;
   }
 
   const { error } = await sb.from('entries').update(update).eq('id', id);
