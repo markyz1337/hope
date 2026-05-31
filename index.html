@@ -64,563 +64,259 @@ body::before {
 
 /* ── HEADER ── */
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 16px 0;
-  gap: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 0; gap: 12px;
 }
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+.header-brand { display: flex; align-items: center; gap: 8px; }
 .header-logo {
-  width: 28px; height: 28px;
-  border-radius: 8px;
-  background: var(--accent3);
-  border: 1px solid rgba(200,169,126,0.25);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent3); border: 1px solid rgba(200,169,126,0.25);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-
 .header-logo svg { width: 13px; height: 13px; color: var(--accent); }
-
-.header-title {
-  font-family: var(--serif);
-  font-size: 17px;
-  font-style: italic;
-  color: var(--accent2);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-
-.header-date-display {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  letter-spacing: 0.04em;
-}
+.header-title { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--accent2); font-weight: 400; letter-spacing: 0.01em; }
+.header-date-display { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
 
 /* ── SEARCH ── */
 .search-wrap { padding: 12px 16px 0; position: relative; }
-
-.search-inner {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--text3);
-  pointer-events: none;
-}
-
+.search-inner { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 12px; color: var(--text3); pointer-events: none; }
 .search-icon svg { width: 14px; height: 14px; }
-
 .search-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 50px;
-  padding: 9px 38px 9px 36px;
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 14px;
-  outline: none;
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 50px; padding: 9px 38px 9px 36px; color: var(--text);
+  font-family: var(--sans); font-size: 14px; outline: none;
   transition: border-color 0.2s, background 0.2s;
 }
-
 .search-input::placeholder { color: var(--text3); }
 .search-input:focus { border-color: var(--border2); background: var(--surface2); }
-
 .search-clear {
-  position: absolute; right: 10px;
-  background: none; border: none; cursor: pointer;
+  position: absolute; right: 10px; background: none; border: none; cursor: pointer;
   color: var(--text3); display: none; align-items: center; justify-content: center;
   padding: 4px; border-radius: 50%; transition: color 0.15s;
 }
-
 .search-clear.visible { display: flex; }
 .search-clear:hover { color: var(--text); }
 .search-clear svg { width: 13px; height: 13px; }
-
-.search-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  letter-spacing: 0.08em;
-  padding: 10px 16px 0;
-  display: none;
-}
-
+.search-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; padding: 10px 16px 0; display: none; }
 .search-label.visible { display: block; }
 
 /* ── DATE CAROUSEL ── */
-.carousel-wrap {
-  padding: 10px 0 0;
-  overflow: hidden;
-  position: relative;
+.carousel-wrap { padding: 10px 0 0; overflow: hidden; position: relative; }
+.carousel-wrap::before, .carousel-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 48px;
+  pointer-events: none; z-index: 2;
 }
-
-.carousel-wrap::before,
-.carousel-wrap::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 48px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.carousel-wrap::before {
-  left: 0;
-  background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
-}
-
-.carousel-wrap::after {
-  right: 0;
-  background: linear-gradient(to left, var(--bg) 0%, transparent 100%);
-}
-
+.carousel-wrap::before { left: 0; background: linear-gradient(to right, var(--bg) 0%, transparent 100%); }
+.carousel-wrap::after { right: 0; background: linear-gradient(to left, var(--bg) 0%, transparent 100%); }
 .date-carousel {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 2px 16px 4px;
-  scrollbar-width: none;
-  scroll-snap-type: x mandatory;
+  display: flex; gap: 6px; overflow-x: auto;
+  padding: 2px 16px 4px; scrollbar-width: none; scroll-snap-type: x mandatory;
 }
-
 .date-carousel::-webkit-scrollbar { display: none; }
-
 .date-pill {
-  flex-shrink: 0;
-  scroll-snap-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 8px 10px;
-  border-radius: 50px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 48px;
+  flex-shrink: 0; scroll-snap-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 10px; border-radius: 50px; border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer; transition: all 0.2s; min-width: 48px;
 }
-
 .date-pill:hover { border-color: var(--border2); background: var(--surface2); }
-
-.date-pill.active {
-  border-color: rgba(200,169,126,0.45);
-  background: rgba(200,169,126,0.1);
-}
-
-.pill-name {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.05em;
-  color: var(--text3);
-  text-transform: uppercase;
-}
-
+.date-pill.active { border-color: rgba(200,169,126,0.45); background: rgba(200,169,126,0.1); }
+.pill-name { font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em; color: var(--text3); text-transform: uppercase; }
 .date-pill.active .pill-name { color: var(--accent); }
-
-.pill-num {
-  font-family: var(--serif);
-  font-size: 17px;
-  color: var(--text2);
-  line-height: 1;
-  font-weight: 400;
-}
-
+.pill-num { font-family: var(--serif); font-size: 17px; color: var(--text2); line-height: 1; font-weight: 400; }
 .date-pill.active .pill-num { color: var(--text); }
-
-.pill-dots {
-  display: flex;
-  gap: 2px;
-  min-height: 4px;
-}
-
-.pill-dot {
-  width: 3px; height: 3px;
-  border-radius: 50%;
-}
+.pill-dots { display: flex; gap: 2px; min-height: 4px; }
+.pill-dot { width: 3px; height: 3px; border-radius: 50%; }
 
 /* ── ENTRIES ── */
 #entries-container { padding-top: 2px; }
-
-.section-lbl {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--text4);
-  text-transform: uppercase;
-  padding: 16px 16px 6px;
-}
+.section-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text4); text-transform: uppercase; padding: 16px 16px 6px; }
 
 /* ── ENTRY CARD ── */
 .entry-card {
-  margin: 0 12px 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  overflow: hidden;
-  animation: fadeUp 0.35s ease both;
-  transition: border-color 0.2s;
+  margin: 0 12px 8px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  animation: fadeUp 0.35s ease both; transition: border-color 0.2s;
 }
-
 .entry-card:hover { border-color: var(--border2); }
-
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(8px); }
   to   { opacity:1; transform:translateY(0); }
 }
-
 .card-inner { padding: 12px 13px 13px; }
-
-/* FIX 4: badge first, then time */
-.card-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
+.card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .card-meta-left { display: flex; align-items: center; gap: 7px; }
-
-.card-time {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  letter-spacing: 0.04em;
-}
-
-.type-chip {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid;
-}
-
+.card-time { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
+.type-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
 .chip-note  { color: var(--accent);  border-color: rgba(200,169,126,0.25); background: rgba(200,169,126,0.07); }
 .chip-photo { color: var(--blue);    border-color: rgba(122,162,200,0.25); background: rgba(122,162,200,0.07); }
 .chip-video { color: var(--rose);    border-color: rgba(200,122,138,0.25); background: rgba(200,122,138,0.07); }
 .chip-music { color: var(--green);   border-color: rgba(122,200,149,0.25); background: rgba(122,200,149,0.07); }
-
-.card-actions {
-  display: flex; gap: 3px;
-  opacity: 0; transition: opacity 0.15s;
-}
-
+.card-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; }
 .entry-card:hover .card-actions { opacity: 1; }
-
 .icon-btn {
-  width: 26px; height: 26px; border-radius: 50%;
-  border: 1px solid var(--border); background: none;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
+  background: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
   color: var(--text3); transition: all 0.15s;
 }
-
 .icon-btn svg { width: 12px; height: 12px; }
 .icon-btn:hover { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
 .icon-btn.del:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.3); color: #e07070; }
 
-/* FIX 7: removed .card-modified — not shown anymore */
-
+/* ── RICH TEXT ── */
 .card-text {
   font-family: var(--serif);
-  font-size: 15px;
-  line-height: 1.72;
-  color: var(--text);
-  white-space: pre-wrap;
+  font-size: 15px; line-height: 1.72; color: var(--text);
 }
+/* Blur-text spans in rendered cards */
+.blur-text-span {
+  filter: blur(5px);
+  cursor: pointer;
+  transition: filter 0.35s ease;
+  border-radius: 4px;
+  background: rgba(200,169,126,0.06);
+  padding: 0 2px;
+  user-select: none;
+}
+.blur-text-span.revealed { filter: blur(0); user-select: text; }
 
 /* ── MEDIA ── */
 .media-wrap { margin-top: 10px; }
-
 .media-grid { display: grid; gap: 4px; }
 .media-grid.cols-1 { grid-template-columns: 1fr; }
 .media-grid.cols-2 { grid-template-columns: 1fr 1fr; }
 .media-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-
 .media-item { border-radius: var(--r2); overflow: hidden; cursor: pointer; position: relative; }
-
-.entry-image {
-  width: 100%; display: block;
-  object-fit: cover;
-  border-radius: var(--r2);
-  border: 1px solid var(--border);
-  transition: opacity 0.2s;
-}
-
+.entry-image { width: 100%; display: block; object-fit: cover; border-radius: var(--r2); border: 1px solid var(--border); transition: opacity 0.2s; }
 .cols-1 .entry-image { max-height: 320px; }
 .cols-2 .entry-image { max-height: 180px; }
 .cols-3 .entry-image { max-height: 120px; }
 
-.entry-video {
-  width: 100%;
+/* Blur image overlay */
+.img-blur-overlay {
+  position: absolute; inset: 0;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(12,12,15,0.55);
   border-radius: var(--r2);
-  border: 1px solid var(--border);
-  background: #000;
-  max-height: 260px;
-  display: block;
-}
-
-/* FIX 9: video caption supports newlines */
-.entry-caption {
-  margin-top: 7px;
-  font-family: var(--serif);
-  font-size: 13px;
-  font-style: italic;
-  color: var(--text3);
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-/* ── MUSIC PLAYER — compact cover with play inside ── */
-/* FIX 5: play/pause button overlaid on cover art */
-.music-player {
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(122,200,149,0.05);
-  border: 1px solid rgba(122,200,149,0.12);
-  border-radius: var(--r2);
-  padding: 10px 12px;
-  cursor: default;
-  transition: all 0.2s;
-  margin-top: 10px;
-}
-
-.music-player:hover { background: rgba(122,200,149,0.09); }
-
-.music-cover-btn {
-  width: 44px; height: 44px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  overflow: hidden;
-  background: rgba(122,200,149,0.1);
-  border: 1px solid rgba(122,200,149,0.2);
   display: flex; align-items: center; justify-content: center;
-  position: relative;
   cursor: pointer;
-  transition: all 0.15s;
-}
-
-.music-cover-btn:hover { border-color: rgba(122,200,149,0.5); }
-
-.music-cover-btn img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  position: absolute; inset: 0;
-  border-radius: 7px;
-}
-
-.music-cover-overlay {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.35);
-  border-radius: 7px;
-  transition: background 0.15s;
+  transition: opacity 0.35s;
   z-index: 2;
 }
-
-.music-cover-btn:hover .music-cover-overlay { background: rgba(0,0,0,0.5); }
-
-.music-cover-icon-bg {
-  /* shown when no cover image */
-  position: absolute; inset: 0;
+.img-blur-overlay.revealed { opacity: 0; pointer-events: none; }
+.img-blur-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(200,169,126,0.18);
+  border: 1px solid rgba(200,169,126,0.35);
   display: flex; align-items: center; justify-content: center;
-  color: var(--green);
-  z-index: 1;
+  color: var(--accent2);
 }
+.img-blur-icon svg { width: 16px; height: 16px; }
 
-.music-cover-icon-bg svg { width: 18px; height: 18px; }
+.entry-video { width: 100%; border-radius: var(--r2); border: 1px solid var(--border); background: #000; max-height: 260px; display: block; }
+.entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; white-space: pre-wrap; }
 
-.music-cover-overlay svg { width: 14px; height: 14px; color: #fff; }
-
-.music-info { flex: 1; overflow: hidden; }
-
-.music-title {
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.music-sub {
+/* video proxy warning */
+.video-warn {
+  margin-top: 6px;
+  background: rgba(200,122,138,0.08);
+  border: 1px solid rgba(200,122,138,0.2);
+  border-radius: var(--r3);
+  padding: 8px 12px;
   font-family: var(--mono);
-  font-size: 9px;
-  color: var(--text3);
-  margin-top: 2px;
+  font-size: 10px;
+  color: var(--rose);
   letter-spacing: 0.03em;
+  line-height: 1.7;
 }
+.video-warn a { color: var(--accent2); text-decoration: underline; }
 
-.wave-bars {
-  display: flex; align-items: center; gap: 2px;
-  height: 16px; flex-shrink: 0;
+/* ── MUSIC ── */
+.music-player {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(122,200,149,0.05); border: 1px solid rgba(122,200,149,0.12);
+  border-radius: var(--r2); padding: 10px 12px; cursor: default;
+  transition: all 0.2s; margin-top: 10px;
 }
-
-.wave-bar {
-  width: 2px;
-  background: var(--green);
-  border-radius: 1px;
-  opacity: 0.7;
+.music-player:hover { background: rgba(122,200,149,0.09); }
+.music-cover-btn {
+  width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; overflow: hidden;
+  background: rgba(122,200,149,0.1); border: 1px solid rgba(122,200,149,0.2);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; cursor: pointer; transition: all 0.15s;
 }
-
+.music-cover-btn:hover { border-color: rgba(122,200,149,0.5); }
+.music-cover-btn img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: 7px; }
+.music-cover-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); border-radius: 7px; transition: background 0.15s; z-index: 2; }
+.music-cover-btn:hover .music-cover-overlay { background: rgba(0,0,0,0.5); }
+.music-cover-icon-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--green); z-index: 1; }
+.music-cover-icon-bg svg { width: 18px; height: 18px; }
+.music-cover-overlay svg { width: 14px; height: 14px; color: #fff; }
+.music-info { flex: 1; overflow: hidden; }
+.music-title { font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 2px; letter-spacing: 0.03em; }
+.wave-bars { display: flex; align-items: center; gap: 2px; height: 16px; flex-shrink: 0; }
+.wave-bar { width: 2px; background: var(--green); border-radius: 1px; opacity: 0.7; }
 .wave-bar:nth-child(1){ height:5px;  animation: wv .65s ease-in-out infinite 0s; }
 .wave-bar:nth-child(2){ height:12px; animation: wv .65s ease-in-out infinite .09s; }
 .wave-bar:nth-child(3){ height:8px;  animation: wv .65s ease-in-out infinite .17s; }
 .wave-bar:nth-child(4){ height:14px; animation: wv .65s ease-in-out infinite .11s; }
 .wave-bar:nth-child(5){ height:6px;  animation: wv .65s ease-in-out infinite .05s; }
-
-@keyframes wv {
-  0%,100% { transform: scaleY(1); }
-  50%      { transform: scaleY(0.25); }
-}
-
+@keyframes wv { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.25); } }
 .wave-bars.paused .wave-bar { animation-play-state: paused; }
 
 /* ── DATE MUSIC BANNER ── */
 .date-music-banner {
-  margin: 4px 12px 8px;
-  background: rgba(200,169,126,0.05);
-  border: 1px solid rgba(200,169,126,0.15);
-  border-radius: var(--r2);
-  padding: 9px 12px;
-  display: flex; align-items: center; gap: 10px;
-  transition: all 0.2s;
+  margin: 4px 12px 8px; background: rgba(200,169,126,0.05); border: 1px solid rgba(200,169,126,0.15);
+  border-radius: var(--r2); padding: 9px 12px; display: flex; align-items: center; gap: 10px; transition: all 0.2s;
 }
-
-.dm-banner-left {
-  display: flex; align-items: center; gap: 10px;
-  flex: 1; overflow: hidden;
-  cursor: pointer;
-}
-
-.dm-banner-left:hover + .dm-banner-right,
+.dm-banner-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; cursor: pointer; }
 .date-music-banner:hover { background: rgba(200,169,126,0.09); }
-
-.dm-banner-cover {
-  width: 36px; height: 36px;
-  border-radius: 8px; flex-shrink: 0; overflow: hidden;
-  background: rgba(200,169,126,0.1);
-  border: 1px solid rgba(200,169,126,0.2);
-  display: flex; align-items: center; justify-content: center;
-}
-
+.dm-banner-cover { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; overflow: hidden; background: rgba(200,169,126,0.1); border: 1px solid rgba(200,169,126,0.2); display: flex; align-items: center; justify-content: center; }
 .dm-banner-cover img { width: 100%; height: 100%; object-fit: cover; }
 .dm-banner-icon { color: var(--accent); }
 .dm-banner-icon svg { width: 14px; height: 14px; }
-
 .dm-banner-text { flex: 1; overflow: hidden; }
-
-.dm-banner-title {
-  font-family: var(--sans);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--accent2);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.dm-banner-sub {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--text3);
-  margin-top: 1px;
-  letter-spacing: 0.03em;
-}
-
-.dm-wave-bars {
-  display: flex; align-items: center; gap: 2px;
-  height: 14px; flex-shrink: 0;
-  cursor: pointer;
-}
-
-.dm-wave-bar {
-  width: 2px;
-  background: var(--accent);
-  border-radius: 1px;
-  opacity: 0.7;
-}
-
+.dm-banner-title { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--accent2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dm-banner-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 1px; letter-spacing: 0.03em; }
+.dm-wave-bars { display: flex; align-items: center; gap: 2px; height: 14px; flex-shrink: 0; cursor: pointer; }
+.dm-wave-bar { width: 2px; background: var(--accent); border-radius: 1px; opacity: 0.7; }
 .dm-wave-bar:nth-child(1){ height:4px;  animation: wv .65s ease-in-out infinite 0s; }
 .dm-wave-bar:nth-child(2){ height:11px; animation: wv .65s ease-in-out infinite .09s; }
 .dm-wave-bar:nth-child(3){ height:7px;  animation: wv .65s ease-in-out infinite .17s; }
 .dm-wave-bar:nth-child(4){ height:13px; animation: wv .65s ease-in-out infinite .11s; }
 .dm-wave-bar:nth-child(5){ height:5px;  animation: wv .65s ease-in-out infinite .05s; }
-
-.dm-banner-right {
-  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
-}
-
-.dm-delete-btn {
-  width: 24px; height: 24px; border-radius: 50%;
-  border: 1px solid rgba(200,80,80,0.2);
-  background: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(200,80,80,0.4); transition: all 0.15s;
-}
-
+.dm-banner-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.dm-delete-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(200,80,80,0.2); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(200,80,80,0.4); transition: all 0.15s; }
 .dm-delete-btn svg { width: 11px; height: 11px; }
 .dm-delete-btn:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.4); color: #e07070; }
 
 /* ── BOTTOM BAR ── */
 .bottom-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 20px 28px;
-  pointer-events: none;
-  z-index: 100;
-  max-width: 440px;
-  margin: 0 auto;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 20px 28px; pointer-events: none; z-index: 100;
+  max-width: 440px; margin: 0 auto;
 }
 
-/* Calendar button */
 .bottom-cal-btn {
-  pointer-events: all;
-  width: 48px; height: 48px; border-radius: 50%;
-  border: 1px solid var(--border2);
-  background: rgba(10,10,14,0.85);
-  backdrop-filter: blur(20px);
-  cursor: pointer;
+  pointer-events: all; width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--border2); background: rgba(10,10,14,0.85);
+  backdrop-filter: blur(20px); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow);
-  transition: all 0.2s;
-  color: var(--text2);
-  flex-shrink: 0;
+  box-shadow: var(--shadow); transition: all 0.2s; color: var(--text2); flex-shrink: 0;
 }
-
 .bottom-cal-btn svg { width: 18px; height: 18px; }
 .bottom-cal-btn:hover { border-color: var(--border3); color: var(--text); }
 
-/* Nav arrows */
 .bottom-nav-btns {
-  pointer-events: all;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 28px;
+  pointer-events: all; display: flex; gap: 10px; align-items: center;
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: 28px;
 }
 
-/* FIX 6: Next btn pulse when at bottom, also ensure both btns work reliably */
+/* ── NEXT BUTTON WITH SCROLL PROGRESS ── */
 .bottom-nav-btn {
   width: 60px; height: 60px; border-radius: 50%;
   border: 1px solid var(--border2);
@@ -631,277 +327,135 @@ body::before {
   color: var(--text2);
   transition: border-color 0.2s, color 0.2s, background 0.2s;
   box-shadow: var(--shadow);
-  -webkit-user-select: none;
-  user-select: none;
+  -webkit-user-select: none; user-select: none;
   touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
 }
-
-.bottom-nav-btn svg { width: 20px; height: 20px; pointer-events: none; }
+.bottom-nav-btn svg { width: 20px; height: 20px; pointer-events: none; position: relative; z-index: 2; }
 .bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.95); }
 .bottom-nav-btn:active { transform: scale(0.93); }
 
-/* FIX 3: pulse animation on next button when at bottom */
-@keyframes pulse-next {
-  0%   { box-shadow: 0 0 0 0 rgba(200,169,126,0.5), var(--shadow); border-color: rgba(200,169,126,0.6); }
-  60%  { box-shadow: 0 0 0 8px rgba(200,169,126,0), var(--shadow); border-color: rgba(200,169,126,0.3); }
-  100% { box-shadow: 0 0 0 0 rgba(200,169,126,0), var(--shadow); border-color: var(--border2); }
+/* SVG progress ring for next btn — sits on top */
+#navNext {
+  /* progress ring drawn via JS canvas overlay */
 }
 
-.bottom-nav-btn.pulse-hint {
-  animation: pulse-next 1.2s ease-out 3;
-  color: var(--accent2);
+.nav-next-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
 }
 
-/* FAB wrap */
-.fab-wrap {
-  pointer-events: all;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0;
-  position: relative;
-}
-
-/* FAB menu */
-.fab-menu {
-  display: flex; flex-direction: column;
-  align-items: flex-end; gap: 6px;
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s;
-  opacity: 0; margin-bottom: 8px;
-}
-
+/* FAB */
+.fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
+.fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
 .fab-menu.open { max-height: 400px; opacity: 1; }
-
-.fab-row {
-  display: flex; align-items: center; gap: 8px;
-}
-
-.fab-lbl {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  color: var(--text2);
-  background: rgba(10,10,14,0.9);
-  border: 1px solid var(--border2);
-  backdrop-filter: blur(16px);
-  padding: 6px 12px; border-radius: 50px;
-  white-space: nowrap;
-  box-shadow: var(--shadow);
-}
-
-.fab-sm {
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 1px solid var(--border2);
-  background: rgba(10,10,14,0.85);
-  backdrop-filter: blur(20px);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; color: var(--text2);
-  flex-shrink: 0; box-shadow: var(--shadow);
-}
-
+.fab-row { display: flex; align-items: center; gap: 8px; }
+.fab-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; color: var(--text2); background: rgba(10,10,14,0.9); border: 1px solid var(--border2); backdrop-filter: blur(16px); padding: 6px 12px; border-radius: 50px; white-space: nowrap; box-shadow: var(--shadow); }
+.fab-sm { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.85); backdrop-filter: blur(20px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text2); flex-shrink: 0; box-shadow: var(--shadow); }
 .fab-sm svg { width: 16px; height: 16px; }
 .fab-sm:hover { border-color: rgba(200,169,126,0.45); color: var(--accent2); transform: scale(1.08); }
-
-/* Main FAB */
-.fab-main {
-  width: 48px; height: 48px; border-radius: 50%;
-  border: 1px solid rgba(200,169,126,0.4);
-  background: linear-gradient(135deg, rgba(180,140,90,0.55), rgba(200,169,126,0.25));
-  backdrop-filter: blur(24px);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 30px rgba(200,169,126,0.18), var(--shadow2);
-  transition: all 0.3s cubic-bezier(0.34,1.4,0.64,1);
-  color: var(--accent2);
-}
-
+.fab-main { width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(200,169,126,0.4); background: linear-gradient(135deg, rgba(180,140,90,0.55), rgba(200,169,126,0.25)); backdrop-filter: blur(24px); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(200,169,126,0.18), var(--shadow2); transition: all 0.3s cubic-bezier(0.34,1.4,0.64,1); color: var(--accent2); }
 .fab-main svg { width: 20px; height: 20px; transition: transform 0.3s; }
 .fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
 .fab-main.open svg { transform: rotate(45deg); }
 
 /* ── MODALS ── */
-.backdrop {
-  position: fixed; inset: 0;
-  background: rgba(4,4,8,0.7);
-  backdrop-filter: blur(8px);
-  z-index: 200;
-  display: flex; align-items: flex-end;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.25s;
-}
-
+.backdrop { position: fixed; inset: 0; background: rgba(4,4,8,0.7); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .backdrop.open { opacity: 1; pointer-events: all; }
-
-.sheet {
-  width: 100%; max-width: 440px; margin: 0 auto;
-  background: linear-gradient(180deg, #181820 0%, #111115 100%);
-  border: 1px solid var(--border2);
-  border-bottom: none;
-  border-radius: 22px 22px 0 0;
-  padding: 18px 18px 40px;
-  transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.34,1.1,0.64,1);
-  max-height: 88vh;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border2) transparent;
-}
-
+.sheet { width: 100%; max-width: 440px; margin: 0 auto; background: linear-gradient(180deg, #181820 0%, #111115 100%); border: 1px solid var(--border2); border-bottom: none; border-radius: 22px 22px 0 0; padding: 18px 18px 40px; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.34,1.1,0.64,1); max-height: 88vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
 .backdrop.open .sheet { transform: translateY(0); }
-
-.sheet-handle {
-  width: 32px; height: 3px;
-  background: var(--border2);
-  border-radius: 2px;
-  margin: 0 auto 18px;
-}
-
-.sheet-title {
-  font-family: var(--serif);
-  font-size: 20px;
-  font-style: italic;
-  color: var(--text);
-  margin-bottom: 18px;
-  font-weight: 400;
-}
+.sheet-handle { width: 32px; height: 3px; background: var(--border2); border-radius: 2px; margin: 0 auto 18px; }
+.sheet-title { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--text); margin-bottom: 18px; font-weight: 400; }
 
 /* ── FORM ── */
 .form-group { margin-bottom: 14px; }
-
-.form-label {
-  display: block;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 7px;
-}
-
-.form-input, .form-textarea, .form-select {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r2);
-  padding: 11px 13px;
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
-  appearance: none; -webkit-appearance: none;
-}
-
-.form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: var(--border2);
-  background: var(--surface2);
-}
-
+.form-label { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 7px; }
+.form-input, .form-textarea, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--border2); background: var(--surface2); }
 .form-textarea { min-height: 100px; resize: vertical; line-height: 1.65; font-family: var(--serif); font-size: 15px; }
 input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .form-select option { background: #17171d; }
 
-.btn-primary {
-  width: 100%; padding: 13px;
-  background: linear-gradient(135deg, rgba(160,120,70,0.65), rgba(200,169,126,0.35));
-  border: 1px solid rgba(200,169,126,0.4);
-  border-radius: var(--r2);
-  color: var(--accent2);
-  font-family: var(--serif);
-  font-size: 16px; font-style: italic; font-weight: 400;
-  cursor: pointer; transition: all 0.2s; margin-top: 8px;
+/* ── RICH TEXT EDITOR ── */
+.rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s, background 0.2s; }
+.rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
+
+.rte-toolbar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+  flex-wrap: wrap;
 }
 
+.rte-btn {
+  width: 28px; height: 28px; border-radius: 7px;
+  border: 1px solid transparent; background: none;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text3); transition: all 0.15s; font-family: var(--mono);
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.rte-btn svg { width: 13px; height: 13px; }
+.rte-btn:hover { background: var(--surface3); border-color: var(--border); color: var(--text2); }
+.rte-btn.active { background: rgba(200,169,126,0.15); border-color: rgba(200,169,126,0.3); color: var(--accent2); }
+.rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 3px; }
+
+.rte-editor {
+  min-height: 120px; padding: 11px 13px;
+  color: var(--text); font-family: var(--serif); font-size: 15px;
+  line-height: 1.72; outline: none; word-wrap: break-word;
+}
+.rte-editor:empty::before { content: attr(data-placeholder); color: var(--text3); pointer-events: none; }
+.rte-editor a { color: var(--accent2); text-decoration: underline; text-underline-offset: 2px; }
+.rte-editor .blur-span { filter: blur(5px); background: rgba(200,169,126,0.08); border-radius: 4px; padding: 0 2px; cursor: default; transition: filter 0.3s; }
+.rte-editor .blur-span.revealed { filter: blur(0); }
+
+/* Link input popup */
+.rte-link-bar {
+  display: none; padding: 7px 8px; border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.12); align-items: center; gap: 6px;
+}
+.rte-link-bar.visible { display: flex; }
+.rte-link-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 10px; color: var(--text); font-family: var(--mono); font-size: 11px;
+  outline: none; transition: border-color 0.15s;
+}
+.rte-link-input:focus { border-color: var(--border2); }
+.rte-link-ok {
+  padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3);
+  background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono);
+  font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap;
+  transition: all 0.15s;
+}
+.rte-link-ok:hover { background: rgba(200,169,126,0.2); }
+
+/* Buttons */
+.btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, rgba(160,120,70,0.65), rgba(200,169,126,0.35)); border: 1px solid rgba(200,169,126,0.4); border-radius: var(--r2); color: var(--accent2); font-family: var(--serif); font-size: 16px; font-style: italic; font-weight: 400; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
 .btn-primary:hover { background: linear-gradient(135deg, rgba(160,120,70,0.85), rgba(200,169,126,0.5)); transform: translateY(-1px); }
-
-.btn-secondary {
-  width: 100%; padding: 11px;
-  background: none; border: 1px solid var(--border);
-  border-radius: var(--r2);
-  color: var(--text3);
-  font-family: var(--mono); font-size: 10px;
-  letter-spacing: 0.08em; cursor: pointer;
-  transition: all 0.15s; margin-top: 7px;
-  text-transform: uppercase;
-}
-
+.btn-secondary { width: 100%; padding: 11px; background: none; border: 1px solid var(--border); border-radius: var(--r2); color: var(--text3); font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: all 0.15s; margin-top: 7px; text-transform: uppercase; }
 .btn-secondary:hover { border-color: var(--border2); color: var(--text2); }
-
-.btn-danger {
-  flex: 1; padding: 12px;
-  background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.25);
-  border-radius: var(--r2); color: #e07070;
-  font-family: var(--mono); font-size: 10px;
-  letter-spacing: 0.07em; cursor: pointer;
-  transition: all 0.15s; text-transform: uppercase;
-}
-
+.btn-danger { flex: 1; padding: 12px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.25); border-radius: var(--r2); color: #e07070; font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
 .btn-danger:hover { background: rgba(200,80,80,0.18); }
-
 .confirm-row { display: flex; gap: 8px; margin-top: 16px; }
 
 /* ── CALENDAR ── */
-.cal-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.cal-nav-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 1px solid var(--border); background: var(--surface);
-  color: var(--text2); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-}
-
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-nav-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
 .cal-nav-btn svg { width: 12px; height: 12px; }
 .cal-nav-btn:hover { border-color: var(--border2); color: var(--text); }
-
-.cal-month {
-  font-family: var(--serif);
-  font-size: 17px;
-  font-style: italic;
-  color: var(--text);
-  font-weight: 400;
-}
-
+.cal-month { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text); font-weight: 400; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-
-.cal-day-name {
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 9px; letter-spacing: 0.05em;
-  color: var(--text4); text-transform: uppercase;
-  padding: 5px 0;
-}
-
-.cal-cell {
-  aspect-ratio: 1; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 11px;
-  color: var(--text4);
-  position: relative; transition: all 0.15s;
-  cursor: pointer;
-}
-
-.cal-cell:hover {
-  background: var(--surface2);
-  color: var(--text2);
-}
-
+.cal-day-name { text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em; color: var(--text4); text-transform: uppercase; padding: 5px 0; }
+.cal-cell { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--text4); position: relative; transition: all 0.15s; cursor: pointer; }
+.cal-cell:hover { background: var(--surface2); color: var(--text2); }
 .cal-cell.today { color: var(--accent2); }
-.cal-cell.today:hover { color: var(--accent2); }
-
-.cal-cell.has-entry {
-  background: var(--surface);
-  color: var(--text2);
-  border: 1px solid var(--border);
-}
-
+.cal-cell.has-entry { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
 .cal-cell.has-entry:hover { background: var(--surface2); border-color: var(--border2); }
-
 .has-note    { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4); }
 .has-photo   { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4); }
 .has-video   { box-shadow: inset 0 0 0 2px rgba(200,122,138,0.4); }
@@ -914,152 +468,40 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .has-video.has-music { box-shadow: inset 0 0 0 2px rgba(200,122,138,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
 
 /* ── LIGHTBOX ── */
-.lightbox {
-  position: fixed; inset: 0;
-  background: rgba(4,4,8,0.96);
-  z-index: 500;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.25s;
-}
-
+.lightbox { position: fixed; inset: 0; background: rgba(4,4,8,0.96); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .lightbox.open { opacity: 1; pointer-events: all; }
-
-.lb-inner {
-  position: relative;
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  touch-action: pan-y;
-}
-
-.lb-img-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.lb-img {
-  max-width: 100%; max-height: 100%;
-  object-fit: contain;
-  border-radius: 6px;
-  user-select: none;
-  transition: transform 0.15s;
-  transform-origin: center center;
-}
-
-.lb-close {
-  position: absolute; top: 16px; right: 16px;
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 1px solid var(--border2);
-  background: rgba(10,10,14,0.8);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text2); transition: all 0.15s; z-index: 10;
-}
-
+.lb-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; touch-action: pan-y; }
+.lb-img-wrap { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: hidden; }
+.lb-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; user-select: none; transition: transform 0.15s; transform-origin: center center; }
+.lb-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: all 0.15s; z-index: 10; }
 .lb-close svg { width: 15px; height: 15px; }
 .lb-close:hover { border-color: var(--border3); color: var(--text); }
-
-.lb-nav {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 1px solid var(--border2);
-  background: rgba(10,10,14,0.7);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text2); transition: all 0.15s; z-index: 10;
-}
-
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: all 0.15s; z-index: 10; }
 .lb-nav svg { width: 15px; height: 15px; }
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
 .lb-nav:hover { border-color: var(--border3); color: var(--text); }
 .lb-nav.hidden { opacity: 0; pointer-events: none; }
-
-.lb-counter {
-  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-  font-family: var(--mono); font-size: 10px; color: var(--text3);
-  letter-spacing: 0.08em; background: rgba(10,10,14,0.7);
-  padding: 5px 12px; border-radius: 50px;
-}
-
-.lb-zoom-hint {
-  position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
-  font-family: var(--mono); font-size: 9px; color: var(--text4);
-  letter-spacing: 0.06em;
-}
+.lb-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; background: rgba(10,10,14,0.7); padding: 5px 12px; border-radius: 50px; }
+.lb-zoom-hint { position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; color: var(--text4); letter-spacing: 0.06em; }
 
 /* ── LOADING / EMPTY ── */
-.loading-wrap {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 60px 24px; gap: 12px;
-}
-
-.spinner {
-  width: 24px; height: 24px;
-  border: 2px solid var(--border2);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
-
+.loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; gap: 12px; }
+.spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.loading-text {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--text3); letter-spacing: 0.08em;
-}
-
+.loading-text { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; }
 .empty-wrap { text-align: center; padding: 60px 24px; }
-
 .empty-icon { font-size: 28px; margin-bottom: 12px; opacity: 0.2; color: var(--text2); }
 .empty-icon svg { width: 32px; height: 32px; }
-
-.empty-text {
-  font-family: var(--serif); font-size: 17px;
-  font-style: italic; color: var(--text3);
-}
+.empty-text { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text3); }
 
 /* ── PARSE PREVIEW ── */
-.parse-preview {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r3);
-  padding: 10px 12px; margin-top: 6px;
-  font-family: var(--serif); font-size: 13px;
-  color: var(--text3); line-height: 1.55;
-  max-height: 90px; overflow-y: auto;
-  white-space: pre-wrap;
-}
+.parse-preview { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r3); padding: 10px 12px; margin-top: 6px; font-family: var(--serif); font-size: 13px; color: var(--text3); line-height: 1.55; max-height: 90px; overflow-y: auto; white-space: pre-wrap; }
 
 /* ── TOAST ── */
-.toast {
-  position: fixed; top: 16px; left: 50%;
-  transform: translateX(-50%) translateY(-80px);
-  background: rgba(14,14,20,0.92);
-  border: 1px solid var(--border2);
-  backdrop-filter: blur(20px);
-  border-radius: 50px;
-  padding: 9px 20px;
-  font-family: var(--mono); font-size: 11px;
-  letter-spacing: 0.05em; color: var(--text2);
-  z-index: 999;
-  transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
-  white-space: nowrap;
-  box-shadow: var(--shadow2);
-}
-
+.toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
 .toast.show { transform: translateX(-50%) translateY(0); }
-
-@keyframes highlight {
-  0%,100% { box-shadow: none; }
-  30% { box-shadow: 0 0 0 2px rgba(200,169,126,0.5); }
-}
-
+@keyframes highlight { 0%,100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px rgba(200,169,126,0.5); } }
 .card-highlight { animation: highlight 2s ease forwards; }
 
 audio { display: none; }
@@ -1071,7 +513,6 @@ audio { display: none; }
 <body>
 
 <div class="app">
-  <!-- Header -->
   <div class="header">
     <div class="header-brand">
       <div class="header-logo">
@@ -1084,7 +525,6 @@ audio { display: none; }
     <div class="header-date-display" id="headerDateDisplay"></div>
   </div>
 
-  <!-- Search -->
   <div class="search-wrap">
     <div class="search-inner">
       <span class="search-icon">
@@ -1103,12 +543,10 @@ audio { display: none; }
 
   <div class="search-label" id="searchLabel"></div>
 
-  <!-- Date Carousel -->
   <div class="carousel-wrap" id="carouselWrap">
     <div class="date-carousel" id="dateCarousel"></div>
   </div>
 
-  <!-- Entries -->
   <div id="entries-container">
     <div class="loading-wrap">
       <div class="spinner"></div>
@@ -1119,7 +557,6 @@ audio { display: none; }
 
 <!-- Bottom bar -->
 <div class="bottom-bar">
-  <!-- Calendar -->
   <button class="bottom-cal-btn" onclick="openModal('calendar')" title="Calendar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
       <rect x="3" y="4" width="18" height="18" rx="3"/>
@@ -1127,21 +564,31 @@ audio { display: none; }
     </svg>
   </button>
 
-  <!-- Nav prev/next -->
   <div class="bottom-nav-btns">
-    <button class="bottom-nav-btn" id="navPrev" onclick="jumpDate(-1)" title="ziua anterioară">
+    <button class="bottom-nav-btn" id="navPrev" title="ziua anterioară">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-    <button class="bottom-nav-btn" id="navNext" onclick="jumpDate(1)" title="ziua următoare">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- SVG ring sits outside the button, absolutely positioned -->
+    <div style="position:relative;width:60px;height:60px;flex-shrink:0;">
+      <button class="bottom-nav-btn" id="navNext" title="ziua următoare" style="position:absolute;inset:0;width:100%;height:100%;">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <svg id="nextRingSvg" viewBox="0 0 64 64" style="position:absolute;inset:-2px;width:68px;height:68px;pointer-events:none;transform:rotate(-90deg);opacity:0;transition:opacity 0.3s;">
+        <circle cx="32" cy="32" r="29" fill="none" stroke="rgba(200,169,126,0.25)" stroke-width="3"/>
+        <circle id="nextRingProgress" cx="32" cy="32" r="29" fill="none"
+          stroke="var(--accent)" stroke-width="3"
+          stroke-linecap="round"
+          stroke-dasharray="182.2"
+          stroke-dashoffset="182.2"
+          style="transition: stroke-dashoffset 0.08s linear;"/>
       </svg>
-    </button>
+    </div>
   </div>
 
-  <!-- FAB + -->
   <div class="fab-wrap">
     <div class="fab-menu" id="fabMenu">
       <div class="fab-row">
@@ -1211,7 +658,7 @@ audio { display: none; }
 <audio id="dateMusicAudio" loop></audio>
 <audio id="entryAudio"></audio>
 
-<!-- ══════════ LIGHTBOX ══════════ -->
+<!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
   <div class="lb-inner" id="lbInner">
     <button class="lb-close" onclick="closeLightbox()">
@@ -1233,16 +680,35 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- ══════════ MODALS ══════════ -->
+<!-- MODALS -->
 
-<!-- Note -->
+<!-- Note — RICH TEXT EDITOR -->
 <div class="backdrop" id="modal-note">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">notiță nouă</div>
     <div class="form-group">
       <label class="form-label">text</label>
-      <textarea class="form-textarea" id="note-text" placeholder="scrie ceva..."></textarea>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn" id="rte-bold" onclick="rteCmd('bold')" title="Bold">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" id="rte-link-btn" onclick="rteToggleLinkBar()" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" id="rte-blur-btn" onclick="rteBlurSelected()" title="Blur text selectat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rte-link-bar" id="rte-link-bar">
+          <input class="rte-link-input" id="rte-link-input" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink()">
+          <button class="rte-link-ok" onclick="rteInsertLink()">adaugă</button>
+        </div>
+        <div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
@@ -1266,6 +732,14 @@ audio { display: none; }
       <label class="form-label">descriere (opțional)</label>
       <input type="text" class="form-input" id="photo-caption" placeholder="o descriere scurtă...">
     </div>
+    <!-- Blur images toggle -->
+    <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+      <label class="form-label" style="margin-bottom:0">blur imagini</label>
+      <div style="position:relative;width:38px;height:22px;flex-shrink:0;" onclick="togglePhotoBlur()">
+        <div id="photo-blur-track" style="position:absolute;inset:0;border-radius:11px;background:var(--surface2);border:1px solid var(--border);transition:all 0.2s;"></div>
+        <div id="photo-blur-thumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--text3);transition:all 0.2s;"></div>
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="photo-date">
@@ -1283,10 +757,17 @@ audio { display: none; }
     <div class="form-group">
       <label class="form-label">link video (mp4, webm...)</label>
       <input type="url" class="form-input" id="video-url" placeholder="https://...">
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(200,122,138,0.07);border:1px solid rgba(200,122,138,0.18);border-radius:10px;">
+        <p style="font-family:var(--mono);font-size:10px;color:var(--rose);line-height:1.7;letter-spacing:0.02em;">
+          ⚠ Link-urile de pe <b>GitHub raw</b> sau alte servere cu CORS restricționat nu vor funcționa în browser.<br>
+          Folosește servicii ca <a href="https://cloudinary.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">Cloudinary</a>,
+          <a href="https://www.dropbox.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">Dropbox</a> (link direct dl=1),
+          sau găzduiește fișierul pe propriul tău server/CDN.
+        </p>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">descriere (opțional)</label>
-      <!-- FIX 9: textarea for video caption to support newlines -->
       <textarea class="form-textarea" style="min-height:70px" id="video-caption" placeholder="o descriere...&#10;poți folosi rânduri noi"></textarea>
     </div>
     <div class="form-group">
@@ -1382,13 +863,35 @@ audio { display: none; }
     <div class="sheet-title">editează</div>
     <input type="hidden" id="edit-id">
     <input type="hidden" id="edit-type">
-    <div class="form-group">
+    <div class="form-group" id="edit-rte-group" style="display:none">
+      <label class="form-label">text</label>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn" onclick="rteCmd2('bold')" title="Bold">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" onclick="rteToggleLinkBar2()" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" onclick="rteBlurSelected2()" title="Blur text selectat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rte-link-bar" id="rte-link-bar2">
+          <input class="rte-link-input" id="rte-link-input2" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink2()">
+          <button class="rte-link-ok" onclick="rteInsertLink2()">adaugă</button>
+        </div>
+        <div class="rte-editor" id="rte-editor2" contenteditable="true" data-placeholder="textul notițe..." spellcheck="true"></div>
+      </div>
+    </div>
+    <div class="form-group" id="edit-plain-group">
       <label class="form-label">conținut / URL-uri</label>
       <textarea class="form-textarea" id="edit-content"></textarea>
     </div>
     <div class="form-group" id="edit-caption-group">
       <label class="form-label">descriere / titlu</label>
-      <!-- FIX 9: textarea for caption in edit modal too -->
       <textarea class="form-textarea" style="min-height:70px" id="edit-caption"></textarea>
     </div>
     <div class="form-group" id="edit-cover-group">
@@ -1487,8 +990,9 @@ let entries = [];
 let dateMusicMap = {};
 let selectedDate = null;
 let searchQuery = '';
-let calDate = new Date();  // FIX 8: will be set to selectedDate when opening calendar
+let calDate = new Date();
 let fabOpen = false;
+let photoBlurEnabled = false;
 
 const dmAudio = document.getElementById('dateMusicAudio');
 const entryAudio = document.getElementById('entryAudio');
@@ -1546,44 +1050,93 @@ async function init() {
   renderEntries();
   setDefaultDates();
 
-  if (selectedDate) {
-    playDateMusic(dateKey(selectedDate), false);
-  }
+  if (selectedDate) playDateMusic(dateKey(selectedDate), false);
 
-  // FIX 3: scroll-to-bottom pulse observer
-  setupScrollPulse();
+  setupScrollProgress();
+  setupNavButtons();
 }
 
 function updateHeaderDate() {
   const el = document.getElementById('headerDateDisplay');
-  if (!el) return;
-  el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+  if (el) el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
 // ═══════════════════════════════════════
-// FIX 3: Pulse "next" button when scrolled to bottom
+// FIX 1 & 2: SCROLL PROGRESS + NAV BUTTONS
 // ═══════════════════════════════════════
-let pulseTimeout = null;
+const RING_CIRCUMFERENCE = 2 * Math.PI * 29; // ≈182.2
+let scrollProgressActive = false;
+let scrollProgressVal = 0;
+let nextJumpTriggered = false;
+let scrollHoldTimeout = null;
 
-function setupScrollPulse() {
-  window.addEventListener('scroll', () => {
-    const scrolledToBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 40);
-    if (scrolledToBottom) {
-      triggerNextPulse();
-    }
-  }, { passive: true });
+function setupScrollProgress() {
+  window.addEventListener('scroll', onWindowScroll, { passive: true });
 }
 
-function triggerNextPulse() {
-  const btn = document.getElementById('navNext');
-  if (!btn) return;
-  btn.classList.remove('pulse-hint');
-  clearTimeout(pulseTimeout);
-  // small delay to allow re-trigger
-  pulseTimeout = setTimeout(() => {
-    btn.classList.add('pulse-hint');
-    setTimeout(() => btn.classList.remove('pulse-hint'), 3800);
-  }, 50);
+function onWindowScroll() {
+  const scrolled = window.scrollY;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  if (maxScroll <= 0) return;
+
+  const pct = scrolled / maxScroll; // 0..1
+  const atBottom = pct >= 0.98;
+
+  const ring = document.getElementById('nextRingSvg');
+  const progress = document.getElementById('nextRingProgress');
+
+  if (atBottom) {
+    // Show ring and fill it
+    ring.style.opacity = '1';
+    scrollProgressVal = Math.min(1, scrollProgressVal + 0.07);
+  } else {
+    // Drain ring when not at bottom
+    scrollProgressVal = Math.max(0, pct > 0.6 ? (pct - 0.6) / 0.38 * 0.6 : 0);
+    nextJumpTriggered = false;
+    ring.style.opacity = scrollProgressVal > 0.05 ? '1' : '0';
+  }
+
+  // Update ring stroke
+  const offset = RING_CIRCUMFERENCE * (1 - scrollProgressVal);
+  progress.style.strokeDashoffset = offset;
+
+  // Color based on progress
+  if (scrollProgressVal > 0.85) {
+    progress.style.stroke = 'var(--accent2)';
+  } else {
+    progress.style.stroke = 'var(--accent)';
+  }
+
+  // Auto-jump when ring completes
+  if (scrollProgressVal >= 1 && !nextJumpTriggered) {
+    nextJumpTriggered = true;
+    setTimeout(() => {
+      jumpDate(1);
+      // Reset ring after jump
+      scrollProgressVal = 0;
+      nextJumpTriggered = false;
+      ring.style.opacity = '0';
+      progress.style.strokeDashoffset = RING_CIRCUMFERENCE;
+    }, 180);
+  }
+}
+
+function setupNavButtons() {
+  // FIX 2: attach via addEventListener, not onclick attribute (more reliable)
+  const prevBtn = document.getElementById('navPrev');
+  const nextBtn = document.getElementById('navNext');
+
+  prevBtn.addEventListener('click', () => jumpDate(-1));
+  nextBtn.addEventListener('click', () => {
+    // Reset ring on manual click
+    const ring = document.getElementById('nextRingSvg');
+    const progress = document.getElementById('nextRingProgress');
+    scrollProgressVal = 0;
+    nextJumpTriggered = false;
+    if (ring) { ring.style.opacity = '0'; }
+    if (progress) progress.style.strokeDashoffset = RING_CIRCUMFERENCE;
+    jumpDate(1);
+  });
 }
 
 // ═══════════════════════════════════════
@@ -1611,12 +1164,10 @@ function setDefaultDates() {
   const now = new Date();
   base.setHours(now.getHours(), now.getMinutes(), 0, 0);
   const local = toLocal(base);
-
   ['note-date','photo-date','video-date','music-date'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = local;
   });
-
   if (selectedDate) {
     const dmDate = document.getElementById('dm-date');
     if (dmDate) dmDate.value = dateKey(selectedDate);
@@ -1647,25 +1198,18 @@ async function saveDateMusic() {
   const title = document.getElementById('dm-title').value.trim();
   const cover = document.getElementById('dm-cover').value.trim();
   if (!date || !url) { showToast('completează data și link-ul'); return; }
-
   const row = { date, url, title: title || 'melodie', cover: cover || '' };
-
   try {
     const { error } = await sb.from('date_music').upsert([row], { onConflict: 'date' });
     if (error) { showToast('eroare la salvare: ' + error.message); return; }
   } catch(e) { showToast('eroare la salvare'); return; }
-
   dateMusicMap[date] = { url, title: title || 'melodie', cover: cover || '' };
   document.getElementById('dm-url').value = '';
   document.getElementById('dm-title').value = '';
   document.getElementById('dm-cover').value = '';
-
   showToast('muzică salvată');
   closeModal('date-music');
-
-  if (selectedDate && dateKey(selectedDate) === date) {
-    playDateMusic(date, false);
-  }
+  if (selectedDate && dateKey(selectedDate) === date) playDateMusic(date, false);
   buildCarousel();
   renderEntries();
 }
@@ -1678,17 +1222,11 @@ function openDeleteDateMusic(date) {
 async function confirmDeleteDateMusic() {
   const date = document.getElementById('delete-dm-date').value;
   if (!date) return;
-
   if (selectedDate && dateKey(selectedDate) === date) {
-    dmAudio.pause();
-    dmAudio.src = '';
-    dmAudioLoaded = false;
+    dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false;
   }
-
   delete dateMusicMap[date];
-
   try { await sb.from('date_music').delete().eq('date', date); } catch(e) {}
-
   showToast('muzică ștearsă');
   closeModal('delete-dm');
   buildCarousel();
@@ -1701,43 +1239,35 @@ async function confirmDeleteDateMusic() {
 function buildCarousel() {
   const carousel = document.getElementById('dateCarousel');
   const today = new Date(); today.setHours(0,0,0,0);
-
   const days = [];
   for (let i = -60; i <= 7; i++) {
     const d = new Date(today); d.setDate(today.getDate() + i);
     days.push(d);
   }
-
   const dayTypesMap = {};
   entries.forEach(e => {
     const k = dateKey(e.posted_at);
     if (!dayTypesMap[k]) dayTypesMap[k] = new Set();
     dayTypesMap[k].add(e.type);
   });
-
   const dayNames = ['du','lu','ma','mi','jo','vi','sâ'];
   const typeColors = { note:'var(--accent)', photo:'var(--blue)', video:'var(--rose)', music:'var(--green)' };
-
   carousel.innerHTML = days.map(d => {
     const k = dateKey(d);
     const types = dayTypesMap[k] ? [...dayTypesMap[k]] : [];
     const isToday = k === dateKey(today);
     const isSelected = selectedDate && dateKey(selectedDate) === k;
-
     if (dateMusicMap[k] && !types.includes('music')) types.push('music_dm');
-
     const dots = types.map(t => {
       const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t] || 'var(--accent)');
       return `<span class="pill-dot" style="background:${color}"></span>`;
     }).join('');
-
     return `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
       <span class="pill-name">${isToday ? 'azi' : dayNames[d.getDay()]}</span>
       <span class="pill-num">${d.getDate()}</span>
       <div class="pill-dots">${dots}</div>
     </div>`;
   }).join('');
-
   scrollCarouselToSelected();
 }
 
@@ -1745,25 +1275,19 @@ function scrollCarouselToSelected() {
   const carousel = document.getElementById('dateCarousel');
   const today = new Date();
   const targetKey = selectedDate ? dateKey(selectedDate) : dateKey(today);
-
   setTimeout(() => {
     const target = carousel.querySelector(`.date-pill[data-key="${targetKey}"]`);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }, 60);
 }
 
 function selectDate(key) {
   const [y,m,d] = key.split('-').map(Number);
   selectedDate = new Date(y, m-1, d);
-
   saveLastDate(key);
-
   document.querySelectorAll('.date-pill').forEach(p => {
     p.classList.toggle('active', p.dataset.key === key);
   });
-
   scrollCarouselToSelected();
   clearSearch(true);
   playDateMusic(key, true);
@@ -1771,30 +1295,25 @@ function selectDate(key) {
   setDefaultDates();
 }
 
-// FIX 6: jumpDate rewritten to be reliable for both directions
 function jumpDate(dir) {
   if (!selectedDate) return;
-
   const datesWithEntries = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
   if (!datesWithEntries.length) { showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche'); return; }
-
   const cur = dateKey(selectedDate);
   let target = null;
-
   if (dir === 1) {
-    // next: first date strictly after cur
     for (let i = 0; i < datesWithEntries.length; i++) {
       if (datesWithEntries[i] > cur) { target = datesWithEntries[i]; break; }
     }
   } else {
-    // prev: last date strictly before cur
     for (let i = datesWithEntries.length - 1; i >= 0; i--) {
       if (datesWithEntries[i] < cur) { target = datesWithEntries[i]; break; }
     }
   }
-
   if (target) {
     selectDate(target);
+    // Scroll to top after jump
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche');
   }
@@ -1806,10 +1325,7 @@ function jumpDate(dir) {
 function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
   if (dm && dm.url) {
-    if (dmAudio.src !== dm.url) {
-      dmAudio.src = dm.url;
-      dmAudioLoaded = true;
-    }
+    if (dmAudio.src !== dm.url) { dmAudio.src = dm.url; dmAudioLoaded = true; }
     if (autoplay) {
       dmAudio.volume = 0.28;
       dmAudio.play().catch(() => {
@@ -1818,9 +1334,7 @@ function playDateMusic(dk, autoplay) {
       });
     }
   } else {
-    dmAudio.pause();
-    dmAudio.src = '';
-    dmAudioLoaded = false;
+    dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false;
   }
   syncDateMusicWaves();
 }
@@ -1836,11 +1350,7 @@ function syncDateMusicWaves() {
 
 function toggleDateMusicBanner() {
   if (!dmAudioLoaded) return;
-  if (dmAudio.paused) {
-    dmAudio.play().catch(()=>{});
-  } else {
-    dmAudio.pause();
-  }
+  if (dmAudio.paused) { dmAudio.play().catch(()=>{}); } else { dmAudio.pause(); }
   syncDateMusicWaves();
 }
 
@@ -1850,11 +1360,7 @@ setInterval(syncDateMusicWaves, 500);
 // LOAD
 // ═══════════════════════════════════════
 async function loadEntries() {
-  const { data, error } = await sb
-    .from('entries')
-    .select('*')
-    .order('posted_at', { ascending: true });
-
+  const { data, error } = await sb.from('entries').select('*').order('posted_at', { ascending: true });
   if (error) { showToast('eroare la încărcare'); return; }
   entries = data || [];
 }
@@ -1883,9 +1389,7 @@ function renderEntries() {
   const container = document.getElementById('entries-container');
   const label = document.getElementById('searchLabel');
   const carouselWrap = document.getElementById('carouselWrap');
-
   let filtered;
-
   if (searchQuery) {
     carouselWrap.style.display = 'none';
     filtered = entries.filter(e => entryMatchesSearch(e, searchQuery));
@@ -1901,15 +1405,12 @@ function renderEntries() {
       filtered = [...entries];
     }
   }
-
   filtered.sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
 
   if (!filtered.length && !searchQuery) {
     let html = '';
     const dk = selectedDate ? dateKey(selectedDate) : null;
-    if (dk && dateMusicMap[dk]) {
-      html += renderDateMusicBanner(dk);
-    }
+    if (dk && dateMusicMap[dk]) html += renderDateMusicBanner(dk);
     html += `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
     container.innerHTML = html;
     syncDateMusicWaves();
@@ -1922,7 +1423,6 @@ function renderEntries() {
   }
 
   let html = '';
-
   if (searchQuery) {
     const groups = {};
     filtered.forEach(e => {
@@ -1936,9 +1436,7 @@ function renderEntries() {
     }
   } else {
     const dk = selectedDate ? dateKey(selectedDate) : null;
-    if (dk && dateMusicMap[dk]) {
-      html += renderDateMusicBanner(dk);
-    }
+    if (dk && dateMusicMap[dk]) html += renderDateMusicBanner(dk);
     filtered.forEach(e => { html += renderEntry(e); });
   }
 
@@ -1949,11 +1447,9 @@ function renderEntries() {
 function renderDateMusicBanner(dk) {
   const dm = dateMusicMap[dk];
   if (!dm) return '';
-
   const coverHtml = dm.cover
     ? `<div class="dm-banner-cover"><img src="${escHtml(dm.cover)}" alt="" onerror="this.parentElement.innerHTML='<span class=dm-banner-icon><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.6\\'><path d=\\'M9 18V6l12-2v12\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'/><circle cx=\\'6\\' cy=\\'18\\' r=\\'3\\'/><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'/></svg></span>'"></div>`
     : `<div class="dm-banner-cover"><span class="dm-banner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
-
   return `<div class="date-music-banner">
     <div class="dm-banner-left" onclick="toggleDateMusicBanner()">
       ${coverHtml}
@@ -1984,49 +1480,51 @@ function entryMatchesSearch(e, q) {
 }
 
 // ═══════════════════════════════════════
-// RENDER ENTRY
+// RENDER ENTRY — FIX 3: render rich HTML + blur spans + blurred images
 // ═══════════════════════════════════════
 function renderEntry(e) {
   const posted = new Date(e.posted_at);
   const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
-
-  // FIX 7: no modified_at display at all
-
   const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică' };
   const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music' };
-
   let mediaHtml = '';
 
   if (e.type === 'photo') {
     const urls = e.media_urls || [];
+    const isBlurred = e.blur_images;
     const cols = urls.length === 1 ? 'cols-1' : urls.length === 2 ? 'cols-2' : 'cols-3';
     const imgs = urls.map((u, idx) =>
-      `<div class="media-item" onclick="openLightbox(${JSON.stringify(urls)}, ${idx})">
+      `<div class="media-item" onclick="${isBlurred ? '' : `openLightbox(${JSON.stringify(urls)}, ${idx})`}">
         <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
+        ${isBlurred ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this)">
+          <div class="img-blur-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </div>
+        </div>` : ''}
       </div>`
     ).join('');
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
+
   } else if (e.type === 'video') {
     const url = e.media_urls?.[0] || '';
-    // FIX 9: caption uses pre-wrap via CSS class .entry-caption
-    mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
+    // FIX 4: detect likely CORS-blocked sources and warn
+    const isCorsLikely = url.includes('raw.githubusercontent.com') || url.includes('github.com') && url.includes('/raw/');
+    const warnHtml = isCorsLikely
+      ? `<div class="video-warn">⚠ Acest link de pe GitHub nu poate fi redat în browser din cauza restricțiilor CORS.<br>Înlocuiește-l cu un link de pe <a href="https://cloudinary.com" target="_blank">Cloudinary</a>, Dropbox (dl=1) sau alt CDN.</div>`
+      : '';
+    mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
+
   } else if (e.type === 'music') {
     const aurl = e.media_urls?.[0] || '';
     const cover = e.cover_url || '';
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
-
-    // FIX 5: play/pause overlay directly on cover art
     const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
     const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
-
     mediaHtml = `<div class="music-player">
       <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', this.closest('.music-player'))">
-        ${iconBgHtml}
-        ${coverImgHtml}
-        <div class="music-cover-overlay">
-          ${isPlaying ? pauseIcon() : playIcon()}
-        </div>
+        ${iconBgHtml}${coverImgHtml}
+        <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
       </div>
       <div class="music-info">
         <div class="music-title">${escHtml(e.caption || e.content || 'melodie')}</div>
@@ -2039,9 +1537,18 @@ function renderEntry(e) {
     </div>`;
   }
 
-  const textHtml = e.content ? `<div class="card-text">${escHtml(e.content)}</div>` : '';
+  // FIX 3: Render content as rich HTML if it contains our markup
+  let textHtml = '';
+  if (e.content) {
+    // content stored as HTML for notes (rich text), plain text for others
+    if (e.type === 'note') {
+      // Sanitize lightly then render
+      textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${e.content}</div>`;
+    } else {
+      textHtml = `<div class="card-text">${escHtml(e.content)}</div>`;
+    }
+  }
 
-  // FIX 4: badge first, then time
   return `<div class="entry-card" data-id="${e.id}">
     <div class="card-inner">
       <div class="card-meta">
@@ -2067,15 +1574,202 @@ function renderEntry(e) {
   </div>`;
 }
 
+// Click on blurred text to reveal it
+function handleBlurClick(e) {
+  const span = e.target.closest('.blur-text-span');
+  if (span) span.classList.toggle('revealed');
+}
+
+// Click on blurred image overlay to reveal it
+function revealBlurredImg(overlay) {
+  overlay.classList.add('revealed');
+  // After fade, enable lightbox on the parent
+  const item = overlay.closest('.media-item');
+  if (item) {
+    item.style.cursor = 'pointer';
+    // restore lightbox click
+    const idx = [...item.parentElement.children].indexOf(item);
+    const card = item.closest('.entry-card');
+    if (!card) return;
+    const entryId = card.dataset.id;
+    const entry = entries.find(e => e.id === entryId);
+    if (entry) {
+      item.onclick = () => openLightbox(entry.media_urls || [], idx);
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// RICH TEXT EDITOR (RTE)
+// ═══════════════════════════════════════
+let savedRange = null;
+
+function rteSaveRange() {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) savedRange = sel.getRangeAt(0).cloneRange();
+}
+
+function rteRestoreRange(editorId) {
+  const editor = document.getElementById(editorId);
+  if (!editor) return;
+  editor.focus();
+  if (savedRange) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRange);
+  }
+}
+
+// FIX 3a: Bold
+function rteCmd(cmd) {
+  document.getElementById('rte-editor').focus();
+  document.execCommand(cmd, false, null);
+  updateRteState();
+}
+
+function rteCmd2(cmd) {
+  document.getElementById('rte-editor2').focus();
+  document.execCommand(cmd, false, null);
+}
+
+function updateRteState() {
+  const boldActive = document.queryCommandState('bold');
+  document.getElementById('rte-bold')?.classList.toggle('active', boldActive);
+}
+
+document.addEventListener('selectionchange', () => {
+  if (document.activeElement && document.activeElement.closest('#modal-note')) updateRteState();
+});
+
+// FIX 3b: Link bar toggle (preserves selection)
+function rteToggleLinkBar() {
+  rteSaveRange();
+  const bar = document.getElementById('rte-link-bar');
+  const inp = document.getElementById('rte-link-input');
+  const isVisible = bar.classList.toggle('visible');
+  if (isVisible) { inp.value = ''; setTimeout(() => inp.focus(), 50); }
+}
+
+function rteToggleLinkBar2() {
+  rteSaveRange();
+  const bar = document.getElementById('rte-link-bar2');
+  const inp = document.getElementById('rte-link-input2');
+  const isVisible = bar.classList.toggle('visible');
+  if (isVisible) { inp.value = ''; setTimeout(() => inp.focus(), 50); }
+}
+
+function rteInsertLink() {
+  const url = document.getElementById('rte-link-input').value.trim();
+  if (!url) return;
+  rteRestoreRange('rte-editor');
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+    document.execCommand('createLink', false, url);
+  } else {
+    // Insert link with URL as text
+    const a = document.createElement('a');
+    a.href = url; a.textContent = url; a.target = '_blank';
+    const range = window.getSelection().getRangeAt(0);
+    range.insertNode(a);
+    range.setStartAfter(a); range.collapse(true);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  }
+  document.getElementById('rte-link-bar').classList.remove('visible');
+}
+
+function rteInsertLink2() {
+  const url = document.getElementById('rte-link-input2').value.trim();
+  if (!url) return;
+  rteRestoreRange('rte-editor2');
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+    document.execCommand('createLink', false, url);
+  } else {
+    const a = document.createElement('a');
+    a.href = url; a.textContent = url; a.target = '_blank';
+    const range = window.getSelection().getRangeAt(0);
+    range.insertNode(a);
+    range.setStartAfter(a); range.collapse(true);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  }
+  document.getElementById('rte-link-bar2').classList.remove('visible');
+}
+
+// FIX 3c: Blur selected text
+function rteBlurSelected() {
+  const editor = document.getElementById('rte-editor');
+  editor.focus();
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) { showToast('selectează textul mai întâi'); return; }
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.className = 'blur-text-span';
+  span.title = 'apasă pentru a revela';
+  try {
+    range.surroundContents(span);
+  } catch(e) {
+    // Fallback: extract and wrap
+    const frag = range.extractContents();
+    span.appendChild(frag);
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+}
+
+function rteBlurSelected2() {
+  const editor = document.getElementById('rte-editor2');
+  editor.focus();
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) { showToast('selectează textul mai întâi'); return; }
+  const range = sel.getRangeAt(0);
+  const span = document.createElement('span');
+  span.className = 'blur-text-span';
+  span.title = 'apasă pentru a revela';
+  try {
+    range.surroundContents(span);
+  } catch(e) {
+    const frag = range.extractContents();
+    span.appendChild(frag);
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+}
+
+// Get RTE content as HTML
+function getRteHtml(editorId) {
+  const editor = document.getElementById(editorId);
+  if (!editor) return '';
+  // Fix links: ensure target=_blank
+  editor.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+  return editor.innerHTML;
+}
+
+// ═══════════════════════════════════════
+// PHOTO BLUR TOGGLE
+// ═══════════════════════════════════════
+function togglePhotoBlur() {
+  photoBlurEnabled = !photoBlurEnabled;
+  const track = document.getElementById('photo-blur-track');
+  const thumb = document.getElementById('photo-blur-thumb');
+  if (photoBlurEnabled) {
+    track.style.background = 'rgba(200,169,126,0.25)';
+    track.style.borderColor = 'rgba(200,169,126,0.4)';
+    thumb.style.background = 'var(--accent2)';
+    thumb.style.transform = 'translateX(16px)';
+  } else {
+    track.style.background = 'var(--surface2)';
+    track.style.borderColor = 'var(--border)';
+    thumb.style.background = 'var(--text3)';
+    thumb.style.transform = 'translateX(0)';
+  }
+}
+
 // ═══════════════════════════════════════
 // LIGHTBOX
 // ═══════════════════════════════════════
-let lbImages = [];
-let lbIndex = 0;
-let lbZoom = 1;
-let lbTouchStartX = 0;
-let lbPinchStart = 0;
-let lbZoomBase = 1;
+let lbImages = [], lbIndex = 0, lbZoom = 1, lbTouchStartX = 0, lbPinchStart = 0, lbZoomBase = 1;
 
 function openLightbox(urls, idx) {
   lbImages = urls; lbIndex = idx; lbZoom = 1;
@@ -2094,8 +1788,7 @@ function closeLightbox() {
 function showLbImage() {
   const img = document.getElementById('lbImg');
   img.src = lbImages[lbIndex];
-  img.style.transform = 'scale(1)';
-  lbZoom = 1;
+  img.style.transform = 'scale(1)'; lbZoom = 1;
   document.getElementById('lbPrev').classList.toggle('hidden', lbIndex === 0);
   document.getElementById('lbNext').classList.toggle('hidden', lbIndex === lbImages.length - 1);
   document.getElementById('lbCounter').textContent = lbImages.length > 1 ? `${lbIndex+1} / ${lbImages.length}` : '';
@@ -2107,22 +1800,19 @@ function lbNav(dir) {
 }
 
 const lbInner = document.getElementById('lbInner');
-
 lbInner.addEventListener('touchstart', e => {
-  if (e.touches.length === 1) { lbTouchStartX = e.touches[0].clientX; }
+  if (e.touches.length === 1) lbTouchStartX = e.touches[0].clientX;
   else if (e.touches.length === 2) {
     lbPinchStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
     lbZoomBase = lbZoom;
   }
 }, { passive: true });
-
 lbInner.addEventListener('touchend', e => {
   if (e.changedTouches.length === 1 && lbZoom <= 1) {
     const dx = e.changedTouches[0].clientX - lbTouchStartX;
     if (Math.abs(dx) > 60) lbNav(dx < 0 ? 1 : -1);
   }
 }, { passive: true });
-
 lbInner.addEventListener('touchmove', e => {
   if (e.touches.length === 2) {
     const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -2130,7 +1820,6 @@ lbInner.addEventListener('touchmove', e => {
     document.getElementById('lbImg').style.transform = `scale(${lbZoom})`;
   }
 }, { passive: true });
-
 let lbLastTap = 0;
 lbInner.addEventListener('click', e => {
   const now = Date.now();
@@ -2140,25 +1829,18 @@ lbInner.addEventListener('click', e => {
   }
   lbLastTap = now;
 });
-
 document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === document.getElementById('lightbox') || e.target === document.getElementById('lbImgWrap')) {
-    closeLightbox();
-  }
+  if (e.target === document.getElementById('lightbox') || e.target === document.getElementById('lbImgWrap')) closeLightbox();
 });
 
 // ═══════════════════════════════════════
-// ENTRY MUSIC CONTROLS — FIX 5
-// All other players stop when one starts
+// ENTRY MUSIC CONTROLS
 // ═══════════════════════════════════════
 function toggleEntryMusic(url, container) {
   const overlay = container.querySelector('.music-cover-overlay');
   const waves   = container.querySelector('.wave-bars');
   const sub     = container.querySelector('.music-sub');
-
   const isCurrentlyPlaying = currentEntryAudioUrl === url && !entryAudio.paused;
-
-  // Stop all other visible players first
   document.querySelectorAll('.music-player').forEach(p => {
     if (p !== container) {
       const ov = p.querySelector('.music-cover-overlay');
@@ -2169,7 +1851,6 @@ function toggleEntryMusic(url, container) {
       if (s)  s.textContent = 'apasă pentru redare';
     }
   });
-
   if (isCurrentlyPlaying) {
     entryAudio.pause();
     if (overlay) overlay.innerHTML = playIcon();
@@ -2177,10 +1858,7 @@ function toggleEntryMusic(url, container) {
     if (sub)     sub.textContent = 'apasă pentru redare';
     currentEntryAudioUrl = null;
   } else {
-    if (currentEntryAudioUrl !== url) {
-      entryAudio.src = url;
-      currentEntryAudioUrl = url;
-    }
+    if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     if (overlay) overlay.innerHTML = pauseIcon();
     if (waves)   waves.classList.remove('paused');
@@ -2195,11 +1873,13 @@ async function submitEntry(type) {
   let payload = { type };
 
   if (type === 'note') {
-    const text = document.getElementById('note-text').value.trim();
+    const html = getRteHtml('rte-editor');
+    const plain = document.getElementById('rte-editor').innerText.trim();
     const date = document.getElementById('note-date').value;
-    if (!text) { showToast('scrie ceva mai întâi'); return; }
-    payload.content = text;
+    if (!plain) { showToast('scrie ceva mai întâi'); return; }
+    payload.content = html; // store rich HTML
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+
   } else if (type === 'photo') {
     const raw = document.getElementById('photo-urls').value.trim();
     const date = document.getElementById('photo-date').value;
@@ -2207,7 +1887,9 @@ async function submitEntry(type) {
     if (!raw) { showToast('adaugă cel puțin un link'); return; }
     payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
     payload.caption = caption;
+    payload.blur_images = photoBlurEnabled;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+
   } else if (type === 'video') {
     const url = document.getElementById('video-url').value.trim();
     const date = document.getElementById('video-date').value;
@@ -2216,6 +1898,7 @@ async function submitEntry(type) {
     payload.media_urls = [url];
     payload.caption = caption;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+
   } else if (type === 'music') {
     const url = document.getElementById('music-url').value.trim();
     const title = document.getElementById('music-title-inp').value.trim();
@@ -2231,7 +1914,6 @@ async function submitEntry(type) {
   }
 
   payload.modified_at = payload.posted_at;
-
   const { error } = await sb.from('entries').insert([payload]);
   if (error) { showToast('eroare: ' + error.message); console.error(error); return; }
   showToast('salvat');
@@ -2241,10 +1923,22 @@ async function submitEntry(type) {
 }
 
 function clearForm(type) {
-  if (type === 'note') document.getElementById('note-text').value = '';
-  else if (type === 'photo') { document.getElementById('photo-urls').value=''; document.getElementById('photo-caption').value=''; }
-  else if (type === 'video') { document.getElementById('video-url').value=''; document.getElementById('video-caption').value=''; }
-  else if (type === 'music') { document.getElementById('music-url').value=''; document.getElementById('music-title-inp').value=''; document.getElementById('music-note').value=''; document.getElementById('music-cover-inp').value=''; }
+  if (type === 'note') {
+    document.getElementById('rte-editor').innerHTML = '';
+    document.getElementById('rte-link-bar').classList.remove('visible');
+  } else if (type === 'photo') {
+    document.getElementById('photo-urls').value = '';
+    document.getElementById('photo-caption').value = '';
+    if (photoBlurEnabled) togglePhotoBlur(); // reset toggle
+  } else if (type === 'video') {
+    document.getElementById('video-url').value = '';
+    document.getElementById('video-caption').value = '';
+  } else if (type === 'music') {
+    document.getElementById('music-url').value = '';
+    document.getElementById('music-title-inp').value = '';
+    document.getElementById('music-note').value = '';
+    document.getElementById('music-cover-inp').value = '';
+  }
   setDefaultDates();
 }
 
@@ -2315,16 +2009,23 @@ function openEditFor(id) {
   document.getElementById('edit-date').value = toLocal(e.posted_at);
   document.getElementById('edit-cover-group').style.display = (e.type === 'music') ? 'block' : 'none';
   document.getElementById('edit-cover').value = e.cover_url || '';
+
   if (e.type === 'note') {
-    document.getElementById('edit-content').value = e.content || '';
-    document.getElementById('edit-content').placeholder = 'textul notițe...';
+    // Use rich text editor for notes
+    document.getElementById('edit-rte-group').style.display = 'block';
+    document.getElementById('edit-plain-group').style.display = 'none';
     document.getElementById('edit-caption-group').style.display = 'none';
+    document.getElementById('rte-editor2').innerHTML = e.content || '';
   } else if (e.type === 'photo') {
+    document.getElementById('edit-rte-group').style.display = 'none';
+    document.getElementById('edit-plain-group').style.display = 'block';
     document.getElementById('edit-content').value = (e.media_urls||[]).join('\n');
     document.getElementById('edit-content').placeholder = 'link-uri (unul per linie)';
     document.getElementById('edit-caption').value = e.caption || '';
     document.getElementById('edit-caption-group').style.display = 'block';
   } else {
+    document.getElementById('edit-rte-group').style.display = 'none';
+    document.getElementById('edit-plain-group').style.display = 'block';
     document.getElementById('edit-content').value = e.media_urls?.[0] || '';
     document.getElementById('edit-content').placeholder = 'link';
     document.getElementById('edit-caption').value = e.caption || '';
@@ -2336,15 +2037,20 @@ function openEditFor(id) {
 async function saveEdit() {
   const id = document.getElementById('edit-id').value;
   const type = document.getElementById('edit-type').value;
-  const content = document.getElementById('edit-content').value.trim();
   const caption = document.getElementById('edit-caption').value.trim();
   const cover = document.getElementById('edit-cover').value.trim();
   const dateVal = document.getElementById('edit-date').value;
   const update = { posted_at: dateVal ? new Date(dateVal).toISOString() : undefined, modified_at: new Date().toISOString() };
-  if (type === 'note') update.content = content;
-  else if (type === 'photo') { update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean); update.caption = caption; }
-  else { update.media_urls = [content]; update.caption = caption; }
+
+  if (type === 'note') {
+    update.content = getRteHtml('rte-editor2');
+  } else {
+    const content = document.getElementById('edit-content').value.trim();
+    if (type === 'photo') { update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean); update.caption = caption; }
+    else { update.media_urls = [content]; update.caption = caption; }
+  }
   if (type === 'music') update.cover_url = cover;
+
   const { error } = await sb.from('entries').update(update).eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('modificat');
@@ -2396,7 +2102,7 @@ async function saveDebug() {
 }
 
 // ═══════════════════════════════════════
-// CALENDAR — FIX 8: open to selectedDate's month
+// CALENDAR
 // ═══════════════════════════════════════
 function calNav(dir) { calDate.setMonth(calDate.getMonth()+dir); renderCalendar(); }
 
@@ -2405,7 +2111,6 @@ function renderCalendar() {
   const month = calDate.getMonth();
   document.getElementById('cal-month-label').textContent =
     new Date(year, month, 1).toLocaleDateString('ro-RO', { month:'long', year:'numeric' });
-
   const typeMap = {};
   entries.forEach(e => {
     const d = new Date(e.posted_at);
@@ -2415,37 +2120,25 @@ function renderCalendar() {
       typeMap[day].add(e.type);
     }
   });
-
   for (let day = 1; day <= 31; day++) {
     const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    if (dateMusicMap[k]) {
-      if (!typeMap[day]) typeMap[day] = new Set();
-      typeMap[day].add('music');
-    }
+    if (dateMusicMap[k]) { if (!typeMap[day]) typeMap[day] = new Set(); typeMap[day].add('music'); }
   }
-
   const dayNames = ['lu','ma','mi','jo','vi','sâ','du'];
   let html = dayNames.map(d => `<div class="cal-day-name">${d}</div>`).join('');
-
   const firstWeekday = new Date(year, month, 1).getDay();
   const offset = firstWeekday === 0 ? 6 : firstWeekday - 1;
   for (let i = 0; i < offset; i++) html += '<div></div>';
-
   const today = new Date();
   const daysInMonth = new Date(year, month+1, 0).getDate();
-
   for (let day = 1; day <= daysInMonth; day++) {
     const isToday = today.getDate()===day && today.getMonth()===month && today.getFullYear()===year;
     const types = typeMap[day] ? [...typeMap[day]] : [];
     const hasEntry = types.length > 0;
     const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const typeClasses = types.map(t => `has-${t}`).join(' ');
-
-    html += `<div class="cal-cell${hasEntry?' has-entry':''}${isToday?' today':''} ${typeClasses}" onclick="calJumpTo('${k}')">
-      ${day}
-    </div>`;
+    html += `<div class="cal-cell${hasEntry?' has-entry':''}${isToday?' today':''} ${typeClasses}" onclick="calJumpTo('${k}')">${day}</div>`;
   }
-
   document.getElementById('calendar-grid').innerHTML = html;
 }
 
@@ -2467,13 +2160,10 @@ function calJumpTo(key) {
 // ═══════════════════════════════════════
 function openModal(name) {
   closeFab();
-
-  // FIX 8: calendar opens to selectedDate's month, not today
   if (name === 'calendar') {
     calDate = selectedDate ? new Date(selectedDate) : new Date();
     renderCalendar();
   }
-
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value = '';
