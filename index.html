@@ -102,6 +102,7 @@ body::before {
 .search-label.visible { display: block; }
 
 /* ── DATE CAROUSEL ── */
+/* FIX 7: mai mult padding deasupra entries-container */
 .carousel-wrap { padding: 10px 0 0; overflow: hidden; position: relative; }
 .carousel-wrap::before, .carousel-wrap::after {
   content: ''; position: absolute; top: 0; bottom: 0; width: 48px;
@@ -129,8 +130,21 @@ body::before {
 .pill-dots { display: flex; gap: 2px; min-height: 4px; }
 .pill-dot { width: 3px; height: 3px; border-radius: 50%; }
 
+/* FIX 2: month separator pill in carousel */
+.month-separator-pill {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 6px 10px; border-radius: 50px;
+  border: 1px solid rgba(122,162,200,0.18);
+  background: rgba(122,162,200,0.04);
+  min-width: 52px; gap: 1px;
+}
+.month-sep-name { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; color: var(--blue); text-transform: uppercase; opacity: 0.7; }
+.month-sep-year { font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em; color: var(--text4); }
+
 /* ── ENTRIES ── */
-#entries-container { padding-top: 2px; }
+/* FIX 7: padding-top mai mare pentru entries-container */
+#entries-container { padding-top: 10px; }
 .section-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text4); text-transform: uppercase; padding: 16px 16px 6px; }
 
 /* ── ENTRY CARD ── */
@@ -177,6 +191,19 @@ body::before {
 .card-text .txt-xl { font-size: 24px; line-height: 1.4; font-weight: 500; }
 .card-text .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
 
+/* FIX 1: links — white text, gold underline instead of blue */
+.card-text a {
+  color: var(--text) !important;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--accent);
+  padding-bottom: 1px;
+  transition: border-color 0.15s, opacity 0.15s;
+}
+.card-text a:hover {
+  opacity: 0.8;
+  border-color: var(--accent2);
+}
+
 .blur-text-span {
   filter: blur(5px);
   cursor: pointer;
@@ -187,6 +214,15 @@ body::before {
   user-select: none;
 }
 .blur-text-span.revealed { filter: blur(0); user-select: text; }
+
+/* FIX 5: search highlight */
+.search-highlight {
+  background: rgba(200,169,126,0.32);
+  color: var(--accent2);
+  border-radius: 3px;
+  padding: 0 1px;
+  font-weight: 600;
+}
 
 /* ── MEDIA ── */
 .media-wrap { margin-top: 10px; }
@@ -262,6 +298,8 @@ body::before {
 .music-info { flex: 1; overflow: hidden; }
 .music-title { font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .music-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 2px; letter-spacing: 0.03em; }
+/* FIX 3: music note under player */
+.music-note-text { margin-top: 4px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; }
 .wave-bars { display: flex; align-items: center; gap: 2px; height: 16px; flex-shrink: 0; }
 .wave-bar { width: 2px; background: var(--green); border-radius: 1px; opacity: 0.7; }
 .wave-bar:nth-child(1){ height:5px;  animation: wv .65s ease-in-out infinite 0s; }
@@ -307,10 +345,9 @@ body::before {
   pointer-events: none; z-index: 100;
 }
 
-/* ── NAV BUTTONS — REBUILT ── */
-/* Positioned absolutely in the center, separate from FAB and Calendar */
+/* ── NAV BUTTONS ── */
 .bottom-nav-btns {
-  pointer-events: none; /* container passthrough */
+  pointer-events: none;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -327,11 +364,9 @@ body::before {
   width: 56px;
   height: 56px;
   flex-shrink: 0;
-  /* Ensure nothing overlaps this */
   isolation: isolate;
 }
 
-/* Ring SVG behind the button */
 .nav-ring-svg {
   position: absolute;
   inset: -5px;
@@ -344,7 +379,6 @@ body::before {
   z-index: 1;
 }
 
-/* The actual clickable button - ON TOP of everything */
 .bottom-nav-btn {
   position: absolute;
   inset: 0;
@@ -365,7 +399,7 @@ body::before {
   -webkit-user-select: none;
   user-select: none;
   touch-action: manipulation;
-  z-index: 2; /* above ring svg */
+  z-index: 2;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -428,7 +462,7 @@ body::before {
 }
 .cal-fab-btn svg { width: 19px; height: 19px; }
 
-/* ── CALENDAR POPUP — CENTERED ── */
+/* ── CALENDAR POPUP ── */
 .cal-popup-overlay {
   position: fixed; inset: 0;
   background: rgba(4,4,8,0.75);
@@ -644,7 +678,8 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 
 .rte-editor { min-height: 120px; padding: 11px 13px; color: var(--text); font-family: var(--serif); font-size: 15px; line-height: 1.72; outline: none; word-wrap: break-word; }
 .rte-editor:empty::before { content: attr(data-placeholder); color: var(--text3); pointer-events: none; }
-.rte-editor a { color: var(--accent2); text-decoration: underline; text-underline-offset: 2px; }
+/* FIX 1: links in editor also white + gold underline */
+.rte-editor a { color: var(--text); text-decoration: none; border-bottom: 1.5px solid var(--accent); padding-bottom: 1px; }
 .rte-editor .blur-span { filter: blur(5px); background: rgba(200,169,126,0.08); border-radius: 4px; padding: 0 2px; cursor: default; transition: filter 0.3s; }
 .rte-editor .blur-span.revealed { filter: blur(0); }
 /* Font size spans in editor */
@@ -770,7 +805,7 @@ audio { display: none; }
     </button>
   </div>
 
-  <!-- CENTRU: Nav buttons — separate, above everything -->
+  <!-- CENTRU: Nav buttons -->
   <div class="bottom-nav-btns">
     <div class="nav-btn-outer">
       <button class="bottom-nav-btn" id="navPrev" title="ziua anterioară" type="button">
@@ -958,7 +993,6 @@ audio { display: none; }
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
           </button>
           <div class="rte-sep"></div>
-          <!-- Font size button -->
           <div class="rte-size-wrap" id="rteSizeWrap">
             <button class="rte-btn rte-size-btn" id="rteSizeBtn" onclick="toggleSizeDropdown('rteSizeDropdown')" title="Mărime text">
               <span id="rteSizeLbl">Aa</span>
@@ -1057,7 +1091,7 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- Music -->
+<!-- Music — FIX 3: added title + description fields -->
 <div class="backdrop" id="modal-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1149,7 +1183,6 @@ audio { display: none; }
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
           </button>
           <div class="rte-sep"></div>
-          <!-- Font size for edit modal -->
           <div class="rte-size-wrap" id="rteSizeWrap2">
             <button class="rte-btn rte-size-btn" id="rteSizeBtn2" onclick="toggleSizeDropdown('rteSizeDropdown2')" title="Mărime text">
               <span id="rteSizeLbl2">Aa</span>
@@ -1358,12 +1391,10 @@ const SIZE_LABELS  = { '':'m', 'txt-xs':'xs', 'txt-sm':'s', 'txt-lg':'l', 'txt-x
 function toggleSizeDropdown(dropId) {
   const drop = document.getElementById(dropId);
   if (!drop) return;
-  // Close all other dropdowns first
   document.querySelectorAll('.rte-size-dropdown').forEach(d => { if (d.id !== dropId) d.classList.remove('open'); });
   drop.classList.toggle('open');
 }
 
-// Close dropdowns when clicking outside
 document.addEventListener('click', e => {
   if (!e.target.closest('.rte-size-wrap')) {
     document.querySelectorAll('.rte-size-dropdown').forEach(d => d.classList.remove('open'));
@@ -1387,37 +1418,30 @@ function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
   const hasSelection = sel && !sel.isCollapsed;
 
   if (hasSelection && sel.rangeCount > 0) {
-    // Apply to selection only
     const range = sel.getRangeAt(0);
     const span = document.createElement('span');
-    // Remove existing size classes
     SIZE_CLASSES.forEach(c => span.classList.remove(c));
     if (cls) span.classList.add(cls);
     try {
       const frag = range.extractContents();
       span.appendChild(frag);
       range.insertNode(span);
-      // Restore selection around new span
       const newRange = document.createRange();
       newRange.selectNodeContents(span);
       sel.removeAllRanges();
       sel.addRange(newRange);
     } catch(e) { console.warn(e); }
   } else {
-    // No selection — apply to whole editor content or insert empty span at cursor
     showToast('selectează textul pe care vrei să-l formatezi');
   }
 
-  // Update label
   const lbl = document.getElementById(lblId);
   if (lbl) lbl.textContent = SIZE_LABELS[cls] || 'm';
 
-  // Update active state in dropdown
   const drop = document.getElementById(dropId);
   if (drop) {
     drop.querySelectorAll('.rte-size-option').forEach(opt => {
       opt.classList.remove('active');
-      // Match by the label text
       const optLbl = opt.querySelector('.rte-size-label');
       if (optLbl && optLbl.textContent === (SIZE_LABELS[cls] || 'm')) opt.classList.add('active');
     });
@@ -1553,7 +1577,7 @@ function goBackToToday() {
 }
 
 // ═══════════════════════════════════════
-// NAV BUTTONS — REBUILT
+// NAV BUTTONS
 // ═══════════════════════════════════════
 function setupNavButtons() {
   const prev = document.getElementById('navPrev');
@@ -1568,7 +1592,6 @@ function setupNavButtons() {
     jumpDate(1);
   });
 
-  // Touch events directly on buttons for reliability
   prev.addEventListener('touchend', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1582,9 +1605,10 @@ function setupNavButtons() {
 }
 
 // ═══════════════════════════════════════
-// OVERSCROLL / RING — fire on touchend only
+// OVERSCROLL / RING
+// FIX 6: increased threshold from 100 to 160
 // ═══════════════════════════════════════
-const RING_CIRC = 2 * Math.PI * 28; // matches r=28
+const RING_CIRC = 2 * Math.PI * 28;
 let ringProgress = 0;
 let ringVisible = false;
 let jumpLocked = false;
@@ -1593,7 +1617,7 @@ let touchStartY = 0;
 let touchLastY = 0;
 let overscrollActive = false;
 let overscrollDelta = 0;
-const OVERSCROLL_THRESHOLD = 100;
+const OVERSCROLL_THRESHOLD = 160; // FIX 6: was 100, now 160
 
 function setRingProgress(val) {
   ringProgress = Math.max(0, Math.min(1, val));
@@ -1625,7 +1649,6 @@ function setupOverscroll() {
 }
 
 function onTouchStart(e) {
-  // Don't intercept touches on nav buttons
   if (e.target.closest('.bottom-nav-btn') || e.target.closest('.nav-btn-outer')) return;
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   touchStartY = e.touches[0].clientY;
@@ -1635,7 +1658,6 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
-  // Don't interfere with nav buttons
   if (e.target.closest('.bottom-nav-btn') || e.target.closest('.nav-btn-outer')) return;
   if (!overscrollActive || jumpLocked) return;
   const y = e.touches[0].clientY;
@@ -1654,16 +1676,13 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd(e) {
-  // Don't interfere with nav buttons
   if (e.target.closest('.bottom-nav-btn') || e.target.closest('.nav-btn-outer')) return;
   if (!overscrollActive) return;
-  // Fire only on finger lift, if threshold reached
   if (ringProgress >= 1 && !jumpLocked) {
     jumpLocked = true;
     jumpDate(1);
     setTimeout(resetRing, 400);
   } else {
-    // Animate ring back to 0
     setRingProgress(0);
     jumpLocked = false;
   }
@@ -1766,26 +1785,50 @@ async function confirmDeleteDateMusic() {
 }
 
 // ═══════════════════════════════════════
-// DATE CAROUSEL
+// DATE CAROUSEL — FIX 2: month separators + show up to 12 months back
 // ═══════════════════════════════════════
 function buildCarousel() {
   const carousel = document.getElementById('dateCarousel');
   const today = new Date(); today.setHours(0,0,0,0);
   const days = [];
-  for (let i = -60; i <= 7; i++) {
+  // FIX 2: extend to 365 days back so all months are always visible
+  for (let i = -365; i <= 7; i++) {
     const d = new Date(today); d.setDate(today.getDate() + i);
     days.push(d);
   }
+
   const dayTypesMap = {};
   entries.forEach(e => {
     const k = dateKey(e.posted_at);
     if (!dayTypesMap[k]) dayTypesMap[k] = new Set();
     dayTypesMap[k].add(e.type);
   });
+
   const dayNames = ['du','lu','ma','mi','jo','vi','sâ'];
+  const monthNamesShort = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'];
   const typeColors = { note:'var(--accent)', photo:'var(--blue)', video:'var(--rose)', music:'var(--green)' };
-  carousel.innerHTML = days.map(d => {
+
+  let lastMonth = -1;
+  let lastYear = -1;
+  let html = '';
+
+  days.forEach(d => {
     const k = dateKey(d);
+    const month = d.getMonth();
+    const year = d.getFullYear();
+
+    // FIX 2: insert month separator pill when month changes
+    if (month !== lastMonth || year !== lastYear) {
+      if (lastMonth !== -1) {
+        html += `<div class="month-separator-pill">
+          <span class="month-sep-name">${monthNamesShort[month]}</span>
+          <span class="month-sep-year">${year}</span>
+        </div>`;
+      }
+      lastMonth = month;
+      lastYear = year;
+    }
+
     const types = dayTypesMap[k] ? [...dayTypesMap[k]] : [];
     const isToday = k === dateKey(today);
     const isSelected = selectedDate && dateKey(selectedDate) === k;
@@ -1794,12 +1837,14 @@ function buildCarousel() {
       const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t] || 'var(--accent)');
       return `<span class="pill-dot" style="background:${color}"></span>`;
     }).join('');
-    return `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
+    html += `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
       <span class="pill-name">${isToday ? 'azi' : dayNames[d.getDay()]}</span>
       <span class="pill-num">${d.getDate()}</span>
       <div class="pill-dots">${dots}</div>
     </div>`;
-  }).join('');
+  });
+
+  carousel.innerHTML = html;
   scrollCarouselToSelected();
 }
 
@@ -1817,7 +1862,6 @@ function selectDate(key) {
   const [y,m,d] = key.split('-').map(Number);
   selectedDate = new Date(y, m-1, d);
   saveLastDate(key);
-  // Update carousel pills — rebuild if the selected date might be outside the current window
   buildCarousel();
   clearSearch(true);
   playDateMusic(key, true);
@@ -1898,7 +1942,22 @@ async function loadEntries() {
 
 // ═══════════════════════════════════════
 // SEARCH
+// FIX 4: type keyword matching
 // ═══════════════════════════════════════
+// Maps search keywords to entry types
+const TYPE_KEYWORD_MAP = {
+  'nota': 'note', 'notita': 'note', 'notite': 'note', 'notița': 'note', 'notițe': 'note',
+  'nota': 'note', 'note': 'note',
+  'foto': 'photo', 'poza': 'photo', 'poze': 'photo', 'photo': 'photo', 'imagine': 'photo', 'imagini': 'photo',
+  'video': 'video', 'videoclip': 'video', 'videoclipuri': 'video', 'clip': 'video',
+  'muzica': 'music', 'muzică': 'music', 'music': 'music', 'melodie': 'music', 'melodii': 'music', 'cantec': 'music', 'cântec': 'music',
+};
+
+function getTypeFromQuery(q) {
+  const qn = normRo(q.trim().toLowerCase());
+  return TYPE_KEYWORD_MAP[qn] || null;
+}
+
 function onSearch(val) {
   searchQuery = val.trim();
   document.getElementById('searchClear').classList.toggle('visible', !!searchQuery);
@@ -1914,6 +1973,64 @@ function clearSearch(silent = false) {
 }
 
 // ═══════════════════════════════════════
+// FIX 5: highlight search term in text
+// ═══════════════════════════════════════
+function highlightText(text, query) {
+  if (!query || !text) return escHtml(text || '');
+  const qn = normRo(query);
+  const tn = normRo(text);
+  let result = '';
+  let i = 0;
+  while (i < text.length) {
+    const idx = tn.indexOf(qn, i);
+    if (idx === -1) {
+      result += escHtml(text.slice(i));
+      break;
+    }
+    result += escHtml(text.slice(i, idx));
+    result += `<mark class="search-highlight">${escHtml(text.slice(idx, idx + qn.length))}</mark>`;
+    i = idx + qn.length;
+  }
+  return result;
+}
+
+// Highlight inside HTML content (for rich text notes)
+function highlightHtml(html, query) {
+  if (!query || !html) return html || '';
+  const qn = normRo(query);
+  const qLen = qn.length;
+  if (!qLen) return html;
+
+  // We walk the text nodes and highlight matches
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+
+  function walkNodes(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent;
+      const normText = normRo(text);
+      const idx = normText.indexOf(qn);
+      if (idx === -1) return;
+      const before = text.slice(0, idx);
+      const match = text.slice(idx, idx + qLen);
+      const after = text.slice(idx + qLen);
+      const frag = document.createDocumentFragment();
+      if (before) frag.appendChild(document.createTextNode(before));
+      const mark = document.createElement('mark');
+      mark.className = 'search-highlight';
+      mark.textContent = match;
+      frag.appendChild(mark);
+      if (after) frag.appendChild(document.createTextNode(after));
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'MARK') {
+      [...node.childNodes].forEach(walkNodes);
+    }
+  }
+  walkNodes(tmp);
+  return tmp.innerHTML;
+}
+
+// ═══════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════
 function renderEntries() {
@@ -1921,9 +2038,17 @@ function renderEntries() {
   const label = document.getElementById('searchLabel');
   const carouselWrap = document.getElementById('carouselWrap');
   let filtered;
+  let typeFilter = null;
+
   if (searchQuery) {
     carouselWrap.style.display = 'none';
-    filtered = entries.filter(e => entryMatchesSearch(e, searchQuery));
+    // FIX 4: check if query is a type keyword
+    typeFilter = getTypeFromQuery(searchQuery);
+    if (typeFilter) {
+      filtered = entries.filter(e => e.type === typeFilter);
+    } else {
+      filtered = entries.filter(e => entryMatchesSearch(e, searchQuery));
+    }
     label.textContent = `${filtered.length} rezultat${filtered.length===1?'':'e'}`;
     label.classList.add('visible');
   } else {
@@ -1954,6 +2079,9 @@ function renderEntries() {
   }
 
   let html = '';
+  // Pass the active query for highlighting (not for type-only filters)
+  const hlQuery = (searchQuery && !typeFilter) ? searchQuery : '';
+
   if (searchQuery) {
     const groups = {};
     filtered.forEach(e => {
@@ -1963,12 +2091,12 @@ function renderEntries() {
     });
     for (const [lbl, group] of Object.entries(groups)) {
       html += `<div class="section-lbl">${lbl}</div>`;
-      group.forEach(e => { html += renderEntry(e); });
+      group.forEach(e => { html += renderEntry(e, hlQuery); });
     }
   } else {
     const dk = selectedDate ? dateKey(selectedDate) : null;
     if (dk && dateMusicMap[dk]) html += renderDateMusicBanner(dk);
-    filtered.forEach(e => { html += renderEntry(e); });
+    filtered.forEach(e => { html += renderEntry(e, ''); });
   }
 
   container.innerHTML = html;
@@ -2013,7 +2141,7 @@ function entryMatchesSearch(e, q) {
 // ═══════════════════════════════════════
 // RENDER ENTRY
 // ═══════════════════════════════════════
-function renderEntry(e) {
+function renderEntry(e, hlQuery) {
   const posted = new Date(e.posted_at);
   const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
@@ -2035,13 +2163,19 @@ function renderEntry(e) {
         </div>` : ''}
       </div>`
     ).join('');
-    mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
+    const captionHtml = e.caption
+      ? `<div class="entry-caption">${hlQuery ? highlightText(e.caption, hlQuery) : escHtml(e.caption)}</div>`
+      : '';
+    mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
   } else if (e.type === 'video') {
     const url = e.media_urls?.[0] || '';
     const isCorsLikely = url.includes('raw.githubusercontent.com') || (url.includes('github.com') && url.includes('/raw/'));
     const warnHtml = isCorsLikely ? `<div class="video-warn">⚠ Link GitHub nu poate fi redat din cauza CORS.</div>` : '';
-    mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
+    const captionHtml = e.caption
+      ? `<div class="entry-caption">${hlQuery ? highlightText(e.caption, hlQuery) : escHtml(e.caption)}</div>`
+      : '';
+    mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${captionHtml}</div>`;
 
   } else if (e.type === 'music') {
     const aurl = e.media_urls?.[0] || '';
@@ -2049,14 +2183,19 @@ function renderEntry(e) {
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
     const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
     const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
-    const noteHtml = e.content ? `<div class="entry-caption">${escHtml(e.content)}</div>` : '';
+    // FIX 3: show both title (caption) and description (content) for music entries
+    const titleText = e.caption || 'melodie';
+    const noteText = e.content || '';
+    const noteHtml = noteText
+      ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>`
+      : '';
     mediaHtml = `<div class="music-player">
       <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', this.closest('.music-player'))">
         ${iconBgHtml}${coverImgHtml}
         <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
       </div>
       <div class="music-info">
-        <div class="music-title">${escHtml(e.caption || e.content || 'melodie')}</div>
+        <div class="music-title">${hlQuery ? highlightText(titleText, hlQuery) : escHtml(titleText)}</div>
         <div class="music-sub">${isPlaying ? 'redare...' : 'apasă pentru redare'}</div>
       </div>
       <div class="wave-bars ${isPlaying?'':'paused'}">
@@ -2069,9 +2208,11 @@ function renderEntry(e) {
   let textHtml = '';
   if (e.content) {
     if (e.type === 'note') {
-      textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${e.content}</div>`;
+      // FIX 5: highlight in rich text for notes
+      const htmlContent = hlQuery ? highlightHtml(e.content, hlQuery) : e.content;
+      textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
     } else if (e.type !== 'music') {
-      textHtml = `<div class="card-text">${escHtml(e.content)}</div>`;
+      textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
     }
   }
 
@@ -2403,8 +2544,8 @@ async function submitEntry(type) {
     const note = document.getElementById('music-note').value.trim();
     if (!url) { showToast('adaugă un link'); return; }
     payload.media_urls = [url];
-    payload.caption = title;
-    payload.content = note;
+    payload.caption = title;      // title → caption (shown as music-title in player)
+    payload.content = note;       // description → content (shown below player)
     payload.cover_url = cover;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   }
