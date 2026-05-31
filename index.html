@@ -167,7 +167,6 @@ body::before {
   position: relative;
 }
 
-/* Fade edges */
 .carousel-wrap::before,
 .carousel-wrap::after {
   content: '';
@@ -286,6 +285,7 @@ body::before {
 
 .card-inner { padding: 12px 13px 13px; }
 
+/* FIX 4: badge first, then time */
 .card-meta {
   display: flex;
   align-items: center;
@@ -335,13 +335,7 @@ body::before {
 .icon-btn:hover { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
 .icon-btn.del:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.3); color: #e07070; }
 
-.card-modified {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--text4);
-  margin-bottom: 6px;
-  font-style: italic;
-}
+/* FIX 7: removed .card-modified — not shown anymore */
 
 .card-text {
   font-family: var(--serif);
@@ -382,30 +376,33 @@ body::before {
   display: block;
 }
 
+/* FIX 9: video caption supports newlines */
 .entry-caption {
   margin-top: 7px;
   font-family: var(--serif);
   font-size: 13px;
   font-style: italic;
   color: var(--text3);
-  line-height: 1.5;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
-/* ── MUSIC PLAYER ── */
+/* ── MUSIC PLAYER — compact cover with play inside ── */
+/* FIX 5: play/pause button overlaid on cover art */
 .music-player {
   display: flex; align-items: center; gap: 10px;
   background: rgba(122,200,149,0.05);
   border: 1px solid rgba(122,200,149,0.12);
   border-radius: var(--r2);
   padding: 10px 12px;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s;
   margin-top: 10px;
 }
 
 .music-player:hover { background: rgba(122,200,149,0.09); }
 
-.music-cover {
+.music-cover-btn {
   width: 44px; height: 44px;
   border-radius: 8px;
   flex-shrink: 0;
@@ -413,25 +410,42 @@ body::before {
   background: rgba(122,200,149,0.1);
   border: 1px solid rgba(122,200,149,0.2);
   display: flex; align-items: center; justify-content: center;
-}
-
-.music-cover img { width: 100%; height: 100%; object-fit: cover; }
-.music-cover-icon { color: var(--green); }
-.music-cover-icon svg { width: 18px; height: 18px; }
-
-.music-play-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(122,200,149,0.12);
-  border: 1px solid rgba(122,200,149,0.3);
+  position: relative;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
   transition: all 0.15s;
-  color: var(--green);
 }
 
-.music-play-btn svg { width: 13px; height: 13px; }
-.music-play-btn:hover { background: rgba(122,200,149,0.2); }
+.music-cover-btn:hover { border-color: rgba(122,200,149,0.5); }
+
+.music-cover-btn img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  position: absolute; inset: 0;
+  border-radius: 7px;
+}
+
+.music-cover-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.35);
+  border-radius: 7px;
+  transition: background 0.15s;
+  z-index: 2;
+}
+
+.music-cover-btn:hover .music-cover-overlay { background: rgba(0,0,0,0.5); }
+
+.music-cover-icon-bg {
+  /* shown when no cover image */
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--green);
+  z-index: 1;
+}
+
+.music-cover-icon-bg svg { width: 18px; height: 18px; }
+
+.music-cover-overlay svg { width: 14px; height: 14px; color: #fff; }
 
 .music-info { flex: 1; overflow: hidden; }
 
@@ -576,7 +590,7 @@ body::before {
   margin: 0 auto;
 }
 
-/* Calendar button - stânga */
+/* Calendar button */
 .bottom-cal-btn {
   pointer-events: all;
   width: 48px; height: 48px; border-radius: 50%;
@@ -594,7 +608,7 @@ body::before {
 .bottom-cal-btn svg { width: 18px; height: 18px; }
 .bottom-cal-btn:hover { border-color: var(--border3); color: var(--text); }
 
-/* Nav arrows - centru absolut */
+/* Nav arrows */
 .bottom-nav-btns {
   pointer-events: all;
   display: flex;
@@ -606,6 +620,7 @@ body::before {
   bottom: 28px;
 }
 
+/* FIX 6: Next btn pulse when at bottom, also ensure both btns work reliably */
 .bottom-nav-btn {
   width: 60px; height: 60px; border-radius: 50%;
   border: 1px solid var(--border2);
@@ -614,15 +629,30 @@ body::before {
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--text2);
-  transition: all 0.2s;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
   box-shadow: var(--shadow);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
-.bottom-nav-btn svg { width: 20px; height: 20px; }
+.bottom-nav-btn svg { width: 20px; height: 20px; pointer-events: none; }
 .bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.95); }
 .bottom-nav-btn:active { transform: scale(0.93); }
 
-/* FAB wrap - dreapta */
+/* FIX 3: pulse animation on next button when at bottom */
+@keyframes pulse-next {
+  0%   { box-shadow: 0 0 0 0 rgba(200,169,126,0.5), var(--shadow); border-color: rgba(200,169,126,0.6); }
+  60%  { box-shadow: 0 0 0 8px rgba(200,169,126,0), var(--shadow); border-color: rgba(200,169,126,0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(200,169,126,0), var(--shadow); border-color: var(--border2); }
+}
+
+.bottom-nav-btn.pulse-hint {
+  animation: pulse-next 1.2s ease-out 3;
+  color: var(--accent2);
+}
+
+/* FAB wrap */
 .fab-wrap {
   pointer-events: all;
   display: flex;
@@ -1087,7 +1117,7 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- Bottom bar: [calendar] [◀ ▶] [+] -->
+<!-- Bottom bar -->
 <div class="bottom-bar">
   <!-- Calendar -->
   <button class="bottom-cal-btn" onclick="openModal('calendar')" title="Calendar">
@@ -1099,12 +1129,12 @@ audio { display: none; }
 
   <!-- Nav prev/next -->
   <div class="bottom-nav-btns">
-    <button class="bottom-nav-btn" onclick="jumpDate(-1)" title="ziua anterioară">
+    <button class="bottom-nav-btn" id="navPrev" onclick="jumpDate(-1)" title="ziua anterioară">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-    <button class="bottom-nav-btn" onclick="jumpDate(1)" title="ziua următoare">
+    <button class="bottom-nav-btn" id="navNext" onclick="jumpDate(1)" title="ziua următoare">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -1256,7 +1286,8 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">descriere (opțional)</label>
-      <input type="text" class="form-input" id="video-caption" placeholder="o descriere scurtă...">
+      <!-- FIX 9: textarea for video caption to support newlines -->
+      <textarea class="form-textarea" style="min-height:70px" id="video-caption" placeholder="o descriere...&#10;poți folosi rânduri noi"></textarea>
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
@@ -1357,7 +1388,8 @@ audio { display: none; }
     </div>
     <div class="form-group" id="edit-caption-group">
       <label class="form-label">descriere / titlu</label>
-      <input type="text" class="form-input" id="edit-caption">
+      <!-- FIX 9: textarea for caption in edit modal too -->
+      <textarea class="form-textarea" style="min-height:70px" id="edit-caption"></textarea>
     </div>
     <div class="form-group" id="edit-cover-group">
       <label class="form-label">link copertă (opțional)</label>
@@ -1455,7 +1487,7 @@ let entries = [];
 let dateMusicMap = {};
 let selectedDate = null;
 let searchQuery = '';
-let calDate = new Date();
+let calDate = new Date();  // FIX 8: will be set to selectedDate when opening calendar
 let fabOpen = false;
 
 const dmAudio = document.getElementById('dateMusicAudio');
@@ -1490,8 +1522,8 @@ function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function playIcon()  { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
-function pauseIcon() { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`; }
+function playIcon()  { return `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`; }
+function pauseIcon() { return `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`; }
 
 // ═══════════════════════════════════════
 // INIT
@@ -1517,12 +1549,41 @@ async function init() {
   if (selectedDate) {
     playDateMusic(dateKey(selectedDate), false);
   }
+
+  // FIX 3: scroll-to-bottom pulse observer
+  setupScrollPulse();
 }
 
 function updateHeaderDate() {
   const el = document.getElementById('headerDateDisplay');
   if (!el) return;
   el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+// ═══════════════════════════════════════
+// FIX 3: Pulse "next" button when scrolled to bottom
+// ═══════════════════════════════════════
+let pulseTimeout = null;
+
+function setupScrollPulse() {
+  window.addEventListener('scroll', () => {
+    const scrolledToBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 40);
+    if (scrolledToBottom) {
+      triggerNextPulse();
+    }
+  }, { passive: true });
+}
+
+function triggerNextPulse() {
+  const btn = document.getElementById('navNext');
+  if (!btn) return;
+  btn.classList.remove('pulse-hint');
+  clearTimeout(pulseTimeout);
+  // small delay to allow re-trigger
+  pulseTimeout = setTimeout(() => {
+    btn.classList.add('pulse-hint');
+    setTimeout(() => btn.classList.remove('pulse-hint'), 3800);
+  }, 50);
 }
 
 // ═══════════════════════════════════════
@@ -1573,10 +1634,7 @@ async function loadDateMusicMap() {
       data.forEach(r => { dateMusicMap[r.date] = { url: r.url, title: r.title, cover: r.cover || '' }; });
       return;
     }
-    if (error) console.error('date_music load error:', error);
-  } catch(e) {
-    console.error('date_music exception:', e);
-  }
+  } catch(e) {}
   try {
     const saved = localStorage.getItem('carnet_date_music');
     if (saved) dateMusicMap = JSON.parse(saved);
@@ -1594,16 +1652,8 @@ async function saveDateMusic() {
 
   try {
     const { error } = await sb.from('date_music').upsert([row], { onConflict: 'date' });
-    if (error) {
-      console.error('Supabase upsert error:', error);
-      showToast('eroare la salvare: ' + error.message);
-      return;
-    }
-  } catch(e) {
-    console.error('Exception saving date music:', e);
-    showToast('eroare la salvare');
-    return;
-  }
+    if (error) { showToast('eroare la salvare: ' + error.message); return; }
+  } catch(e) { showToast('eroare la salvare'); return; }
 
   dateMusicMap[date] = { url, title: title || 'melodie', cover: cover || '' };
   document.getElementById('dm-url').value = '';
@@ -1637,9 +1687,7 @@ async function confirmDeleteDateMusic() {
 
   delete dateMusicMap[date];
 
-  try {
-    await sb.from('date_music').delete().eq('date', date);
-  } catch(e) {}
+  try { await sb.from('date_music').delete().eq('date', date); } catch(e) {}
 
   showToast('muzică ștearsă');
   closeModal('delete-dm');
@@ -1723,23 +1771,33 @@ function selectDate(key) {
   setDefaultDates();
 }
 
+// FIX 6: jumpDate rewritten to be reliable for both directions
 function jumpDate(dir) {
   if (!selectedDate) return;
+
   const datesWithEntries = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
-  if (!datesWithEntries.length) return;
+  if (!datesWithEntries.length) { showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche'); return; }
 
   const cur = dateKey(selectedDate);
-  let target;
+  let target = null;
 
   if (dir === 1) {
-    target = datesWithEntries.find(k => k > cur);
+    // next: first date strictly after cur
+    for (let i = 0; i < datesWithEntries.length; i++) {
+      if (datesWithEntries[i] > cur) { target = datesWithEntries[i]; break; }
+    }
   } else {
-    const before = datesWithEntries.filter(k => k < cur);
-    target = before.length ? before[before.length - 1] : null;
+    // prev: last date strictly before cur
+    for (let i = datesWithEntries.length - 1; i >= 0; i--) {
+      if (datesWithEntries[i] < cur) { target = datesWithEntries[i]; break; }
+    }
   }
 
-  if (target) selectDate(target);
-  else showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche');
+  if (target) {
+    selectDate(target);
+  } else {
+    showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche');
+  }
 }
 
 // ═══════════════════════════════════════
@@ -1933,9 +1991,7 @@ function renderEntry(e) {
   const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
 
-  const modStr = e.modified_at && e.modified_at !== e.posted_at
-    ? `<div class="card-modified">mod. ${new Date(e.modified_at).toLocaleDateString('ro-RO',{day:'numeric',month:'short',year:'numeric'})}</div>`
-    : '';
+  // FIX 7: no modified_at display at all
 
   const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică' };
   const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music' };
@@ -1953,19 +2009,25 @@ function renderEntry(e) {
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
   } else if (e.type === 'video') {
     const url = e.media_urls?.[0] || '';
+    // FIX 9: caption uses pre-wrap via CSS class .entry-caption
     mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
   } else if (e.type === 'music') {
     const aurl = e.media_urls?.[0] || '';
     const cover = e.cover_url || '';
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
 
-    const coverHtml = cover
-      ? `<div class="music-cover"><img src="${escHtml(cover)}" alt="" onerror="this.parentElement.innerHTML='<span class=music-cover-icon><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.6\\'><path d=\\'M9 18V6l12-2v12\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'/><circle cx=\\'6\\' cy=\\'18\\' r=\\'3\\'/><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'/></svg></span>'"></div>`
-      : `<div class="music-cover"><span class="music-cover-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
+    // FIX 5: play/pause overlay directly on cover art
+    const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
+    const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
 
-    mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl)}', this)">
-      ${coverHtml}
-      <button class="music-play-btn" data-url="${escHtml(aurl)}">${isPlaying ? pauseIcon() : playIcon()}</button>
+    mediaHtml = `<div class="music-player">
+      <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', this.closest('.music-player'))">
+        ${iconBgHtml}
+        ${coverImgHtml}
+        <div class="music-cover-overlay">
+          ${isPlaying ? pauseIcon() : playIcon()}
+        </div>
+      </div>
       <div class="music-info">
         <div class="music-title">${escHtml(e.caption || e.content || 'melodie')}</div>
         <div class="music-sub">${isPlaying ? 'redare...' : 'apasă pentru redare'}</div>
@@ -1979,12 +2041,13 @@ function renderEntry(e) {
 
   const textHtml = e.content ? `<div class="card-text">${escHtml(e.content)}</div>` : '';
 
+  // FIX 4: badge first, then time
   return `<div class="entry-card" data-id="${e.id}">
     <div class="card-inner">
       <div class="card-meta">
         <div class="card-meta-left">
-          <span class="card-time">${timeStr} · ${dateStr}</span>
           <span class="type-chip ${chipClass[e.type]}">${typeLabels[e.type]}</span>
+          <span class="card-time">${timeStr} · ${dateStr}</span>
         </div>
         <div class="card-actions">
           <button class="icon-btn" onclick="openDebugFor('${e.id}')" title="debug">
@@ -1998,7 +2061,6 @@ function renderEntry(e) {
           </button>
         </div>
       </div>
-      ${modStr}
       ${textHtml}
       ${mediaHtml}
     </div>
@@ -2086,20 +2148,33 @@ document.getElementById('lightbox').addEventListener('click', e => {
 });
 
 // ═══════════════════════════════════════
-// ENTRY MUSIC CONTROLS
+// ENTRY MUSIC CONTROLS — FIX 5
+// All other players stop when one starts
 // ═══════════════════════════════════════
 function toggleEntryMusic(url, container) {
-  const btn = container.querySelector('.music-play-btn');
-  const waves = container.querySelector('.wave-bars');
-  const sub = container.querySelector('.music-sub');
+  const overlay = container.querySelector('.music-cover-overlay');
+  const waves   = container.querySelector('.wave-bars');
+  const sub     = container.querySelector('.music-sub');
 
   const isCurrentlyPlaying = currentEntryAudioUrl === url && !entryAudio.paused;
 
+  // Stop all other visible players first
+  document.querySelectorAll('.music-player').forEach(p => {
+    if (p !== container) {
+      const ov = p.querySelector('.music-cover-overlay');
+      const w  = p.querySelector('.wave-bars');
+      const s  = p.querySelector('.music-sub');
+      if (ov) ov.innerHTML = playIcon();
+      if (w)  w.classList.add('paused');
+      if (s)  s.textContent = 'apasă pentru redare';
+    }
+  });
+
   if (isCurrentlyPlaying) {
     entryAudio.pause();
-    btn.innerHTML = playIcon();
-    waves.classList.add('paused');
-    if (sub) sub.textContent = 'apasă pentru redare';
+    if (overlay) overlay.innerHTML = playIcon();
+    if (waves)   waves.classList.add('paused');
+    if (sub)     sub.textContent = 'apasă pentru redare';
     currentEntryAudioUrl = null;
   } else {
     if (currentEntryAudioUrl !== url) {
@@ -2107,20 +2182,9 @@ function toggleEntryMusic(url, container) {
       currentEntryAudioUrl = url;
     }
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
-    btn.innerHTML = pauseIcon();
-    waves.classList.remove('paused');
-    if (sub) sub.textContent = 'redare...';
-
-    document.querySelectorAll('.music-player').forEach(p => {
-      if (p !== container) {
-        const b = p.querySelector('.music-play-btn');
-        const w = p.querySelector('.wave-bars');
-        const s = p.querySelector('.music-sub');
-        if (b) b.innerHTML = playIcon();
-        if (w) w.classList.add('paused');
-        if (s) s.textContent = 'apasă pentru redare';
-      }
-    });
+    if (overlay) overlay.innerHTML = pauseIcon();
+    if (waves)   waves.classList.remove('paused');
+    if (sub)     sub.textContent = 'redare...';
   }
 }
 
@@ -2332,7 +2396,7 @@ async function saveDebug() {
 }
 
 // ═══════════════════════════════════════
-// CALENDAR
+// CALENDAR — FIX 8: open to selectedDate's month
 // ═══════════════════════════════════════
 function calNav(dir) { calDate.setMonth(calDate.getMonth()+dir); renderCalendar(); }
 
@@ -2403,7 +2467,13 @@ function calJumpTo(key) {
 // ═══════════════════════════════════════
 function openModal(name) {
   closeFab();
-  if (name === 'calendar') { calDate = new Date(); renderCalendar(); }
+
+  // FIX 8: calendar opens to selectedDate's month, not today
+  if (name === 'calendar') {
+    calDate = selectedDate ? new Date(selectedDate) : new Date();
+    renderCalendar();
+  }
+
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value = '';
