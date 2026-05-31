@@ -50,7 +50,6 @@ body {
   line-height: 1.5;
 }
 
-/* ── GRAIN ── */
 body::before {
   content: '';
   position: fixed;
@@ -61,8 +60,7 @@ body::before {
   opacity: 0.6;
 }
 
-/* ── LAYOUT ── */
-.app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 100px; }
+.app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 120px; }
 
 /* ── HEADER ── */
 .header {
@@ -163,7 +161,33 @@ body::before {
 .search-label.visible { display: block; }
 
 /* ── DATE CAROUSEL ── */
-.carousel-wrap { padding: 12px 0 0; overflow: hidden; }
+.carousel-wrap {
+  padding: 10px 0 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Fade edges */
+.carousel-wrap::before,
+.carousel-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.carousel-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
+}
+
+.carousel-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg) 0%, transparent 100%);
+}
 
 .date-carousel {
   display: flex;
@@ -229,41 +253,6 @@ body::before {
   width: 3px; height: 3px;
   border-radius: 50%;
 }
-
-/* ── DATE NAV BUTTONS ── */
-.date-nav-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px 0;
-}
-
-.date-nav-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  letter-spacing: 0.05em;
-}
-
-.date-nav-btns {
-  display: flex;
-  gap: 4px;
-}
-
-.date-nav-btn {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text3);
-  transition: all 0.15s;
-}
-
-.date-nav-btn svg { width: 12px; height: 12px; }
-.date-nav-btn:hover { border-color: var(--border2); color: var(--text2); }
-.date-nav-btn:active { background: var(--surface2); }
 
 /* ── ENTRIES ── */
 #entries-container { padding-top: 2px; }
@@ -497,9 +486,16 @@ body::before {
   border-radius: var(--r2);
   padding: 9px 12px;
   display: flex; align-items: center; gap: 10px;
-  cursor: pointer; transition: all 0.2s;
+  transition: all 0.2s;
 }
 
+.dm-banner-left {
+  display: flex; align-items: center; gap: 10px;
+  flex: 1; overflow: hidden;
+  cursor: pointer;
+}
+
+.dm-banner-left:hover + .dm-banner-right,
 .date-music-banner:hover { background: rgba(200,169,126,0.09); }
 
 .dm-banner-cover {
@@ -535,6 +531,7 @@ body::before {
 .dm-wave-bars {
   display: flex; align-items: center; gap: 2px;
   height: 14px; flex-shrink: 0;
+  cursor: pointer;
 }
 
 .dm-wave-bar {
@@ -550,40 +547,70 @@ body::before {
 .dm-wave-bar:nth-child(4){ height:13px; animation: wv .65s ease-in-out infinite .11s; }
 .dm-wave-bar:nth-child(5){ height:5px;  animation: wv .65s ease-in-out infinite .05s; }
 
+.dm-banner-right {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+
+.dm-delete-btn {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid rgba(200,80,80,0.2);
+  background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(200,80,80,0.4); transition: all 0.15s;
+}
+
+.dm-delete-btn svg { width: 11px; height: 11px; }
+.dm-delete-btn:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.4); color: #e07070; }
+
 /* ── BOTTOM BAR ── */
 .bottom-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
-  padding: 0 0 24px;
+  justify-content: space-between;
+  padding: 0 20px 28px;
   pointer-events: none;
   z-index: 100;
+  max-width: 440px;
+  margin: 0 auto;
 }
 
-.fab-wrap {
+/* Calendar button - stânga */
+.bottom-cal-btn {
+  pointer-events: all;
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: rgba(10,10,14,0.85);
+  backdrop-filter: blur(20px);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.bottom-cal-btn svg { width: 18px; height: 18px; }
+.bottom-cal-btn:hover { border-color: var(--border3); color: var(--text); }
+
+/* Nav arrows - centru absolut */
+.bottom-nav-btns {
   pointer-events: all;
   display: flex;
-  flex-direction: column;
+  gap: 10px;
   align-items: center;
-  gap: 0;
-  position: relative;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 28px;
 }
 
-/* Prev/Next nav buttons above FAB */
-.fab-nav-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.fab-nav-btn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+.bottom-nav-btn {
+  width: 60px; height: 60px; border-radius: 50%;
   border: 1px solid var(--border2);
-  background: rgba(12,12,15,0.85);
-  backdrop-filter: blur(16px);
+  background: rgba(10,10,14,0.85);
+  backdrop-filter: blur(20px);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--text2);
@@ -591,8 +618,19 @@ body::before {
   box-shadow: var(--shadow);
 }
 
-.fab-nav-btn svg { width: 14px; height: 14px; }
-.fab-nav-btn:hover { border-color: rgba(200,169,126,0.4); color: var(--accent); }
+.bottom-nav-btn svg { width: 20px; height: 20px; }
+.bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.95); }
+.bottom-nav-btn:active { transform: scale(0.93); }
+
+/* FAB wrap - dreapta */
+.fab-wrap {
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+  position: relative;
+}
 
 /* FAB menu */
 .fab-menu {
@@ -638,7 +676,7 @@ body::before {
 
 /* Main FAB */
 .fab-main {
-  width: 52px; height: 52px; border-radius: 50%;
+  width: 48px; height: 48px; border-radius: 50%;
   border: 1px solid rgba(200,169,126,0.4);
   background: linear-gradient(135deg, rgba(180,140,90,0.55), rgba(200,169,126,0.25));
   backdrop-filter: blur(24px);
@@ -652,32 +690,6 @@ body::before {
 .fab-main svg { width: 20px; height: 20px; transition: transform 0.3s; }
 .fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
 .fab-main.open svg { transform: rotate(45deg); }
-
-/* left/right calendar sidebar fabs */
-.bottom-sidebar {
-  position: fixed;
-  bottom: 28px;
-  pointer-events: all;
-  z-index: 100;
-}
-
-.bottom-left { left: 16px; }
-.bottom-right { right: 16px; }
-
-.fab-side {
-  width: 44px; height: 44px; border-radius: 50%;
-  border: 1px solid var(--border2);
-  background: rgba(10,10,14,0.8);
-  backdrop-filter: blur(20px);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow);
-  transition: all 0.2s;
-  color: var(--text2);
-}
-
-.fab-side svg { width: 17px; height: 17px; }
-.fab-side:hover { border-color: var(--border3); color: var(--text); }
 
 /* ── MODALS ── */
 .backdrop {
@@ -841,13 +853,18 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
   font-family: var(--mono); font-size: 11px;
   color: var(--text4);
   position: relative; transition: all 0.15s;
-  cursor: default;
+  cursor: pointer;
+}
+
+.cal-cell:hover {
+  background: var(--surface2);
+  color: var(--text2);
 }
 
 .cal-cell.today { color: var(--accent2); }
+.cal-cell.today:hover { color: var(--accent2); }
 
 .cal-cell.has-entry {
-  cursor: pointer;
   background: var(--surface);
   color: var(--text2);
   border: 1px solid var(--border);
@@ -855,33 +872,16 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 
 .cal-cell.has-entry:hover { background: var(--surface2); border-color: var(--border2); }
 
-/* Type rings — only inside the cell, using outline/inset shadows */
-.cal-cell .type-rings {
-  position: absolute; inset: 0;
-  border-radius: 8px;
-  pointer-events: none;
-}
-
-/* single ring = border inside cell */
 .has-note    { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4); }
 .has-photo   { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4); }
 .has-video   { box-shadow: inset 0 0 0 2px rgba(200,122,138,0.4); }
 .has-music   { box-shadow: inset 0 0 0 2px rgba(122,200,149,0.4); }
-
-/* multi-type: stacked inset shadows */
 .has-note.has-photo  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,162,200,0.3); }
 .has-note.has-video  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(200,122,138,0.3); }
 .has-note.has-music  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
 .has-photo.has-video { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4), inset 0 0 0 4px rgba(200,122,138,0.3); }
 .has-photo.has-music { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
 .has-video.has-music { box-shadow: inset 0 0 0 2px rgba(200,122,138,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
-
-.has-note.has-photo.has-video  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,162,200,0.3), inset 0 0 0 6px rgba(200,122,138,0.25); }
-.has-note.has-photo.has-music  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,162,200,0.3), inset 0 0 0 6px rgba(122,200,149,0.25); }
-.has-note.has-video.has-music  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(200,122,138,0.3), inset 0 0 0 6px rgba(122,200,149,0.25); }
-.has-photo.has-video.has-music { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4), inset 0 0 0 4px rgba(200,122,138,0.3), inset 0 0 0 6px rgba(122,200,149,0.25); }
-
-.has-note.has-photo.has-video.has-music { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,162,200,0.3), inset 0 0 0 6px rgba(200,122,138,0.25), inset 0 0 0 8px rgba(122,200,149,0.2); }
 
 /* ── LIGHTBOX ── */
 .lightbox {
@@ -1025,20 +1025,12 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ── HIGHLIGHT ── */
 @keyframes highlight {
   0%,100% { box-shadow: none; }
   30% { box-shadow: 0 0 0 2px rgba(200,169,126,0.5); }
 }
 
 .card-highlight { animation: highlight 2s ease forwards; }
-
-/* ── DIVIDER ── */
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin: 4px 16px;
-}
 
 audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
@@ -1081,23 +1073,6 @@ audio { display: none; }
 
   <div class="search-label" id="searchLabel"></div>
 
-  <!-- Date nav row -->
-  <div class="date-nav-row" id="dateNavRow">
-    <span class="date-nav-label" id="dateNavLabel"></span>
-    <div class="date-nav-btns">
-      <button class="date-nav-btn" onclick="jumpDate(-1)" title="ziua anterioară cu notițe">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button class="date-nav-btn" onclick="jumpDate(1)" title="ziua următoare cu notițe">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-
   <!-- Date Carousel -->
   <div class="carousel-wrap" id="carouselWrap">
     <div class="date-carousel" id="dateCarousel"></div>
@@ -1112,29 +1087,32 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- Bottom: calendar left -->
-<button class="bottom-sidebar bottom-left fab-side" onclick="openModal('calendar')" title="Calendar">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-    <rect x="3" y="4" width="18" height="18" rx="3"/>
-    <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
-  </svg>
-</button>
-
-<!-- Bottom center FAB -->
+<!-- Bottom bar: [calendar] [◀ ▶] [+] -->
 <div class="bottom-bar">
+  <!-- Calendar -->
+  <button class="bottom-cal-btn" onclick="openModal('calendar')" title="Calendar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <rect x="3" y="4" width="18" height="18" rx="3"/>
+      <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <!-- Nav prev/next -->
+  <div class="bottom-nav-btns">
+    <button class="bottom-nav-btn" onclick="jumpDate(-1)" title="ziua anterioară">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="bottom-nav-btn" onclick="jumpDate(1)" title="ziua următoare">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- FAB + -->
   <div class="fab-wrap">
-    <div class="fab-nav-row">
-      <button class="fab-nav-btn" onclick="jumpDate(-1)" title="data anterioară cu notițe">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <button class="fab-nav-btn" onclick="jumpDate(1)" title="data următoare cu notițe">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
     <div class="fab-menu" id="fabMenu">
       <div class="fab-row">
         <span class="fab-lbl">muzică pentru dată</span>
@@ -1200,7 +1178,8 @@ audio { display: none; }
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-<audio id="globalAudio" loop></audio>
+<audio id="dateMusicAudio" loop></audio>
+<audio id="entryAudio"></audio>
 
 <!-- ══════════ LIGHTBOX ══════════ -->
 <div class="lightbox" id="lightbox">
@@ -1445,6 +1424,20 @@ audio { display: none; }
   </div>
 </div>
 
+<!-- Delete Date Music -->
+<div class="backdrop" id="modal-delete-dm">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">ștergi muzica zilei?</div>
+    <p style="color:var(--text3);font-size:15px;line-height:1.65;font-family:var(--serif);font-style:italic;">Melodia asociată acestei date va fi ștearsă.</p>
+    <input type="hidden" id="delete-dm-date">
+    <div class="confirm-row">
+      <button class="btn-secondary" style="flex:1;margin-top:0" onclick="closeModal('delete-dm')">nu</button>
+      <button class="btn-danger" onclick="confirmDeleteDateMusic()">șterge</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════
 // SUPABASE
@@ -1464,31 +1457,24 @@ let selectedDate = null;
 let searchQuery = '';
 let calDate = new Date();
 let fabOpen = false;
-let currentAudioUrl = null;
-let dateMusicActive = false;
 
-const audio = document.getElementById('globalAudio');
+const dmAudio = document.getElementById('dateMusicAudio');
+const entryAudio = document.getElementById('entryAudio');
+let currentEntryAudioUrl = null;
+let dmAudioLoaded = false;
 
 // ═══════════════════════════════════════
-// DIACRITICS NORMALIZATION (feature #3)
+// UTILS
 // ═══════════════════════════════════════
 function normRo(str) {
-  // Romanian diacritics and their base chars
   return (str || '')
     .toLowerCase()
-    .replace(/[ăâ]/g, 'a')
-    .replace(/[î]/g, 'i')
-    .replace(/[ș]/g, 's')
-    .replace(/[ț]/g, 't')
-    .replace(/[é]/g, 'e')
-    .replace(/[ó]/g, 'o')
-    // also strip standard accents via NFD
+    .replace(/[ăâ]/g, 'a').replace(/[î]/g, 'i')
+    .replace(/[ș]/g, 's').replace(/[ț]/g, 't')
+    .replace(/[é]/g, 'e').replace(/[ó]/g, 'o')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// ═══════════════════════════════════════
-// LOCAL DATE KEY
-// ═══════════════════════════════════════
 function dateKey(date) {
   const d = new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1500,44 +1486,80 @@ function toLocal(date) {
   return d.toISOString().slice(0, 16);
 }
 
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function playIcon()  { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function pauseIcon() { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`; }
+
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 async function init() {
-  setDefaultDates();
   updateHeaderDate();
   await loadDateMusicMap();
   await loadEntries();
-  // Restore last selected date from localStorage (#5)
-  const saved = localStorage.getItem('carnet_last_date');
-  if (saved) {
-    const [y,m,d] = saved.split('-').map(Number);
+
+  const savedKey = await loadLastDate();
+  if (savedKey) {
+    const [y,m,d] = savedKey.split('-').map(Number);
     selectedDate = new Date(y, m-1, d);
   } else {
     const today = new Date(); today.setHours(0,0,0,0);
     selectedDate = today;
   }
+
   buildCarousel();
   renderEntries();
-  playDateMusic(dateKey(selectedDate), false);
-}
+  setDefaultDates();
 
-function setDefaultDates() {
-  const local = toLocal(new Date());
-  ['note-date','photo-date','video-date','music-date'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = local;
-  });
-  const today = new Date().toISOString().slice(0,10);
-  const dmDate = document.getElementById('dm-date');
-  if (dmDate) dmDate.value = today;
+  if (selectedDate) {
+    playDateMusic(dateKey(selectedDate), false);
+  }
 }
 
 function updateHeaderDate() {
   const el = document.getElementById('headerDateDisplay');
   if (!el) return;
+  el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+// ═══════════════════════════════════════
+// LAST DATE
+// ═══════════════════════════════════════
+async function loadLastDate() {
+  try {
+    const { data, error } = await sb.from('app_state').select('value').eq('key', 'last_date').single();
+    if (!error && data) return data.value;
+  } catch(e) {}
+  return null;
+}
+
+async function saveLastDate(key) {
+  try {
+    await sb.from('app_state').upsert([{ key: 'last_date', value: key }], { onConflict: 'key' });
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// DEFAULT DATES
+// ═══════════════════════════════════════
+function setDefaultDates() {
+  const base = selectedDate ? new Date(selectedDate) : new Date();
   const now = new Date();
-  el.textContent = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+  base.setHours(now.getHours(), now.getMinutes(), 0, 0);
+  const local = toLocal(base);
+
+  ['note-date','photo-date','video-date','music-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = local;
+  });
+
+  if (selectedDate) {
+    const dmDate = document.getElementById('dm-date');
+    if (dmDate) dmDate.value = dateKey(selectedDate);
+  }
 }
 
 // ═══════════════════════════════════════
@@ -1551,7 +1573,10 @@ async function loadDateMusicMap() {
       data.forEach(r => { dateMusicMap[r.date] = { url: r.url, title: r.title, cover: r.cover || '' }; });
       return;
     }
-  } catch(e) {}
+    if (error) console.error('date_music load error:', error);
+  } catch(e) {
+    console.error('date_music exception:', e);
+  }
   try {
     const saved = localStorage.getItem('carnet_date_music');
     if (saved) dateMusicMap = JSON.parse(saved);
@@ -1565,19 +1590,59 @@ async function saveDateMusic() {
   const cover = document.getElementById('dm-cover').value.trim();
   if (!date || !url) { showToast('completează data și link-ul'); return; }
 
-  dateMusicMap[date] = { url, title: title || 'melodie', cover };
+  const row = { date, url, title: title || 'melodie', cover: cover || '' };
 
   try {
-    await sb.from('date_music').upsert([{ date, url, title: title || 'melodie', cover }], { onConflict: 'date' });
-  } catch(e) {}
+    const { error } = await sb.from('date_music').upsert([row], { onConflict: 'date' });
+    if (error) {
+      console.error('Supabase upsert error:', error);
+      showToast('eroare la salvare: ' + error.message);
+      return;
+    }
+  } catch(e) {
+    console.error('Exception saving date music:', e);
+    showToast('eroare la salvare');
+    return;
+  }
 
-  try { localStorage.setItem('carnet_date_music', JSON.stringify(dateMusicMap)); } catch(e) {}
+  dateMusicMap[date] = { url, title: title || 'melodie', cover: cover || '' };
+  document.getElementById('dm-url').value = '';
+  document.getElementById('dm-title').value = '';
+  document.getElementById('dm-cover').value = '';
 
   showToast('muzică salvată');
   closeModal('date-music');
+
   if (selectedDate && dateKey(selectedDate) === date) {
     playDateMusic(date, false);
   }
+  buildCarousel();
+  renderEntries();
+}
+
+function openDeleteDateMusic(date) {
+  document.getElementById('delete-dm-date').value = date;
+  openModal('delete-dm');
+}
+
+async function confirmDeleteDateMusic() {
+  const date = document.getElementById('delete-dm-date').value;
+  if (!date) return;
+
+  if (selectedDate && dateKey(selectedDate) === date) {
+    dmAudio.pause();
+    dmAudio.src = '';
+    dmAudioLoaded = false;
+  }
+
+  delete dateMusicMap[date];
+
+  try {
+    await sb.from('date_music').delete().eq('date', date);
+  } catch(e) {}
+
+  showToast('muzică ștearsă');
+  closeModal('delete-dm');
   buildCarousel();
   renderEntries();
 }
@@ -1611,9 +1676,12 @@ function buildCarousel() {
     const isToday = k === dateKey(today);
     const isSelected = selectedDate && dateKey(selectedDate) === k;
 
-    const dots = types.map(t =>
-      `<span class="pill-dot" style="background:${typeColors[t]||'var(--accent)'}"></span>`
-    ).join('');
+    if (dateMusicMap[k] && !types.includes('music')) types.push('music_dm');
+
+    const dots = types.map(t => {
+      const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t] || 'var(--accent)');
+      return `<span class="pill-dot" style="background:${color}"></span>`;
+    }).join('');
 
     return `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
       <span class="pill-name">${isToday ? 'azi' : dayNames[d.getDay()]}</span>
@@ -1622,35 +1690,39 @@ function buildCarousel() {
     </div>`;
   }).join('');
 
-  setTimeout(() => {
-    const target = carousel.querySelector('.date-pill.active') ||
-      carousel.querySelector('.date-pill[data-key="' + dateKey(today) + '"]');
-    if (target) target.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
-  }, 80);
-
-  updateDateNavLabel();
+  scrollCarouselToSelected();
 }
 
-function updateDateNavLabel() {
-  const el = document.getElementById('dateNavLabel');
-  if (!el || !selectedDate) return;
-  el.textContent = selectedDate.toLocaleDateString('ro-RO', { day:'numeric', month:'long', year:'numeric' });
+function scrollCarouselToSelected() {
+  const carousel = document.getElementById('dateCarousel');
+  const today = new Date();
+  const targetKey = selectedDate ? dateKey(selectedDate) : dateKey(today);
+
+  setTimeout(() => {
+    const target = carousel.querySelector(`.date-pill[data-key="${targetKey}"]`);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, 60);
 }
 
 function selectDate(key) {
   const [y,m,d] = key.split('-').map(Number);
   selectedDate = new Date(y, m-1, d);
-  localStorage.setItem('carnet_last_date', key); // #5 persist
+
+  saveLastDate(key);
+
   document.querySelectorAll('.date-pill').forEach(p => {
     p.classList.toggle('active', p.dataset.key === key);
   });
+
+  scrollCarouselToSelected();
   clearSearch(true);
   playDateMusic(key, true);
   renderEntries();
-  updateDateNavLabel();
+  setDefaultDates();
 }
 
-// ── Jump to prev/next date that has entries (#10) ──
 function jumpDate(dir) {
   if (!selectedDate) return;
   const datesWithEntries = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
@@ -1670,28 +1742,51 @@ function jumpDate(dir) {
   else showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche');
 }
 
+// ═══════════════════════════════════════
+// DATE MUSIC AUDIO
+// ═══════════════════════════════════════
 function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
   if (dm && dm.url) {
-    if (currentAudioUrl !== dm.url) {
-      audio.src = dm.url;
-      currentAudioUrl = dm.url;
-      dateMusicActive = true;
+    if (dmAudio.src !== dm.url) {
+      dmAudio.src = dm.url;
+      dmAudioLoaded = true;
     }
     if (autoplay) {
-      audio.volume = 0.28;
-      audio.play().catch(() => {
-        const once = () => { audio.play().catch(()=>{}); document.removeEventListener('click', once); };
+      dmAudio.volume = 0.28;
+      dmAudio.play().catch(() => {
+        const once = () => { dmAudio.play().catch(()=>{}); document.removeEventListener('click', once); };
         document.addEventListener('click', once);
       });
     }
   } else {
-    if (dateMusicActive) {
-      audio.pause(); audio.src = '';
-      currentAudioUrl = null; dateMusicActive = false;
-    }
+    dmAudio.pause();
+    dmAudio.src = '';
+    dmAudioLoaded = false;
   }
+  syncDateMusicWaves();
 }
+
+function syncDateMusicWaves() {
+  const waves = document.getElementById('dateMusicWaves');
+  if (!waves) return;
+  const playing = dmAudioLoaded && !dmAudio.paused;
+  waves.querySelectorAll('.dm-wave-bar').forEach(b => {
+    b.style.animationPlayState = playing ? 'running' : 'paused';
+  });
+}
+
+function toggleDateMusicBanner() {
+  if (!dmAudioLoaded) return;
+  if (dmAudio.paused) {
+    dmAudio.play().catch(()=>{});
+  } else {
+    dmAudio.pause();
+  }
+  syncDateMusicWaves();
+}
+
+setInterval(syncDateMusicWaves, 500);
 
 // ═══════════════════════════════════════
 // LOAD
@@ -1700,7 +1795,7 @@ async function loadEntries() {
   const { data, error } = await sb
     .from('entries')
     .select('*')
-    .order('posted_at', { ascending: true }); // #9 oldest first
+    .order('posted_at', { ascending: true });
 
   if (error) { showToast('eroare la încărcare'); return; }
   entries = data || [];
@@ -1730,33 +1825,41 @@ function renderEntries() {
   const container = document.getElementById('entries-container');
   const label = document.getElementById('searchLabel');
   const carouselWrap = document.getElementById('carouselWrap');
-  const dateNavRow = document.getElementById('dateNavRow');
 
   let filtered;
 
   if (searchQuery) {
     carouselWrap.style.display = 'none';
-    dateNavRow.style.display = 'none';
     filtered = entries.filter(e => entryMatchesSearch(e, searchQuery));
     label.textContent = `${filtered.length} rezultat${filtered.length===1?'':'e'}`;
     label.classList.add('visible');
   } else {
     carouselWrap.style.display = '';
-    dateNavRow.style.display = '';
     label.classList.remove('visible');
     if (selectedDate) {
       const k = dateKey(selectedDate);
-      // #9: already sorted asc from DB, just filter
       filtered = entries.filter(e => dateKey(e.posted_at) === k);
     } else {
       filtered = [...entries];
     }
   }
 
-  if (!filtered.length) {
-    container.innerHTML = searchQuery
-      ? `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg></div><div class="empty-text">nicio notiță găsită</div></div>`
-      : `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
+  filtered.sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+
+  if (!filtered.length && !searchQuery) {
+    let html = '';
+    const dk = selectedDate ? dateKey(selectedDate) : null;
+    if (dk && dateMusicMap[dk]) {
+      html += renderDateMusicBanner(dk);
+    }
+    html += `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
+    container.innerHTML = html;
+    syncDateMusicWaves();
+    return;
+  }
+
+  if (!filtered.length && searchQuery) {
+    container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg></div><div class="empty-text">nicio notiță găsită</div></div>`;
     return;
   }
 
@@ -1774,25 +1877,9 @@ function renderEntries() {
       group.forEach(e => { html += renderEntry(e); });
     }
   } else {
-    // Date music banner
     const dk = selectedDate ? dateKey(selectedDate) : null;
     if (dk && dateMusicMap[dk]) {
-      const dm = dateMusicMap[dk];
-      const coverHtml = dm.cover
-        ? `<div class="dm-banner-cover"><img src="${escHtml(dm.cover)}" alt="" onerror="this.parentElement.innerHTML='<span class=dm-banner-icon><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.6\\'><path d=\\'M9 18V6l12-2v12\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'/><circle cx=\\'6\\' cy=\\'18\\' r=\\'3\\'/><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'/></svg></span>'"></div>`
-        : `<div class="dm-banner-cover"><span class="dm-banner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
-
-      html += `<div class="date-music-banner" onclick="toggleDateMusicBanner()">
-        ${coverHtml}
-        <div class="dm-banner-text">
-          <div class="dm-banner-title">${escHtml(dm.title||'melodia zilei')}</div>
-          <div class="dm-banner-sub">melodia zilei · apasă pentru control</div>
-        </div>
-        <div class="dm-wave-bars" id="dateMusicWaves">
-          <div class="dm-wave-bar"></div><div class="dm-wave-bar"></div><div class="dm-wave-bar"></div>
-          <div class="dm-wave-bar"></div><div class="dm-wave-bar"></div>
-        </div>
-      </div>`;
+      html += renderDateMusicBanner(dk);
     }
     filtered.forEach(e => { html += renderEntry(e); });
   }
@@ -1801,30 +1888,41 @@ function renderEntries() {
   syncDateMusicWaves();
 }
 
+function renderDateMusicBanner(dk) {
+  const dm = dateMusicMap[dk];
+  if (!dm) return '';
+
+  const coverHtml = dm.cover
+    ? `<div class="dm-banner-cover"><img src="${escHtml(dm.cover)}" alt="" onerror="this.parentElement.innerHTML='<span class=dm-banner-icon><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.6\\'><path d=\\'M9 18V6l12-2v12\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'/><circle cx=\\'6\\' cy=\\'18\\' r=\\'3\\'/><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'/></svg></span>'"></div>`
+    : `<div class="dm-banner-cover"><span class="dm-banner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
+
+  return `<div class="date-music-banner">
+    <div class="dm-banner-left" onclick="toggleDateMusicBanner()">
+      ${coverHtml}
+      <div class="dm-banner-text">
+        <div class="dm-banner-title">${escHtml(dm.title||'melodia zilei')}</div>
+        <div class="dm-banner-sub">melodia zilei · apasă pentru control</div>
+      </div>
+      <div class="dm-wave-bars" id="dateMusicWaves">
+        <div class="dm-wave-bar"></div><div class="dm-wave-bar"></div><div class="dm-wave-bar"></div>
+        <div class="dm-wave-bar"></div><div class="dm-wave-bar"></div>
+      </div>
+    </div>
+    <div class="dm-banner-right">
+      <button class="dm-delete-btn" onclick="openDeleteDateMusic('${escHtml(dk)}')" title="șterge muzica zilei">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>`;
+}
+
 function entryMatchesSearch(e, q) {
   const qn = normRo(q);
   const haystack = normRo([e.content||'', e.caption||'', e.type||''].join(' '));
   return haystack.includes(qn);
-}
-
-function syncDateMusicWaves() {
-  const waves = document.getElementById('dateMusicWaves');
-  if (!waves) return;
-  if (!audio.paused && dateMusicActive) {
-    waves.querySelectorAll('.dm-wave-bar').forEach(b => b.style.animationPlayState = 'running');
-  } else {
-    waves.querySelectorAll('.dm-wave-bar').forEach(b => b.style.animationPlayState = 'paused');
-  }
-}
-
-function toggleDateMusicBanner() {
-  if (audio.paused) {
-    audio.play().catch(()=>{});
-    dateMusicActive = true;
-  } else {
-    audio.pause();
-  }
-  syncDateMusicWaves();
 }
 
 // ═══════════════════════════════════════
@@ -1833,7 +1931,6 @@ function toggleDateMusicBanner() {
 function renderEntry(e) {
   const posted = new Date(e.posted_at);
   const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
-  // #7: include year
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
 
   const modStr = e.modified_at && e.modified_at !== e.posted_at
@@ -1860,7 +1957,7 @@ function renderEntry(e) {
   } else if (e.type === 'music') {
     const aurl = e.media_urls?.[0] || '';
     const cover = e.cover_url || '';
-    const isPlaying = currentAudioUrl === aurl && !audio.paused && !dateMusicActive;
+    const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
 
     const coverHtml = cover
       ? `<div class="music-cover"><img src="${escHtml(cover)}" alt="" onerror="this.parentElement.innerHTML='<span class=music-cover-icon><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.6\\'><path d=\\'M9 18V6l12-2v12\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'/><circle cx=\\'6\\' cy=\\'18\\' r=\\'3\\'/><circle cx=\\'18\\' cy=\\'16\\' r=\\'3\\'/></svg></span>'"></div>`
@@ -1908,26 +2005,18 @@ function renderEntry(e) {
   </div>`;
 }
 
-function playIcon()  { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
-function pauseIcon() { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`; }
-
-function escHtml(str) {
-  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
 // ═══════════════════════════════════════
-// LIGHTBOX (#1)
+// LIGHTBOX
 // ═══════════════════════════════════════
 let lbImages = [];
 let lbIndex = 0;
 let lbZoom = 1;
 let lbTouchStartX = 0;
-let lbTouchStartY = 0;
+let lbPinchStart = 0;
+let lbZoomBase = 1;
 
 function openLightbox(urls, idx) {
-  lbImages = urls;
-  lbIndex = idx;
-  lbZoom = 1;
+  lbImages = urls; lbIndex = idx; lbZoom = 1;
   showLbImage();
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1942,13 +2031,12 @@ function closeLightbox() {
 
 function showLbImage() {
   const img = document.getElementById('lbImg');
-  const counter = document.getElementById('lbCounter');
   img.src = lbImages[lbIndex];
-  img.style.transform = `scale(1)`;
+  img.style.transform = 'scale(1)';
   lbZoom = 1;
   document.getElementById('lbPrev').classList.toggle('hidden', lbIndex === 0);
   document.getElementById('lbNext').classList.toggle('hidden', lbIndex === lbImages.length - 1);
-  counter.textContent = lbImages.length > 1 ? `${lbIndex+1} / ${lbImages.length}` : '';
+  document.getElementById('lbCounter').textContent = lbImages.length > 1 ? `${lbIndex+1} / ${lbImages.length}` : '';
 }
 
 function lbNav(dir) {
@@ -1956,19 +2044,12 @@ function lbNav(dir) {
   showLbImage();
 }
 
-// Touch swipe + pinch zoom
 const lbInner = document.getElementById('lbInner');
-let lbPinchStart = 0;
-let lbZoomBase = 1;
 
 lbInner.addEventListener('touchstart', e => {
-  if (e.touches.length === 1) {
-    lbTouchStartX = e.touches[0].clientX;
-  } else if (e.touches.length === 2) {
-    lbPinchStart = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
+  if (e.touches.length === 1) { lbTouchStartX = e.touches[0].clientX; }
+  else if (e.touches.length === 2) {
+    lbPinchStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
     lbZoomBase = lbZoom;
   }
 }, { passive: true });
@@ -1982,16 +2063,12 @@ lbInner.addEventListener('touchend', e => {
 
 lbInner.addEventListener('touchmove', e => {
   if (e.touches.length === 2) {
-    const dist = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
+    const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
     lbZoom = Math.min(5, Math.max(1, lbZoomBase * (dist / lbPinchStart)));
     document.getElementById('lbImg').style.transform = `scale(${lbZoom})`;
   }
 }, { passive: true });
 
-// Double-tap to zoom
 let lbLastTap = 0;
 lbInner.addEventListener('click', e => {
   const now = Date.now();
@@ -2009,29 +2086,31 @@ document.getElementById('lightbox').addEventListener('click', e => {
 });
 
 // ═══════════════════════════════════════
-// MUSIC CONTROLS
+// ENTRY MUSIC CONTROLS
 // ═══════════════════════════════════════
 function toggleEntryMusic(url, container) {
   const btn = container.querySelector('.music-play-btn');
   const waves = container.querySelector('.wave-bars');
   const sub = container.querySelector('.music-sub');
 
-  if (dateMusicActive) {
-    audio.pause(); dateMusicActive = false; syncDateMusicWaves();
-  }
+  const isCurrentlyPlaying = currentEntryAudioUrl === url && !entryAudio.paused;
 
-  if (currentAudioUrl === url && !audio.paused) {
-    audio.pause();
+  if (isCurrentlyPlaying) {
+    entryAudio.pause();
     btn.innerHTML = playIcon();
     waves.classList.add('paused');
     if (sub) sub.textContent = 'apasă pentru redare';
-    currentAudioUrl = null;
+    currentEntryAudioUrl = null;
   } else {
-    if (currentAudioUrl !== url) { audio.src = url; currentAudioUrl = url; }
-    audio.play().catch(() => showToast('nu se poate reda audio'));
+    if (currentEntryAudioUrl !== url) {
+      entryAudio.src = url;
+      currentEntryAudioUrl = url;
+    }
+    entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     btn.innerHTML = pauseIcon();
     waves.classList.remove('paused');
     if (sub) sub.textContent = 'redare...';
+
     document.querySelectorAll('.music-player').forEach(p => {
       if (p !== container) {
         const b = p.querySelector('.music-play-btn');
@@ -2090,7 +2169,7 @@ async function submitEntry(type) {
   payload.modified_at = payload.posted_at;
 
   const { error } = await sb.from('entries').insert([payload]);
-  if (error) { showToast('eroare la salvare'); console.error(error); return; }
+  if (error) { showToast('eroare: ' + error.message); console.error(error); return; }
   showToast('salvat');
   closeModal(type);
   clearForm(type);
@@ -2116,16 +2195,16 @@ async function reloadAndRender() {
 // ═══════════════════════════════════════
 function parseImportText(raw) {
   const results = [];
-  const parts = raw.split(/ᏂᎧᎮᏋ\s*[^\[]*,?\s*/u).filter(p => p.trim());
+  const parts = raw.split(/\s*ᏂᎧᎮᏋ[^\[]+/u).filter(p => p.trim());
   parts.forEach(part => {
-    const m = part.match(/\[(\d{1,2})\s+(\w+)\.,?\s*(\d{4})\s+la\s+(\d{1,2}):(\d{2})\]/u);
+    const m = part.match(/^\[(\d{1,2})\s+(\w+)\.?,?\s+(\d{4})\s+la\s+(\d{1,2}):(\d{2})\]/u);
     if (!m) return;
-    const [,day,monthStr,year,hour,min] = m;
-    const monthMap = {ian:0,feb:1,mart:2,apr:3,mai:4,iun:5,iul:6,aug:7,sep:8,oct:9,noi:10,dec:11};
-    const month = monthMap[monthStr.toLowerCase().substring(0,3)];
+    const [, day, monthStr, year, hour, min] = m;
+    const monthMap = { ian:0, feb:1, mar:2, apr:3, mai:4, iun:5, iul:6, aug:7, sep:8, oct:9, noi:10, dec:11 };
+    const month = monthMap[monthStr.toLowerCase().substring(0, 3)];
     if (month === undefined) return;
     const date = new Date(+year, month, +day, +hour, +min);
-    const text = part.replace(/\[\d{1,2}\s+\w+\.,?\s*\d{4}\s+la\s+\d{1,2}:\d{2}\]/u,'').trim();
+    const text = part.replace(/^\[\d{1,2}\s+\w+\.?,?\s+\d{4}\s+la\s+\d{1,2}:\d{2}\]\s*/u, '').trim();
     if (text) results.push({ date, text });
   });
   return results;
@@ -2148,7 +2227,10 @@ async function importEntries() {
   const raw = document.getElementById('import-text').value;
   const parsed = parseImportText(raw);
   if (!parsed.length) { showToast('nu am găsit nimic de importat'); return; }
-  const rows = parsed.map(p => ({ type:'note', content:p.text, posted_at:p.date.toISOString(), modified_at:p.date.toISOString() }));
+  const rows = parsed.map((p, i) => {
+    const date = new Date(p.date.getTime() + i * 1000);
+    return { type: 'note', content: p.text, posted_at: date.toISOString(), modified_at: date.toISOString() };
+  });
   const { error } = await sb.from('entries').insert(rows);
   if (error) { showToast('eroare la import'); return; }
   showToast(`${rows.length} notițe importate`);
@@ -2270,7 +2352,6 @@ function renderCalendar() {
     }
   });
 
-  // Add date music days
   for (let day = 1; day <= 31; day++) {
     const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     if (dateMusicMap[k]) {
@@ -2294,12 +2375,9 @@ function renderCalendar() {
     const types = typeMap[day] ? [...typeMap[day]] : [];
     const hasEntry = types.length > 0;
     const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const onclick = hasEntry ? `onclick="calJumpTo('${k}')"` : '';
-
-    // Build inset shadow classes
     const typeClasses = types.map(t => `has-${t}`).join(' ');
 
-    html += `<div class="cal-cell${hasEntry?' has-entry':''}${isToday?' today':''} ${typeClasses}" ${onclick}>
+    html += `<div class="cal-cell${hasEntry?' has-entry':''}${isToday?' today':''} ${typeClasses}" onclick="calJumpTo('${k}')">
       ${day}
     </div>`;
   }
@@ -2312,7 +2390,11 @@ function calJumpTo(key) {
   selectDate(key);
   setTimeout(() => {
     const card = document.querySelector('.entry-card');
-    if (card) { card.scrollIntoView({behavior:'smooth', block:'center'}); card.classList.add('card-highlight'); setTimeout(()=>card.classList.remove('card-highlight'),2000); }
+    if (card) {
+      card.scrollIntoView({behavior:'smooth', block:'center'});
+      card.classList.add('card-highlight');
+      setTimeout(()=>card.classList.remove('card-highlight'),2000);
+    }
   }, 100);
 }
 
@@ -2322,6 +2404,18 @@ function calJumpTo(key) {
 function openModal(name) {
   closeFab();
   if (name === 'calendar') { calDate = new Date(); renderCalendar(); }
+  if (name === 'date-music' && selectedDate) {
+    document.getElementById('dm-date').value = dateKey(selectedDate);
+    document.getElementById('dm-url').value = '';
+    document.getElementById('dm-title').value = '';
+    document.getElementById('dm-cover').value = '';
+    const dk = dateKey(selectedDate);
+    if (dateMusicMap[dk]) {
+      document.getElementById('dm-url').value = dateMusicMap[dk].url || '';
+      document.getElementById('dm-title').value = dateMusicMap[dk].title || '';
+      document.getElementById('dm-cover').value = dateMusicMap[dk].cover || '';
+    }
+  }
   document.getElementById(`modal-${name}`).classList.add('open');
 }
 
