@@ -169,7 +169,14 @@ body::before {
   font-family: var(--serif);
   font-size: 15px; line-height: 1.72; color: var(--text);
 }
-/* Blur-text spans in rendered cards */
+/* font size classes in rendered notes */
+.card-text .txt-xs { font-size: 11px; line-height: 1.6; }
+.card-text .txt-sm { font-size: 13px; line-height: 1.65; }
+.card-text .txt-md { font-size: 15px; line-height: 1.72; }
+.card-text .txt-lg { font-size: 19px; line-height: 1.55; }
+.card-text .txt-xl { font-size: 24px; line-height: 1.4; font-weight: 500; }
+.card-text .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
+
 .blur-text-span {
   filter: blur(5px);
   cursor: pointer;
@@ -193,7 +200,6 @@ body::before {
 .cols-2 .entry-image { max-height: 180px; }
 .cols-3 .entry-image { max-height: 120px; }
 
-/* Blur image overlay */
 .img-blur-overlay {
   position: absolute; inset: 0;
   backdrop-filter: blur(16px);
@@ -218,7 +224,6 @@ body::before {
 .entry-video { width: 100%; border-radius: var(--r2); border: 1px solid var(--border); background: #000; max-height: 260px; display: block; }
 .entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; white-space: pre-wrap; }
 
-/* video proxy warning */
 .video-warn {
   margin-top: 6px;
   background: rgba(200,122,138,0.08);
@@ -295,61 +300,87 @@ body::before {
 
 /* ── BOTTOM BAR ── */
 .bottom-bar {
-  position: fixed; bottom: 0; left: 0; right: 0;
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 440px;
   display: flex; align-items: flex-end; justify-content: space-between;
-  padding: 0 20px 28px; pointer-events: none; z-index: 100;
-  max-width: 440px; margin: 0 auto;
+  padding: 0 20px 28px;
+  pointer-events: none; z-index: 100;
 }
 
-.bottom-cal-btn {
-  pointer-events: all; width: 48px; height: 48px; border-radius: 50%;
-  border: 1px solid var(--border2); background: rgba(10,10,14,0.85);
-  backdrop-filter: blur(20px); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow); transition: all 0.2s; color: var(--text2); flex-shrink: 0;
-}
-.bottom-cal-btn svg { width: 18px; height: 18px; }
-.bottom-cal-btn:hover { border-color: var(--border3); color: var(--text); }
-
+/* ── NAV BUTTONS — REBUILT ── */
+/* Positioned absolutely in the center, separate from FAB and Calendar */
 .bottom-nav-btns {
-  pointer-events: all; display: flex; gap: 10px; align-items: center;
-  position: absolute; left: 50%; transform: translateX(-50%); bottom: 28px;
-}
-
-/* ── NEXT BUTTON WITH SCROLL PROGRESS ── */
-.bottom-nav-btn {
-  width: 60px; height: 60px; border-radius: 50%;
-  border: 1px solid var(--border2);
-  background: rgba(10,10,14,0.85);
-  backdrop-filter: blur(20px);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text2);
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-  box-shadow: var(--shadow);
-  -webkit-user-select: none; user-select: none;
-  touch-action: manipulation;
-  position: relative;
-  overflow: hidden;
-}
-.bottom-nav-btn svg { width: 20px; height: 20px; pointer-events: none; position: relative; z-index: 2; }
-.bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.95); }
-.bottom-nav-btn:active { transform: scale(0.93); }
-
-/* SVG progress ring for next btn — sits on top */
-#navNext {
-  /* progress ring drawn via JS canvas overlay */
-}
-
-.nav-next-ring {
+  pointer-events: none; /* container passthrough */
+  display: flex;
+  gap: 12px;
+  align-items: center;
   position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 3;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 28px;
+  z-index: 110;
 }
 
-/* FAB */
+.nav-btn-outer {
+  pointer-events: all;
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  /* Ensure nothing overlaps this */
+  isolation: isolate;
+}
+
+/* Ring SVG behind the button */
+.nav-ring-svg {
+  position: absolute;
+  inset: -5px;
+  width: 66px;
+  height: 66px;
+  pointer-events: none;
+  transform: rotate(-90deg);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
+}
+
+/* The actual clickable button - ON TOP of everything */
+.bottom-nav-btn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: rgba(10,10,14,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.1s;
+  box-shadow: var(--shadow);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  z-index: 2; /* above ring svg */
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.bottom-nav-btn svg {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  display: block;
+  flex-shrink: 0;
+}
+.bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.97); }
+.bottom-nav-btn:active { transform: scale(0.91); background: rgba(30,30,40,1); }
+
+/* ── FAB ── */
 .fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
 .fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
 .fab-menu.open { max-height: 400px; opacity: 1; }
@@ -362,6 +393,201 @@ body::before {
 .fab-main svg { width: 20px; height: 20px; transition: transform 0.3s; }
 .fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
 .fab-main.open svg { transform: rotate(45deg); }
+
+/* ── CALENDAR FAB ── */
+.cal-fab-wrap {
+  pointer-events: all;
+  position: relative;
+  flex-shrink: 0;
+}
+.cal-fab-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(122,162,200,0.12);
+  border: 1.5px solid rgba(122,162,200,0.35);
+  color: var(--blue);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 28px rgba(122,162,200,0.15);
+  transition: all 0.22s ease;
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 2;
+}
+.cal-fab-btn:hover {
+  background: rgba(122,162,200,0.22);
+  border-color: rgba(122,162,200,0.6);
+  box-shadow: 0 12px 36px rgba(122,162,200,0.25);
+  transform: translateY(-2px) scale(1.05);
+}
+.cal-fab-btn.is-active {
+  background: rgba(200,169,126,0.22);
+  border-color: rgba(200,169,126,0.6);
+  color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 12px 36px rgba(200,169,126,0.2);
+}
+.cal-fab-btn svg { width: 19px; height: 19px; }
+
+/* ── CALENDAR POPUP — CENTERED ── */
+.cal-popup-overlay {
+  position: fixed; inset: 0;
+  background: rgba(4,4,8,0.75);
+  backdrop-filter: blur(10px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.cal-popup-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cal-popup-modal {
+  background: #0e1422;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 22px;
+  width: 100%;
+  max-width: 380px;
+  max-height: 88vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.05) inset;
+  transform: scale(0.92);
+  transition: transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
+}
+.cal-popup-overlay.open .cal-popup-modal {
+  transform: scale(1);
+}
+
+.cal-popup-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.cal-popup-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--blue);
+}
+.cal-popup-title svg { width: 13px; height: 13px; }
+.cal-popup-close {
+  width: 28px; height: 28px; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.04);
+  color: var(--text3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.cal-popup-close:hover { background: rgba(200,80,80,0.12); color: var(--rose); border-color: rgba(200,80,80,0.3); }
+.cal-popup-close svg { width: 13px; height: 13px; }
+
+.cal-popup-body {
+  overflow-y: auto; padding: 18px 20px 22px; flex: 1;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+.cal-popup-body::-webkit-scrollbar { width: 3px; }
+.cal-popup-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.cal-popup-today-btn {
+  width: 100%; padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(122,200,149,0.3);
+  background: rgba(122,200,149,0.07);
+  color: var(--green);
+  font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 8px;
+  transition: all 0.18s;
+  margin-bottom: 14px;
+}
+.cal-popup-today-btn:hover { background: rgba(122,200,149,0.14); border-color: rgba(122,200,149,0.55); }
+.cal-popup-today-btn.active { background: rgba(122,200,149,0.16); border-color: rgba(122,200,149,0.6); box-shadow: 0 0 0 3px rgba(122,200,149,0.07); }
+.cal-popup-today-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.cal-popup-today-btn-txt { flex: 1; }
+.cal-popup-active-badge { font-family: var(--mono); font-size: 9px; color: var(--green); background: rgba(122,200,149,0.1); border: 1px solid rgba(122,200,149,0.2); border-radius: 20px; padding: 1px 7px; }
+
+.cal-popup-section-lbl {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--text4); margin: 12px 0 10px;
+}
+
+.cal-popup-month-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; gap: 6px;
+}
+.cal-popup-nav-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+  color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.cal-popup-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: var(--text2); }
+.cal-popup-nav-btn:disabled { opacity: 0.25; cursor: default; }
+.cal-popup-nav-btn svg { width: 11px; height: 11px; }
+.cal-popup-month-lbl {
+  font-family: var(--mono); font-size: 12px;
+  color: var(--blue); font-weight: 600;
+  flex: 1; text-align: center; letter-spacing: 0.02em;
+}
+
+.cal-popup-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  margin-bottom: 14px;
+}
+.cal-popup-day-name {
+  text-align: center; font-family: var(--mono); font-size: 9px;
+  color: var(--text4); padding: 3px 0;
+  letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600;
+}
+.cal-popup-cell {
+  aspect-ratio: 1; border-radius: 7px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; transition: all 0.15s; position: relative;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.025);
+  color: var(--text3);
+  user-select: none;
+}
+.cal-popup-cell.empty { background: transparent; border-color: transparent; cursor: default; }
+.cal-popup-cell.future { background: transparent; border-color: transparent; color: rgba(255,255,255,0.07); cursor: default; }
+.cal-popup-cell.has-data { border-color: rgba(200,169,126,0.22); background: rgba(200,169,126,0.07); color: var(--accent); }
+.cal-popup-cell.has-data:hover { background: rgba(200,169,126,0.14); transform: scale(1.05); }
+.cal-popup-cell.is-today { border-color: rgba(122,200,149,0.4); background: rgba(122,200,149,0.10); color: var(--green); font-weight: 700; }
+.cal-popup-cell.is-today:hover { background: rgba(122,200,149,0.18); transform: scale(1.05); }
+.cal-popup-cell.is-selected { border-color: rgba(122,162,200,0.55); background: rgba(122,162,200,0.18); color: var(--blue); font-weight: 700; box-shadow: 0 0 0 2px rgba(122,162,200,0.12); }
+.cal-popup-cell.is-selected:hover { background: rgba(122,162,200,0.26); }
+.cal-popup-cell.no-data:hover:not(.future):not(.empty) { background: rgba(255,255,255,0.05); color: var(--text2); }
+
+.cal-popup-dots { display: flex; gap: 2px; position: absolute; bottom: 2px; }
+.cal-popup-dot { width: 3px; height: 3px; border-radius: 50%; display: block; }
+.cal-dot-note  { background: var(--accent); }
+.cal-dot-photo { background: var(--blue); }
+.cal-dot-video { background: var(--rose); }
+.cal-dot-music { background: var(--green); }
+
+.cal-popup-legend {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 9px; color: var(--text4);
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  letter-spacing: 0.03em;
+}
+.cal-popup-legend-item { display: flex; align-items: center; gap: 4px; }
+.cal-popup-legend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 
 /* ── MODALS ── */
 .backdrop { position: fixed; inset: 0; background: rgba(4,4,8,0.7); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
@@ -383,55 +609,57 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 /* ── RICH TEXT EDITOR ── */
 .rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s, background 0.2s; }
 .rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
-
-.rte-toolbar {
-  display: flex; align-items: center; gap: 2px;
-  padding: 7px 8px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.15);
-  flex-wrap: wrap;
-}
-
-.rte-btn {
-  width: 28px; height: 28px; border-radius: 7px;
-  border: 1px solid transparent; background: none;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: var(--text3); transition: all 0.15s; font-family: var(--mono);
-  font-size: 11px; font-weight: 600; flex-shrink: 0;
-}
+.rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 7px 8px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); flex-wrap: wrap; }
+.rte-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid transparent; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text3); transition: all 0.15s; font-family: var(--mono); font-size: 11px; font-weight: 600; flex-shrink: 0; position: relative; }
 .rte-btn svg { width: 13px; height: 13px; }
 .rte-btn:hover { background: var(--surface3); border-color: var(--border); color: var(--text2); }
 .rte-btn.active { background: rgba(200,169,126,0.15); border-color: rgba(200,169,126,0.3); color: var(--accent2); }
 .rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 3px; }
 
-.rte-editor {
-  min-height: 120px; padding: 11px 13px;
-  color: var(--text); font-family: var(--serif); font-size: 15px;
-  line-height: 1.72; outline: none; word-wrap: break-word;
+/* Font size dropdown */
+.rte-size-wrap { position: relative; }
+.rte-size-btn { min-width: 36px; width: auto; padding: 0 6px; font-size: 9px; letter-spacing: 0.04em; gap: 2px; }
+.rte-size-btn svg { width: 9px; height: 9px; }
+.rte-size-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0;
+  background: #17171d; border: 1px solid var(--border2);
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 50; min-width: 130px;
+  display: none;
 }
+.rte-size-dropdown.open { display: block; }
+.rte-size-option {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 8px 12px; cursor: pointer;
+  font-family: var(--serif); color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+.rte-size-option:last-child { border-bottom: none; }
+.rte-size-option:hover { background: var(--surface2); color: var(--text); }
+.rte-size-option.active { color: var(--accent2); background: rgba(200,169,126,0.08); }
+.rte-size-label { font-size: 11px; font-family: var(--mono); color: var(--text3); min-width: 24px; }
+
+.rte-editor { min-height: 120px; padding: 11px 13px; color: var(--text); font-family: var(--serif); font-size: 15px; line-height: 1.72; outline: none; word-wrap: break-word; }
 .rte-editor:empty::before { content: attr(data-placeholder); color: var(--text3); pointer-events: none; }
 .rte-editor a { color: var(--accent2); text-decoration: underline; text-underline-offset: 2px; }
 .rte-editor .blur-span { filter: blur(5px); background: rgba(200,169,126,0.08); border-radius: 4px; padding: 0 2px; cursor: default; transition: filter 0.3s; }
 .rte-editor .blur-span.revealed { filter: blur(0); }
+/* Font size spans in editor */
+.rte-editor .txt-xs { font-size: 11px; line-height: 1.6; }
+.rte-editor .txt-sm { font-size: 13px; line-height: 1.65; }
+.rte-editor .txt-md { font-size: 15px; line-height: 1.72; }
+.rte-editor .txt-lg { font-size: 19px; line-height: 1.55; }
+.rte-editor .txt-xl { font-size: 24px; line-height: 1.4; }
+.rte-editor .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
 
-/* Link input popup */
-.rte-link-bar {
-  display: none; padding: 7px 8px; border-top: 1px solid var(--border);
-  background: rgba(0,0,0,0.12); align-items: center; gap: 6px;
-}
+.rte-link-bar { display: none; padding: 7px 8px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.12); align-items: center; gap: 6px; }
 .rte-link-bar.visible { display: flex; }
-.rte-link-input {
-  flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-  padding: 6px 10px; color: var(--text); font-family: var(--mono); font-size: 11px;
-  outline: none; transition: border-color 0.15s;
-}
+.rte-link-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-family: var(--mono); font-size: 11px; outline: none; transition: border-color 0.15s; }
 .rte-link-input:focus { border-color: var(--border2); }
-.rte-link-ok {
-  padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3);
-  background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono);
-  font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap;
-  transition: all 0.15s;
-}
+.rte-link-ok { padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3); background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.15s; }
 .rte-link-ok:hover { background: rgba(200,169,126,0.2); }
 
 /* Buttons */
@@ -442,30 +670,6 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .btn-danger { flex: 1; padding: 12px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.25); border-radius: var(--r2); color: #e07070; font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
 .btn-danger:hover { background: rgba(200,80,80,0.18); }
 .confirm-row { display: flex; gap: 8px; margin-top: 16px; }
-
-/* ── CALENDAR ── */
-.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.cal-nav-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.cal-nav-btn svg { width: 12px; height: 12px; }
-.cal-nav-btn:hover { border-color: var(--border2); color: var(--text); }
-.cal-month { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text); font-weight: 400; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-.cal-day-name { text-align: center; font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em; color: var(--text4); text-transform: uppercase; padding: 5px 0; }
-.cal-cell { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--text4); position: relative; transition: all 0.15s; cursor: pointer; }
-.cal-cell:hover { background: var(--surface2); color: var(--text2); }
-.cal-cell.today { color: var(--accent2); }
-.cal-cell.has-entry { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
-.cal-cell.has-entry:hover { background: var(--surface2); border-color: var(--border2); }
-.has-note    { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4); }
-.has-photo   { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4); }
-.has-video   { box-shadow: inset 0 0 0 2px rgba(200,122,138,0.4); }
-.has-music   { box-shadow: inset 0 0 0 2px rgba(122,200,149,0.4); }
-.has-note.has-photo  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,162,200,0.3); }
-.has-note.has-video  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(200,122,138,0.3); }
-.has-note.has-music  { box-shadow: inset 0 0 0 2px rgba(200,169,126,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
-.has-photo.has-video { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4), inset 0 0 0 4px rgba(200,122,138,0.3); }
-.has-photo.has-music { box-shadow: inset 0 0 0 2px rgba(122,162,200,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
-.has-video.has-music { box-shadow: inset 0 0 0 2px rgba(200,122,138,0.4), inset 0 0 0 4px rgba(122,200,149,0.3); }
 
 /* ── LIGHTBOX ── */
 .lightbox { position: fixed; inset: 0; background: rgba(4,4,8,0.96); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
@@ -501,8 +705,6 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 /* ── TOAST ── */
 .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
 .toast.show { transform: translateX(-50%) translateY(0); }
-@keyframes highlight { 0%,100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px rgba(200,169,126,0.5); } }
-.card-highlight { animation: highlight 2s ease forwards; }
 
 audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
@@ -557,38 +759,45 @@ audio { display: none; }
 
 <!-- Bottom bar -->
 <div class="bottom-bar">
-  <button class="bottom-cal-btn" onclick="openModal('calendar')" title="Calendar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-      <rect x="3" y="4" width="18" height="18" rx="3"/>
-      <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
-    </svg>
-  </button>
 
-  <div class="bottom-nav-btns">
-    <button class="bottom-nav-btn" id="navPrev" title="ziua anterioară">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- STÂNGA: Calendar FAB -->
+  <div class="cal-fab-wrap">
+    <button class="cal-fab-btn" id="calFabBtn" onclick="toggleCalPopup()" title="Selectează ziua">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+        <rect x="3" y="4" width="18" height="18" rx="3"/>
+        <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
       </svg>
     </button>
-    <!-- SVG ring sits outside the button, absolutely positioned -->
-    <div style="position:relative;width:60px;height:60px;flex-shrink:0;">
-      <button class="bottom-nav-btn" id="navNext" title="ziua următoare" style="position:absolute;inset:0;width:100%;height:100%;">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+  </div>
+
+  <!-- CENTRU: Nav buttons — separate, above everything -->
+  <div class="bottom-nav-btns">
+    <div class="nav-btn-outer">
+      <button class="bottom-nav-btn" id="navPrev" title="ziua anterioară" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="nav-btn-outer" id="nextWrap">
+      <svg class="nav-ring-svg" id="nextRingSvg" viewBox="0 0 66 66">
+        <circle cx="33" cy="33" r="28" fill="none" stroke="rgba(200,169,126,0.15)" stroke-width="2.5"/>
+        <circle id="nextRingProgress" cx="33" cy="33" r="28" fill="none"
+          stroke="var(--accent)" stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-dasharray="175.9"
+          stroke-dashoffset="175.9"/>
+      </svg>
+      <button class="bottom-nav-btn" id="navNext" title="ziua următoare" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <svg id="nextRingSvg" viewBox="0 0 64 64" style="position:absolute;inset:-2px;width:68px;height:68px;pointer-events:none;transform:rotate(-90deg);opacity:0;transition:opacity 0.3s;">
-        <circle cx="32" cy="32" r="29" fill="none" stroke="rgba(200,169,126,0.25)" stroke-width="3"/>
-        <circle id="nextRingProgress" cx="32" cy="32" r="29" fill="none"
-          stroke="var(--accent)" stroke-width="3"
-          stroke-linecap="round"
-          stroke-dasharray="182.2"
-          stroke-dashoffset="182.2"
-          style="transition: stroke-dashoffset 0.08s linear;"/>
-      </svg>
     </div>
   </div>
 
+  <!-- DREAPTA: FAB -->
   <div class="fab-wrap">
     <div class="fab-menu" id="fabMenu">
       <div class="fab-row">
@@ -653,6 +862,60 @@ audio { display: none; }
   </div>
 </div>
 
+<!-- Calendar popup -->
+<div class="cal-popup-overlay" id="calPopupOverlay" onclick="handleCalOverlayClick(event)">
+  <div class="cal-popup-modal" id="calPopupModal">
+    <div class="cal-popup-header">
+      <div class="cal-popup-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Selectează ziua
+      </div>
+      <button class="cal-popup-close" onclick="closeCalPopup()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="cal-popup-body">
+      <button class="cal-popup-today-btn" id="calPopupTodayBtn" onclick="calPopupGoToday()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 12 12 14 14"/>
+        </svg>
+        <span class="cal-popup-today-btn-txt" id="calPopupTodayTxt">Azi</span>
+        <span class="cal-popup-active-badge" id="calPopupActiveBadge" style="display:none">● Activ</span>
+      </button>
+      <div class="cal-popup-section-lbl">Selectează ziua</div>
+      <div class="cal-popup-month-nav">
+        <button class="cal-popup-nav-btn" onclick="calPopupNavMonth(-1)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="10 3 5 8 10 13" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="cal-popup-month-lbl" id="calPopupMonthLbl"></span>
+        <button class="cal-popup-nav-btn" id="calPopupNextMonthBtn" onclick="calPopupNavMonth(1)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 3 11 8 6 13" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="cal-popup-grid" id="calPopupGrid"></div>
+      <div class="cal-popup-legend">
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--accent)"></span><span>notiță</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--blue)"></span><span>poze</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--rose)"></span><span>video</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--green)"></span><span>muzică</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--blue);opacity:0.6;box-shadow:0 0 0 2px rgba(122,162,200,0.3)"></span><span>selectată</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 <audio id="dateMusicAudio" loop></audio>
@@ -695,6 +958,24 @@ audio { display: none; }
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
           </button>
           <div class="rte-sep"></div>
+          <!-- Font size button -->
+          <div class="rte-size-wrap" id="rteSizeWrap">
+            <button class="rte-btn rte-size-btn" id="rteSizeBtn" onclick="toggleSizeDropdown('rteSizeDropdown')" title="Mărime text">
+              <span id="rteSizeLbl">Aa</span>
+              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="2 3 5 7 8 3"/>
+              </svg>
+            </button>
+            <div class="rte-size-dropdown" id="rteSizeDropdown">
+              <div class="rte-size-option" onclick="applyFontSize('txt-xs','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">xs</span><span style="font-size:11px">mic de tot</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-sm','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">s</span><span style="font-size:13px">mic</span></div>
+              <div class="rte-size-option active" onclick="applyFontSize('','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">m</span><span style="font-size:15px">normal</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-lg','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">l</span><span style="font-size:17px">mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-xl','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">xl</span><span style="font-size:20px">foarte mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-xxl','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">xxl</span><span style="font-size:24px">titlu</span></div>
+            </div>
+          </div>
+          <div class="rte-sep"></div>
           <button class="rte-btn" id="rte-link-btn" onclick="rteToggleLinkBar()" title="Link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
           </button>
@@ -732,7 +1013,6 @@ audio { display: none; }
       <label class="form-label">descriere (opțional)</label>
       <input type="text" class="form-input" id="photo-caption" placeholder="o descriere scurtă...">
     </div>
-    <!-- Blur images toggle -->
     <div class="form-group" style="display:flex;align-items:center;gap:10px;">
       <label class="form-label" style="margin-bottom:0">blur imagini</label>
       <div style="position:relative;width:38px;height:22px;flex-shrink:0;" onclick="togglePhotoBlur()">
@@ -760,15 +1040,13 @@ audio { display: none; }
       <div style="margin-top:8px;padding:8px 12px;background:rgba(200,122,138,0.07);border:1px solid rgba(200,122,138,0.18);border-radius:10px;">
         <p style="font-family:var(--mono);font-size:10px;color:var(--rose);line-height:1.7;letter-spacing:0.02em;">
           ⚠ Link-urile de pe <b>GitHub raw</b> sau alte servere cu CORS restricționat nu vor funcționa în browser.<br>
-          Folosește servicii ca <a href="https://cloudinary.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">Cloudinary</a>,
-          <a href="https://www.dropbox.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">Dropbox</a> (link direct dl=1),
-          sau găzduiește fișierul pe propriul tău server/CDN.
+          Folosește servicii ca <a href="https://cloudinary.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">Cloudinary</a> sau găzduiește fișierul pe propriul tău server/CDN.
         </p>
       </div>
     </div>
     <div class="form-group">
       <label class="form-label">descriere (opțional)</label>
-      <textarea class="form-textarea" style="min-height:70px" id="video-caption" placeholder="o descriere...&#10;poți folosi rânduri noi"></textarea>
+      <textarea class="form-textarea" style="min-height:70px" id="video-caption" placeholder="o descriere..."></textarea>
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
@@ -801,7 +1079,7 @@ audio { display: none; }
       <input type="datetime-local" class="form-input" id="music-date">
     </div>
     <div class="form-group">
-      <label class="form-label">notiță (opțional)</label>
+      <label class="form-label">descriere (opțional)</label>
       <textarea class="form-textarea" style="min-height:70px" id="music-note" placeholder="de ce ai ales melodia asta..."></textarea>
     </div>
     <button class="btn-primary" onclick="submitEntry('music')">salvează</button>
@@ -871,6 +1149,24 @@ audio { display: none; }
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
           </button>
           <div class="rte-sep"></div>
+          <!-- Font size for edit modal -->
+          <div class="rte-size-wrap" id="rteSizeWrap2">
+            <button class="rte-btn rte-size-btn" id="rteSizeBtn2" onclick="toggleSizeDropdown('rteSizeDropdown2')" title="Mărime text">
+              <span id="rteSizeLbl2">Aa</span>
+              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="2 3 5 7 8 3"/>
+              </svg>
+            </button>
+            <div class="rte-size-dropdown" id="rteSizeDropdown2">
+              <div class="rte-size-option" onclick="applyFontSize2('txt-xs','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">xs</span><span style="font-size:11px">mic de tot</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-sm','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">s</span><span style="font-size:13px">mic</span></div>
+              <div class="rte-size-option active" onclick="applyFontSize2('','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">m</span><span style="font-size:15px">normal</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-lg','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">l</span><span style="font-size:17px">mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-xl','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">xl</span><span style="font-size:20px">foarte mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-xxl','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">xxl</span><span style="font-size:24px">titlu</span></div>
+            </div>
+          </div>
+          <div class="rte-sep"></div>
           <button class="rte-btn" onclick="rteToggleLinkBar2()" title="Link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
           </button>
@@ -904,25 +1200,6 @@ audio { display: none; }
     </div>
     <button class="btn-primary" onclick="saveEdit()">salvează</button>
     <button class="btn-secondary" onclick="closeModal('edit')">anulează</button>
-  </div>
-</div>
-
-<!-- Calendar -->
-<div class="backdrop" id="modal-calendar">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">calendar</div>
-    <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="calNav(-1)">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <span class="cal-month" id="cal-month-label"></span>
-      <button class="cal-nav-btn" onclick="calNav(1)">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-    <div class="cal-grid" id="calendar-grid"></div>
-    <button class="btn-secondary" style="margin-top:18px" onclick="closeModal('calendar')">închide</button>
   </div>
 </div>
 
@@ -990,7 +1267,6 @@ let entries = [];
 let dateMusicMap = {};
 let selectedDate = null;
 let searchQuery = '';
-let calDate = new Date();
 let fabOpen = false;
 let photoBlurEnabled = false;
 
@@ -999,12 +1275,15 @@ const entryAudio = document.getElementById('entryAudio');
 let currentEntryAudioUrl = null;
 let dmAudioLoaded = false;
 
+let calPopupOpen = false;
+let calPopupYear = new Date().getFullYear();
+let calPopupMonth = new Date().getMonth();
+
 // ═══════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════
 function normRo(str) {
-  return (str || '')
-    .toLowerCase()
+  return (str || '').toLowerCase()
     .replace(/[ăâ]/g, 'a').replace(/[î]/g, 'i')
     .replace(/[ș]/g, 's').replace(/[ț]/g, 't')
     .replace(/[é]/g, 'e').replace(/[ó]/g, 'o')
@@ -1014,6 +1293,14 @@ function normRo(str) {
 function dateKey(date) {
   const d = new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayKey() { return dateKey(new Date()); }
+
+function formatKeyLabelRo(k) {
+  const d = new Date(k + 'T12:00:00');
+  const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  const months = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+  return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function toLocal(date) {
@@ -1049,11 +1336,12 @@ async function init() {
   buildCarousel();
   renderEntries();
   setDefaultDates();
+  updateCalFabState();
 
   if (selectedDate) playDateMusic(dateKey(selectedDate), false);
 
-  setupScrollProgress();
   setupNavButtons();
+  setupOverscroll();
 }
 
 function updateHeaderDate() {
@@ -1062,81 +1350,325 @@ function updateHeaderDate() {
 }
 
 // ═══════════════════════════════════════
-// FIX 1 & 2: SCROLL PROGRESS + NAV BUTTONS
+// FONT SIZE (RTE)
 // ═══════════════════════════════════════
-const RING_CIRCUMFERENCE = 2 * Math.PI * 29; // ≈182.2
-let scrollProgressActive = false;
-let scrollProgressVal = 0;
-let nextJumpTriggered = false;
-let scrollHoldTimeout = null;
+const SIZE_CLASSES = ['txt-xs','txt-sm','txt-md','txt-lg','txt-xl','txt-xxl'];
+const SIZE_LABELS  = { '':'m', 'txt-xs':'xs', 'txt-sm':'s', 'txt-lg':'l', 'txt-xl':'xl', 'txt-xxl':'xxl' };
 
-function setupScrollProgress() {
-  window.addEventListener('scroll', onWindowScroll, { passive: true });
+function toggleSizeDropdown(dropId) {
+  const drop = document.getElementById(dropId);
+  if (!drop) return;
+  // Close all other dropdowns first
+  document.querySelectorAll('.rte-size-dropdown').forEach(d => { if (d.id !== dropId) d.classList.remove('open'); });
+  drop.classList.toggle('open');
 }
 
-function onWindowScroll() {
-  const scrolled = window.scrollY;
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  if (maxScroll <= 0) return;
+// Close dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.rte-size-wrap')) {
+    document.querySelectorAll('.rte-size-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
 
-  const pct = scrolled / maxScroll; // 0..1
-  const atBottom = pct >= 0.98;
+function applyFontSize(cls, dropId, lblId) {
+  const editor = document.getElementById('rte-editor');
+  _applyFontSizeToEditor(editor, cls, dropId, lblId);
+}
 
-  const ring = document.getElementById('nextRingSvg');
-  const progress = document.getElementById('nextRingProgress');
+function applyFontSize2(cls, dropId, lblId) {
+  const editor = document.getElementById('rte-editor2');
+  _applyFontSizeToEditor(editor, cls, dropId, lblId);
+}
 
-  if (atBottom) {
-    // Show ring and fill it
-    ring.style.opacity = '1';
-    scrollProgressVal = Math.min(1, scrollProgressVal + 0.07);
+function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
+  if (!editor) return;
+  editor.focus();
+  const sel = window.getSelection();
+  const hasSelection = sel && !sel.isCollapsed;
+
+  if (hasSelection && sel.rangeCount > 0) {
+    // Apply to selection only
+    const range = sel.getRangeAt(0);
+    const span = document.createElement('span');
+    // Remove existing size classes
+    SIZE_CLASSES.forEach(c => span.classList.remove(c));
+    if (cls) span.classList.add(cls);
+    try {
+      const frag = range.extractContents();
+      span.appendChild(frag);
+      range.insertNode(span);
+      // Restore selection around new span
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    } catch(e) { console.warn(e); }
   } else {
-    // Drain ring when not at bottom
-    scrollProgressVal = Math.max(0, pct > 0.6 ? (pct - 0.6) / 0.38 * 0.6 : 0);
-    nextJumpTriggered = false;
-    ring.style.opacity = scrollProgressVal > 0.05 ? '1' : '0';
+    // No selection — apply to whole editor content or insert empty span at cursor
+    showToast('selectează textul pe care vrei să-l formatezi');
   }
 
-  // Update ring stroke
-  const offset = RING_CIRCUMFERENCE * (1 - scrollProgressVal);
-  progress.style.strokeDashoffset = offset;
+  // Update label
+  const lbl = document.getElementById(lblId);
+  if (lbl) lbl.textContent = SIZE_LABELS[cls] || 'm';
 
-  // Color based on progress
-  if (scrollProgressVal > 0.85) {
-    progress.style.stroke = 'var(--accent2)';
-  } else {
-    progress.style.stroke = 'var(--accent)';
-  }
-
-  // Auto-jump when ring completes
-  if (scrollProgressVal >= 1 && !nextJumpTriggered) {
-    nextJumpTriggered = true;
-    setTimeout(() => {
-      jumpDate(1);
-      // Reset ring after jump
-      scrollProgressVal = 0;
-      nextJumpTriggered = false;
-      ring.style.opacity = '0';
-      progress.style.strokeDashoffset = RING_CIRCUMFERENCE;
-    }, 180);
+  // Update active state in dropdown
+  const drop = document.getElementById(dropId);
+  if (drop) {
+    drop.querySelectorAll('.rte-size-option').forEach(opt => {
+      opt.classList.remove('active');
+      // Match by the label text
+      const optLbl = opt.querySelector('.rte-size-label');
+      if (optLbl && optLbl.textContent === (SIZE_LABELS[cls] || 'm')) opt.classList.add('active');
+    });
+    drop.classList.remove('open');
   }
 }
 
+// ═══════════════════════════════════════
+// CALENDAR POPUP
+// ═══════════════════════════════════════
+function toggleCalPopup() {
+  if (calPopupOpen) { closeCalPopup(); return; }
+  openCalPopup();
+}
+
+function openCalPopup() {
+  calPopupOpen = true;
+  const ref = selectedDate || new Date();
+  calPopupYear = ref.getFullYear();
+  calPopupMonth = ref.getMonth();
+  renderCalPopup();
+  document.getElementById('calPopupOverlay').classList.add('open');
+  document.getElementById('calFabBtn').classList.add('is-active');
+  closeFab();
+}
+
+function closeCalPopup() {
+  calPopupOpen = false;
+  document.getElementById('calPopupOverlay').classList.remove('open');
+  document.getElementById('calFabBtn').classList.remove('is-active');
+}
+
+function handleCalOverlayClick(e) {
+  if (e.target === document.getElementById('calPopupOverlay')) closeCalPopup();
+}
+
+function calPopupNavMonth(dir) {
+  calPopupMonth += dir;
+  if (calPopupMonth < 0)  { calPopupMonth = 11; calPopupYear--; }
+  if (calPopupMonth > 11) { calPopupMonth = 0;  calPopupYear++; }
+  renderCalPopup();
+}
+
+function calPopupGoToday() {
+  closeCalPopup();
+  goBackToToday();
+}
+
+function renderCalPopup() {
+  const now = new Date();
+  const tk = todayKey();
+  const curYear = now.getFullYear();
+  const curMonth = now.getMonth();
+
+  const nextBtn = document.getElementById('calPopupNextMonthBtn');
+  nextBtn.disabled = (calPopupYear === curYear && calPopupMonth === curMonth);
+
+  const monthNames = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  document.getElementById('calPopupMonthLbl').textContent = `${monthNames[calPopupMonth]} ${calPopupYear}`;
+
+  const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
+  const todayBtn = document.getElementById('calPopupTodayBtn');
+  todayBtn.classList.toggle('active', isViewingToday);
+  document.getElementById('calPopupTodayTxt').textContent = `Azi — ${formatKeyLabelRo(tk)}`;
+  document.getElementById('calPopupActiveBadge').style.display = isViewingToday ? '' : 'none';
+
+  const dayTypesMap = {};
+  entries.forEach(e => {
+    const d = new Date(e.posted_at);
+    if (d.getFullYear() === calPopupYear && d.getMonth() === calPopupMonth) {
+      const day = d.getDate();
+      if (!dayTypesMap[day]) dayTypesMap[day] = new Set();
+      dayTypesMap[day].add(e.type);
+    }
+  });
+  for (let day = 1; day <= 31; day++) {
+    const k = `${calPopupYear}-${String(calPopupMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    if (dateMusicMap[k]) {
+      if (!dayTypesMap[day]) dayTypesMap[day] = new Set();
+      dayTypesMap[day].add('music');
+    }
+  }
+
+  const daysInMonth = new Date(calPopupYear, calPopupMonth + 1, 0).getDate();
+  let startWd = new Date(calPopupYear, calPopupMonth, 1).getDay() - 1;
+  if (startWd < 0) startWd = 6;
+
+  const dayNamesShort = ['Lu','Ma','Mi','Jo','Vi','Sâ','Du'];
+  const selKey = selectedDate ? dateKey(selectedDate) : null;
+
+  let html = dayNamesShort.map(n => `<div class="cal-popup-day-name">${n}</div>`).join('');
+  for (let i = 0; i < startWd; i++) html += `<div class="cal-popup-cell empty"></div>`;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const k = `${calPopupYear}-${String(calPopupMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isFuture = k > tk;
+    const isToday = k === tk;
+    const isSelected = k === selKey || (isToday && isViewingToday);
+    const types = dayTypesMap[day] ? [...dayTypesMap[day]] : [];
+    const hasData = types.length > 0;
+
+    let cls = 'cal-popup-cell';
+    if (isFuture)       cls += ' future';
+    else if (isSelected) cls += ' is-selected';
+    else if (isToday)    cls += ' is-today';
+    else if (hasData)    cls += ' has-data';
+    else                 cls += ' no-data';
+
+    const dotOrder = ['note','photo','video','music'];
+    const dotMap = { note:'cal-dot-note', photo:'cal-dot-photo', video:'cal-dot-video', music:'cal-dot-music' };
+    const dots = dotOrder.filter(t => types.includes(t)).map(t => `<span class="cal-popup-dot ${dotMap[t]}"></span>`).join('');
+    const dotsHtml = dots ? `<div class="cal-popup-dots">${dots}</div>` : '';
+    const clickHandler = isFuture ? '' : `onclick="calPopupSelectDay('${k}')"`;
+    html += `<div class="${cls}" ${clickHandler}>${day}${dotsHtml}</div>`;
+  }
+
+  document.getElementById('calPopupGrid').innerHTML = html;
+}
+
+function calPopupSelectDay(key) {
+  closeCalPopup();
+  selectDate(key);
+}
+
+function updateCalFabState() {
+  const tk = todayKey();
+  const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
+  document.getElementById('calFabBtn').classList.toggle('is-active', !isViewingToday);
+}
+
+function goBackToToday() {
+  selectDate(todayKey());
+}
+
+// ═══════════════════════════════════════
+// NAV BUTTONS — REBUILT
+// ═══════════════════════════════════════
 function setupNavButtons() {
-  // FIX 2: attach via addEventListener, not onclick attribute (more reliable)
-  const prevBtn = document.getElementById('navPrev');
-  const nextBtn = document.getElementById('navNext');
+  const prev = document.getElementById('navPrev');
+  const next = document.getElementById('navNext');
 
-  prevBtn.addEventListener('click', () => jumpDate(-1));
-  nextBtn.addEventListener('click', () => {
-    // Reset ring on manual click
-    const ring = document.getElementById('nextRingSvg');
-    const progress = document.getElementById('nextRingProgress');
-    scrollProgressVal = 0;
-    nextJumpTriggered = false;
-    if (ring) { ring.style.opacity = '0'; }
-    if (progress) progress.style.strokeDashoffset = RING_CIRCUMFERENCE;
+  prev.addEventListener('click', (e) => {
+    e.stopPropagation();
+    jumpDate(-1);
+  });
+  next.addEventListener('click', (e) => {
+    e.stopPropagation();
     jumpDate(1);
   });
+
+  // Touch events directly on buttons for reliability
+  prev.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    jumpDate(-1);
+  }, { passive: false });
+  next.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    jumpDate(1);
+  }, { passive: false });
+}
+
+// ═══════════════════════════════════════
+// OVERSCROLL / RING — fire on touchend only
+// ═══════════════════════════════════════
+const RING_CIRC = 2 * Math.PI * 28; // matches r=28
+let ringProgress = 0;
+let ringVisible = false;
+let jumpLocked = false;
+
+let touchStartY = 0;
+let touchLastY = 0;
+let overscrollActive = false;
+let overscrollDelta = 0;
+const OVERSCROLL_THRESHOLD = 100;
+
+function setRingProgress(val) {
+  ringProgress = Math.max(0, Math.min(1, val));
+  const offset = RING_CIRC * (1 - ringProgress);
+  const prog = document.getElementById('nextRingProgress');
+  if (prog) {
+    prog.style.strokeDashoffset = offset;
+    prog.style.stroke = ringProgress > 0.85 ? 'var(--accent2)' : 'var(--accent)';
+  }
+  const ring = document.getElementById('nextRingSvg');
+  if (ring) {
+    const shouldShow = ringProgress > 0.02;
+    if (shouldShow !== ringVisible) {
+      ringVisible = shouldShow;
+      ring.style.opacity = shouldShow ? '1' : '0';
+    }
+  }
+}
+
+function resetRing() {
+  setRingProgress(0);
+  jumpLocked = false;
+}
+
+function setupOverscroll() {
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('touchend', onTouchEnd, { passive: false });
+}
+
+function onTouchStart(e) {
+  // Don't intercept touches on nav buttons
+  if (e.target.closest('.bottom-nav-btn') || e.target.closest('.nav-btn-outer')) return;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  touchStartY = e.touches[0].clientY;
+  touchLastY = touchStartY;
+  overscrollDelta = 0;
+  overscrollActive = maxScroll < 10 || (window.scrollY >= maxScroll - 4);
+}
+
+function onTouchMove(e) {
+  // Don't interfere with nav buttons
+  if (e.target.closest('.bottom-nav-btn') || e.target.closest('.nav-btn-outer')) return;
+  if (!overscrollActive || jumpLocked) return;
+  const y = e.touches[0].clientY;
+  const dy = touchLastY - y;
+  touchLastY = y;
+  if (dy > 0) {
+    overscrollDelta += dy;
+    const prog = Math.min(1, overscrollDelta / OVERSCROLL_THRESHOLD);
+    setRingProgress(prog);
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (maxScroll < 10) e.preventDefault();
+  } else if (dy < 0 && !jumpLocked) {
+    overscrollDelta = Math.max(0, overscrollDelta + dy);
+    setRingProgress(overscrollDelta / OVERSCROLL_THRESHOLD);
+  }
+}
+
+function onTouchEnd(e) {
+  // Don't interfere with nav buttons
+  if (e.target.closest('.bottom-nav-btn') || e.target.closest('.nav-btn-outer')) return;
+  if (!overscrollActive) return;
+  // Fire only on finger lift, if threshold reached
+  if (ringProgress >= 1 && !jumpLocked) {
+    jumpLocked = true;
+    jumpDate(1);
+    setTimeout(resetRing, 400);
+  } else {
+    // Animate ring back to 0
+    setRingProgress(0);
+    jumpLocked = false;
+  }
+  overscrollDelta = 0;
+  overscrollActive = false;
 }
 
 // ═══════════════════════════════════════
@@ -1285,14 +1817,14 @@ function selectDate(key) {
   const [y,m,d] = key.split('-').map(Number);
   selectedDate = new Date(y, m-1, d);
   saveLastDate(key);
-  document.querySelectorAll('.date-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.key === key);
-  });
-  scrollCarouselToSelected();
+  // Update carousel pills — rebuild if the selected date might be outside the current window
+  buildCarousel();
   clearSearch(true);
   playDateMusic(key, true);
   renderEntries();
   setDefaultDates();
+  resetRing();
+  updateCalFabState();
 }
 
 function jumpDate(dir) {
@@ -1312,7 +1844,6 @@ function jumpDate(dir) {
   }
   if (target) {
     selectDate(target);
-    // Scroll to top after jump
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     showToast(dir === 1 ? 'nicio dată mai nouă' : 'nicio dată mai veche');
@@ -1480,7 +2011,7 @@ function entryMatchesSearch(e, q) {
 }
 
 // ═══════════════════════════════════════
-// RENDER ENTRY — FIX 3: render rich HTML + blur spans + blurred images
+// RENDER ENTRY
 // ═══════════════════════════════════════
 function renderEntry(e) {
   const posted = new Date(e.posted_at);
@@ -1508,11 +2039,8 @@ function renderEntry(e) {
 
   } else if (e.type === 'video') {
     const url = e.media_urls?.[0] || '';
-    // FIX 4: detect likely CORS-blocked sources and warn
-    const isCorsLikely = url.includes('raw.githubusercontent.com') || url.includes('github.com') && url.includes('/raw/');
-    const warnHtml = isCorsLikely
-      ? `<div class="video-warn">⚠ Acest link de pe GitHub nu poate fi redat în browser din cauza restricțiilor CORS.<br>Înlocuiește-l cu un link de pe <a href="https://cloudinary.com" target="_blank">Cloudinary</a>, Dropbox (dl=1) sau alt CDN.</div>`
-      : '';
+    const isCorsLikely = url.includes('raw.githubusercontent.com') || (url.includes('github.com') && url.includes('/raw/'));
+    const warnHtml = isCorsLikely ? `<div class="video-warn">⚠ Link GitHub nu poate fi redat din cauza CORS.</div>` : '';
     mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${e.caption?`<div class="entry-caption">${escHtml(e.caption)}</div>`:''}</div>`;
 
   } else if (e.type === 'music') {
@@ -1521,6 +2049,7 @@ function renderEntry(e) {
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
     const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
     const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
+    const noteHtml = e.content ? `<div class="entry-caption">${escHtml(e.content)}</div>` : '';
     mediaHtml = `<div class="music-player">
       <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', this.closest('.music-player'))">
         ${iconBgHtml}${coverImgHtml}
@@ -1534,17 +2063,14 @@ function renderEntry(e) {
         <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div><div class="wave-bar"></div>
       </div>
-    </div>`;
+    </div>${noteHtml}`;
   }
 
-  // FIX 3: Render content as rich HTML if it contains our markup
   let textHtml = '';
   if (e.content) {
-    // content stored as HTML for notes (rich text), plain text for others
     if (e.type === 'note') {
-      // Sanitize lightly then render
       textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${e.content}</div>`;
-    } else {
+    } else if (e.type !== 'music') {
       textHtml = `<div class="card-text">${escHtml(e.content)}</div>`;
     }
   }
@@ -1574,20 +2100,16 @@ function renderEntry(e) {
   </div>`;
 }
 
-// Click on blurred text to reveal it
 function handleBlurClick(e) {
   const span = e.target.closest('.blur-text-span');
   if (span) span.classList.toggle('revealed');
 }
 
-// Click on blurred image overlay to reveal it
 function revealBlurredImg(overlay) {
   overlay.classList.add('revealed');
-  // After fade, enable lightbox on the parent
   const item = overlay.closest('.media-item');
   if (item) {
     item.style.cursor = 'pointer';
-    // restore lightbox click
     const idx = [...item.parentElement.children].indexOf(item);
     const card = item.closest('.entry-card');
     if (!card) return;
@@ -1620,7 +2142,6 @@ function rteRestoreRange(editorId) {
   }
 }
 
-// FIX 3a: Bold
 function rteCmd(cmd) {
   document.getElementById('rte-editor').focus();
   document.execCommand(cmd, false, null);
@@ -1641,7 +2162,6 @@ document.addEventListener('selectionchange', () => {
   if (document.activeElement && document.activeElement.closest('#modal-note')) updateRteState();
 });
 
-// FIX 3b: Link bar toggle (preserves selection)
 function rteToggleLinkBar() {
   rteSaveRange();
   const bar = document.getElementById('rte-link-bar');
@@ -1666,14 +2186,12 @@ function rteInsertLink() {
   if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
     document.execCommand('createLink', false, url);
   } else {
-    // Insert link with URL as text
     const a = document.createElement('a');
     a.href = url; a.textContent = url; a.target = '_blank';
     const range = window.getSelection().getRangeAt(0);
     range.insertNode(a);
     range.setStartAfter(a); range.collapse(true);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
   }
   document.getElementById('rte-link-bar').classList.remove('visible');
 }
@@ -1691,13 +2209,11 @@ function rteInsertLink2() {
     const range = window.getSelection().getRangeAt(0);
     range.insertNode(a);
     range.setStartAfter(a); range.collapse(true);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(range);
   }
   document.getElementById('rte-link-bar2').classList.remove('visible');
 }
 
-// FIX 3c: Blur selected text
 function rteBlurSelected() {
   const editor = document.getElementById('rte-editor');
   editor.focus();
@@ -1707,14 +2223,8 @@ function rteBlurSelected() {
   const span = document.createElement('span');
   span.className = 'blur-text-span';
   span.title = 'apasă pentru a revela';
-  try {
-    range.surroundContents(span);
-  } catch(e) {
-    // Fallback: extract and wrap
-    const frag = range.extractContents();
-    span.appendChild(frag);
-    range.insertNode(span);
-  }
+  try { range.surroundContents(span); }
+  catch(e) { const frag = range.extractContents(); span.appendChild(frag); range.insertNode(span); }
   sel.removeAllRanges();
 }
 
@@ -1727,21 +2237,14 @@ function rteBlurSelected2() {
   const span = document.createElement('span');
   span.className = 'blur-text-span';
   span.title = 'apasă pentru a revela';
-  try {
-    range.surroundContents(span);
-  } catch(e) {
-    const frag = range.extractContents();
-    span.appendChild(frag);
-    range.insertNode(span);
-  }
+  try { range.surroundContents(span); }
+  catch(e) { const frag = range.extractContents(); span.appendChild(frag); range.insertNode(span); }
   sel.removeAllRanges();
 }
 
-// Get RTE content as HTML
 function getRteHtml(editorId) {
   const editor = document.getElementById(editorId);
   if (!editor) return '';
-  // Fix links: ensure target=_blank
   editor.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
   return editor.innerHTML;
 }
@@ -1754,15 +2257,11 @@ function togglePhotoBlur() {
   const track = document.getElementById('photo-blur-track');
   const thumb = document.getElementById('photo-blur-thumb');
   if (photoBlurEnabled) {
-    track.style.background = 'rgba(200,169,126,0.25)';
-    track.style.borderColor = 'rgba(200,169,126,0.4)';
-    thumb.style.background = 'var(--accent2)';
-    thumb.style.transform = 'translateX(16px)';
+    track.style.background = 'rgba(200,169,126,0.25)'; track.style.borderColor = 'rgba(200,169,126,0.4)';
+    thumb.style.background = 'var(--accent2)'; thumb.style.transform = 'translateX(16px)';
   } else {
-    track.style.background = 'var(--surface2)';
-    track.style.borderColor = 'var(--border)';
-    thumb.style.background = 'var(--text3)';
-    thumb.style.transform = 'translateX(0)';
+    track.style.background = 'var(--surface2)'; track.style.borderColor = 'var(--border)';
+    thumb.style.background = 'var(--text3)'; thumb.style.transform = 'translateX(0)';
   }
 }
 
@@ -1877,9 +2376,8 @@ async function submitEntry(type) {
     const plain = document.getElementById('rte-editor').innerText.trim();
     const date = document.getElementById('note-date').value;
     if (!plain) { showToast('scrie ceva mai întâi'); return; }
-    payload.content = html; // store rich HTML
+    payload.content = html;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-
   } else if (type === 'photo') {
     const raw = document.getElementById('photo-urls').value.trim();
     const date = document.getElementById('photo-date').value;
@@ -1889,7 +2387,6 @@ async function submitEntry(type) {
     payload.caption = caption;
     payload.blur_images = photoBlurEnabled;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-
   } else if (type === 'video') {
     const url = document.getElementById('video-url').value.trim();
     const date = document.getElementById('video-date').value;
@@ -1898,7 +2395,6 @@ async function submitEntry(type) {
     payload.media_urls = [url];
     payload.caption = caption;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-
   } else if (type === 'music') {
     const url = document.getElementById('music-url').value.trim();
     const title = document.getElementById('music-title-inp').value.trim();
@@ -1915,7 +2411,7 @@ async function submitEntry(type) {
 
   payload.modified_at = payload.posted_at;
   const { error } = await sb.from('entries').insert([payload]);
-  if (error) { showToast('eroare: ' + error.message); console.error(error); return; }
+  if (error) { showToast('eroare: ' + error.message); return; }
   showToast('salvat');
   closeModal(type);
   clearForm(type);
@@ -1929,7 +2425,7 @@ function clearForm(type) {
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-caption').value = '';
-    if (photoBlurEnabled) togglePhotoBlur(); // reset toggle
+    if (photoBlurEnabled) togglePhotoBlur();
   } else if (type === 'video') {
     document.getElementById('video-url').value = '';
     document.getElementById('video-caption').value = '';
@@ -2011,7 +2507,6 @@ function openEditFor(id) {
   document.getElementById('edit-cover').value = e.cover_url || '';
 
   if (e.type === 'note') {
-    // Use rich text editor for notes
     document.getElementById('edit-rte-group').style.display = 'block';
     document.getElementById('edit-plain-group').style.display = 'none';
     document.getElementById('edit-caption-group').style.display = 'none';
@@ -2023,6 +2518,14 @@ function openEditFor(id) {
     document.getElementById('edit-content').placeholder = 'link-uri (unul per linie)';
     document.getElementById('edit-caption').value = e.caption || '';
     document.getElementById('edit-caption-group').style.display = 'block';
+  } else if (e.type === 'music') {
+    document.getElementById('edit-rte-group').style.display = 'none';
+    document.getElementById('edit-plain-group').style.display = 'block';
+    document.getElementById('edit-content').value = e.media_urls?.[0] || '';
+    document.getElementById('edit-content').placeholder = 'link audio';
+    document.getElementById('edit-caption').value = e.content || '';
+    document.getElementById('edit-caption-group').style.display = 'block';
+    document.querySelector('#edit-caption-group .form-label').textContent = 'descriere';
   } else {
     document.getElementById('edit-rte-group').style.display = 'none';
     document.getElementById('edit-plain-group').style.display = 'block';
@@ -2030,6 +2533,7 @@ function openEditFor(id) {
     document.getElementById('edit-content').placeholder = 'link';
     document.getElementById('edit-caption').value = e.caption || '';
     document.getElementById('edit-caption-group').style.display = 'block';
+    document.querySelector('#edit-caption-group .form-label').textContent = 'descriere / titlu';
   }
   openModal('edit');
 }
@@ -2044,12 +2548,16 @@ async function saveEdit() {
 
   if (type === 'note') {
     update.content = getRteHtml('rte-editor2');
+  } else if (type === 'music') {
+    const content = document.getElementById('edit-content').value.trim();
+    update.media_urls = [content];
+    update.content = caption;
+    update.cover_url = cover;
   } else {
     const content = document.getElementById('edit-content').value.trim();
     if (type === 'photo') { update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean); update.caption = caption; }
     else { update.media_urls = [content]; update.caption = caption; }
   }
-  if (type === 'music') update.cover_url = cover;
 
   const { error } = await sb.from('entries').update(update).eq('id', id);
   if (error) { showToast('eroare'); return; }
@@ -2102,68 +2610,11 @@ async function saveDebug() {
 }
 
 // ═══════════════════════════════════════
-// CALENDAR
-// ═══════════════════════════════════════
-function calNav(dir) { calDate.setMonth(calDate.getMonth()+dir); renderCalendar(); }
-
-function renderCalendar() {
-  const year = calDate.getFullYear();
-  const month = calDate.getMonth();
-  document.getElementById('cal-month-label').textContent =
-    new Date(year, month, 1).toLocaleDateString('ro-RO', { month:'long', year:'numeric' });
-  const typeMap = {};
-  entries.forEach(e => {
-    const d = new Date(e.posted_at);
-    if (d.getFullYear() === year && d.getMonth() === month) {
-      const day = d.getDate();
-      if (!typeMap[day]) typeMap[day] = new Set();
-      typeMap[day].add(e.type);
-    }
-  });
-  for (let day = 1; day <= 31; day++) {
-    const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    if (dateMusicMap[k]) { if (!typeMap[day]) typeMap[day] = new Set(); typeMap[day].add('music'); }
-  }
-  const dayNames = ['lu','ma','mi','jo','vi','sâ','du'];
-  let html = dayNames.map(d => `<div class="cal-day-name">${d}</div>`).join('');
-  const firstWeekday = new Date(year, month, 1).getDay();
-  const offset = firstWeekday === 0 ? 6 : firstWeekday - 1;
-  for (let i = 0; i < offset; i++) html += '<div></div>';
-  const today = new Date();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  for (let day = 1; day <= daysInMonth; day++) {
-    const isToday = today.getDate()===day && today.getMonth()===month && today.getFullYear()===year;
-    const types = typeMap[day] ? [...typeMap[day]] : [];
-    const hasEntry = types.length > 0;
-    const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const typeClasses = types.map(t => `has-${t}`).join(' ');
-    html += `<div class="cal-cell${hasEntry?' has-entry':''}${isToday?' today':''} ${typeClasses}" onclick="calJumpTo('${k}')">${day}</div>`;
-  }
-  document.getElementById('calendar-grid').innerHTML = html;
-}
-
-function calJumpTo(key) {
-  closeModal('calendar');
-  selectDate(key);
-  setTimeout(() => {
-    const card = document.querySelector('.entry-card');
-    if (card) {
-      card.scrollIntoView({behavior:'smooth', block:'center'});
-      card.classList.add('card-highlight');
-      setTimeout(()=>card.classList.remove('card-highlight'),2000);
-    }
-  }, 100);
-}
-
-// ═══════════════════════════════════════
 // MODAL
 // ═══════════════════════════════════════
 function openModal(name) {
   closeFab();
-  if (name === 'calendar') {
-    calDate = selectedDate ? new Date(selectedDate) : new Date();
-    renderCalendar();
-  }
+  closeCalPopup();
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value = '';
@@ -2194,6 +2645,7 @@ function toggleFab() {
   fabOpen = !fabOpen;
   document.getElementById('fabMenu').classList.toggle('open', fabOpen);
   document.getElementById('fabMain').classList.toggle('open', fabOpen);
+  if (fabOpen) closeCalPopup();
 }
 
 function closeFab() {
