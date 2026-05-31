@@ -77,6 +77,114 @@ body::before {
 .header-title { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--accent2); font-weight: 400; letter-spacing: 0.01em; }
 .header-date-display { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
 
+/* ── LOCK BADGE ── */
+.lock-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  color: var(--text3); cursor: pointer;
+  padding: 5px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.lock-badge:hover { border-color: var(--border2); color: var(--text2); }
+.lock-badge svg { width: 11px; height: 11px; }
+.lock-badge.unlocked { color: var(--accent); border-color: rgba(200,169,126,0.3); background: rgba(200,169,126,0.07); }
+
+/* ── PIN OVERLAY ── */
+.pin-overlay {
+  position: fixed; inset: 0;
+  background: rgba(4,4,8,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 800;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.pin-overlay.open { opacity: 1; pointer-events: all; }
+
+.pin-modal {
+  width: 100%; max-width: 300px;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+}
+
+.pin-title {
+  font-family: var(--serif); font-size: 22px; font-style: italic;
+  color: var(--accent2); font-weight: 400;
+  margin-bottom: 6px; text-align: center;
+}
+.pin-subtitle {
+  font-family: var(--mono); font-size: 10px; color: var(--text3);
+  letter-spacing: 0.06em; text-align: center; margin-bottom: 28px;
+}
+
+.pin-dots {
+  display: flex; gap: 14px; margin-bottom: 32px;
+}
+.pin-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  transition: all 0.18s;
+}
+.pin-dot.filled {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(200,169,126,0.4);
+}
+.pin-dot.error {
+  background: var(--rose);
+  border-color: var(--rose);
+  box-shadow: 0 0 10px rgba(200,122,138,0.5);
+  animation: pinShake 0.4s ease;
+}
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.pin-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; width: 100%;
+}
+.pin-key {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--serif); font-size: 22px; font-weight: 400;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
+}
+.pin-key::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(200,169,126,0.12);
+  opacity: 0; border-radius: 14px;
+  transition: opacity 0.1s;
+}
+.pin-key:active::after { opacity: 1; }
+.pin-key:active { transform: scale(0.93); border-color: var(--border3); }
+.pin-key.zero { grid-column: 2; }
+.pin-key.del {
+  background: none; border-color: transparent;
+  color: var(--text3); font-size: 14px;
+}
+.pin-key.del:active { background: var(--surface); }
+
 /* ── SEARCH ── */
 .search-wrap { padding: 12px 16px 0; position: relative; }
 .search-inner { position: relative; display: flex; align-items: center; }
@@ -166,6 +274,8 @@ body::before {
 .chip-music { color: var(--green);   border-color: rgba(122,200,149,0.25); background: rgba(122,200,149,0.07); }
 .card-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; }
 .entry-card:hover .card-actions { opacity: 1; }
+/* When locked, hide action buttons completely */
+body.locked .card-actions { display: none !important; }
 .icon-btn {
   width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
   background: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -187,14 +297,12 @@ body::before {
 .card-text .txt-xl { font-size: 24px; line-height: 1.4; font-weight: 500; }
 .card-text .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
 
-/* FIX 2: links reacționează din prima apăsare */
 .card-text a {
   color: var(--text) !important;
   text-decoration: none;
   border-bottom: 1.5px solid var(--accent);
   padding-bottom: 1px;
   transition: border-color 0.15s, opacity 0.15s;
-  /* pointer-events explicite pentru touch */
   pointer-events: auto;
   cursor: pointer;
   -webkit-user-select: none;
@@ -255,7 +363,6 @@ body::before {
 }
 .img-blur-icon svg { width: 16px; height: 16px; }
 
-/* FIX 1: YouTube embed — fără titlu, fără butoane extra */
 .video-embed-wrap {
   position: relative;
   width: 100%;
@@ -263,7 +370,6 @@ body::before {
   overflow: hidden;
   background: #000;
   border: 1px solid var(--border);
-  /* aspect ratio 16:9 */
   aspect-ratio: 16 / 9;
 }
 .video-embed-wrap iframe {
@@ -280,7 +386,6 @@ body::before {
 .entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; white-space: pre-wrap; }
 
 /* ── MUSIC ── */
-/* FIX 3: music player — touch-action pentru prima apăsare */
 .music-player {
   display: flex; align-items: center; gap: 10px;
   background: rgba(122,200,149,0.05); border: 1px solid rgba(122,200,149,0.12);
@@ -293,7 +398,6 @@ body::before {
   background: rgba(122,200,149,0.1); border: 1px solid rgba(122,200,149,0.2);
   display: flex; align-items: center; justify-content: center;
   position: relative; cursor: pointer; transition: all 0.15s;
-  /* FIX 3: first tap fix */
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
@@ -342,6 +446,8 @@ body::before {
 .dm-wave-bar:nth-child(4){ height:13px; animation: wv .65s ease-in-out infinite .11s; }
 .dm-wave-bar:nth-child(5){ height:5px;  animation: wv .65s ease-in-out infinite .05s; }
 .dm-banner-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+/* Hide delete button when locked */
+body.locked .dm-delete-btn { display: none !important; }
 .dm-delete-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(200,80,80,0.2); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(200,80,80,0.4); transition: all 0.15s; }
 .dm-delete-btn svg { width: 11px; height: 11px; }
 .dm-delete-btn:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.4); color: #e07070; }
@@ -424,6 +530,8 @@ body::before {
 .bottom-nav-btn:active { transform: scale(0.91); background: rgba(30,30,40,1); }
 
 /* ── FAB ── */
+/* Hide FAB when locked */
+body.locked .fab-wrap { display: none !important; }
 .fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
 .fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
 .fab-menu.open { max-height: 400px; opacity: 1; }
@@ -437,7 +545,27 @@ body::before {
 .fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
 .fab-main.open svg { transform: rotate(45deg); }
 
-/* ── CALENDAR FAB ── */
+/* Lock placeholder (right side when locked) */
+.lock-fab-wrap {
+  pointer-events: all;
+  flex-shrink: 0;
+}
+.lock-fab-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow);
+  transition: all 0.22s;
+  backdrop-filter: blur(12px);
+  touch-action: manipulation;
+}
+.lock-fab-btn:hover { background: rgba(200,169,126,0.1); border-color: rgba(200,169,126,0.3); color: var(--accent); }
+.lock-fab-btn svg { width: 18px; height: 18px; }
+
+/* ── CAL FAB ── */
 .cal-fab-wrap {
   pointer-events: all;
   position: relative;
@@ -646,7 +774,6 @@ body::before {
 .form-input, .form-textarea, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
 .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--border2); background: var(--surface2); }
 .form-textarea { min-height: 100px; resize: vertical; line-height: 1.65; font-family: var(--serif); font-size: 15px; }
-/* FIX 4: step="1" pentru secunde — styling pentru datetime-local */
 input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .form-select option { background: #17171d; }
 
@@ -747,7 +874,7 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* FIX 4: blur toggle in edit modal */
+/* FIX: blur toggle in edit modal */
 .blur-toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .blur-toggle-row .form-label { margin-bottom: 0; flex: 1; }
 .toggle-track { position: relative; width: 38px; height: 22px; flex-shrink: 0; cursor: pointer; }
@@ -756,13 +883,16 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .toggle-track.on .toggle-bg { background: rgba(200,169,126,0.25); border-color: rgba(200,169,126,0.4); }
 .toggle-track.on .toggle-thumb { background: var(--accent2); transform: translateX(16px); }
 
+/* ── FIX 2: hide seconds in time display ── */
+/* We format time without seconds in JS - no CSS needed */
+
 audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 </style>
 </head>
-<body>
+<body class="locked">
 
 <div class="app">
   <div class="header">
@@ -774,7 +904,16 @@ audio { display: none; }
       </div>
       <span class="header-title">carnet</span>
     </div>
-    <div class="header-date-display" id="headerDateDisplay"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="header-date-display" id="headerDateDisplay"></div>
+      <div class="lock-badge" id="lockBadge" onclick="openPinOverlay()">
+        <svg id="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+        </svg>
+        <span id="lockLabel">blocat</span>
+      </div>
+    </div>
   </div>
 
   <div class="search-wrap">
@@ -844,7 +983,8 @@ audio { display: none; }
     </div>
   </div>
 
-  <div class="fab-wrap">
+  <!-- FAB (hidden when locked via CSS) -->
+  <div class="fab-wrap" id="fabWrap">
     <div class="fab-menu" id="fabMenu">
       <div class="fab-row">
         <span class="fab-lbl">muzică pentru dată</span>
@@ -905,6 +1045,48 @@ audio { display: none; }
         <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
       </svg>
     </button>
+  </div>
+
+  <!-- Lock button shown when locked (right side) -->
+  <div class="lock-fab-wrap" id="lockFabWrap">
+    <button class="lock-fab-btn" onclick="openPinOverlay()" title="Deblochează">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- PIN OVERLAY -->
+<div class="pin-overlay" id="pinOverlay">
+  <div class="pin-modal">
+    <div class="pin-title" id="pinTitle">carnet</div>
+    <div class="pin-subtitle" id="pinSubtitle">introdu codul PIN</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <div></div><!-- empty left -->
+      <button class="pin-key zero" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinBackspace()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2zM18 9l-6 6M12 9l6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -988,9 +1170,9 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- MODALS -->
+<!-- MODALS (only accessible when unlocked) -->
 
-<!-- Note — RICH TEXT EDITOR -->
+<!-- Note -->
 <div class="backdrop" id="modal-note">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1037,7 +1219,6 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <!-- FIX 4: step="1" pentru a putea alege secundele -->
       <input type="datetime-local" class="form-input" id="note-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('note')">salvează</button>
@@ -1067,7 +1248,6 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <!-- FIX 4: step="1" -->
       <input type="datetime-local" class="form-input" id="photo-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('photo')">salvează</button>
@@ -1075,7 +1255,7 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- Video — FIX 1: suport YouTube -->
+<!-- Video -->
 <div class="backdrop" id="modal-video">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1096,7 +1276,6 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <!-- FIX 4: step="1" -->
       <input type="datetime-local" class="form-input" id="video-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('video')">salvează</button>
@@ -1123,7 +1302,6 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <!-- FIX 4: step="1" -->
       <input type="datetime-local" class="form-input" id="music-date" step="1">
     </div>
     <div class="form-group">
@@ -1241,7 +1419,6 @@ audio { display: none; }
       <label class="form-label">link copertă (opțional)</label>
       <input type="url" class="form-input" id="edit-cover">
     </div>
-    <!-- FIX 3: blur toggle în edit pentru photo -->
     <div class="blur-toggle-row" id="edit-blur-group" style="display:none">
       <label class="form-label">blur imagini</label>
       <div class="toggle-track" id="edit-blur-toggle" onclick="toggleEditBlur()">
@@ -1251,7 +1428,6 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <!-- FIX 4: step="1" -->
       <input type="datetime-local" class="form-input" id="edit-date" step="1">
     </div>
     <button class="btn-primary" onclick="saveEdit()">salvează</button>
@@ -1267,12 +1443,10 @@ audio { display: none; }
     <input type="hidden" id="debug-id">
     <div class="form-group">
       <label class="form-label">data postării</label>
-      <!-- FIX 4: step="1" -->
       <input type="datetime-local" class="form-input" id="debug-posted" step="1">
     </div>
     <div class="form-group">
       <label class="form-label">data modificării</label>
-      <!-- FIX 4: step="1" -->
       <input type="datetime-local" class="form-input" id="debug-modified" step="1">
     </div>
     <button class="btn-primary" onclick="saveDebug()">aplică</button>
@@ -1328,22 +1502,122 @@ let searchQuery = '';
 let fabOpen = false;
 let photoBlurEnabled = false;
 let editBlurEnabled = false;
+let isLocked = true; // FIX 5: locked by default
 
 const dmAudio = document.getElementById('dateMusicAudio');
 const entryAudio = document.getElementById('entryAudio');
 let currentEntryAudioUrl = null;
 let dmAudioLoaded = false;
 
+// FIX 1: Track if user has interacted (for autoplay)
+let userHasInteracted = false;
+let pendingDateMusicKey = null;
+let pendingDateMusicAutoplay = false;
+
 let calPopupOpen = false;
 let calPopupYear = new Date().getFullYear();
 let calPopupMonth = new Date().getMonth();
+
+// ═══════════════════════════════════════
+// FIX 5: PIN SYSTEM
+// ═══════════════════════════════════════
+const PIN_CODE = '2727';
+let pinBuffer = '';
+
+function openPinOverlay() {
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pinOverlay').classList.add('open');
+}
+
+function closePinOverlay() {
+  document.getElementById('pinOverlay').classList.remove('open');
+  pinBuffer = '';
+  updatePinDots();
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    // auto-enter after short delay for visual feedback
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinBackspace() {
+  if (pinBuffer.length > 0) {
+    pinBuffer = pinBuffer.slice(0, -1);
+    updatePinDots();
+  }
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.classList.toggle('filled', i < pinBuffer.length);
+    dot.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === PIN_CODE) {
+    // Correct!
+    setUnlocked(true);
+    closePinOverlay();
+  } else {
+    // Wrong: shake + clear
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('pd' + i);
+      dot.classList.remove('filled');
+      dot.classList.add('error');
+    }
+    setTimeout(() => {
+      pinBuffer = '';
+      updatePinDots();
+    }, 600);
+  }
+}
+
+function setUnlocked(unlocked) {
+  isLocked = !unlocked;
+  if (unlocked) {
+    document.body.classList.remove('locked');
+    document.getElementById('lockBadge').classList.add('unlocked');
+    document.getElementById('lockLabel').textContent = 'deblocat';
+    document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 019.9-1" stroke-linecap="round"/>`;
+    document.getElementById('lockFabWrap').style.display = 'none';
+    document.getElementById('fabWrap').style.display = '';
+    showToast('deblocat');
+  } else {
+    document.body.classList.add('locked');
+    document.getElementById('lockBadge').classList.remove('unlocked');
+    document.getElementById('lockLabel').textContent = 'blocat';
+    document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>`;
+    document.getElementById('lockFabWrap').style.display = '';
+    document.getElementById('fabWrap').style.display = 'none';
+    closeFab();
+    // close any open modals
+    document.querySelectorAll('.backdrop.open').forEach(m => m.classList.remove('open'));
+  }
+}
+
+// Click on lock badge: if unlocked → lock; if locked → open pin
+document.getElementById('lockBadge').addEventListener('click', () => {
+  if (!isLocked) {
+    setUnlocked(false);
+    showToast('blocat');
+  } else {
+    openPinOverlay();
+  }
+});
 
 // ═══════════════════════════════════════
 // FIX 1: YouTube URL utils
 // ═══════════════════════════════════════
 function extractYouTubeId(url) {
   if (!url) return null;
-  // Patterns: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/embed/ID, youtube.com/shorts/ID
   const patterns = [
     /youtu\.be\/([a-zA-Z0-9_-]{11})/,
     /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/,
@@ -1356,10 +1630,6 @@ function extractYouTubeId(url) {
     if (m) return m[1];
   }
   return null;
-}
-
-function isYouTubeUrl(url) {
-  return !!extractYouTubeId(url);
 }
 
 // ═══════════════════════════════════════
@@ -1389,11 +1659,17 @@ function formatKeyLabelRo(k) {
 function toLocal(date) {
   const d = new Date(date);
   d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 19); // FIX 4: include seconds (19 chars instead of 16)
+  return d.toISOString().slice(0, 19);
 }
 
 function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// FIX 2: format time WITHOUT seconds
+function formatTime(date) {
+  const d = new Date(date);
+  return d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
 }
 
 function playIcon()  { return `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`; }
@@ -1404,6 +1680,13 @@ function pauseIcon() { return `<svg viewBox="0 0 24 24" fill="currentColor"><rec
 // ═══════════════════════════════════════
 async function init() {
   updateHeaderDate();
+
+  // FIX 1: Capture any user interaction to enable autoplay
+  setupInteractionCapture();
+
+  // Init lock state
+  setUnlocked(false); // start locked
+
   await loadDateMusicMap();
   await loadEntries();
 
@@ -1421,13 +1704,64 @@ async function init() {
   setDefaultDates();
   updateCalFabState();
 
-  if (selectedDate) playDateMusic(dateKey(selectedDate), false);
+  // FIX 1: Queue the date music but don't autoplay yet (needs interaction)
+  if (selectedDate) {
+    const dk = dateKey(selectedDate);
+    if (dateMusicMap[dk] && dateMusicMap[dk].url) {
+      pendingDateMusicKey = dk;
+      pendingDateMusicAutoplay = true;
+      // Pre-load but don't play
+      dmAudio.src = dateMusicMap[dk].url;
+      dmAudioLoaded = true;
+      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+    }
+  }
 
   setupNavButtons();
   setupOverscroll();
-
-  // FIX 2: links — intercept clicks on card-text to handle first tap correctly
   setupCardTextLinks();
+}
+
+// ═══════════════════════════════════════
+// FIX 1: Interaction capture for autoplay
+// ANY touch/click anywhere on the page triggers pending music
+// BUT we must ignore interactions that are date-change actions
+// ═══════════════════════════════════════
+function setupInteractionCapture() {
+  // We use a flag to skip interactions that are date-navigation events
+  // The trick: date-change handlers set a flag before they fire,
+  // and the interaction handler checks this flag.
+
+  function tryStartPendingMusic(e) {
+    if (userHasInteracted) return;
+    // Don't start if the interaction is on a nav button (date change)
+    if (e && e.target && (
+      e.target.closest('.date-pill') ||
+      e.target.closest('.bottom-nav-btn') ||
+      e.target.closest('.nav-btn-outer') ||
+      e.target.closest('.cal-popup-cell') ||
+      e.target.closest('.cal-popup-today-btn')
+    )) {
+      // This is a date-change interaction — don't start pending music
+      return;
+    }
+
+    userHasInteracted = true;
+
+    if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+      const dk = pendingDateMusicKey;
+      pendingDateMusicKey = null;
+      pendingDateMusicAutoplay = false;
+      // Actually play
+      dmAudio.volume = 0.28;
+      dmAudio.play().catch(() => {});
+      syncDateMusicWaves();
+    }
+  }
+
+  // Listen in bubble phase so date-pills fire their onclick first
+  document.addEventListener('click', tryStartPendingMusic, false);
+  document.addEventListener('touchend', tryStartPendingMusic, { passive: true });
 }
 
 function updateHeaderDate() {
@@ -1435,21 +1769,15 @@ function updateHeaderDate() {
   if (el) el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
-// ═══════════════════════════════════════
-// FIX 2: First-tap link fix
-// Use delegated event listener on document for links inside .card-text
-// This fires before any card selection logic.
-// ═══════════════════════════════════════
+// FIX 2: links fix
 function setupCardTextLinks() {
-  // Use capture phase so link clicks are caught first,
-  // before any bubbling handlers that might swallow them.
   document.addEventListener('click', function(e) {
     const link = e.target.closest('.card-text a');
     if (!link) return;
     e.stopPropagation();
     const href = link.getAttribute('href');
     if (href) window.open(href, '_blank', 'noopener');
-  }, true); // capture = true → fires before bubble handlers
+  }, true);
 }
 
 // ═══════════════════════════════════════
@@ -1614,7 +1942,7 @@ function renderCalPopup() {
     const hasData = types.length > 0;
 
     let cls = 'cal-popup-cell';
-    if (isFuture)       cls += ' future';
+    if (isFuture)        cls += ' future';
     else if (isSelected) cls += ' is-selected';
     else if (isToday)    cls += ' is-today';
     else if (hasData)    cls += ' has-data';
@@ -1917,11 +2245,33 @@ function selectDate(key) {
   saveLastDate(key);
   buildCarousel();
   clearSearch(true);
+
+  // FIX 3: Stop entry music when changing date
+  stopEntryMusicCompletely();
+
   playDateMusic(key, true);
   renderEntries();
   setDefaultDates();
   resetRing();
   updateCalFabState();
+}
+
+// FIX 3: stop entry music
+function stopEntryMusicCompletely() {
+  if (!entryAudio.paused) {
+    entryAudio.pause();
+    entryAudio.currentTime = 0;
+  }
+  currentEntryAudioUrl = null;
+  // Update all player UIs
+  document.querySelectorAll('.music-player').forEach(p => {
+    const ov = p.querySelector('.music-cover-overlay');
+    const w  = p.querySelector('.wave-bars');
+    const s  = p.querySelector('.music-sub');
+    if (ov) ov.innerHTML = playIcon();
+    if (w)  w.classList.add('paused');
+    if (s)  s.textContent = 'apasă pentru redare';
+  });
 }
 
 function jumpDate(dir) {
@@ -1948,7 +2298,7 @@ function jumpDate(dir) {
 }
 
 // ═══════════════════════════════════════
-// FIX 5: Media Session API — thumbnail + title on lock screen
+// Media Session API
 // ═══════════════════════════════════════
 function updateMediaSession(title, coverUrl) {
   if (!('mediaSession' in navigator)) return;
@@ -1990,17 +2340,22 @@ function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
   if (dm && dm.url) {
     if (dmAudio.src !== dm.url) { dmAudio.src = dm.url; dmAudioLoaded = true; }
-    // FIX 5: update media session for date music
     updateDateMusicMediaSession(dm.title, dm.cover);
     if (autoplay) {
       dmAudio.volume = 0.28;
-      dmAudio.play().catch(() => {
-        const once = () => { dmAudio.play().catch(()=>{}); document.removeEventListener('click', once); };
-        document.addEventListener('click', once);
-      });
+      // FIX 1: Only autoplay if user has already interacted
+      if (userHasInteracted) {
+        dmAudio.play().catch(() => {});
+      } else {
+        // Queue it for next interaction (but only if it's not already queued)
+        pendingDateMusicKey = dk;
+        pendingDateMusicAutoplay = true;
+      }
     }
   } else {
     dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false;
+    pendingDateMusicKey = null;
+    pendingDateMusicAutoplay = false;
   }
   syncDateMusicWaves();
 }
@@ -2220,7 +2575,8 @@ function entryMatchesSearch(e, q) {
 // ═══════════════════════════════════════
 function renderEntry(e, hlQuery) {
   const posted = new Date(e.posted_at);
-  const timeStr = posted.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  // FIX 2: use formatTime (no seconds) + short date
+  const timeStr = formatTime(posted);
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
   const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică' };
   const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music' };
@@ -2230,10 +2586,12 @@ function renderEntry(e, hlQuery) {
     const urls = e.media_urls || [];
     const isBlurred = e.blur_images;
     const cols = urls.length === 1 ? 'cols-1' : urls.length === 2 ? 'cols-2' : 'cols-3';
+    // FIX 4: pass the entry id so lightbox works properly
+    const entryIdStr = e.id;
     const imgs = urls.map((u, idx) =>
-      `<div class="media-item" onclick="${isBlurred ? '' : `openLightbox(${JSON.stringify(urls)}, ${idx})`}">
+      `<div class="media-item" onclick="${isBlurred ? '' : `openLightboxForEntry('${entryIdStr}', ${idx})`}">
         <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
-        ${isBlurred ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this)">
+        ${isBlurred ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this, '${entryIdStr}', ${idx})">
           <div class="img-blur-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
           </div>
@@ -2246,7 +2604,6 @@ function renderEntry(e, hlQuery) {
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
   } else if (e.type === 'video') {
-    // FIX 1: YouTube embed vs direct video
     const url = e.media_urls?.[0] || '';
     const ytId = extractYouTubeId(url);
     const captionHtml = e.caption
@@ -2254,16 +2611,13 @@ function renderEntry(e, hlQuery) {
       : '';
 
     if (ytId) {
-      // youtube-nocookie: no title bar, no related videos overlay (rel=0), no logo (modestbranding=1)
       const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white`;
       mediaHtml = `<div class="media-wrap">
         <div class="video-embed-wrap">
           <iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" loading="lazy"></iframe>
         </div>${captionHtml}</div>`;
     } else {
-      const isCorsLikely = url.includes('raw.githubusercontent.com') || (url.includes('github.com') && url.includes('/raw/'));
-      const warnHtml = isCorsLikely ? `<div class="video-warn" style="margin-top:6px;background:rgba(200,122,138,0.08);border:1px solid rgba(200,122,138,0.2);border-radius:10px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--rose);letter-spacing:0.03em;">⚠ Link GitHub nu poate fi redat din cauza CORS.</div>` : '';
-      mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${warnHtml}${captionHtml}</div>`;
+      mediaHtml = `<div class="media-wrap"><video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>${captionHtml}</div>`;
     }
 
   } else if (e.type === 'music') {
@@ -2277,7 +2631,6 @@ function renderEntry(e, hlQuery) {
     const noteHtml = noteText
       ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>`
       : '';
-    // FIX 3 (music): touch-action on cover btn — handled via CSS
     mediaHtml = `<div class="music-player">
       <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}', '${escHtml(titleText)}', '${escHtml(cover)}', this.closest('.music-player'))">
         ${iconBgHtml}${coverImgHtml}
@@ -2298,8 +2651,6 @@ function renderEntry(e, hlQuery) {
   if (e.content) {
     if (e.type === 'note') {
       const htmlContent = hlQuery ? highlightHtml(e.content, hlQuery) : e.content;
-      // FIX 2: nu mai oprim propagarea la click pe card-text;
-      // link-urile sunt gestionate prin capture listener din setupCardTextLinks()
       textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
     } else if (e.type !== 'music') {
       textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
@@ -2336,19 +2687,19 @@ function handleBlurClick(e) {
   if (span) span.classList.toggle('revealed');
 }
 
-function revealBlurredImg(overlay) {
+// FIX 4: Lightbox fix — open lightbox by entry id
+function openLightboxForEntry(entryId, idx) {
+  const entry = entries.find(e => e.id == entryId || e.id === entryId);
+  if (!entry) return;
+  openLightbox(entry.media_urls || [], idx);
+}
+
+function revealBlurredImg(overlay, entryId, idx) {
   overlay.classList.add('revealed');
   const item = overlay.closest('.media-item');
   if (item) {
     item.style.cursor = 'pointer';
-    const idx = [...item.parentElement.children].indexOf(item);
-    const card = item.closest('.entry-card');
-    if (!card) return;
-    const entryId = card.dataset.id;
-    const entry = entries.find(e => e.id === entryId);
-    if (entry) {
-      item.onclick = () => openLightbox(entry.media_urls || [], idx);
-    }
+    item.onclick = () => openLightboxForEntry(entryId, idx);
   }
 }
 
@@ -2481,7 +2832,7 @@ function getRteHtml(editorId) {
 }
 
 // ═══════════════════════════════════════
-// PHOTO BLUR TOGGLE (add modal)
+// PHOTO BLUR TOGGLE
 // ═══════════════════════════════════════
 function togglePhotoBlur() {
   photoBlurEnabled = !photoBlurEnabled;
@@ -2496,7 +2847,6 @@ function togglePhotoBlur() {
   }
 }
 
-// FIX 3: blur toggle in EDIT modal
 function toggleEditBlur() {
   editBlurEnabled = !editBlurEnabled;
   const toggle = document.getElementById('edit-blur-toggle');
@@ -2504,7 +2854,7 @@ function toggleEditBlur() {
 }
 
 // ═══════════════════════════════════════
-// LIGHTBOX
+// LIGHTBOX — FIX 4
 // ═══════════════════════════════════════
 let lbImages = [], lbIndex = 0, lbZoom = 1, lbTouchStartX = 0, lbPinchStart = 0, lbZoomBase = 1;
 
@@ -2571,11 +2921,9 @@ document.getElementById('lightbox').addEventListener('click', e => {
 });
 
 // ═══════════════════════════════════════
-// ENTRY MUSIC CONTROLS — FIX 3 & 5
-// Updated signature: (url, title, cover, container)
+// ENTRY MUSIC CONTROLS — FIX 3
 // ═══════════════════════════════════════
 function toggleEntryMusic(url, title, cover, container) {
-  // FIX 3: if container is a string (from onclick attr), find via closest
   if (typeof container === 'string') container = event.currentTarget.closest('.music-player');
 
   const overlay = container.querySelector('.music-cover-overlay');
@@ -2602,7 +2950,6 @@ function toggleEntryMusic(url, title, cover, container) {
     currentEntryAudioUrl = null;
   } else {
     if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
-    // FIX 5: update Media Session before play
     updateMediaSession(title, cover);
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     if (overlay) overlay.innerHTML = pauseIcon();
@@ -2611,7 +2958,6 @@ function toggleEntryMusic(url, title, cover, container) {
   }
 }
 
-// Sync media session play/pause state
 entryAudio.addEventListener('play', () => {
   if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
 });
@@ -2626,9 +2972,10 @@ dmAudio.addEventListener('pause', () => {
 });
 
 // ═══════════════════════════════════════
-// SUBMIT
+// SUBMIT — guard when locked
 // ═══════════════════════════════════════
 async function submitEntry(type) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   let payload = { type };
 
   if (type === 'note') {
@@ -2738,6 +3085,7 @@ function previewImport() {
 }
 
 async function importEntries() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const raw = document.getElementById('import-text').value;
   const parsed = parseImportText(raw);
   if (!parsed.length) { showToast('nu am găsit nimic de importat'); return; }
@@ -2755,9 +3103,10 @@ async function importEntries() {
 }
 
 // ═══════════════════════════════════════
-// EDIT — FIX 3: blur toggle for photo
+// EDIT — guard when locked
 // ═══════════════════════════════════════
 function openEditFor(id) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const e = entries.find(x => x.id === id);
   if (!e) return;
   document.getElementById('edit-id').value = id;
@@ -2766,7 +3115,6 @@ function openEditFor(id) {
   document.getElementById('edit-cover-group').style.display = (e.type === 'music') ? 'block' : 'none';
   document.getElementById('edit-cover').value = e.cover_url || '';
 
-  // FIX 3: show blur toggle only for photo entries
   const blurGroup = document.getElementById('edit-blur-group');
   if (e.type === 'photo') {
     blurGroup.style.display = 'flex';
@@ -2810,6 +3158,7 @@ function openEditFor(id) {
 }
 
 async function saveEdit() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const id = document.getElementById('edit-id').value;
   const type = document.getElementById('edit-type').value;
   const caption = document.getElementById('edit-caption').value.trim();
@@ -2828,7 +3177,6 @@ async function saveEdit() {
     const content = document.getElementById('edit-content').value.trim();
     update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean);
     update.caption = caption;
-    // FIX 3: save blur state
     update.blur_images = editBlurEnabled;
   } else {
     const content = document.getElementById('edit-content').value.trim();
@@ -2844,14 +3192,16 @@ async function saveEdit() {
 }
 
 // ═══════════════════════════════════════
-// DELETE
+// DELETE — guard when locked
 // ═══════════════════════════════════════
 function openDeleteFor(id) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   document.getElementById('delete-id').value = id;
   openModal('delete');
 }
 
 async function confirmDelete() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const id = document.getElementById('delete-id').value;
   const { error } = await sb.from('entries').delete().eq('id', id);
   if (error) { showToast('eroare'); return; }
@@ -2861,9 +3211,10 @@ async function confirmDelete() {
 }
 
 // ═══════════════════════════════════════
-// DEBUG
+// DEBUG — guard when locked
 // ═══════════════════════════════════════
 function openDebugFor(id) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const e = entries.find(x => x.id === id);
   if (!e) return;
   document.getElementById('debug-id').value = id;
@@ -2873,6 +3224,7 @@ function openDebugFor(id) {
 }
 
 async function saveDebug() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const id = document.getElementById('debug-id').value;
   const posted = document.getElementById('debug-posted').value;
   const modified = document.getElementById('debug-modified').value;
@@ -2887,9 +3239,13 @@ async function saveDebug() {
 }
 
 // ═══════════════════════════════════════
-// MODAL
+// MODAL — guard when locked
 // ═══════════════════════════════════════
 function openModal(name) {
+  if (isLocked && ['note','photo','video','music','date-music','import','edit','debug','delete','delete-dm'].includes(name)) {
+    showToast('deblochează mai întâi');
+    return;
+  }
   closeFab();
   closeCalPopup();
   if (name === 'date-music' && selectedDate) {
@@ -2919,6 +3275,7 @@ document.querySelectorAll('.backdrop').forEach(bd => {
 // FAB
 // ═══════════════════════════════════════
 function toggleFab() {
+  if (isLocked) { openPinOverlay(); return; }
   fabOpen = !fabOpen;
   document.getElementById('fabMenu').classList.toggle('open', fabOpen);
   document.getElementById('fabMain').classList.toggle('open', fabOpen);
@@ -2927,8 +3284,10 @@ function toggleFab() {
 
 function closeFab() {
   fabOpen = false;
-  document.getElementById('fabMenu').classList.remove('open');
-  document.getElementById('fabMain').classList.remove('open');
+  const fm = document.getElementById('fabMenu');
+  const fb = document.getElementById('fabMain');
+  if (fm) fm.classList.remove('open');
+  if (fb) fb.classList.remove('open');
 }
 
 // ═══════════════════════════════════════
