@@ -1323,7 +1323,10 @@ audio { display: none; }
           <input class="rte-link-input" id="rte-link-input" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink()">
           <button class="rte-link-ok" onclick="rteInsertLink()">adaugă</button>
         </div>
-        <div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true"></div>
+<!-- CU ASTA -->
+<div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true"
+  oninput="clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveDraft, 2000)"></div>
+
       </div>
     </div>
     <div class="blur-toggle-row">
@@ -1696,7 +1699,41 @@ let note18Enabled  = false;
 let video18Enabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
-let isLocked = true;
+
+// AUTOSAVE DRAFT
+const DRAFT_KEY = 'carnet_note_draft';
+let autosaveTimer = null;
+
+function saveDraft() {
+  const html = document.getElementById('rte-editor')?.innerHTML || '';
+  const plain = document.getElementById('rte-editor')?.innerText?.trim() || '';
+  if (!plain) { clearDraft(); return; }
+  const draft = { html, note18: note18Enabled, savedAt: new Date().toISOString() };
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  showToast('ciornă salvată automat');
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+}
+
+function loadDraftIfExists() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    if (!draft.html) return;
+    const editor = document.getElementById('rte-editor');
+    if (editor) editor.innerHTML = draft.html;
+    if (draft.note18 && !note18Enabled) toggleNote18();
+    const t = new Date(draft.savedAt);
+    const label = t.toLocaleString('ro-RO', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    showToast(`ciornă restaurată din ${label}`);
+  } catch(e) {}
+}
+
+
+let isLocked = true
 
 const PIN_PRIVATE = '6969';
 let isPrivateUnlocked = false;
@@ -3300,11 +3337,15 @@ async function submitEntry(type) {
   await reloadAndRender();
 }
 
+// CU ASTA
 function clearForm(type) {
   if (type === 'note') {
     document.getElementById('rte-editor').innerHTML = '';
     document.getElementById('rte-link-bar').classList.remove('visible');
     if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-private'); }
+    clearDraft();
+    if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
+
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-cap-editor').innerHTML = '';
@@ -3523,9 +3564,14 @@ async function saveDebug() {
 // ═══════════════════════════════════════
 // MODAL
 // ═══════════════════════════════════════
+// CU ASTA
 function openModal(name) {
   if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm'].includes(name)) { showToast('deblochează mai întâi'); return; }
   closeFab(); closeCalPopup();
+  if (name === 'note') {
+    setTimeout(() => loadDraftIfExists(), 50);
+  }
+
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
