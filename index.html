@@ -1323,11 +1323,13 @@ audio { display: none; }
           <input class="rte-link-input" id="rte-link-input" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink()">
           <button class="rte-link-ok" onclick="rteInsertLink()">adaugă</button>
         </div>
-<!-- CU ASTA -->
-<div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true"
-  oninput="clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveDraft, 2000)"></div>
-
+        <div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true" oninput="scheduleDraftSave()"></div>
       </div>
+    </div>
+    <!-- draft status -->
+    <div id="draft-status" style="font-family:var(--mono);font-size:9px;letter-spacing:0.07em;color:var(--text4);min-height:16px;margin:-6px 0 10px;display:flex;align-items:center;gap:5px;transition:color 0.3s;">
+      <span id="draft-status-dot" style="width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0;"></span>
+      <span id="draft-status-txt">niciun draft salvat</span>
     </div>
     <div class="blur-toggle-row">
       <label class="form-label">conținut privat</label>
@@ -1340,9 +1342,11 @@ audio { display: none; }
       <input type="datetime-local" class="form-input" id="note-date" step="1">
     </div>
     <button class="btn-primary" onclick="submitEntry('note')">salvează</button>
+    <button class="btn-secondary" onclick="discardDraft()">șterge draft</button>
     <button class="btn-secondary" onclick="closeModal('note')">anulează</button>
   </div>
 </div>
+
 
 <!-- Photo -->
 <div class="backdrop" id="modal-photo">
@@ -1699,41 +1703,7 @@ let note18Enabled  = false;
 let video18Enabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
-
-// AUTOSAVE DRAFT
-const DRAFT_KEY = 'carnet_note_draft';
-let autosaveTimer = null;
-
-function saveDraft() {
-  const html = document.getElementById('rte-editor')?.innerHTML || '';
-  const plain = document.getElementById('rte-editor')?.innerText?.trim() || '';
-  if (!plain) { clearDraft(); return; }
-  const draft = { html, note18: note18Enabled, savedAt: new Date().toISOString() };
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-  showToast('ciornă salvată automat');
-}
-
-function clearDraft() {
-  localStorage.removeItem(DRAFT_KEY);
-}
-
-function loadDraftIfExists() {
-  try {
-    const raw = localStorage.getItem(DRAFT_KEY);
-    if (!raw) return;
-    const draft = JSON.parse(raw);
-    if (!draft.html) return;
-    const editor = document.getElementById('rte-editor');
-    if (editor) editor.innerHTML = draft.html;
-    if (draft.note18 && !note18Enabled) toggleNote18();
-    const t = new Date(draft.savedAt);
-    const label = t.toLocaleString('ro-RO', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-    showToast(`ciornă restaurată din ${label}`);
-  } catch(e) {}
-}
-
-
-let isLocked = true
+let isLocked = true;
 
 const PIN_PRIVATE = '6969';
 let isPrivateUnlocked = false;
@@ -2115,6 +2085,90 @@ function renderDateSearch(parsed) {
 
   container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg></div><div class="empty-text">nicio intrare pe ${day} ${['','ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'][month]} ${year}</div></div>${suggHtml}`;
 }
+
+// ═══════════════════════════════════════
+// DRAFT AUTOSAVE
+// ═══════════════════════════════════════
+let draftSaveTimer = null;
+const DRAFT_DEBOUNCE = 3000; // 3s după ultima tastare
+
+function scheduleDraftSave() {
+  clearTimeout(draftSaveTimer);
+  setDraftStatus('typing');
+  draftSaveTimer = setTimeout(() => saveDraft(), DRAFT_DEBOUNCE);
+}
+
+async function saveDraft() {
+  const editor = document.getElementById('rte-editor');
+  if (!editor) return;
+  const html = editor.innerHTML.trim();
+  if (!html || html === '') {
+    setDraftStatus('empty');
+    return;
+  }
+  setDraftStatus('saving');
+  const now = new Date().toISOString();
+  try {
+    const { error } = await sb.from('drafts').upsert(
+      [{ id: 'note', content: html, saved_at: now }],
+      { onConflict: 'id' }
+    );
+    if (error) { setDraftStatus('error'); return; }
+    setDraftStatus('saved', now);
+  } catch(e) {
+    setDraftStatus('error');
+  }
+}
+
+async function loadDraft() {
+  try {
+    const { data, error } = await sb.from('drafts').select('*').eq('id', 'note').single();
+    if (error || !data || !data.content) { setDraftStatus('empty'); return; }
+    const editor = document.getElementById('rte-editor');
+    if (editor && (!editor.innerHTML.trim())) {
+      editor.innerHTML = data.content;
+      setDraftStatus('loaded', data.saved_at);
+    }
+  } catch(e) {
+    setDraftStatus('empty');
+  }
+}
+
+async function discardDraft() {
+  clearTimeout(draftSaveTimer);
+  document.getElementById('rte-editor').innerHTML = '';
+  setDraftStatus('empty');
+  try { await sb.from('drafts').delete().eq('id', 'note'); } catch(e) {}
+  showToast('draft șters');
+}
+
+function setDraftStatus(state, ts) {
+  const dot = document.getElementById('draft-status-dot');
+  const txt = document.getElementById('draft-status-txt');
+  const wrap = document.getElementById('draft-status');
+  if (!dot || !txt || !wrap) return;
+  const states = {
+    empty:  { color: 'var(--text4)',  label: 'niciun draft salvat' },
+    typing: { color: 'var(--text3)',  label: 'se pregătește salvarea...' },
+    saving: { color: 'var(--accent)', label: 'se salvează...' },
+    saved:  { color: 'var(--green)',  label: '' },
+    loaded: { color: 'var(--blue)',   label: '' },
+    error:  { color: 'var(--rose)',   label: 'eroare la salvare' },
+  };
+  const s = states[state] || states.empty;
+  wrap.style.color = s.color;
+  if (state === 'saved' && ts) {
+    const d = new Date(ts);
+    txt.textContent = `autosalvat la ${d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
+  } else if (state === 'loaded' && ts) {
+    const d = new Date(ts);
+    txt.textContent = `draft din ${d.toLocaleDateString('ro-RO', { day:'numeric', month:'short' })} la ${d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' })} — continuă de unde ai rămas`;
+  } else {
+    txt.textContent = s.label;
+  }
+}
+
+
 
 
 // ═══════════════════════════════════════
@@ -3337,15 +3391,14 @@ async function submitEntry(type) {
   await reloadAndRender();
 }
 
-// CU ASTA
 function clearForm(type) {
   if (type === 'note') {
     document.getElementById('rte-editor').innerHTML = '';
     document.getElementById('rte-link-bar').classList.remove('visible');
     if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-private'); }
-    clearDraft();
-    if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
-
+    clearTimeout(draftSaveTimer);
+    setDraftStatus('empty');
+    sb.from('drafts').delete().eq('id', 'note').then(() => {});
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-cap-editor').innerHTML = '';
@@ -3564,14 +3617,12 @@ async function saveDebug() {
 // ═══════════════════════════════════════
 // MODAL
 // ═══════════════════════════════════════
-// CU ASTA
 function openModal(name) {
   if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm'].includes(name)) { showToast('deblochează mai întâi'); return; }
   closeFab(); closeCalPopup();
   if (name === 'note') {
-    setTimeout(() => loadDraftIfExists(), 50);
+    loadDraft();
   }
-
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
@@ -3580,6 +3631,7 @@ function openModal(name) {
   }
   document.getElementById(`modal-${name}`).classList.add('open');
 }
+
 function closeModal(name) { document.getElementById(`modal-${name}`).classList.remove('open'); }
 document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); }); });
 
