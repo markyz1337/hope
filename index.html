@@ -28,6 +28,10 @@
   --rose: #c87a8a;
   --green: #7ac895;
   --purple: #a07ac8;
+  --private: #8a7aa0;
+  --private2: #b8a8d0;
+  --private-bg: rgba(80,60,110,0.18);
+  --private-border: rgba(138,122,160,0.3);
   --mono: 'JetBrains Mono', monospace;
   --sans: 'Inter', sans-serif;
   --serif: 'Lora', serif;
@@ -96,9 +100,9 @@ body::before {
 /* ── PIN OVERLAY ── */
 .pin-overlay {
   position: fixed; inset: 0;
-  background: rgba(4,4,8,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(4,4,8,0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   z-index: 800;
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
@@ -129,12 +133,22 @@ body::before {
 .pin-exit-btn:hover { background: rgba(200,80,80,0.15); border-color: rgba(200,80,80,0.4); color: var(--rose); }
 .pin-exit-btn svg { width: 14px; height: 14px; }
 
-/* PIN 18+ mode styling */
-.pin-overlay.mode-18 { background: rgba(80,0,30,0.94); }
-.pin-overlay.mode-18 .pin-title { color: #e8a0b4; }
-.pin-overlay.mode-18 .pin-dot.filled { background: var(--rose); border-color: var(--rose); box-shadow: 0 0 10px rgba(200,122,138,0.5); }
-.pin-overlay.mode-18 .pin-key { border-color: rgba(200,122,138,0.2); }
-.pin-overlay.mode-18 .pin-key:hover { border-color: rgba(200,122,138,0.45); }
+/* PIN private mode styling — dark, elegant */
+.pin-overlay.mode-private {
+  background: rgba(2,2,6,0.97);
+}
+.pin-overlay.mode-private .pin-title { color: var(--private2); }
+.pin-overlay.mode-private .pin-subtitle { color: rgba(184,168,208,0.5); }
+.pin-overlay.mode-private .pin-dot.filled {
+  background: var(--private);
+  border-color: var(--private);
+  box-shadow: 0 0 12px rgba(138,122,160,0.5);
+}
+.pin-overlay.mode-private .pin-key {
+  border-color: rgba(138,122,160,0.18);
+  background: rgba(138,122,160,0.04);
+}
+.pin-overlay.mode-private .pin-key:hover { border-color: rgba(138,122,160,0.35); }
 
 .pin-title {
   font-family: var(--serif); font-size: 22px; font-style: italic;
@@ -363,12 +377,11 @@ body.locked .card-actions { display: none !important; }
 .media-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
 .media-item { border-radius: var(--r2); overflow: hidden; cursor: pointer; position: relative; }
 
-/* FIX 2: Images show full height */
-.entry-image { 
-  width: 100%; display: block; 
-  object-fit: contain; 
-  border-radius: var(--r2); 
-  border: 1px solid var(--border); 
+.entry-image {
+  width: 100%; display: block;
+  object-fit: contain;
+  border-radius: var(--r2);
+  border: 1px solid var(--border);
   transition: opacity 0.2s;
   background: rgba(0,0,0,0.2);
 }
@@ -394,53 +407,134 @@ body.locked .card-actions { display: none !important; }
 }
 .img-blur-icon svg { width: 16px; height: 16px; }
 
-/* ── 18+ BLUR OVERLAY ── */
-.blur18-overlay {
+/* ══════════════════════════════════════
+   CONȚINUT PRIVAT — blur overlay redesign
+   Acoperă tot cardul, inclusiv meta (data/ora apare deasupra)
+   ══════════════════════════════════════ */
+
+/* Wrapper care face cardul relativ pentru overlay-ul absolut */
+.private-card-wrap {
+  position: relative;
+}
+
+/* Overlay-ul privat — acoperă TOT mai puțin header-ul */
+.private-overlay {
+  position: absolute;
+  left: -13px; right: -13px;
+  bottom: -13px;
+  top: 0; /* de la începutul zonei de conținut, sub meta */
+  border-radius: 0 0 var(--r) var(--r);
+  z-index: 5;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: opacity 0.4s ease;
+
+  /* Fundal foarte întunecat, aproape negru cu nuanță violetă */
+  background: rgba(6, 4, 14, 0.92);
+
+  /* Blur puternic pe conținutul din spate */
+  backdrop-filter: blur(24px) saturate(0.4);
+  -webkit-backdrop-filter: blur(24px) saturate(0.4);
+}
+
+.private-overlay.revealed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Animatie subtilă de pulsație pentru overlay */
+@keyframes privateGlow {
+  0%, 100% { box-shadow: inset 0 0 40px rgba(138,122,160,0.04); }
+  50% { box-shadow: inset 0 0 60px rgba(138,122,160,0.08); }
+}
+.private-overlay:not(.revealed) {
+  animation: privateGlow 4s ease-in-out infinite;
+}
+
+/* Iconița lacăt */
+.private-overlay-icon {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(138,122,160,0.1);
+  border: 1px solid rgba(138,122,160,0.25);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(184,168,208,0.6);
+  transition: all 0.3s;
+}
+.private-overlay:hover .private-overlay-icon {
+  background: rgba(138,122,160,0.18);
+  border-color: rgba(138,122,160,0.45);
+  color: var(--private2);
+}
+.private-overlay-icon svg { width: 15px; height: 15px; }
+
+/* Textul "Conținut privat" */
+.private-overlay-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(138,122,160,0.55);
+  transition: color 0.3s;
+}
+.private-overlay:hover .private-overlay-label {
+  color: rgba(184,168,208,0.75);
+}
+
+/* Linie decorativă sub label */
+.private-overlay-line {
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(138,122,160,0.3), transparent);
+  margin-top: -4px;
+}
+
+/* Overlay privat pentru imagini individuale */
+.private-img-overlay {
   position: absolute; inset: 0;
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  background: rgba(60,0,20,0.65);
+  backdrop-filter: blur(28px) saturate(0.3);
+  -webkit-backdrop-filter: blur(28px) saturate(0.3);
+  background: rgba(6,4,14,0.88);
   border-radius: var(--r2);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
   cursor: pointer;
-  transition: opacity 0.35s;
+  transition: opacity 0.4s;
   z-index: 3;
 }
-.blur18-overlay.revealed { opacity: 0; pointer-events: none; }
-.blur18-badge {
-  font-family: var(--mono); font-size: 18px; font-weight: 700;
-  color: var(--rose); letter-spacing: 0.08em;
-  background: rgba(200,122,138,0.18);
-  border: 1.5px solid rgba(200,122,138,0.4);
-  border-radius: 10px;
-  padding: 6px 16px;
+.private-img-overlay.revealed { opacity: 0; pointer-events: none; }
+
+.private-img-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(138,122,160,0.1);
+  border: 1px solid rgba(138,122,160,0.22);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(184,168,208,0.5);
+  transition: all 0.25s;
 }
-.blur18-hint {
-  font-family: var(--mono); font-size: 9px; color: rgba(200,122,138,0.7);
-  letter-spacing: 0.06em;
+.private-img-overlay:hover .private-img-icon {
+  background: rgba(138,122,160,0.2);
+  border-color: rgba(138,122,160,0.45);
+  color: var(--private2);
+}
+.private-img-icon svg { width: 13px; height: 13px; }
+
+.private-img-label {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(138,122,160,0.45);
+  transition: color 0.25s;
+}
+.private-img-overlay:hover .private-img-label {
+  color: rgba(184,168,208,0.65);
 }
 
-/* 18+ for full card (note/video) */
-.card-blur18-wrap {
-  position: relative;
-}
-.card-blur18-overlay {
-  position: absolute; inset: -12px -13px -13px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  background: rgba(60,0,20,0.7);
-  border-radius: var(--r);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-  cursor: pointer;
-  z-index: 5;
-  transition: opacity 0.35s;
-}
-.card-blur18-overlay.revealed { opacity: 0; pointer-events: none; }
-.card-blur18-overlay .blur18-badge { font-size: 22px; padding: 8px 20px; }
+/* video privat */
+.video-private-wrap { position: relative; }
 
-/* video embed 18+ wrapper */
-.video-blur18-wrap { position: relative; }
-
+/* ── VIDEO ── */
 .video-embed-wrap {
   position: relative;
   width: 100%;
@@ -461,7 +555,6 @@ body.locked .card-actions { display: none !important; }
 }
 
 .entry-video { width: 100%; border-radius: var(--r2); border: 1px solid var(--border); background: #000; max-height: 260px; display: block; }
-/* FIX 1: caption now supports rich text — rendered as HTML */
 .entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; }
 .entry-caption a { color: var(--text3) !important; border-bottom: 1px solid var(--accent); text-decoration: none; }
 
@@ -792,7 +885,6 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .rte-link-ok { padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3); background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.15s; }
 .rte-link-ok:hover { background: rgba(200,169,126,0.2); }
 
-/* FIX 1: Caption RTE (mini version, no size picker) */
 .cap-rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s; }
 .cap-rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
 .cap-rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 5px 7px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); }
@@ -810,19 +902,19 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .btn-danger:hover { background: rgba(200,80,80,0.18); }
 .confirm-row { display: flex; gap: 8px; margin-top: 16px; }
 
-/* ── LIGHTBOX — FIX 2 (free zoom in any direction) ── */
+/* ── LIGHTBOX ── */
 .lightbox { position: fixed; inset: 0; background: rgba(4,4,8,0.96); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .lightbox.open { opacity: 1; pointer-events: all; }
 .lb-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.lb-img-wrap { 
-  display: flex; align-items: center; justify-content: center; 
+.lb-img-wrap {
+  display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%; overflow: hidden;
   touch-action: none;
   cursor: grab;
 }
 .lb-img-wrap.grabbing { cursor: grabbing; }
-.lb-img { 
-  max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; 
+.lb-img {
+  max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px;
   user-select: none; pointer-events: none;
   transform-origin: center center;
   transition: none;
@@ -860,7 +952,7 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* blur/18+ toggle */
+/* toggle privat */
 .blur-toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .blur-toggle-row .form-label { margin-bottom: 0; flex: 1; }
 .toggle-track { position: relative; width: 38px; height: 22px; flex-shrink: 0; cursor: pointer; }
@@ -868,8 +960,8 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--text3); transition: all 0.2s; }
 .toggle-track.on .toggle-bg { background: rgba(200,169,126,0.25); border-color: rgba(200,169,126,0.4); }
 .toggle-track.on .toggle-thumb { background: var(--accent2); transform: translateX(16px); }
-.toggle-track.on-rose .toggle-bg { background: rgba(200,122,138,0.25); border-color: rgba(200,122,138,0.45); }
-.toggle-track.on-rose .toggle-thumb { background: var(--rose); transform: translateX(16px); }
+.toggle-track.on-private .toggle-bg { background: rgba(138,122,160,0.25); border-color: rgba(138,122,160,0.45); }
+.toggle-track.on-private .toggle-thumb { background: var(--private2); transform: translateX(16px); }
 
 audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
@@ -1051,7 +1143,6 @@ audio { display: none; }
 <!-- PIN OVERLAY -->
 <div class="pin-overlay" id="pinOverlay">
   <div class="pin-modal">
-    <!-- FIX 3: Exit button -->
     <button class="pin-exit-btn" onclick="closePinOverlay()" title="Închide">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
@@ -1212,9 +1303,8 @@ audio { display: none; }
         <div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true"></div>
       </div>
     </div>
-    <!-- 18+ toggle for note -->
     <div class="blur-toggle-row">
-      <label class="form-label">conținut 18+</label>
+      <label class="form-label">conținut privat</label>
       <div class="toggle-track" id="note-18-toggle" onclick="toggleNote18()">
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
@@ -1237,7 +1327,6 @@ audio { display: none; }
       <label class="form-label">link-uri imagini (unul per linie)</label>
       <textarea class="form-textarea" id="photo-urls" placeholder="https://...&#10;https://..."></textarea>
     </div>
-    <!-- FIX 1: Caption with links for photo -->
     <div class="form-group">
       <label class="form-label">descriere (cu link-uri opțional)</label>
       <div class="cap-rte-wrap" id="photoCapWrap">
@@ -1260,9 +1349,8 @@ audio { display: none; }
         <div id="photo-blur-thumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--text3);transition:all 0.2s;"></div>
       </div>
     </div>
-    <!-- 18+ toggle for photo -->
     <div class="blur-toggle-row">
-      <label class="form-label">imagini 18+</label>
+      <label class="form-label">imagini private</label>
       <div class="toggle-track" id="photo-18-toggle" onclick="togglePhoto18()">
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
@@ -1291,7 +1379,6 @@ audio { display: none; }
         </p>
       </div>
     </div>
-    <!-- FIX 1: Caption with links for video -->
     <div class="form-group">
       <label class="form-label">descriere (cu link-uri opțional)</label>
       <div class="cap-rte-wrap">
@@ -1307,9 +1394,8 @@ audio { display: none; }
         <div class="cap-rte-editor" id="video-cap-editor" contenteditable="true" data-placeholder="o descriere..."></div>
       </div>
     </div>
-    <!-- 18+ toggle for video -->
     <div class="blur-toggle-row">
-      <label class="form-label">conținut 18+</label>
+      <label class="form-label">conținut privat</label>
       <div class="toggle-track" id="video-18-toggle" onclick="toggleVideo18()">
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
@@ -1353,7 +1439,7 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- PDF (FIX 6) -->
+<!-- PDF -->
 <div class="backdrop" id="modal-pdf">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1475,7 +1561,6 @@ audio { display: none; }
       <label class="form-label" id="edit-plain-lbl">conținut / URL-uri</label>
       <textarea class="form-textarea" id="edit-content"></textarea>
     </div>
-    <!-- FIX 1: Caption RTE in edit modal -->
     <div class="form-group" id="edit-caption-group">
       <label class="form-label" id="edit-caption-lbl">descriere / titlu</label>
       <div class="cap-rte-wrap" id="editCapWrap" style="display:none">
@@ -1502,9 +1587,8 @@ audio { display: none; }
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
     </div>
-    <!-- 18+ toggle in edit -->
     <div class="blur-toggle-row" id="edit-18-group" style="display:none">
-      <label class="form-label">conținut 18+</label>
+      <label class="form-label">conținut privat</label>
       <div class="toggle-track" id="edit-18-toggle" onclick="toggleEdit18()">
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
@@ -1591,11 +1675,9 @@ let editBlurEnabled = false;
 let edit18Enabled   = false;
 let isLocked = true;
 
-// 18+ unlock state
-const PIN_18 = '6969';
-let is18Unlocked = false;
-// Set of entry IDs where user has tapped to reveal 18+ (session only)
-const revealed18Set = new Set();
+const PIN_PRIVATE = '6969';
+let isPrivateUnlocked = false;
+const revealedPrivateSet = new Set();
 
 const dmAudio = document.getElementById('dateMusicAudio');
 const entryAudio = document.getElementById('entryAudio');
@@ -1610,11 +1692,12 @@ let calPopupOpen = false;
 let calPopupYear = new Date().getFullYear();
 let calPopupMonth = new Date().getMonth();
 
-// PIN mode: 'main' = app unlock, '18' = 18+ reveal
+// PIN mode: 'main' = app unlock, 'private' = conținut privat
 let pinMode = 'main';
+let _pendingPrivateEntryId = null;
 
 // ═══════════════════════════════════════
-// PIN SYSTEM (FIX 3: exit button, FIX 5: 18+ mode)
+// PIN SYSTEM
 // ═══════════════════════════════════════
 const PIN_CODE = '2727';
 let pinBuffer = '';
@@ -1624,12 +1707,12 @@ function openPinOverlay(mode) {
   pinBuffer = '';
   updatePinDots();
   const overlay = document.getElementById('pinOverlay');
-  if (pinMode === '18') {
-    overlay.classList.add('mode-18');
-    document.getElementById('pinTitle').textContent = '18+';
-    document.getElementById('pinSubtitle').textContent = 'introdu codul pentru conținut 18+';
+  if (pinMode === 'private') {
+    overlay.classList.add('mode-private');
+    document.getElementById('pinTitle').textContent = 'conținut privat';
+    document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
   } else {
-    overlay.classList.remove('mode-18');
+    overlay.classList.remove('mode-private');
     document.getElementById('pinTitle').textContent = 'carnet';
     document.getElementById('pinSubtitle').textContent = 'introdu codul PIN';
   }
@@ -1638,7 +1721,7 @@ function openPinOverlay(mode) {
 
 function closePinOverlay() {
   document.getElementById('pinOverlay').classList.remove('open');
-  document.getElementById('pinOverlay').classList.remove('mode-18');
+  document.getElementById('pinOverlay').classList.remove('mode-private');
   pinBuffer = '';
   updatePinDots();
 }
@@ -1663,15 +1746,14 @@ function updatePinDots() {
 }
 
 function checkPin() {
-  if (pinMode === '18') {
-    if (pinBuffer === PIN_18) {
-      is18Unlocked = true;
+  if (pinMode === 'private') {
+    if (pinBuffer === PIN_PRIVATE) {
+      isPrivateUnlocked = true;
       closePinOverlay();
-      // Reveal all pending 18+ content
-      document.querySelectorAll('.blur18-overlay, .card-blur18-overlay').forEach(el => {
+      document.querySelectorAll('.private-overlay, .private-img-overlay').forEach(el => {
         el.classList.add('revealed');
       });
-      showToast('conținut 18+ deblocat');
+      showToast('conținut privat deblocat');
     } else {
       pinError();
     }
@@ -1722,32 +1804,31 @@ document.getElementById('lockBadge').addEventListener('click', () => {
 });
 
 // ═══════════════════════════════════════
-// 18+ TOGGLES (form)
+// PRIVATE TOGGLES (form)
 // ═══════════════════════════════════════
 function toggleNote18() {
   note18Enabled = !note18Enabled;
   const t = document.getElementById('note-18-toggle');
-  t.classList.toggle('on-rose', note18Enabled);
-  if (note18Enabled) { t.classList.remove('on'); } else { t.classList.remove('on-rose'); }
+  t.classList.toggle('on-private', note18Enabled);
 }
 function togglePhoto18() {
   photo18Enabled = !photo18Enabled;
   const t = document.getElementById('photo-18-toggle');
-  t.classList.toggle('on-rose', photo18Enabled);
+  t.classList.toggle('on-private', photo18Enabled);
 }
 function toggleVideo18() {
   video18Enabled = !video18Enabled;
   const t = document.getElementById('video-18-toggle');
-  t.classList.toggle('on-rose', video18Enabled);
+  t.classList.toggle('on-private', video18Enabled);
 }
 function toggleEdit18() {
   edit18Enabled = !edit18Enabled;
   const t = document.getElementById('edit-18-toggle');
-  t.classList.toggle('on-rose', edit18Enabled);
+  t.classList.toggle('on-private', edit18Enabled);
 }
 
 // ═══════════════════════════════════════
-// CAPTION RTE (mini) — FIX 1
+// CAPTION RTE (mini)
 // ═══════════════════════════════════════
 let capSavedRange = null;
 
@@ -2440,7 +2521,7 @@ function entryMatchesSearch(e, q) {
 }
 
 // ═══════════════════════════════════════
-// RENDER ENTRY
+// RENDER ENTRY — private overlay redesign
 // ═══════════════════════════════════════
 function renderEntry(e, hlQuery) {
   const posted = new Date(e.posted_at);
@@ -2449,8 +2530,20 @@ function renderEntry(e, hlQuery) {
   const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică', pdf:'pdf' };
   const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music', pdf:'chip-pdf' };
   let mediaHtml = '';
-  const is18 = !!e.blur_18;
-  const isRevealed18 = is18Unlocked || revealed18Set.has(e.id);
+  const isPrivate = !!e.blur_18;
+  const isRevealed = isPrivateUnlocked || revealedPrivateSet.has(String(e.id));
+
+  // Private overlay HTML (full-card, below meta)
+  const privateOverlayHtml = isPrivate ? `<div class="private-overlay${isRevealed?' revealed':''}" onclick="revealPrivateCard('${escHtml(String(e.id))}')">
+    <div class="private-overlay-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="private-overlay-line"></div>
+    <div class="private-overlay-label">conținut privat</div>
+  </div>` : '';
 
   if (e.type === 'photo') {
     const urls = e.media_urls || [];
@@ -2458,19 +2551,23 @@ function renderEntry(e, hlQuery) {
     const cols = urls.length === 1 ? 'cols-1' : urls.length === 2 ? 'cols-2' : 'cols-3';
     const entryIdStr = e.id;
     const imgs = urls.map((u, idx) => {
-      const blur18Html = is18 ? `<div class="blur18-overlay${isRevealed18?' revealed':''}" onclick="reveal18ForImg(this,'${escHtml(String(e.id))}')">
-        <div class="blur18-badge">18+</div>
-        <div class="blur18-hint">apasă pentru cod</div>
+      const privImgHtml = isPrivate ? `<div class="private-img-overlay${isRevealed?' revealed':''}" onclick="revealPrivateCard('${escHtml(String(e.id))}')">
+        <div class="private-img-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="private-img-label">privat</div>
       </div>` : '';
-      return `<div class="media-item" onclick="${(!isBlurred&&!is18)||isRevealed18 ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+      return `<div class="media-item" onclick="${(!isBlurred&&!isPrivate)||isRevealed ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
         <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
-        ${isBlurred && !is18 ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this,'${entryIdStr}',${idx})">
+        ${isBlurred && !isPrivate ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this,'${entryIdStr}',${idx})">
           <div class="img-blur-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg></div>
         </div>` : ''}
-        ${blur18Html}
+        ${privImgHtml}
       </div>`;
     }).join('');
-    // FIX 1: caption rendered as HTML (supports links)
     const captionHtml = e.caption
       ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
       : '';
@@ -2479,11 +2576,9 @@ function renderEntry(e, hlQuery) {
   } else if (e.type === 'video') {
     const url = e.media_urls?.[0] || '';
     const ytId = extractYouTubeId(url);
-    // FIX 1: caption as HTML
     const captionHtml = e.caption
       ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
       : '';
-
     let videoHtml;
     if (ytId) {
       const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white`;
@@ -2491,18 +2586,7 @@ function renderEntry(e, hlQuery) {
     } else {
       videoHtml = `<video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>`;
     }
-
-    if (is18) {
-      mediaHtml = `<div class="media-wrap">
-        <div class="video-blur18-wrap" style="position:relative;border-radius:var(--r2);overflow:hidden;">
-          ${videoHtml}
-          <div class="blur18-overlay${isRevealed18?' revealed':''}" style="border-radius:var(--r2);" onclick="reveal18ForCard('${escHtml(String(e.id))}')">
-            <div class="blur18-badge">18+</div><div class="blur18-hint">apasă pentru cod</div>
-          </div>
-        </div>${captionHtml}</div>`;
-    } else {
-      mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
-    }
+    mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
 
   } else if (e.type === 'music') {
     const aurl = e.media_urls?.[0] || '';
@@ -2529,7 +2613,6 @@ function renderEntry(e, hlQuery) {
     </div>${noteHtml}`;
 
   } else if (e.type === 'pdf') {
-    // FIX 6: PDF entry
     const pdfUrl = e.media_urls?.[0] || '';
     const pdfTitle = e.caption || 'document PDF';
     const pdfNote = e.content || '';
@@ -2553,19 +2636,16 @@ function renderEntry(e, hlQuery) {
   let textHtml = '';
   if (e.content && e.type === 'note') {
     const htmlContent = hlQuery ? highlightHtml(e.content, hlQuery) : e.content;
-    if (is18) {
-      textHtml = `<div class="card-blur18-wrap" style="position:relative;">
-        <div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>
-        <div class="card-blur18-overlay${isRevealed18?' revealed':''}" onclick="reveal18ForCard('${escHtml(String(e.id))}')">
-          <div class="blur18-badge">18+</div><div class="blur18-hint">apasă pentru cod</div>
-        </div>
-      </div>`;
-    } else {
-      textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
-    }
+    textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
   } else if (e.content && e.type !== 'music' && e.type !== 'pdf') {
     textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
   }
+
+  // Dacă e privat, wrappuim conținutul + overlay într-un div relativ
+  const contentInner = `${textHtml}${mediaHtml}`;
+  const wrappedContent = isPrivate
+    ? `<div class="private-card-wrap">${contentInner}${privateOverlayHtml}</div>`
+    : contentInner;
 
   return `<div class="entry-card" data-id="${e.id}">
     <div class="card-inner">
@@ -2586,44 +2666,30 @@ function renderEntry(e, hlQuery) {
           </button>
         </div>
       </div>
-      ${textHtml}
-      ${mediaHtml}
+      ${wrappedContent}
     </div>
   </div>`;
 }
 
 function handleBlurClick(e) { const span = e.target.closest('.blur-text-span'); if (span) span.classList.toggle('revealed'); }
-
 function handleCaptionClick(e) { const link = e.target.closest('a'); if (link) { e.stopPropagation(); window.open(link.href, '_blank', 'noopener'); } }
 
 // ═══════════════════════════════════════
-// 18+ REVEAL FUNCTIONS (FIX 5)
+// PRIVATE REVEAL
 // ═══════════════════════════════════════
-function reveal18ForImg(overlay, entryId) {
-  if (is18Unlocked) { overlay.classList.add('revealed'); revealed18Set.add(entryId); return; }
-  // Open 18 pin, on success reveal this entry
-  _pending18EntryId = entryId;
-  openPinOverlay('18');
-}
-
-function reveal18ForCard(entryId) {
-  if (is18Unlocked) {
-    revealed18Set.add(entryId);
-    document.querySelectorAll(`.entry-card[data-id="${entryId}"] .blur18-overlay, .entry-card[data-id="${entryId}"] .card-blur18-overlay`).forEach(el => el.classList.add('revealed'));
+function revealPrivateCard(entryId) {
+  if (isPrivateUnlocked) {
+    revealedPrivateSet.add(entryId);
+    document.querySelectorAll(`.entry-card[data-id="${entryId}"] .private-overlay,
+      .entry-card[data-id="${entryId}"] .private-img-overlay`).forEach(el => el.classList.add('revealed'));
     return;
   }
-  _pending18EntryId = entryId;
-  openPinOverlay('18');
+  _pendingPrivateEntryId = entryId;
+  openPinOverlay('private');
 }
 
-let _pending18EntryId = null;
-
-// Override checkPin to handle pending 18+ entry reveal after correct PIN
-const _origCheckPin = checkPin;
-// We already defined checkPin inline — it handles the reveal after is18Unlocked = true
-
 // ═══════════════════════════════════════
-// LIGHTBOX FIX 2: free zoom in any direction
+// LIGHTBOX
 // ═══════════════════════════════════════
 let lbImages = [], lbIndex = 0;
 let lbScale = 1, lbTransX = 0, lbTransY = 0;
@@ -2680,7 +2746,6 @@ function lbClampPan() {
   const wrap = document.getElementById('lbImgWrap');
   const img  = document.getElementById('lbImg');
   const wr = wrap.getBoundingClientRect();
-  const ir = img.getBoundingClientRect();
   const scaledW = img.naturalWidth  > 0 ? img.offsetWidth  * lbScale : wr.width  * lbScale;
   const scaledH = img.naturalHeight > 0 ? img.offsetHeight * lbScale : wr.height * lbScale;
   const maxPanX = Math.max(0, (scaledW - wr.width)  / 2);
@@ -2690,12 +2755,11 @@ function lbClampPan() {
 }
 
 function lbNav(dir) {
-  if (lbScale > 1.05) return; // don't nav while zoomed
+  if (lbScale > 1.05) return;
   lbIndex = Math.max(0, Math.min(lbImages.length-1, lbIndex+dir));
   showLbImage();
 }
 
-// Touch handlers for lightbox — free pan + pinch zoom
 const lbWrap = document.getElementById('lbImgWrap');
 
 lbWrap.addEventListener('touchstart', (e) => {
@@ -2704,14 +2768,11 @@ lbWrap.addEventListener('touchstart', (e) => {
     lbTouchStartY = e.touches[0].clientY;
     lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
     lbIsPanning = false; lbIsPinching = false;
-    // double-tap detection
     const now = Date.now();
     if (now - lbLastTap < 320) {
-      // double tap
       if (lbScale > 1.05) { lbResetZoom(); }
       else {
         lbScale = 2.5;
-        // center on tap point
         const rect = lbWrap.getBoundingClientRect();
         lbTransX = (rect.width/2 - e.touches[0].clientX + rect.left) * (lbScale-1) / lbScale;
         lbTransY = (rect.height/2 - e.touches[0].clientY + rect.top) * (lbScale-1) / lbScale;
@@ -2726,7 +2787,6 @@ lbWrap.addEventListener('touchstart', (e) => {
     lbPinchStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
     lbScaleBase = lbScale;
     lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
-    // midpoint
     lbPanStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
     lbPanStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
   }
@@ -2751,7 +2811,6 @@ lbWrap.addEventListener('touchmove', (e) => {
     if (!lbIsPanning && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) lbIsPanning = true;
     if (!lbIsPanning) return;
     if (lbScale > 1.05) {
-      // pan
       lbTransX = lbPanBaseX + dx;
       lbTransY = lbPanBaseY + dy;
       lbClampPan();
@@ -2770,7 +2829,6 @@ lbWrap.addEventListener('touchend', (e) => {
   lbIsPanning = false;
 }, { passive: true });
 
-// Mouse drag for desktop
 let lbMouseDown = false, lbMouseStartX = 0, lbMouseStartY = 0;
 lbWrap.addEventListener('mousedown', (e) => {
   if (lbScale <= 1.05) return;
@@ -2789,7 +2847,6 @@ document.addEventListener('mousemove', (e) => {
 });
 document.addEventListener('mouseup', () => { if (lbMouseDown) { lbMouseDown = false; lbWrap.classList.remove('grabbing'); } });
 
-// Mouse wheel zoom
 lbWrap.addEventListener('wheel', (e) => {
   e.preventDefault();
   const delta = e.deltaY > 0 ? 0.85 : 1.15;
@@ -2860,7 +2917,6 @@ async function submitEntry(type) {
   } else if (type === 'photo') {
     const raw = document.getElementById('photo-urls').value.trim();
     const date = document.getElementById('photo-date').value;
-    // FIX 1: get caption as HTML
     const captionHtml = getCapHtml('photo-cap-editor');
     if (!raw) { showToast('adaugă cel puțin un link'); return; }
     payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
@@ -2871,7 +2927,6 @@ async function submitEntry(type) {
   } else if (type === 'video') {
     const url = document.getElementById('video-url').value.trim();
     const date = document.getElementById('video-date').value;
-    // FIX 1: get caption as HTML
     const captionHtml = getCapHtml('video-cap-editor');
     if (!url) { showToast('adaugă un link'); return; }
     payload.media_urls = [url];
@@ -2910,16 +2965,16 @@ function clearForm(type) {
   if (type === 'note') {
     document.getElementById('rte-editor').innerHTML = '';
     document.getElementById('rte-link-bar').classList.remove('visible');
-    if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-rose'); }
+    if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-private'); }
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-cap-editor').innerHTML = '';
     if (photoBlurEnabled) togglePhotoBlur();
-    if (photo18Enabled) { photo18Enabled=false; document.getElementById('photo-18-toggle').classList.remove('on-rose'); }
+    if (photo18Enabled) { photo18Enabled=false; document.getElementById('photo-18-toggle').classList.remove('on-private'); }
   } else if (type === 'video') {
     document.getElementById('video-url').value = '';
     document.getElementById('video-cap-editor').innerHTML = '';
-    if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-rose'); }
+    if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-private'); }
   } else if (type === 'music') {
     document.getElementById('music-url').value = ''; document.getElementById('music-title-inp').value = '';
     document.getElementById('music-note').value = ''; document.getElementById('music-cover-inp').value = '';
@@ -2988,11 +3043,10 @@ function openEditFor(id) {
   if (e.type === 'photo') { blurGroup.style.display='flex'; editBlurEnabled=!!e.blur_images; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
   else { blurGroup.style.display='none'; editBlurEnabled=false; }
 
-  // 18+ in edit
   const g18 = document.getElementById('edit-18-group');
   if (e.type === 'note' || e.type === 'photo' || e.type === 'video') {
     g18.style.display = 'flex'; edit18Enabled = !!e.blur_18;
-    document.getElementById('edit-18-toggle').classList.toggle('on-rose', edit18Enabled);
+    document.getElementById('edit-18-toggle').classList.toggle('on-private', edit18Enabled);
   } else { g18.style.display='none'; edit18Enabled=false; }
 
   const editCapWrap = document.getElementById('editCapWrap');
