@@ -2135,12 +2135,14 @@ async function loadDraft() {
 }
 
 async function discardDraft() {
+  if (!confirm('Ești sigur că vrei să ștergi draft-ul? Nu poate fi recuperat.')) return;
   clearTimeout(draftSaveTimer);
   document.getElementById('rte-editor').innerHTML = '';
   setDraftStatus('empty');
   try { await sb.from('drafts').delete().eq('id', 'note'); } catch(e) {}
   showToast('draft șters');
 }
+
 
 function setDraftStatus(state, ts) {
   const dot = document.getElementById('draft-status-dot');
