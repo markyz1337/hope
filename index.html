@@ -2422,18 +2422,39 @@ function setupOverscroll() {
   window.addEventListener('touchmove', onTouchMove, { passive:false });
   window.addEventListener('touchend', onTouchEnd, { passive:false });
 }
+// CU ASTA
+let touchStartX = 0;
+let touchDirectionLocked = false; // 'h' | 'v' | false
+
 function onTouchStart(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  touchStartY = e.touches[0].clientY; touchLastY = touchStartY;
+  touchStartY = e.touches[0].clientY;
+  touchStartX = e.touches[0].clientX;
+  touchLastY = touchStartY;
+  touchDirectionLocked = false;
   overscrollDelta = 0; topscrollDelta = 0;
   overscrollActive = maxScroll < 10 || (window.scrollY >= maxScroll - 4);
   topscrollActive = window.scrollY <= 4;
 }
+
 // CU ASTA
 function onTouchMove(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
-  const y = e.touches[0].clientY; const dy = touchLastY - y; touchLastY = y;
+  const y = e.touches[0].clientY;
+  const x = e.touches[0].clientX;
+  const dy = touchLastY - y;
+  const totalDX = Math.abs(x - touchStartX);
+  const totalDY = Math.abs(y - touchStartY);
+  touchLastY = y;
+
+  // Detectează direcția predominantă o singură dată
+  if (!touchDirectionLocked && (totalDX > 6 || totalDY > 6)) {
+    touchDirectionLocked = totalDX > totalDY ? 'h' : 'v';
+  }
+
+  // Dacă mișcarea e predominant orizontală, nu face nimic
+  if (touchDirectionLocked === 'h') return;
 
   if (overscrollActive && !jumpLocked) {
     if (dy > 0) {
