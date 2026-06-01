@@ -1,1 +1,3615 @@
-# hope
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>carnet</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #0c0c0f;
+  --bg2: #111115;
+  --bg3: #17171d;
+  --surface: rgba(255,255,255,0.03);
+  --surface2: rgba(255,255,255,0.055);
+  --surface3: rgba(255,255,255,0.085);
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --border3: rgba(255,255,255,0.22);
+  --accent: #c8a97e;
+  --accent2: #e2c99a;
+  --accent3: rgba(200,169,126,0.15);
+  --text: #e8e6e0;
+  --text2: #a09890;
+  --text3: #5c5650;
+  --text4: #35332f;
+  --blue: #7aa2c8;
+  --rose: #c87a8a;
+  --green: #7ac895;
+  --purple: #a07ac8;
+  --private: #8a7aa0;
+  --private2: #b8a8d0;
+  --private-bg: rgba(80,60,110,0.18);
+  --private-border: rgba(138,122,160,0.3);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --serif: 'Lora', serif;
+  --r: 16px;
+  --r2: 12px;
+  --r3: 10px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.4);
+  --shadow2: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+.app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 120px; }
+
+/* ── HEADER ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 0; gap: 12px;
+}
+.header-brand { display: flex; align-items: center; gap: 8px; }
+.header-logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent3); border: 1px solid rgba(200,169,126,0.25);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.header-logo svg { width: 13px; height: 13px; color: var(--accent); }
+.header-title { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--accent2); font-weight: 400; letter-spacing: 0.01em; }
+.header-date-display { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
+
+/* ── LOCK BADGE ── */
+.lock-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  color: var(--text3); cursor: pointer;
+  padding: 5px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.lock-badge:hover { border-color: var(--border2); color: var(--text2); }
+.lock-badge svg { width: 11px; height: 11px; }
+.lock-badge.unlocked { color: var(--accent); border-color: rgba(200,169,126,0.3); background: rgba(200,169,126,0.07); }
+
+/* ── PIN OVERLAY ── */
+.pin-overlay {
+  position: fixed; inset: 0;
+  background: rgba(4,4,8,0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 800;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.pin-overlay.open { opacity: 1; pointer-events: all; }
+
+.pin-modal {
+  width: 100%; max-width: 300px;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  position: relative;
+}
+
+/* PIN exit button */
+.pin-exit-btn {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.05);
+  color: var(--text3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  z-index: 10;
+}
+.pin-exit-btn:hover { background: rgba(200,80,80,0.15); border-color: rgba(200,80,80,0.4); color: var(--rose); }
+.pin-exit-btn svg { width: 14px; height: 14px; }
+
+/* PIN private mode styling — dark, elegant */
+.pin-overlay.mode-private {
+  background: rgba(2,2,6,0.97);
+}
+.pin-overlay.mode-private .pin-title { color: var(--private2); }
+.pin-overlay.mode-private .pin-subtitle { color: rgba(184,168,208,0.5); }
+.pin-overlay.mode-private .pin-dot.filled {
+  background: var(--private);
+  border-color: var(--private);
+  box-shadow: 0 0 12px rgba(138,122,160,0.5);
+}
+.pin-overlay.mode-private .pin-key {
+  border-color: rgba(138,122,160,0.18);
+  background: rgba(138,122,160,0.04);
+}
+.pin-overlay.mode-private .pin-key:hover { border-color: rgba(138,122,160,0.35); }
+
+.pin-title {
+  font-family: var(--serif); font-size: 22px; font-style: italic;
+  color: var(--accent2); font-weight: 400;
+  margin-bottom: 6px; text-align: center;
+}
+.pin-subtitle {
+  font-family: var(--mono); font-size: 10px; color: var(--text3);
+  letter-spacing: 0.06em; text-align: center; margin-bottom: 28px;
+}
+
+.pin-dots {
+  display: flex; gap: 14px; margin-bottom: 32px;
+}
+.pin-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  transition: all 0.18s;
+}
+.pin-dot.filled {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(200,169,126,0.4);
+}
+.pin-dot.error {
+  background: var(--rose);
+  border-color: var(--rose);
+  box-shadow: 0 0 10px rgba(200,122,138,0.5);
+  animation: pinShake 0.4s ease;
+}
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.pin-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; width: 100%;
+}
+.pin-key {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--serif); font-size: 22px; font-weight: 400;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
+}
+.pin-key::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(200,169,126,0.12);
+  opacity: 0; border-radius: 14px;
+  transition: opacity 0.1s;
+}
+.pin-key:active::after { opacity: 1; }
+.pin-key:active { transform: scale(0.93); border-color: var(--border3); }
+.pin-key.zero { grid-column: 2; }
+.pin-key.del {
+  background: none; border-color: transparent;
+  color: var(--text3); font-size: 14px;
+}
+.pin-key.del:active { background: var(--surface); }
+
+/* ── SEARCH ── */
+.search-wrap { padding: 12px 16px 0; position: relative; }
+.search-inner { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 12px; color: var(--text3); pointer-events: none; }
+.search-icon svg { width: 14px; height: 14px; }
+.search-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 50px; padding: 9px 38px 9px 36px; color: var(--text);
+  font-family: var(--sans); font-size: 14px; outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.search-input::placeholder { color: var(--text3); }
+.search-input:focus { border-color: var(--border2); background: var(--surface2); }
+.search-clear {
+  position: absolute; right: 10px; background: none; border: none; cursor: pointer;
+  color: var(--text3); display: none; align-items: center; justify-content: center;
+  padding: 4px; border-radius: 50%; transition: color 0.15s;
+}
+.search-clear.visible { display: flex; }
+.search-clear:hover { color: var(--text); }
+.search-clear svg { width: 13px; height: 13px; }
+.search-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; padding: 10px 16px 0; display: none; }
+.search-label.visible { display: block; }
+
+/* ── DATE CAROUSEL ── */
+.carousel-wrap { padding: 10px 0 0; overflow: hidden; position: relative; }
+.carousel-wrap::before, .carousel-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 48px;
+  pointer-events: none; z-index: 2;
+}
+.carousel-wrap::before { left: 0; background: linear-gradient(to right, var(--bg) 0%, transparent 100%); }
+.carousel-wrap::after { right: 0; background: linear-gradient(to left, var(--bg) 0%, transparent 100%); }
+.date-carousel {
+  display: flex; gap: 6px; overflow-x: auto;
+  padding: 2px 16px 4px; scrollbar-width: none; scroll-snap-type: x mandatory;
+}
+.date-carousel::-webkit-scrollbar { display: none; }
+.date-pill {
+  flex-shrink: 0; scroll-snap-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 10px; border-radius: 50px; border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer; transition: all 0.2s; min-width: 48px;
+}
+.date-pill:hover { border-color: var(--border2); background: var(--surface2); }
+.date-pill.active { border-color: rgba(200,169,126,0.45); background: rgba(200,169,126,0.1); }
+.pill-name { font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em; color: var(--text3); text-transform: uppercase; }
+.date-pill.active .pill-name { color: var(--accent); }
+.pill-num { font-family: var(--serif); font-size: 17px; color: var(--text2); line-height: 1; font-weight: 400; }
+.date-pill.active .pill-num { color: var(--text); }
+.pill-dots { display: flex; gap: 2px; min-height: 4px; }
+.pill-dot { width: 3px; height: 3px; border-radius: 50%; }
+
+.month-separator-pill {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 6px 10px; border-radius: 50px;
+  border: 1px solid rgba(122,162,200,0.18);
+  background: rgba(122,162,200,0.04);
+  min-width: 52px; gap: 1px;
+}
+.month-sep-name { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; color: var(--blue); text-transform: uppercase; opacity: 0.7; }
+.month-sep-year { font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em; color: var(--text4); }
+
+/* ── ENTRIES ── */
+#entries-container { padding-top: 10px; }
+.section-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text4); text-transform: uppercase; padding: 16px 16px 6px; }
+
+/* ── ENTRY CARD ── */
+.entry-card {
+  margin: 0 12px 8px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  animation: fadeUp 0.35s ease both; transition: border-color 0.2s;
+}
+.entry-card:hover { border-color: var(--border2); }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-inner { padding: 12px 13px 13px; }
+.card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.card-meta-left { display: flex; align-items: center; gap: 7px; }
+.card-time { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
+.type-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
+.chip-note  { color: var(--accent);  border-color: rgba(200,169,126,0.25); background: rgba(200,169,126,0.07); }
+.chip-photo { color: var(--blue);    border-color: rgba(122,162,200,0.25); background: rgba(122,162,200,0.07); }
+.chip-video { color: var(--rose);    border-color: rgba(200,122,138,0.25); background: rgba(200,122,138,0.07); }
+.chip-music { color: var(--green);   border-color: rgba(122,200,149,0.25); background: rgba(122,200,149,0.07); }
+.chip-pdf   { color: var(--purple);  border-color: rgba(160,122,200,0.25); background: rgba(160,122,200,0.07); }
+.card-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; }
+.entry-card:hover .card-actions { opacity: 1; }
+body.locked .card-actions { display: none !important; }
+.icon-btn {
+  width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
+  background: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text3); transition: all 0.15s;
+}
+.icon-btn svg { width: 12px; height: 12px; }
+.icon-btn:hover { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
+.icon-btn.del:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.3); color: #e07070; }
+
+/* ── RICH TEXT ── */
+.card-text {
+  font-family: var(--serif);
+  font-size: 15px; line-height: 1.72; color: var(--text);
+}
+.card-text .txt-xs { font-size: 11px; line-height: 1.6; }
+.card-text .txt-sm { font-size: 13px; line-height: 1.65; }
+.card-text .txt-md { font-size: 15px; line-height: 1.72; }
+.card-text .txt-lg { font-size: 19px; line-height: 1.55; }
+.card-text .txt-xl { font-size: 24px; line-height: 1.4; font-weight: 500; }
+.card-text .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
+
+.card-text a {
+  color: var(--text) !important;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--accent);
+  padding-bottom: 1px;
+  transition: border-color 0.15s, opacity 0.15s;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+.card-text a:hover { opacity: 0.8; border-color: var(--accent2); }
+
+.blur-text-span {
+  filter: blur(5px);
+  cursor: pointer;
+  transition: filter 0.35s ease;
+  border-radius: 4px;
+  background: rgba(200,169,126,0.06);
+  padding: 0 2px;
+  user-select: none;
+}
+.blur-text-span.revealed { filter: blur(0); user-select: text; }
+
+.search-highlight {
+  background: rgba(200,169,126,0.32);
+  color: var(--accent2);
+  border-radius: 3px;
+  padding: 0 1px;
+  font-weight: 600;
+}
+
+/* ── MEDIA ── */
+.media-wrap { margin-top: 10px; }
+.media-grid { display: grid; gap: 4px; }
+.media-grid.cols-1 { grid-template-columns: 1fr; }
+.media-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.media-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.media-item { border-radius: var(--r2); overflow: hidden; cursor: pointer; position: relative; }
+
+.entry-image {
+  width: 100%; display: block;
+  object-fit: contain;
+  border-radius: var(--r2);
+  border: 1px solid var(--border);
+  transition: opacity 0.2s;
+  background: rgba(0,0,0,0.2);
+}
+
+.img-blur-overlay {
+  position: absolute; inset: 0;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(12,12,15,0.55);
+  border-radius: var(--r2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.35s;
+  z-index: 2;
+}
+.img-blur-overlay.revealed { opacity: 0; pointer-events: none; }
+.img-blur-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(200,169,126,0.18);
+  border: 1px solid rgba(200,169,126,0.35);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent2);
+}
+.img-blur-icon svg { width: 16px; height: 16px; }
+
+/* ══════════════════════════════════════
+   CONȚINUT PRIVAT — blur overlay redesign
+   Acoperă tot cardul, inclusiv meta (data/ora apare deasupra)
+   ══════════════════════════════════════ */
+
+/* Wrapper care face cardul relativ pentru overlay-ul absolut */
+.private-card-wrap {
+  position: relative;
+}
+
+/* Overlay-ul privat — acoperă TOT mai puțin header-ul */
+.private-overlay {
+  position: absolute;
+  left: -13px; right: -13px;
+  bottom: -13px;
+  top: 0; /* de la începutul zonei de conținut, sub meta */
+  border-radius: 0 0 var(--r) var(--r);
+  z-index: 5;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: opacity 0.4s ease;
+
+  /* Fundal foarte întunecat, aproape negru cu nuanță violetă */
+  background: rgba(6, 4, 14, 0.92);
+
+  /* Blur puternic pe conținutul din spate */
+  backdrop-filter: blur(24px) saturate(0.4);
+  -webkit-backdrop-filter: blur(24px) saturate(0.4);
+}
+
+.private-overlay.revealed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Animatie subtilă de pulsație pentru overlay */
+@keyframes privateGlow {
+  0%, 100% { box-shadow: inset 0 0 40px rgba(138,122,160,0.04); }
+  50% { box-shadow: inset 0 0 60px rgba(138,122,160,0.08); }
+}
+.private-overlay:not(.revealed) {
+  animation: privateGlow 4s ease-in-out infinite;
+}
+
+/* Iconița lacăt */
+.private-overlay-icon {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(138,122,160,0.1);
+  border: 1px solid rgba(138,122,160,0.25);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(184,168,208,0.6);
+  transition: all 0.3s;
+}
+.private-overlay:hover .private-overlay-icon {
+  background: rgba(138,122,160,0.18);
+  border-color: rgba(138,122,160,0.45);
+  color: var(--private2);
+}
+.private-overlay-icon svg { width: 15px; height: 15px; }
+
+/* Textul "Conținut privat" */
+.private-overlay-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(138,122,160,0.55);
+  transition: color 0.3s;
+}
+.private-overlay:hover .private-overlay-label {
+  color: rgba(184,168,208,0.75);
+}
+
+/* Linie decorativă sub label */
+.private-overlay-line {
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(138,122,160,0.3), transparent);
+  margin-top: -4px;
+}
+
+/* Overlay privat pentru imagini individuale */
+.private-img-overlay {
+  position: absolute; inset: 0;
+  backdrop-filter: blur(28px) saturate(0.3);
+  -webkit-backdrop-filter: blur(28px) saturate(0.3);
+  background: rgba(6,4,14,0.88);
+  border-radius: var(--r2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  cursor: pointer;
+  transition: opacity 0.4s;
+  z-index: 3;
+}
+.private-img-overlay.revealed { opacity: 0; pointer-events: none; }
+
+.private-img-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(138,122,160,0.1);
+  border: 1px solid rgba(138,122,160,0.22);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(184,168,208,0.5);
+  transition: all 0.25s;
+}
+.private-img-overlay:hover .private-img-icon {
+  background: rgba(138,122,160,0.2);
+  border-color: rgba(138,122,160,0.45);
+  color: var(--private2);
+}
+.private-img-icon svg { width: 13px; height: 13px; }
+
+.private-img-label {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(138,122,160,0.45);
+  transition: color 0.25s;
+}
+.private-img-overlay:hover .private-img-label {
+  color: rgba(184,168,208,0.65);
+}
+
+/* video privat */
+.video-private-wrap { position: relative; }
+
+/* ── VIDEO ── */
+.video-embed-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: var(--r2);
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border);
+  aspect-ratio: 16 / 9;
+}
+.video-embed-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: var(--r2);
+  display: block;
+}
+
+.entry-video { width: 100%; border-radius: var(--r2); border: 1px solid var(--border); background: #000; max-height: 260px; display: block; }
+.entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; }
+.entry-caption a { color: var(--text3) !important; border-bottom: 1px solid var(--accent); text-decoration: none; }
+
+/* ── MUSIC ── */
+.music-player {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(122,200,149,0.05); border: 1px solid rgba(122,200,149,0.12);
+  border-radius: var(--r2); padding: 10px 12px; cursor: default;
+  transition: all 0.2s; margin-top: 10px;
+}
+.music-player:hover { background: rgba(122,200,149,0.09); }
+.music-cover-btn {
+  width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; overflow: hidden;
+  background: rgba(122,200,149,0.1); border: 1px solid rgba(122,200,149,0.2);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; cursor: pointer; transition: all 0.15s;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.music-cover-btn:hover { border-color: rgba(122,200,149,0.5); }
+.music-cover-btn img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: 7px; }
+.music-cover-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); border-radius: 7px; transition: background 0.15s; z-index: 2; pointer-events: none; }
+.music-cover-btn:hover .music-cover-overlay { background: rgba(0,0,0,0.5); }
+.music-cover-icon-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--green); z-index: 1; }
+.music-cover-icon-bg svg { width: 18px; height: 18px; }
+.music-cover-overlay svg { width: 14px; height: 14px; color: #fff; }
+.music-info { flex: 1; overflow: hidden; }
+.music-title { font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 2px; letter-spacing: 0.03em; }
+.music-note-text { margin-top: 4px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; }
+.wave-bars { display: flex; align-items: center; gap: 2px; height: 16px; flex-shrink: 0; }
+.wave-bar { width: 2px; background: var(--green); border-radius: 1px; opacity: 0.7; }
+.wave-bar:nth-child(1){ height:5px;  animation: wv .65s ease-in-out infinite 0s; }
+.wave-bar:nth-child(2){ height:12px; animation: wv .65s ease-in-out infinite .09s; }
+.wave-bar:nth-child(3){ height:8px;  animation: wv .65s ease-in-out infinite .17s; }
+.wave-bar:nth-child(4){ height:14px; animation: wv .65s ease-in-out infinite .11s; }
+.wave-bar:nth-child(5){ height:6px;  animation: wv .65s ease-in-out infinite .05s; }
+@keyframes wv { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.25); } }
+.wave-bars.paused .wave-bar { animation-play-state: paused; }
+
+/* ── PDF ENTRY ── */
+.pdf-entry {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(160,122,200,0.06); border: 1px solid rgba(160,122,200,0.18);
+  border-radius: var(--r2); padding: 12px 14px; cursor: pointer; margin-top: 10px;
+  transition: all 0.2s; text-decoration: none;
+}
+.pdf-entry:hover { background: rgba(160,122,200,0.12); border-color: rgba(160,122,200,0.35); }
+.pdf-icon-wrap {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(160,122,200,0.15); border: 1px solid rgba(160,122,200,0.3);
+  display: flex; align-items: center; justify-content: center; color: var(--purple);
+}
+.pdf-icon-wrap svg { width: 20px; height: 20px; }
+.pdf-info { flex: 1; overflow: hidden; }
+.pdf-title { font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pdf-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 2px; letter-spacing: 0.03em; }
+.pdf-arrow { color: var(--purple); opacity: 0.6; flex-shrink: 0; }
+.pdf-arrow svg { width: 14px; height: 14px; }
+
+/* ── DATE MUSIC BANNER ── */
+.date-music-banner {
+  margin: 4px 12px 8px; background: rgba(200,169,126,0.05); border: 1px solid rgba(200,169,126,0.15);
+  border-radius: var(--r2); padding: 9px 12px; display: flex; align-items: center; gap: 10px; transition: all 0.2s;
+}
+.dm-banner-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; cursor: pointer;
+  touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.date-music-banner:hover { background: rgba(200,169,126,0.09); }
+.dm-banner-cover { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; overflow: hidden; background: rgba(200,169,126,0.1); border: 1px solid rgba(200,169,126,0.2); display: flex; align-items: center; justify-content: center; }
+.dm-banner-cover img { width: 100%; height: 100%; object-fit: cover; }
+.dm-banner-icon { color: var(--accent); }
+.dm-banner-icon svg { width: 14px; height: 14px; }
+.dm-banner-text { flex: 1; overflow: hidden; }
+.dm-banner-title { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--accent2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dm-banner-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 1px; letter-spacing: 0.03em; }
+.dm-wave-bars { display: flex; align-items: center; gap: 2px; height: 14px; flex-shrink: 0; cursor: pointer; }
+.dm-wave-bar { width: 2px; background: var(--accent); border-radius: 1px; opacity: 0.7; }
+.dm-wave-bar:nth-child(1){ height:4px;  animation: wv .65s ease-in-out infinite 0s; }
+.dm-wave-bar:nth-child(2){ height:11px; animation: wv .65s ease-in-out infinite .09s; }
+.dm-wave-bar:nth-child(3){ height:7px;  animation: wv .65s ease-in-out infinite .17s; }
+.dm-wave-bar:nth-child(4){ height:13px; animation: wv .65s ease-in-out infinite .11s; }
+.dm-wave-bar:nth-child(5){ height:5px;  animation: wv .65s ease-in-out infinite .05s; }
+.dm-banner-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+body.locked .dm-delete-btn { display: none !important; }
+.dm-delete-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(200,80,80,0.2); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(200,80,80,0.4); transition: all 0.15s; }
+.dm-delete-btn svg { width: 11px; height: 11px; }
+.dm-delete-btn:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.4); color: #e07070; }
+
+/* ── BOTTOM BAR ── */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 440px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 20px 28px;
+  pointer-events: none; z-index: 100;
+}
+
+.bottom-nav-btns {
+  pointer-events: none;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 28px;
+  z-index: 110;
+}
+
+.nav-btn-outer {
+  pointer-events: all;
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  isolation: isolate;
+}
+
+.nav-ring-svg {
+  position: absolute;
+  inset: -5px;
+  width: 66px;
+  height: 66px;
+  pointer-events: none;
+  transform: rotate(-90deg);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1;
+}
+
+.bottom-nav-btn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: rgba(10,10,14,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.1s;
+  box-shadow: var(--shadow);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  z-index: 2;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.bottom-nav-btn svg {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  display: block;
+  flex-shrink: 0;
+}
+.bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.97); }
+.bottom-nav-btn:active { transform: scale(0.91); background: rgba(30,30,40,1); }
+
+/* ── FAB ── */
+body.locked .fab-wrap { display: none !important; }
+.fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
+.fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
+.fab-menu.open { max-height: 500px; opacity: 1; }
+.fab-row { display: flex; align-items: center; gap: 8px; }
+.fab-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; color: var(--text2); background: rgba(10,10,14,0.9); border: 1px solid var(--border2); backdrop-filter: blur(16px); padding: 6px 12px; border-radius: 50px; white-space: nowrap; box-shadow: var(--shadow); }
+.fab-sm { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.85); backdrop-filter: blur(20px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text2); flex-shrink: 0; box-shadow: var(--shadow); }
+.fab-sm svg { width: 16px; height: 16px; }
+.fab-sm:hover { border-color: rgba(200,169,126,0.45); color: var(--accent2); transform: scale(1.08); }
+.fab-main { width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(200,169,126,0.4); background: linear-gradient(135deg, rgba(180,140,90,0.55), rgba(200,169,126,0.25)); backdrop-filter: blur(24px); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(200,169,126,0.18), var(--shadow2); transition: all 0.3s cubic-bezier(0.34,1.4,0.64,1); color: var(--accent2); }
+.fab-main svg { width: 20px; height: 20px; transition: transform 0.3s; }
+.fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
+.fab-main.open svg { transform: rotate(45deg); }
+
+.lock-fab-wrap { pointer-events: all; flex-shrink: 0; }
+.lock-fab-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow);
+  transition: all 0.22s;
+  backdrop-filter: blur(12px);
+  touch-action: manipulation;
+}
+.lock-fab-btn:hover { background: rgba(200,169,126,0.1); border-color: rgba(200,169,126,0.3); color: var(--accent); }
+.lock-fab-btn svg { width: 18px; height: 18px; }
+
+/* ── CAL FAB ── */
+.cal-fab-wrap { pointer-events: all; position: relative; flex-shrink: 0; }
+.cal-fab-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(122,162,200,0.12); border: 1.5px solid rgba(122,162,200,0.35);
+  color: var(--blue); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 28px rgba(122,162,200,0.15); transition: all 0.22s ease;
+  backdrop-filter: blur(12px); position: relative; z-index: 2;
+}
+.cal-fab-btn:hover { background: rgba(122,162,200,0.22); border-color: rgba(122,162,200,0.6); box-shadow: 0 12px 36px rgba(122,162,200,0.25); transform: translateY(-2px) scale(1.05); }
+.cal-fab-btn.is-active { background: rgba(200,169,126,0.22); border-color: rgba(200,169,126,0.6); color: var(--accent2); box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 12px 36px rgba(200,169,126,0.2); }
+.cal-fab-btn svg { width: 19px; height: 19px; }
+
+/* ── CALENDAR POPUP ── */
+.cal-popup-overlay {
+  position: fixed; inset: 0; background: rgba(4,4,8,0.75); backdrop-filter: blur(10px);
+  z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity 0.22s ease;
+}
+.cal-popup-overlay.open { opacity: 1; pointer-events: all; }
+.cal-popup-modal {
+  background: #0e1422; border: 1px solid rgba(255,255,255,0.11); border-radius: 22px;
+  width: 100%; max-width: 380px; max-height: 88vh; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.05) inset;
+  transform: scale(0.92); transition: transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
+}
+.cal-popup-overlay.open .cal-popup-modal { transform: scale(1); }
+.cal-popup-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+}
+.cal-popup-title { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); }
+.cal-popup-title svg { width: 13px; height: 13px; }
+.cal-popup-close { width: 28px; height: 28px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.04); color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.18s; }
+.cal-popup-close:hover { background: rgba(200,80,80,0.12); color: var(--rose); border-color: rgba(200,80,80,0.3); }
+.cal-popup-close svg { width: 13px; height: 13px; }
+.cal-popup-body { overflow-y: auto; padding: 18px 20px 22px; flex: 1; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+.cal-popup-body::-webkit-scrollbar { width: 3px; }
+.cal-popup-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+.cal-popup-today-btn { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(122,200,149,0.3); background: rgba(122,200,149,0.07); color: var(--green); font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px; transition: all 0.18s; margin-bottom: 14px; }
+.cal-popup-today-btn:hover { background: rgba(122,200,149,0.14); border-color: rgba(122,200,149,0.55); }
+.cal-popup-today-btn.active { background: rgba(122,200,149,0.16); border-color: rgba(122,200,149,0.6); box-shadow: 0 0 0 3px rgba(122,200,149,0.07); }
+.cal-popup-today-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.cal-popup-today-btn-txt { flex: 1; }
+.cal-popup-active-badge { font-family: var(--mono); font-size: 9px; color: var(--green); background: rgba(122,200,149,0.1); border: 1px solid rgba(122,200,149,0.2); border-radius: 20px; padding: 1px 7px; }
+.cal-popup-section-lbl { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text4); margin: 12px 0 10px; }
+.cal-popup-month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 6px; }
+.cal-popup-nav-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03); color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.18s; }
+.cal-popup-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: var(--text2); }
+.cal-popup-nav-btn:disabled { opacity: 0.25; cursor: default; }
+.cal-popup-nav-btn svg { width: 11px; height: 11px; }
+.cal-popup-month-lbl { font-family: var(--mono); font-size: 12px; color: var(--blue); font-weight: 600; flex: 1; text-align: center; letter-spacing: 0.02em; }
+.cal-popup-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 14px; }
+.cal-popup-day-name { text-align: center; font-family: var(--mono); font-size: 9px; color: var(--text4); padding: 3px 0; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+.cal-popup-cell { aspect-ratio: 1; border-radius: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; transition: all 0.15s; position: relative; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.025); color: var(--text3); user-select: none; }
+.cal-popup-cell.empty { background: transparent; border-color: transparent; cursor: default; }
+.cal-popup-cell.future { background: transparent; border-color: transparent; color: rgba(255,255,255,0.07); cursor: default; }
+.cal-popup-cell.has-data { border-color: rgba(200,169,126,0.22); background: rgba(200,169,126,0.07); color: var(--accent); }
+.cal-popup-cell.has-data:hover { background: rgba(200,169,126,0.14); transform: scale(1.05); }
+.cal-popup-cell.is-today { border-color: rgba(122,200,149,0.4); background: rgba(122,200,149,0.10); color: var(--green); font-weight: 700; }
+.cal-popup-cell.is-today:hover { background: rgba(122,200,149,0.18); transform: scale(1.05); }
+.cal-popup-cell.is-selected { border-color: rgba(122,162,200,0.55); background: rgba(122,162,200,0.18); color: var(--blue); font-weight: 700; box-shadow: 0 0 0 2px rgba(122,162,200,0.12); }
+.cal-popup-cell.is-selected:hover { background: rgba(122,162,200,0.26); }
+.cal-popup-cell.no-data:hover:not(.future):not(.empty) { background: rgba(255,255,255,0.05); color: var(--text2); }
+.cal-popup-dots { display: flex; gap: 2px; position: absolute; bottom: 2px; }
+.cal-popup-dot { width: 3px; height: 3px; border-radius: 50%; display: block; }
+.cal-dot-note  { background: var(--accent); }
+.cal-dot-photo { background: var(--blue); }
+.cal-dot-video { background: var(--rose); }
+.cal-dot-music { background: var(--green); }
+.cal-dot-pdf   { background: var(--purple); }
+.cal-popup-legend { display: flex; gap: 10px; flex-wrap: wrap; font-family: var(--mono); font-size: 9px; color: var(--text4); padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); letter-spacing: 0.03em; }
+.cal-popup-legend-item { display: flex; align-items: center; gap: 4px; }
+.cal-popup-legend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+/* ── MODALS ── */
+.backdrop { position: fixed; inset: 0; background: rgba(4,4,8,0.7); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.backdrop.open { opacity: 1; pointer-events: all; }
+.sheet { width: 100%; max-width: 440px; margin: 0 auto; background: linear-gradient(180deg, #181820 0%, #111115 100%); border: 1px solid var(--border2); border-bottom: none; border-radius: 22px 22px 0 0; padding: 18px 18px 40px; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.34,1.1,0.64,1); max-height: 88vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.backdrop.open .sheet { transform: translateY(0); }
+.sheet-handle { width: 32px; height: 3px; background: var(--border2); border-radius: 2px; margin: 0 auto 18px; }
+.sheet-title { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--text); margin-bottom: 18px; font-weight: 400; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 7px; }
+.form-input, .form-textarea, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--border2); background: var(--surface2); }
+.form-textarea { min-height: 100px; resize: vertical; line-height: 1.65; font-family: var(--serif); font-size: 15px; }
+input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
+.form-select option { background: #17171d; }
+
+/* ── RICH TEXT EDITOR ── */
+.rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s, background 0.2s; }
+.rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
+.rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 7px 8px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); flex-wrap: wrap; }
+.rte-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid transparent; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text3); transition: all 0.15s; font-family: var(--mono); font-size: 11px; font-weight: 600; flex-shrink: 0; position: relative; }
+.rte-btn svg { width: 13px; height: 13px; }
+.rte-btn:hover { background: var(--surface3); border-color: var(--border); color: var(--text2); }
+.rte-btn.active { background: rgba(200,169,126,0.15); border-color: rgba(200,169,126,0.3); color: var(--accent2); }
+.rte-sep { width: 1px; height: 18px; background: var(--border); margin: 0 3px; }
+
+.rte-size-wrap { position: relative; }
+.rte-size-btn { min-width: 36px; width: auto; padding: 0 6px; font-size: 9px; letter-spacing: 0.04em; gap: 2px; }
+.rte-size-btn svg { width: 9px; height: 9px; }
+.rte-size-dropdown { position: absolute; top: calc(100% + 4px); left: 0; background: #17171d; border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 50; min-width: 130px; display: none; }
+.rte-size-dropdown.open { display: block; }
+.rte-size-option { display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; cursor: pointer; font-family: var(--serif); color: var(--text2); border-bottom: 1px solid var(--border); transition: background 0.12s; white-space: nowrap; }
+.rte-size-option:last-child { border-bottom: none; }
+.rte-size-option:hover { background: var(--surface2); color: var(--text); }
+.rte-size-option.active { color: var(--accent2); background: rgba(200,169,126,0.08); }
+.rte-size-label { font-size: 11px; font-family: var(--mono); color: var(--text3); min-width: 24px; }
+
+.rte-editor { min-height: 120px; padding: 11px 13px; color: var(--text); font-family: var(--serif); font-size: 15px; line-height: 1.72; outline: none; word-wrap: break-word; }
+.rte-editor:empty::before { content: attr(data-placeholder); color: var(--text3); pointer-events: none; }
+.rte-editor a { color: var(--text); text-decoration: none; border-bottom: 1.5px solid var(--accent); padding-bottom: 1px; }
+.rte-editor .blur-span { filter: blur(5px); background: rgba(200,169,126,0.08); border-radius: 4px; padding: 0 2px; cursor: default; transition: filter 0.3s; }
+.rte-editor .blur-span.revealed { filter: blur(0); }
+.rte-editor .txt-xs { font-size: 11px; line-height: 1.6; }
+.rte-editor .txt-sm { font-size: 13px; line-height: 1.65; }
+.rte-editor .txt-md { font-size: 15px; line-height: 1.72; }
+.rte-editor .txt-lg { font-size: 19px; line-height: 1.55; }
+.rte-editor .txt-xl { font-size: 24px; line-height: 1.4; }
+.rte-editor .txt-xxl { font-size: 30px; line-height: 1.3; font-weight: 600; }
+
+.rte-link-bar { display: none; padding: 7px 8px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.12); align-items: center; gap: 6px; }
+.rte-link-bar.visible { display: flex; }
+.rte-link-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-family: var(--mono); font-size: 11px; outline: none; transition: border-color 0.15s; }
+.rte-link-input:focus { border-color: var(--border2); }
+.rte-link-ok { padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3); background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.15s; }
+.rte-link-ok:hover { background: rgba(200,169,126,0.2); }
+
+.cap-rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s; }
+.cap-rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
+.cap-rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 5px 7px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); }
+.cap-rte-editor { min-height: 50px; padding: 9px 12px; color: var(--text); font-family: var(--serif); font-size: 13px; font-style: italic; line-height: 1.65; outline: none; word-wrap: break-word; color: var(--text3); }
+.cap-rte-editor:empty::before { content: attr(data-placeholder); color: var(--text4); pointer-events: none; }
+.cap-rte-editor a { color: var(--text3); text-decoration: none; border-bottom: 1px solid var(--accent); }
+.cap-rte-link-bar { display: none; padding: 5px 7px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.12); align-items: center; gap: 6px; }
+.cap-rte-link-bar.visible { display: flex; }
+
+.btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, rgba(160,120,70,0.65), rgba(200,169,126,0.35)); border: 1px solid rgba(200,169,126,0.4); border-radius: var(--r2); color: var(--accent2); font-family: var(--serif); font-size: 16px; font-style: italic; font-weight: 400; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+.btn-primary:hover { background: linear-gradient(135deg, rgba(160,120,70,0.85), rgba(200,169,126,0.5)); transform: translateY(-1px); }
+.btn-secondary { width: 100%; padding: 11px; background: none; border: 1px solid var(--border); border-radius: var(--r2); color: var(--text3); font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; cursor: pointer; transition: all 0.15s; margin-top: 7px; text-transform: uppercase; }
+.btn-secondary:hover { border-color: var(--border2); color: var(--text2); }
+.btn-danger { flex: 1; padding: 12px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.25); border-radius: var(--r2); color: #e07070; font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.btn-danger:hover { background: rgba(200,80,80,0.18); }
+.confirm-row { display: flex; gap: 8px; margin-top: 16px; }
+
+/* ── LIGHTBOX ── */
+.lightbox { position: fixed; inset: 0; background: rgba(4,4,8,0.96); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.lightbox.open { opacity: 1; pointer-events: all; }
+.lb-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lb-img-wrap {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+.lb-img-wrap.grabbing { cursor: grabbing; }
+.lb-img {
+  max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px;
+  user-select: none; pointer-events: none;
+  transform-origin: center center;
+  transition: none;
+  will-change: transform;
+}
+.lb-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: all 0.15s; z-index: 10; }
+.lb-close svg { width: 15px; height: 15px; }
+.lb-close:hover { border-color: var(--border3); color: var(--text); }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: all 0.15s; z-index: 10; }
+.lb-nav svg { width: 15px; height: 15px; }
+.lb-prev { left: 12px; }
+.lb-next { right: 12px; }
+.lb-nav:hover { border-color: var(--border3); color: var(--text); }
+.lb-nav.hidden { opacity: 0; pointer-events: none; }
+.lb-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; background: rgba(10,10,14,0.7); padding: 5px 12px; border-radius: 50px; }
+.lb-zoom-hint { position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 9px; color: var(--text4); letter-spacing: 0.06em; pointer-events: none; }
+.lb-zoom-reset { position: absolute; top: 16px; left: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); z-index: 10; font-family: var(--mono); font-size: 9px; transition: all 0.15s; opacity: 0; pointer-events: none; }
+.lb-zoom-reset.visible { opacity: 1; pointer-events: all; }
+.lb-zoom-reset:hover { border-color: var(--border3); color: var(--text); }
+
+/* ── LOADING / EMPTY ── */
+.loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; gap: 12px; }
+.spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; }
+.empty-wrap { text-align: center; padding: 60px 24px; }
+.empty-icon { font-size: 28px; margin-bottom: 12px; opacity: 0.2; color: var(--text2); }
+.empty-icon svg { width: 32px; height: 32px; }
+.empty-text { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text3); }
+
+/* ── PARSE PREVIEW ── */
+.parse-preview { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r3); padding: 10px 12px; margin-top: 6px; font-family: var(--serif); font-size: 13px; color: var(--text3); line-height: 1.55; max-height: 90px; overflow-y: auto; white-space: pre-wrap; }
+
+/* ── TOAST ── */
+.toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* toggle privat */
+.blur-toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.blur-toggle-row .form-label { margin-bottom: 0; flex: 1; }
+.toggle-track { position: relative; width: 38px; height: 22px; flex-shrink: 0; cursor: pointer; }
+.toggle-bg { position: absolute; inset: 0; border-radius: 11px; background: var(--surface2); border: 1px solid var(--border); transition: all 0.2s; }
+.toggle-thumb { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--text3); transition: all 0.2s; }
+.toggle-track.on .toggle-bg { background: rgba(200,169,126,0.25); border-color: rgba(200,169,126,0.4); }
+.toggle-track.on .toggle-thumb { background: var(--accent2); transform: translateX(16px); }
+.toggle-track.on-private .toggle-bg { background: rgba(138,122,160,0.25); border-color: rgba(138,122,160,0.45); }
+.toggle-track.on-private .toggle-thumb { background: var(--private2); transform: translateX(16px); }
+
+audio { display: none; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body class="locked">
+
+<div class="app">
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="header-title">carnet</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="header-date-display" id="headerDateDisplay"></div>
+      <div class="lock-badge" id="lockBadge">
+        <svg id="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+        </svg>
+        <span id="lockLabel">blocat</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-inner">
+      <span class="search-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="8.5" cy="8.5" r="5.5"/><path d="M15 15l-3-3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <input class="search-input" id="searchInput" type="text" placeholder="caută..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-label" id="searchLabel"></div>
+
+  <div class="carousel-wrap" id="carouselWrap">
+    <div class="date-carousel" id="dateCarousel"></div>
+  </div>
+
+  <div id="entries-container">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-text">se încarcă...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom bar -->
+<div class="bottom-bar">
+  <div class="cal-fab-wrap">
+    <button class="cal-fab-btn" id="calFabBtn" onclick="toggleCalPopup()" title="Selectează ziua">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+        <rect x="3" y="4" width="18" height="18" rx="3"/>
+        <path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="bottom-nav-btns">
+<!-- CU ASTA -->
+<div class="nav-btn-outer" id="prevWrap">
+  <svg class="nav-ring-svg" id="prevRingSvg" viewBox="0 0 66 66">
+    <circle cx="33" cy="33" r="28" fill="none" stroke="rgba(200,169,126,0.15)" stroke-width="2.5"/>
+    <circle id="prevRingProgress" cx="33" cy="33" r="28" fill="none"
+      stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"
+      stroke-dasharray="175.9" stroke-dashoffset="175.9"/>
+  </svg>
+  <button class="bottom-nav-btn" id="navPrev" title="ziua anterioară" type="button">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</div>
+
+    <div class="nav-btn-outer" id="nextWrap">
+      <svg class="nav-ring-svg" id="nextRingSvg" viewBox="0 0 66 66">
+        <circle cx="33" cy="33" r="28" fill="none" stroke="rgba(200,169,126,0.15)" stroke-width="2.5"/>
+        <circle id="nextRingProgress" cx="33" cy="33" r="28" fill="none"
+          stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"
+          stroke-dasharray="175.9" stroke-dashoffset="175.9"/>
+      </svg>
+      <button class="bottom-nav-btn" id="navNext" title="ziua următoare" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="fab-wrap" id="fabWrap">
+    <div class="fab-menu" id="fabMenu">
+      <div class="fab-row">
+        <span class="fab-lbl">muzică pentru dată</span>
+        <button class="fab-sm" onclick="openModal('date-music')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M3 18v-6a9 9 0 0118 0v6"/>
+            <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
+        <span class="fab-lbl">import text</span>
+        <button class="fab-sm" onclick="openModal('import')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
+        <span class="fab-lbl">pdf</span>
+        <button class="fab-sm" onclick="openModal('pdf')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
+        <span class="fab-lbl">muzică</span>
+        <button class="fab-sm" onclick="openModal('music')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
+        <span class="fab-lbl">videoclip</span>
+        <button class="fab-sm" onclick="openModal('video')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="2" y="6" width="14" height="12" rx="2"/>
+            <path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
+        <span class="fab-lbl">poze</span>
+        <button class="fab-sm" onclick="openModal('photo')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
+        <span class="fab-lbl">notiță</span>
+        <button class="fab-sm" onclick="openModal('note')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button class="fab-main" id="fabMain" onclick="toggleFab()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="lock-fab-wrap" id="lockFabWrap">
+    <button class="lock-fab-btn" onclick="openPinOverlay('main')" title="Deblochează">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- PIN OVERLAY -->
+<div class="pin-overlay" id="pinOverlay">
+  <div class="pin-modal">
+    <button class="pin-exit-btn" onclick="closePinOverlay()" title="Închide">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="pin-title" id="pinTitle">carnet</div>
+    <div class="pin-subtitle" id="pinSubtitle">introdu codul PIN</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <div></div>
+      <button class="pin-key zero" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinBackspace()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2zM18 9l-6 6M12 9l6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Calendar popup -->
+<div class="cal-popup-overlay" id="calPopupOverlay" onclick="handleCalOverlayClick(event)">
+  <div class="cal-popup-modal" id="calPopupModal">
+    <div class="cal-popup-header">
+      <div class="cal-popup-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Selectează ziua
+      </div>
+      <button class="cal-popup-close" onclick="closeCalPopup()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="cal-popup-body">
+      <button class="cal-popup-today-btn" id="calPopupTodayBtn" onclick="calPopupGoToday()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 8 12 12 14 14"/>
+        </svg>
+        <span class="cal-popup-today-btn-txt" id="calPopupTodayTxt">Azi</span>
+        <span class="cal-popup-active-badge" id="calPopupActiveBadge" style="display:none">● Activ</span>
+      </button>
+      <div class="cal-popup-section-lbl">Selectează ziua</div>
+      <div class="cal-popup-month-nav">
+        <button class="cal-popup-nav-btn" onclick="calPopupNavMonth(-1)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="10 3 5 8 10 13" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="cal-popup-month-lbl" id="calPopupMonthLbl" onclick="openCalJumpPicker()" style="cursor:pointer;border-radius:8px;padding:2px 8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(122,162,200,0.1)'" onmouseout="this.style.background=''" title="Sari rapid la lună/an"></span>
+        <button class="cal-popup-nav-btn" id="calPopupNextMonthBtn" onclick="calPopupNavMonth(1)">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 3 11 8 6 13" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <!-- Jump picker inline -->
+      <div id="calJumpPicker" style="display:none;margin-bottom:12px;background:rgba(122,162,200,0.05);border:1px solid rgba(122,162,200,0.18);border-radius:12px;padding:12px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">SALT RAPID</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <select id="calJumpMonth" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;-webkit-appearance:none;appearance:none;">
+            <option value="0">Ianuarie</option><option value="1">Februarie</option><option value="2">Martie</option>
+            <option value="3">Aprilie</option><option value="4">Mai</option><option value="5">Iunie</option>
+            <option value="6">Iulie</option><option value="7">August</option><option value="8">Septembrie</option>
+            <option value="9">Octombrie</option><option value="10">Noiembrie</option><option value="11">Decembrie</option>
+          </select>
+          <input id="calJumpYear" type="number" min="2000" max="2099" style="width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--mono);font-size:11px;outline:none;" placeholder="2026">
+        </div>
+        <button onclick="applyCalJump()" style="width:100%;padding:8px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:8px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s;" onmouseover="this.style.background='rgba(122,162,200,0.18)'" onmouseout="this.style.background='rgba(122,162,200,0.1)'">Du-mă acolo</button>
+      </div>
+
+      <div class="cal-popup-grid" id="calPopupGrid"></div>
+      <div class="cal-popup-legend">
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--accent)"></span><span>notiță</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--blue)"></span><span>poze</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--rose)"></span><span>video</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--green)"></span><span>muzică</span></div>
+        <div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--purple)"></span><span>pdf</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<audio id="dateMusicAudio" loop></audio>
+<audio id="entryAudio"></audio>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-inner" id="lbInner">
+    <button class="lb-zoom-reset" id="lbZoomReset" onclick="lbResetZoom()">1:1</button>
+    <button class="lb-close" onclick="closeLightbox()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <button class="lb-nav lb-prev" id="lbPrev" onclick="lbNav(-1)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="lb-img-wrap" id="lbImgWrap">
+      <img class="lb-img" id="lbImg" src="" alt="">
+    </div>
+    <button class="lb-nav lb-next" id="lbNext" onclick="lbNav(1)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="lb-counter" id="lbCounter"></div>
+    <div class="lb-zoom-hint">pinch = zoom · drag = pan · dublu tap = 2.5×</div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Note -->
+<div class="backdrop" id="modal-note">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">notiță nouă</div>
+    <div class="form-group">
+      <label class="form-label">text</label>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn" id="rte-bold" onclick="rteCmd('bold')" title="Bold">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <div class="rte-size-wrap" id="rteSizeWrap">
+            <button class="rte-btn rte-size-btn" id="rteSizeBtn" onclick="toggleSizeDropdown('rteSizeDropdown')" title="Mărime text">
+              <span id="rteSizeLbl">Aa</span>
+              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 3 5 7 8 3"/></svg>
+            </button>
+            <div class="rte-size-dropdown" id="rteSizeDropdown">
+              <div class="rte-size-option" onclick="applyFontSize('txt-xs','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">xs</span><span style="font-size:11px">mic de tot</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-sm','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">s</span><span style="font-size:13px">mic</span></div>
+              <div class="rte-size-option active" onclick="applyFontSize('','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">m</span><span style="font-size:15px">normal</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-lg','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">l</span><span style="font-size:17px">mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-xl','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">xl</span><span style="font-size:20px">foarte mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize('txt-xxl','rteSizeDropdown','rteSizeLbl')"><span class="rte-size-label">xxl</span><span style="font-size:24px">titlu</span></div>
+            </div>
+          </div>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" id="rte-link-btn" onclick="rteToggleLinkBar()" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" id="rte-blur-btn" onclick="rteBlurSelected()" title="Blur text selectat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rte-link-bar" id="rte-link-bar">
+          <input class="rte-link-input" id="rte-link-input" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink()">
+          <button class="rte-link-ok" onclick="rteInsertLink()">adaugă</button>
+        </div>
+        <div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true"></div>
+      </div>
+    </div>
+    <div class="blur-toggle-row">
+      <label class="form-label">conținut privat</label>
+      <div class="toggle-track" id="note-18-toggle" onclick="toggleNote18()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="note-date" step="1">
+    </div>
+    <button class="btn-primary" onclick="submitEntry('note')">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('note')">anulează</button>
+  </div>
+</div>
+
+<!-- Photo -->
+<div class="backdrop" id="modal-photo">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">adaugă poze</div>
+    <div class="form-group">
+      <label class="form-label">link-uri imagini (unul per linie)</label>
+      <textarea class="form-textarea" id="photo-urls" placeholder="https://...&#10;https://..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">descriere (cu link-uri opțional)</label>
+      <div class="cap-rte-wrap" id="photoCapWrap">
+        <div class="cap-rte-toolbar">
+          <button class="rte-btn" onclick="capRteLink('photo-cap-editor','photo-cap-link-bar','photo-cap-link-input')" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="cap-rte-link-bar" id="photo-cap-link-bar">
+          <input class="rte-link-input" id="photo-cap-link-input" type="url" placeholder="https://" onkeydown="if(event.key==='Enter')capRteLinkOk('photo-cap-editor','photo-cap-link-bar','photo-cap-link-input')">
+          <button class="rte-link-ok" onclick="capRteLinkOk('photo-cap-editor','photo-cap-link-bar','photo-cap-link-input')">adaugă</button>
+        </div>
+        <div class="cap-rte-editor" id="photo-cap-editor" contenteditable="true" data-placeholder="o descriere..."></div>
+      </div>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+      <label class="form-label" style="margin-bottom:0">blur imagini</label>
+      <div style="position:relative;width:38px;height:22px;flex-shrink:0;" onclick="togglePhotoBlur()">
+        <div id="photo-blur-track" style="position:absolute;inset:0;border-radius:11px;background:var(--surface2);border:1px solid var(--border);transition:all 0.2s;"></div>
+        <div id="photo-blur-thumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--text3);transition:all 0.2s;"></div>
+      </div>
+    </div>
+    <div class="blur-toggle-row">
+      <label class="form-label">imagini private</label>
+      <div class="toggle-track" id="photo-18-toggle" onclick="togglePhoto18()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="photo-date" step="1">
+    </div>
+    <button class="btn-primary" onclick="submitEntry('photo')">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('photo')">anulează</button>
+  </div>
+</div>
+
+<!-- Video -->
+<div class="backdrop" id="modal-video">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">adaugă videoclip</div>
+    <div class="form-group">
+      <label class="form-label">link video (YouTube sau mp4/webm direct)</label>
+      <input type="url" class="form-input" id="video-url" placeholder="https://youtu.be/... sau https://...mp4">
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.15);border-radius:10px;">
+        <p style="font-family:var(--mono);font-size:10px;color:var(--blue);line-height:1.7;letter-spacing:0.02em;">
+          ✓ Link-urile YouTube sunt redate direct ca embed.<br>
+          ✓ Clipul se afișează fără titlu și fără logo YouTube.
+        </p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">descriere (cu link-uri opțional)</label>
+      <div class="cap-rte-wrap">
+        <div class="cap-rte-toolbar">
+          <button class="rte-btn" onclick="capRteLink('video-cap-editor','video-cap-link-bar','video-cap-link-input')" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="cap-rte-link-bar" id="video-cap-link-bar">
+          <input class="rte-link-input" id="video-cap-link-input" type="url" placeholder="https://" onkeydown="if(event.key==='Enter')capRteLinkOk('video-cap-editor','video-cap-link-bar','video-cap-link-input')">
+          <button class="rte-link-ok" onclick="capRteLinkOk('video-cap-editor','video-cap-link-bar','video-cap-link-input')">adaugă</button>
+        </div>
+        <div class="cap-rte-editor" id="video-cap-editor" contenteditable="true" data-placeholder="o descriere..."></div>
+      </div>
+    </div>
+    <div class="blur-toggle-row">
+      <label class="form-label">conținut privat</label>
+      <div class="toggle-track" id="video-18-toggle" onclick="toggleVideo18()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="video-date" step="1">
+    </div>
+    <button class="btn-primary" onclick="submitEntry('video')">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('video')">anulează</button>
+  </div>
+</div>
+
+<!-- Music -->
+<div class="backdrop" id="modal-music">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">adaugă muzică</div>
+    <div class="form-group">
+      <label class="form-label">link fișier audio (mp3, ogg...)</label>
+      <input type="url" class="form-input" id="music-url" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">titlu melodie</label>
+      <input type="text" class="form-input" id="music-title-inp" placeholder="numele piesei...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">link copertă (opțional)</label>
+      <input type="url" class="form-input" id="music-cover-inp" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="music-date" step="1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">descriere (opțional)</label>
+      <textarea class="form-textarea" style="min-height:70px" id="music-note" placeholder="de ce ai ales melodia asta..."></textarea>
+    </div>
+    <button class="btn-primary" onclick="submitEntry('music')">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('music')">anulează</button>
+  </div>
+</div>
+
+<!-- PDF -->
+<div class="backdrop" id="modal-pdf">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">adaugă PDF</div>
+    <div class="form-group">
+      <label class="form-label">link PDF</label>
+      <input type="url" class="form-input" id="pdf-url" placeholder="https://...pdf">
+    </div>
+    <div class="form-group">
+      <label class="form-label">titlu document</label>
+      <input type="text" class="form-input" id="pdf-title" placeholder="numele documentului...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">descriere (opțional)</label>
+      <textarea class="form-textarea" style="min-height:70px" id="pdf-note" placeholder="despre ce este..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="pdf-date" step="1">
+    </div>
+    <button class="btn-primary" onclick="submitEntry('pdf')">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('pdf')">anulează</button>
+  </div>
+</div>
+
+<!-- Date Music -->
+<div class="backdrop" id="modal-date-music">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">muzică pentru dată</div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;font-family:var(--serif);font-style:italic;">Melodia va porni automat când se selectează data respectivă.</p>
+    <div class="form-group">
+      <label class="form-label">data</label>
+      <input type="date" class="form-input" id="dm-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">link audio (mp3, ogg...)</label>
+      <input type="url" class="form-input" id="dm-url" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">titlu (opțional)</label>
+      <input type="text" class="form-input" id="dm-title" placeholder="numele piesei...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">link copertă (opțional)</label>
+      <input type="url" class="form-input" id="dm-cover" placeholder="https://...">
+    </div>
+    <button class="btn-primary" onclick="saveDateMusic()">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('date-music')">anulează</button>
+  </div>
+</div>
+
+<!-- Import -->
+<div class="backdrop" id="modal-import">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">import text</div>
+    <div class="form-group">
+      <label class="form-label">lipește textul cu format ᏂᎧᎮᏋ</label>
+      <textarea class="form-textarea" id="import-text" style="min-height:140px"
+        placeholder="ᏂᎧᎮᏋ 💛, [15 feb., 2026 la 11:27]&#10;Am scris ceva frumos..."
+        oninput="previewImport()"></textarea>
+    </div>
+    <div id="import-preview" style="display:none">
+      <div class="form-label" style="margin-bottom:4px">preview</div>
+      <div class="parse-preview" id="import-preview-text"></div>
+    </div>
+    <button class="btn-primary" onclick="importEntries()">importă</button>
+    <button class="btn-secondary" onclick="closeModal('import')">anulează</button>
+  </div>
+</div>
+
+<!-- Edit -->
+<div class="backdrop" id="modal-edit">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">editează</div>
+    <input type="hidden" id="edit-id">
+    <input type="hidden" id="edit-type">
+    <div class="form-group" id="edit-rte-group" style="display:none">
+      <label class="form-label">text</label>
+      <div class="rte-wrap">
+        <div class="rte-toolbar">
+          <button class="rte-btn" onclick="rteCmd2('bold')" title="Bold">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <div class="rte-size-wrap" id="rteSizeWrap2">
+            <button class="rte-btn rte-size-btn" id="rteSizeBtn2" onclick="toggleSizeDropdown('rteSizeDropdown2')" title="Mărime text">
+              <span id="rteSizeLbl2">Aa</span>
+              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 3 5 7 8 3"/></svg>
+            </button>
+            <div class="rte-size-dropdown" id="rteSizeDropdown2">
+              <div class="rte-size-option" onclick="applyFontSize2('txt-xs','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">xs</span><span style="font-size:11px">mic de tot</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-sm','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">s</span><span style="font-size:13px">mic</span></div>
+              <div class="rte-size-option active" onclick="applyFontSize2('','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">m</span><span style="font-size:15px">normal</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-lg','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">l</span><span style="font-size:17px">mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-xl','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">xl</span><span style="font-size:20px">foarte mare</span></div>
+              <div class="rte-size-option" onclick="applyFontSize2('txt-xxl','rteSizeDropdown2','rteSizeLbl2')"><span class="rte-size-label">xxl</span><span style="font-size:24px">titlu</span></div>
+            </div>
+          </div>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" onclick="rteToggleLinkBar2()" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" onclick="rteBlurSelected2()" title="Blur text selectat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="rte-link-bar" id="rte-link-bar2">
+          <input class="rte-link-input" id="rte-link-input2" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink2()">
+          <button class="rte-link-ok" onclick="rteInsertLink2()">adaugă</button>
+        </div>
+        <div class="rte-editor" id="rte-editor2" contenteditable="true" data-placeholder="textul notițe..." spellcheck="true"></div>
+      </div>
+    </div>
+    <div class="form-group" id="edit-plain-group">
+      <label class="form-label" id="edit-plain-lbl">conținut / URL-uri</label>
+      <textarea class="form-textarea" id="edit-content"></textarea>
+    </div>
+    <div class="form-group" id="edit-caption-group">
+      <label class="form-label" id="edit-caption-lbl">descriere / titlu</label>
+      <div class="cap-rte-wrap" id="editCapWrap" style="display:none">
+        <div class="cap-rte-toolbar">
+          <button class="rte-btn" onclick="capRteLink('edit-cap-editor','edit-cap-link-bar','edit-cap-link-input')" title="Link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="cap-rte-link-bar" id="edit-cap-link-bar">
+          <input class="rte-link-input" id="edit-cap-link-input" type="url" placeholder="https://" onkeydown="if(event.key==='Enter')capRteLinkOk('edit-cap-editor','edit-cap-link-bar','edit-cap-link-input')">
+          <button class="rte-link-ok" onclick="capRteLinkOk('edit-cap-editor','edit-cap-link-bar','edit-cap-link-input')">adaugă</button>
+        </div>
+        <div class="cap-rte-editor" id="edit-cap-editor" contenteditable="true" data-placeholder="descriere..."></div>
+      </div>
+      <textarea class="form-textarea" id="edit-caption" style="min-height:70px;display:none"></textarea>
+    </div>
+    <div class="form-group" id="edit-cover-group">
+      <label class="form-label">link copertă (opțional)</label>
+      <input type="url" class="form-input" id="edit-cover">
+    </div>
+    <div class="blur-toggle-row" id="edit-blur-group" style="display:none">
+      <label class="form-label">blur imagini</label>
+      <div class="toggle-track" id="edit-blur-toggle" onclick="toggleEditBlur()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="blur-toggle-row" id="edit-18-group" style="display:none">
+      <label class="form-label">conținut privat</label>
+      <div class="toggle-track" id="edit-18-toggle" onclick="toggleEdit18()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="edit-date" step="1">
+    </div>
+    <button class="btn-primary" onclick="saveEdit()">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('edit')">anulează</button>
+  </div>
+</div>
+
+<!-- Debug -->
+<div class="backdrop" id="modal-debug">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">debug</div>
+    <input type="hidden" id="debug-id">
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="debug-posted" step="1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">data modificării</label>
+      <input type="datetime-local" class="form-input" id="debug-modified" step="1">
+    </div>
+    <button class="btn-primary" onclick="saveDebug()">aplică</button>
+    <button class="btn-secondary" onclick="closeModal('debug')">anulează</button>
+  </div>
+</div>
+
+<!-- Delete -->
+<div class="backdrop" id="modal-delete">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">ștergi definitiv?</div>
+    <p style="color:var(--text3);font-size:15px;line-height:1.65;font-family:var(--serif);font-style:italic;">Această acțiune nu poate fi anulată.</p>
+    <input type="hidden" id="delete-id">
+    <div class="confirm-row">
+      <button class="btn-secondary" style="flex:1;margin-top:0" onclick="closeModal('delete')">nu</button>
+      <button class="btn-danger" onclick="confirmDelete()">șterge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Date Music -->
+<div class="backdrop" id="modal-delete-dm">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">ștergi muzica zilei?</div>
+    <p style="color:var(--text3);font-size:15px;line-height:1.65;font-family:var(--serif);font-style:italic;">Melodia asociată acestei date va fi ștearsă.</p>
+    <input type="hidden" id="delete-dm-date">
+    <div class="confirm-row">
+      <button class="btn-secondary" style="flex:1;margin-top:0" onclick="closeModal('delete-dm')">nu</button>
+      <button class="btn-danger" onclick="confirmDeleteDateMusic()">șterge</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(
+  'https://fndjrfieitieqzafhyzz.supabase.co',
+  'sb_publishable_bHDKjiKAVHqW199ICw7i2g_O3olYMAr'
+);
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let entries = [];
+let dateMusicMap = {};
+let selectedDate = null;
+let searchQuery = '';
+let fabOpen = false;
+let photoBlurEnabled = false;
+let photo18Enabled = false;
+let note18Enabled  = false;
+let video18Enabled = false;
+let editBlurEnabled = false;
+let edit18Enabled   = false;
+let isLocked = true;
+
+const PIN_PRIVATE = '6969';
+let isPrivateUnlocked = false;
+const revealedPrivateSet = new Set();
+
+const dmAudio = document.getElementById('dateMusicAudio');
+const entryAudio = document.getElementById('entryAudio');
+let currentEntryAudioUrl = null;
+let dmAudioLoaded = false;
+
+let userHasInteracted = false;
+let pendingDateMusicKey = null;
+let pendingDateMusicAutoplay = false;
+
+let calPopupOpen = false;
+let calPopupYear = new Date().getFullYear();
+let calPopupMonth = new Date().getMonth();
+
+// PIN mode: 'main' = app unlock, 'private' = conținut privat
+let pinMode = 'main';
+let _pendingPrivateEntryId = null;
+
+// ═══════════════════════════════════════
+// PIN SYSTEM
+// ═══════════════════════════════════════
+const PIN_CODE = '2727';
+let pinBuffer = '';
+
+function openPinOverlay(mode) {
+  pinMode = mode || 'main';
+  pinBuffer = '';
+  updatePinDots();
+  const overlay = document.getElementById('pinOverlay');
+  if (pinMode === 'private') {
+    overlay.classList.add('mode-private');
+    document.getElementById('pinTitle').textContent = 'conținut privat';
+    document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
+  } else {
+    overlay.classList.remove('mode-private');
+    document.getElementById('pinTitle').textContent = 'carnet';
+    document.getElementById('pinSubtitle').textContent = 'introdu codul PIN';
+  }
+  overlay.classList.add('open');
+}
+
+function closePinOverlay() {
+  document.getElementById('pinOverlay').classList.remove('open');
+  document.getElementById('pinOverlay').classList.remove('mode-private');
+  pinBuffer = '';
+  updatePinDots();
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPin, 120);
+}
+
+function pinBackspace() {
+  if (pinBuffer.length > 0) { pinBuffer = pinBuffer.slice(0, -1); updatePinDots(); }
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.classList.toggle('filled', i < pinBuffer.length);
+    dot.classList.remove('error');
+  }
+}
+
+function checkPin() {
+  if (pinMode === 'private') {
+    if (pinBuffer === PIN_PRIVATE) {
+      isPrivateUnlocked = true;
+      closePinOverlay();
+      document.querySelectorAll('.private-overlay, .private-img-overlay').forEach(el => {
+        el.classList.add('revealed');
+      });
+      showToast('conținut privat deblocat');
+    } else {
+      pinError();
+    }
+  } else {
+    if (pinBuffer === PIN_CODE) {
+      setUnlocked(true);
+      closePinOverlay();
+    } else {
+      pinError();
+    }
+  }
+}
+
+function pinError() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.classList.remove('filled');
+    dot.classList.add('error');
+  }
+  setTimeout(() => { pinBuffer = ''; updatePinDots(); }, 600);
+}
+
+function setUnlocked(unlocked) {
+  isLocked = !unlocked;
+  if (unlocked) {
+    document.body.classList.remove('locked');
+    document.getElementById('lockBadge').classList.add('unlocked');
+    document.getElementById('lockLabel').textContent = 'deblocat';
+    document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 019.9-1" stroke-linecap="round"/>`;
+    document.getElementById('lockFabWrap').style.display = 'none';
+    document.getElementById('fabWrap').style.display = '';
+    showToast('deblocat');
+  } else {
+    document.body.classList.add('locked');
+    document.getElementById('lockBadge').classList.remove('unlocked');
+    document.getElementById('lockLabel').textContent = 'blocat';
+    document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>`;
+    document.getElementById('lockFabWrap').style.display = '';
+    document.getElementById('fabWrap').style.display = 'none';
+    closeFab();
+    document.querySelectorAll('.backdrop.open').forEach(m => m.classList.remove('open'));
+  }
+}
+
+document.getElementById('lockBadge').addEventListener('click', () => {
+  if (!isLocked) { setUnlocked(false); showToast('blocat'); }
+  else openPinOverlay('main');
+});
+
+// ═══════════════════════════════════════
+// PRIVATE TOGGLES (form)
+// ═══════════════════════════════════════
+function toggleNote18() {
+  note18Enabled = !note18Enabled;
+  const t = document.getElementById('note-18-toggle');
+  t.classList.toggle('on-private', note18Enabled);
+}
+function togglePhoto18() {
+  photo18Enabled = !photo18Enabled;
+  const t = document.getElementById('photo-18-toggle');
+  t.classList.toggle('on-private', photo18Enabled);
+}
+function toggleVideo18() {
+  video18Enabled = !video18Enabled;
+  const t = document.getElementById('video-18-toggle');
+  t.classList.toggle('on-private', video18Enabled);
+}
+function toggleEdit18() {
+  edit18Enabled = !edit18Enabled;
+  const t = document.getElementById('edit-18-toggle');
+  t.classList.toggle('on-private', edit18Enabled);
+}
+
+// ═══════════════════════════════════════
+// CAPTION RTE (mini)
+// ═══════════════════════════════════════
+let capSavedRange = null;
+
+function capRteLink(editorId, barId, inputId) {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) capSavedRange = sel.getRangeAt(0).cloneRange();
+  const bar = document.getElementById(barId);
+  const inp = document.getElementById(inputId);
+  const isVis = bar.classList.toggle('visible');
+  if (isVis) { inp.value = ''; setTimeout(() => inp.focus(), 50); }
+}
+
+function capRteLinkOk(editorId, barId, inputId) {
+  const url = document.getElementById(inputId).value.trim();
+  if (!url) return;
+  const editor = document.getElementById(editorId);
+  editor.focus();
+  if (capSavedRange) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(capSavedRange);
+  }
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+    document.execCommand('createLink', false, url);
+    const links = editor.querySelectorAll('a');
+    links.forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+  } else {
+    const a = document.createElement('a');
+    a.href = url; a.textContent = url; a.target = '_blank'; a.rel = 'noopener';
+    const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+    if (range) { range.insertNode(a); range.setStartAfter(a); range.collapse(true); sel.removeAllRanges(); sel.addRange(range); }
+    else editor.appendChild(a);
+  }
+  document.getElementById(barId).classList.remove('visible');
+}
+
+function getCapHtml(editorId) {
+  const ed = document.getElementById(editorId);
+  if (!ed) return '';
+  ed.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+  return ed.innerHTML.trim();
+}
+
+// ═══════════════════════════════════════
+// YOUTUBE
+// ═══════════════════════════════════════
+function extractYouTubeId(url) {
+  if (!url) return null;
+  const patterns = [
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
+  return null;
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function normRo(str) {
+  return (str || '').toLowerCase()
+    .replace(/[ăâ]/g,'a').replace(/[î]/g,'i')
+    .replace(/[ș]/g,'s').replace(/[ț]/g,'t')
+    .replace(/[é]/g,'e').replace(/[ó]/g,'o')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function dateKey(date) {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayKey() { return dateKey(new Date()); }
+function formatKeyLabelRo(k) {
+  const d = new Date(k + 'T12:00:00');
+  const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  const months = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+  return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function toLocal(date) {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0,19);
+}
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatTime(date) {
+  const d = new Date(date);
+  return d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
+}
+function playIcon()  { return `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`; }
+function pauseIcon() { return `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`; }
+
+
+function jumpToDateFromSearch(key) {
+  clearSearch();
+  selectDate(key);
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ═══════════════════════════════════════
+// DATE SEARCH
+// ═══════════════════════════════════════
+const RO_MONTHS_MAP = {
+  'ianuarie':1,'ian':1,'january':1,'jan':1,
+  'februarie':2,'feb':2,'february':2,
+  'martie':3,'mar':3,'march':3,
+  'aprilie':4,'apr':4,'april':4,
+  'mai':5,'may':5,
+  'iunie':6,'iun':6,'june':6,'jun':6,
+  'iulie':7,'iul':7,'july':7,'jul':7,
+  'august':8,'aug':8,
+  'septembrie':9,'sep':9,'sept':9,'september':9,
+  'octombrie':10,'oct':10,'october':10,
+  'noiembrie':11,'noi':11,'nov':11,'november':11,
+  'decembrie':12,'dec':12,'december':12,
+};
+const RO_NUM_WORDS = {
+  'unu':1,'una':1,'doi':2,'două':2,'doua':2,'trei':3,'patru':4,'cinci':5,
+  'șase':6,'sase':6,'șapte':7,'sapte':7,'opt':8,'nouă':9,'noua':9,'zece':10,
+  'unsprezece':11,'doisprezece':12,'douăsprezece':12,'douasprezece':12,
+  'treisprezece':13,'paisprezece':14,'cincisprezece':15,'șaisprezece':16,'saisprezece':16,
+  'șaptesprezece':17,'saptesprezece':17,'optsprezece':18,'nouăsprezece':19,'nouasprezece':19,
+  'douăzeci':20,'douazeci':20,'treizeci':30,'treizecișiunu':31,'treizecisiunu':31,
+};
+
+function parseDateQuery(q) {
+  if (!q || q.length < 3) return null;
+  const ql = q.trim().toLowerCase().replace(/\s+/g,' ');
+
+  // Format: 8.5.2026 / 08.05.2026 / 8/5/2026
+  let m = ql.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+  if (m) return { day:+m[1], month:+m[2], year:+m[3] };
+
+  // Format: 8.5 / 08.05 (fără an → anul curent)
+  m = ql.match(/^(\d{1,2})[.\/-](\d{1,2})$/);
+  if (m) return { day:+m[1], month:+m[2], year:new Date().getFullYear() };
+
+  // Format: "8 mai 2026" / "8 mai" 
+  m = ql.match(/^(\d{1,2})\s+([a-zăîșțâé]+)\.?\s*(\d{4})?$/);
+  if (m) {
+    const mo = RO_MONTHS_MAP[m[2].replace(/\./g,'')];
+    if (mo) return { day:+m[1], month:mo, year:m[3]?+m[3]:new Date().getFullYear() };
+  }
+
+  // Format: "opt mai 2026" / "opt mai"
+  m = ql.match(/^([a-zăîșțâ]+(?:sprezece|zeci)?)\s+([a-zăîșțâé]+)\.?\s*(\d{4})?$/);
+  if (m) {
+    const day = RO_NUM_WORDS[m[1]];
+    const mo = RO_MONTHS_MAP[m[2].replace(/\./g,'')];
+    if (day && mo) return { day, month:mo, year:m[3]?+m[3]:new Date().getFullYear() };
+  }
+
+  return null;
+}
+
+function renderDateSearch(parsed) {
+  const { day, month, year } = parsed;
+  const container = document.getElementById('entries-container');
+  const label = document.getElementById('searchLabel');
+  const carouselWrap = document.getElementById('carouselWrap');
+  carouselWrap.style.display = 'none';
+
+  // Construim cheia exactă
+  const targetKey = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const targetDate = new Date(year, month-1, day);
+  if (isNaN(targetDate.getTime()) || day < 1 || day > 31 || month < 1 || month > 12) {
+    label.textContent = 'dată invalidă'; label.classList.add('visible');
+    container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg></div><div class="empty-text">dată invalidă</div></div>`;
+    return;
+  }
+
+  const filtered = entries.filter(e => dateKey(e.posted_at) === targetKey);
+  const hasDateMusic = !!dateMusicMap[targetKey];
+
+  if (filtered.length > 0 || hasDateMusic) {
+    label.textContent = `${filtered.length} intrări pe ${day} ${['','ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'][month]} ${year}`;
+    label.classList.add('visible');
+    let html = `<div class="section-lbl" style="cursor:pointer;display:flex;align-items:center;gap:6px;" onclick="jumpToDateFromSearch('${targetKey}')">
+      ${targetDate.toLocaleDateString('ro-RO',{year:'numeric',month:'long',day:'numeric'})}
+      <span style="font-size:9px;color:var(--blue);border:1px solid rgba(122,162,200,0.3);border-radius:20px;padding:1px 8px;letter-spacing:0.06em;">→ ziua</span>
+    </div>`;
+    if (hasDateMusic) html += renderDateMusicBanner(targetKey);
+    filtered.sort((a,b) => new Date(a.posted_at)-new Date(b.posted_at));
+    filtered.forEach(e => { html += renderEntry(e, ''); });
+    container.innerHTML = html;
+    syncDateMusicWaves();
+    return;
+  }
+
+  // Nu există — caută zile apropiate
+  const allDates = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
+  const dmDates = Object.keys(dateMusicMap);
+  const allAvail = [...new Set([...allDates, ...dmDates])].sort();
+
+  let prev = null, next = null;
+  for (const d of allAvail) { if (d < targetKey) prev = d; else if (d > targetKey && !next) next = d; }
+
+  label.textContent = 'nicio intrare pentru această dată'; label.classList.add('visible');
+
+  let suggHtml = '';
+  if (prev || next) {
+    suggHtml = `<div style="margin:16px 12px 8px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.18);border-radius:14px;padding:14px 16px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--blue);letter-spacing:0.08em;margin-bottom:12px;">DATE APROPIATE DISPONIBILE</div>`;
+    if (prev) {
+      const pd = new Date(prev+'T12:00:00');
+      suggHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="font-family:var(--serif);font-size:14px;color:var(--text2);">${pd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}</span>
+        <button onclick="jumpToDateFromSearch('${prev}')" style="font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(200,169,126,0.3);background:rgba(200,169,126,0.08);border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:0.04em;">vezi →</button>
+      </div>`;
+    }
+    if (next) {
+      const nd = new Date(next+'T12:00:00');
+      suggHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-top:${prev?'4px':'0'};">
+        <span style="font-family:var(--serif);font-size:14px;color:var(--text2);">${nd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}</span>
+        <button onclick="jumpToDateFromSearch('${next}')" style="font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(200,169,126,0.3);background:rgba(200,169,126,0.08);border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:0.04em;">vezi →</button>
+      </div>`;
+    }
+    suggHtml += `</div>`;
+  }
+
+  container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg></div><div class="empty-text">nicio intrare pe ${day} ${['','ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'][month]} ${year}</div></div>${suggHtml}`;
+}
+
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+async function init() {
+  updateHeaderDate();
+  setupInteractionCapture();
+  setUnlocked(false);
+  await loadDateMusicMap();
+  await loadEntries();
+  const savedKey = await loadLastDate();
+  if (savedKey) {
+    const [y,m,d] = savedKey.split('-').map(Number);
+    selectedDate = new Date(y, m-1, d);
+  } else {
+    const today = new Date(); today.setHours(0,0,0,0);
+    selectedDate = today;
+  }
+  buildCarousel();
+  renderEntries();
+  setDefaultDates();
+  updateCalFabState();
+  if (selectedDate) {
+    const dk = dateKey(selectedDate);
+    if (dateMusicMap[dk] && dateMusicMap[dk].url) {
+      pendingDateMusicKey = dk;
+      pendingDateMusicAutoplay = true;
+      dmAudio.src = dateMusicMap[dk].url;
+      dmAudioLoaded = true;
+      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+    }
+  }
+  setupNavButtons();
+  setupOverscroll();
+  setupCardTextLinks();
+}
+
+function setupInteractionCapture() {
+  function tryStartPendingMusic(e) {
+    if (userHasInteracted) return;
+    if (e && e.target && (
+      e.target.closest('.date-pill') ||
+      e.target.closest('.bottom-nav-btn') ||
+      e.target.closest('.nav-btn-outer') ||
+      e.target.closest('.cal-popup-cell') ||
+      e.target.closest('.cal-popup-today-btn')
+    )) return;
+    userHasInteracted = true;
+    if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+      const dk = pendingDateMusicKey;
+      pendingDateMusicKey = null; pendingDateMusicAutoplay = false;
+      dmAudio.volume = 0.28;
+      dmAudio.play().catch(()=>{});
+      syncDateMusicWaves();
+    }
+  }
+  document.addEventListener('click', tryStartPendingMusic, false);
+  document.addEventListener('touchend', tryStartPendingMusic, { passive: true });
+}
+
+function updateHeaderDate() {
+  const el = document.getElementById('headerDateDisplay');
+  if (el) el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function setupCardTextLinks() {
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('.card-text a, .entry-caption a');
+    if (!link) return;
+    e.stopPropagation();
+    const href = link.getAttribute('href');
+    if (href) window.open(href, '_blank', 'noopener');
+  }, true);
+}
+
+// ═══════════════════════════════════════
+// FONT SIZE (RTE)
+// ═══════════════════════════════════════
+const SIZE_CLASSES = ['txt-xs','txt-sm','txt-md','txt-lg','txt-xl','txt-xxl'];
+const SIZE_LABELS  = { '':'m','txt-xs':'xs','txt-sm':'s','txt-lg':'l','txt-xl':'xl','txt-xxl':'xxl' };
+
+function toggleSizeDropdown(dropId) {
+  const drop = document.getElementById(dropId);
+  if (!drop) return;
+  document.querySelectorAll('.rte-size-dropdown').forEach(d => { if (d.id !== dropId) d.classList.remove('open'); });
+  drop.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.rte-size-wrap')) document.querySelectorAll('.rte-size-dropdown').forEach(d => d.classList.remove('open'));
+});
+
+function applyFontSize(cls, dropId, lblId) { _applyFontSizeToEditor(document.getElementById('rte-editor'), cls, dropId, lblId); }
+function applyFontSize2(cls, dropId, lblId) { _applyFontSizeToEditor(document.getElementById('rte-editor2'), cls, dropId, lblId); }
+
+function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
+  if (!editor) return;
+  editor.focus();
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+    showToast('selectează textul pe care vrei să-l formatezi');
+    const drop = document.getElementById(dropId);
+    if (drop) drop.classList.remove('open');
+    return;
+  }
+  const range = sel.getRangeAt(0);
+
+  // Extragem conținutul selectat
+  const frag = range.extractContents();
+
+  // Îndepărtăm orice size class existente din nodurile din fragment
+  const tempDiv = document.createElement('div');
+  tempDiv.appendChild(frag);
+  tempDiv.querySelectorAll('span').forEach(s => {
+    SIZE_CLASSES.forEach(c => s.classList.remove(c));
+    if (s.className === '' || s.className.trim() === '') {
+      // span gol de clase — unwrap dacă e posibil
+      const parent = s.parentNode;
+      if (parent && !['blur-text-span','search-highlight'].some(c => s.classList.contains(c))) {
+        while (s.firstChild) parent.insertBefore(s.firstChild, s);
+        parent.removeChild(s);
+      }
+    }
+  });
+
+  // Cream span-ul nou cu clasa de dimensiune
+  const span = document.createElement('span');
+  if (cls) span.classList.add(cls);
+  while (tempDiv.firstChild) span.appendChild(tempDiv.firstChild);
+
+  range.insertNode(span);
+
+  // Selectăm conținutul span-ului nou
+  const newRange = document.createRange();
+  newRange.selectNodeContents(span);
+  sel.removeAllRanges();
+  sel.addRange(newRange);
+
+  // Update UI
+  const lbl = document.getElementById(lblId);
+  if (lbl) lbl.textContent = SIZE_LABELS[cls] || 'm';
+  const drop = document.getElementById(dropId);
+  if (drop) {
+    drop.querySelectorAll('.rte-size-option').forEach(opt => {
+      opt.classList.remove('active');
+      const ol = opt.querySelector('.rte-size-label');
+      if (ol && ol.textContent === (SIZE_LABELS[cls]||'m')) opt.classList.add('active');
+    });
+    drop.classList.remove('open');
+  }
+}
+
+
+// ═══════════════════════════════════════
+// CALENDAR POPUP
+// ═══════════════════════════════════════
+function toggleCalPopup() { if (calPopupOpen) { closeCalPopup(); return; } openCalPopup(); }
+function openCalPopup() {
+  calPopupOpen = true;
+  const ref = selectedDate || new Date();
+  calPopupYear = ref.getFullYear(); calPopupMonth = ref.getMonth();
+  renderCalPopup();
+  document.getElementById('calPopupOverlay').classList.add('open');
+  document.getElementById('calFabBtn').classList.add('is-active');
+  closeFab();
+}
+function closeCalPopup() {
+  calPopupOpen = false;
+  document.getElementById('calPopupOverlay').classList.remove('open');
+  document.getElementById('calFabBtn').classList.remove('is-active');
+}
+function handleCalOverlayClick(e) { if (e.target === document.getElementById('calPopupOverlay')) closeCalPopup(); }
+function calPopupNavMonth(dir) {
+  calPopupMonth += dir;
+  if (calPopupMonth < 0) { calPopupMonth = 11; calPopupYear--; }
+  if (calPopupMonth > 11) { calPopupMonth = 0; calPopupYear++; }
+  renderCalPopup();
+}
+function calPopupGoToday() { closeCalPopup(); goBackToToday(); }
+function calPopupGoFirstDay(key) { closeCalPopup(); selectDate(key); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function openCalJumpPicker() {
+  const picker = document.getElementById('calJumpPicker');
+  const isOpen = picker.style.display !== 'none';
+  picker.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    document.getElementById('calJumpMonth').value = calPopupMonth;
+    document.getElementById('calJumpYear').value = calPopupYear;
+  }
+}
+
+function applyCalJump() {
+  const month = parseInt(document.getElementById('calJumpMonth').value);
+  const year  = parseInt(document.getElementById('calJumpYear').value);
+  if (isNaN(year) || year < 2000 || year > 2099) { showToast('an invalid'); return; }
+  const now = new Date();
+  if (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth())) {
+    showToast('nu poți naviga în viitor'); return;
+  }
+  calPopupMonth = month;
+  calPopupYear  = year;
+  document.getElementById('calJumpPicker').style.display = 'none';
+  renderCalPopup();
+}
+
+
+
+function renderCalPopup() {
+  const now = new Date();
+  const tk = todayKey();
+  const curYear = now.getFullYear();
+  const curMonth = now.getMonth();
+  const nextBtn = document.getElementById('calPopupNextMonthBtn');
+  nextBtn.disabled = (calPopupYear === curYear && calPopupMonth === curMonth);
+  const monthNames = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  document.getElementById('calPopupMonthLbl').textContent = `${monthNames[calPopupMonth]} ${calPopupYear}`;
+  const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
+  const todayBtn = document.getElementById('calPopupTodayBtn');
+  todayBtn.classList.toggle('active', isViewingToday);
+  document.getElementById('calPopupTodayTxt').textContent = `Azi — ${formatKeyLabelRo(tk)}`;
+  document.getElementById('calPopupActiveBadge').style.display = isViewingToday ? '' : 'none';
+
+  // Buton prima zi
+  const allEntryDates = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
+  const allMusicDates = Object.keys(dateMusicMap).sort();
+  const allAvailDates = [...new Set([...allEntryDates, ...allMusicDates])].sort();
+  const firstDay = allAvailDates[0] || null;
+  let firstDayBtn = document.getElementById('calPopupFirstDayBtn');
+  if (!firstDayBtn) {
+    firstDayBtn = document.createElement('button');
+    firstDayBtn.id = 'calPopupFirstDayBtn';
+    firstDayBtn.className = 'cal-popup-today-btn';
+    firstDayBtn.style.cssText = 'border-color:rgba(200,169,126,0.3);background:rgba(200,169,126,0.07);color:var(--accent2);margin-bottom:8px;';
+    firstDayBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="calPopupFirstDayTxt"></span>`;
+    firstDayBtn.onclick = () => { if (firstDay) calPopupGoFirstDay(firstDay); };
+    todayBtn.parentNode.insertBefore(firstDayBtn, todayBtn.nextSibling);
+  }
+  if (firstDay) {
+    const fd = new Date(firstDay+'T12:00:00');
+    document.getElementById('calPopupFirstDayTxt').textContent = `Prima zi — ${fd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}`;
+    firstDayBtn.style.display = '';
+  } else { firstDayBtn.style.display = 'none'; }
+
+  const dayTypesMap = {};
+  entries.forEach(e => {
+    const d = new Date(e.posted_at);
+    if (d.getFullYear() === calPopupYear && d.getMonth() === calPopupMonth) {
+      const day = d.getDate();
+      if (!dayTypesMap[day]) dayTypesMap[day] = new Set();
+      dayTypesMap[day].add(e.type);
+    }
+  });
+  for (let day = 1; day <= 31; day++) {
+    const k = `${calPopupYear}-${String(calPopupMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    if (dateMusicMap[k]) { if (!dayTypesMap[day]) dayTypesMap[day] = new Set(); dayTypesMap[day].add('music'); }
+  }
+  const daysInMonth = new Date(calPopupYear, calPopupMonth+1, 0).getDate();
+  let startWd = new Date(calPopupYear, calPopupMonth, 1).getDay() - 1;
+  if (startWd < 0) startWd = 6;
+  const dayNamesShort = ['Lu','Ma','Mi','Jo','Vi','Sâ','Du'];
+  const selKey = selectedDate ? dateKey(selectedDate) : null;
+  let html = dayNamesShort.map(n => `<div class="cal-popup-day-name">${n}</div>`).join('');
+  for (let i = 0; i < startWd; i++) html += `<div class="cal-popup-cell empty"></div>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const k = `${calPopupYear}-${String(calPopupMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isFuture = k > tk;
+    const isToday = k === tk;
+    const isSelected = k === selKey || (isToday && isViewingToday);
+    const types = dayTypesMap[day] ? [...dayTypesMap[day]] : [];
+    const hasData = types.length > 0;
+    let cls = 'cal-popup-cell';
+    if (isFuture) cls += ' future';
+    else if (isSelected) cls += ' is-selected';
+    else if (isToday) cls += ' is-today';
+    else if (hasData) cls += ' has-data';
+    else cls += ' no-data';
+    const dotOrder = ['note','photo','video','music','pdf'];
+    const dotMap = { note:'cal-dot-note', photo:'cal-dot-photo', video:'cal-dot-video', music:'cal-dot-music', pdf:'cal-dot-pdf' };
+    const dots = dotOrder.filter(t => types.includes(t)).map(t => `<span class="cal-popup-dot ${dotMap[t]}"></span>`).join('');
+    const dotsHtml = dots ? `<div class="cal-popup-dots">${dots}</div>` : '';
+    const clickHandler = isFuture ? '' : `onclick="calPopupSelectDay('${k}')"`;
+    html += `<div class="${cls}" ${clickHandler}>${day}${dotsHtml}</div>`;
+  }
+  document.getElementById('calPopupGrid').innerHTML = html;
+}
+
+function calPopupSelectDay(key) { closeCalPopup(); selectDate(key); }
+function updateCalFabState() {
+  const tk = todayKey();
+  const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
+  document.getElementById('calFabBtn').classList.toggle('is-active', !isViewingToday);
+}
+function goBackToToday() { selectDate(todayKey()); }
+
+// ═══════════════════════════════════════
+// NAV BUTTONS
+// ═══════════════════════════════════════
+function setupNavButtons() {
+  const prev = document.getElementById('navPrev');
+  const next = document.getElementById('navNext');
+  prev.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(-1); });
+  next.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(1); });
+  prev.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(-1); }, { passive:false });
+  next.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(1); }, { passive:false });
+}
+
+// ═══════════════════════════════════════
+// OVERSCROLL / RING
+// ═══════════════════════════════════════
+const RING_CIRC = 2 * Math.PI * 28;
+let ringProgress = 0, ringVisible = false, jumpLocked = false;
+let touchStartY = 0, touchLastY = 0, overscrollActive = false, overscrollDelta = 0;
+let topscrollActive = false, topscrollDelta = 0, topJumpLocked = false;
+const OVERSCROLL_THRESHOLD = 160;
+
+
+// CU ASTA
+function setRingProgress(val, which) {
+  const progress = Math.max(0, Math.min(1, val));
+  if (which === 'prev') {
+    const offset = RING_CIRC * (1 - progress);
+    const prog = document.getElementById('prevRingProgress');
+    if (prog) { prog.style.strokeDashoffset = offset; prog.style.stroke = progress > 0.85 ? 'var(--accent2)' : 'var(--accent)'; }
+    const ring = document.getElementById('prevRingSvg');
+    if (ring) ring.style.opacity = progress > 0.02 ? '1' : '0';
+  } else {
+    ringProgress = progress;
+    const offset = RING_CIRC * (1 - ringProgress);
+    const prog = document.getElementById('nextRingProgress');
+    if (prog) { prog.style.strokeDashoffset = offset; prog.style.stroke = ringProgress > 0.85 ? 'var(--accent2)' : 'var(--accent)'; }
+    const ring = document.getElementById('nextRingSvg');
+    if (ring) { const s = ringProgress > 0.02; if (s !== ringVisible) { ringVisible = s; ring.style.opacity = s ? '1':'0'; } }
+  }
+}
+function resetRing(which) {
+  if (which === 'prev') { setRingProgress(0, 'prev'); topJumpLocked = false; }
+  else { setRingProgress(0, 'next'); jumpLocked = false; }
+}
+
+function setupOverscroll() {
+  window.addEventListener('touchstart', onTouchStart, { passive:true });
+  window.addEventListener('touchmove', onTouchMove, { passive:false });
+  window.addEventListener('touchend', onTouchEnd, { passive:false });
+}
+function onTouchStart(e) {
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  touchStartY = e.touches[0].clientY; touchLastY = touchStartY;
+  overscrollDelta = 0; topscrollDelta = 0;
+  overscrollActive = maxScroll < 10 || (window.scrollY >= maxScroll - 4);
+  topscrollActive = window.scrollY <= 4;
+}
+// CU ASTA
+function onTouchMove(e) {
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  const y = e.touches[0].clientY; const dy = touchLastY - y; touchLastY = y;
+
+  if (overscrollActive && !jumpLocked) {
+    if (dy > 0) {
+      overscrollDelta += dy;
+      setRingProgress(Math.min(1, overscrollDelta/OVERSCROLL_THRESHOLD), 'next');
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScroll < 10) e.preventDefault();
+    } else if (dy < 0) {
+      overscrollDelta = Math.max(0, overscrollDelta+dy);
+      setRingProgress(overscrollDelta/OVERSCROLL_THRESHOLD, 'next');
+    }
+  }
+
+  if (topscrollActive && !topJumpLocked) {
+    if (dy < 0) {
+      topscrollDelta += Math.abs(dy);
+      setRingProgress(Math.min(1, topscrollDelta/OVERSCROLL_THRESHOLD), 'prev');
+      const atTop = window.scrollY <= 4;
+      if (atTop) e.preventDefault();
+      if (topscrollDelta >= OVERSCROLL_THRESHOLD) {
+        topJumpLocked = true;
+        jumpDate(-1);
+        setTimeout(() => { topJumpLocked = false; topscrollDelta = 0; setRingProgress(0, 'prev'); }, 600);
+      }
+    } else {
+      topscrollDelta = Math.max(0, topscrollDelta - dy);
+      setRingProgress(topscrollDelta/OVERSCROLL_THRESHOLD, 'prev');
+    }
+  }
+}
+
+// CU ASTA
+function onTouchEnd(e) {
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (overscrollActive) {
+    if (ringProgress >= 1 && !jumpLocked) { jumpLocked = true; jumpDate(1); setTimeout(() => resetRing('next'), 400); }
+    else { setRingProgress(0, 'next'); jumpLocked = false; }
+    overscrollDelta = 0; overscrollActive = false;
+  }
+  if (topscrollActive) {
+    if (!topJumpLocked) { setRingProgress(0, 'prev'); }
+    topscrollDelta = 0; topscrollActive = false;
+  }
+}
+
+
+
+// ═══════════════════════════════════════
+// LAST DATE
+// ═══════════════════════════════════════
+async function loadLastDate() {
+  try { const { data, error } = await sb.from('app_state').select('value').eq('key','last_date').single(); if (!error && data) return data.value; } catch(e) {}
+  return null;
+}
+async function saveLastDate(key) {
+  try { await sb.from('app_state').upsert([{ key:'last_date', value:key }], { onConflict:'key' }); } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// DEFAULT DATES
+// ═══════════════════════════════════════
+function setDefaultDates() {
+  const base = selectedDate ? new Date(selectedDate) : new Date();
+  const now = new Date();
+  base.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), 0);
+  const local = toLocal(base);
+  ['note-date','photo-date','video-date','music-date','pdf-date'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = local;
+  });
+  if (selectedDate) { const dmDate = document.getElementById('dm-date'); if (dmDate) dmDate.value = dateKey(selectedDate); }
+}
+
+// ═══════════════════════════════════════
+// DATE MUSIC
+// ═══════════════════════════════════════
+async function loadDateMusicMap() {
+  try {
+    const { data, error } = await sb.from('date_music').select('*');
+    if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'' }; }); return; }
+  } catch(e) {}
+  try { const saved = localStorage.getItem('carnet_date_music'); if (saved) dateMusicMap = JSON.parse(saved); } catch(e) {}
+}
+
+async function saveDateMusic() {
+  const date = document.getElementById('dm-date').value;
+  const url = document.getElementById('dm-url').value.trim();
+  const title = document.getElementById('dm-title').value.trim();
+  const cover = document.getElementById('dm-cover').value.trim();
+  if (!date||!url) { showToast('completează data și link-ul'); return; }
+  const row = { date, url, title:title||'melodie', cover:cover||'' };
+  try { const { error } = await sb.from('date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
+  dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'' };
+  document.getElementById('dm-url').value = ''; document.getElementById('dm-title').value = ''; document.getElementById('dm-cover').value = '';
+  showToast('muzică salvată');
+  closeModal('date-music');
+  if (selectedDate && dateKey(selectedDate) === date) playDateMusic(date, false);
+  buildCarousel(); renderEntries();
+}
+
+function openDeleteDateMusic(date) { document.getElementById('delete-dm-date').value = date; openModal('delete-dm'); }
+async function confirmDeleteDateMusic() {
+  const date = document.getElementById('delete-dm-date').value;
+  if (!date) return;
+  if (selectedDate && dateKey(selectedDate) === date) { dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false; }
+  delete dateMusicMap[date];
+  try { await sb.from('date_music').delete().eq('date', date); } catch(e) {}
+  showToast('muzică ștearsă'); closeModal('delete-dm'); buildCarousel(); renderEntries();
+}
+
+// ═══════════════════════════════════════
+// DATE CAROUSEL
+// ═══════════════════════════════════════
+function buildCarousel() {
+  const carousel = document.getElementById('dateCarousel');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = [];
+  for (let i = -365; i <= 7; i++) { const d = new Date(today); d.setDate(today.getDate()+i); days.push(d); }
+  const dayTypesMap = {};
+  entries.forEach(e => { const k = dateKey(e.posted_at); if (!dayTypesMap[k]) dayTypesMap[k] = new Set(); dayTypesMap[k].add(e.type); });
+  const dayNames = ['du','lu','ma','mi','jo','vi','sâ'];
+  const monthNamesShort = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'];
+  const typeColors = { note:'var(--accent)', photo:'var(--blue)', video:'var(--rose)', music:'var(--green)', pdf:'var(--purple)' };
+  let lastMonth = -1, lastYear = -1, html = '';
+  days.forEach(d => {
+    const k = dateKey(d); const month = d.getMonth(); const year = d.getFullYear();
+    if (month !== lastMonth || year !== lastYear) {
+      if (lastMonth !== -1) html += `<div class="month-separator-pill"><span class="month-sep-name">${monthNamesShort[month]}</span><span class="month-sep-year">${year}</span></div>`;
+      lastMonth = month; lastYear = year;
+    }
+    const types = dayTypesMap[k] ? [...dayTypesMap[k]] : [];
+    const isToday = k === dateKey(today);
+    const isSelected = selectedDate && dateKey(selectedDate) === k;
+    if (dateMusicMap[k] && !types.includes('music')) types.push('music_dm');
+    const dots = types.map(t => { const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t]||'var(--accent)'); return `<span class="pill-dot" style="background:${color}"></span>`; }).join('');
+    html += `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
+      <span class="pill-name">${isToday?'azi':dayNames[d.getDay()]}</span>
+      <span class="pill-num">${d.getDate()}</span>
+      <div class="pill-dots">${dots}</div>
+    </div>`;
+  });
+  carousel.innerHTML = html;
+  scrollCarouselToSelected();
+}
+
+function scrollCarouselToSelected() {
+  const carousel = document.getElementById('dateCarousel');
+  const targetKey = selectedDate ? dateKey(selectedDate) : dateKey(new Date());
+  setTimeout(() => { const target = carousel.querySelector(`.date-pill[data-key="${targetKey}"]`); if (target) target.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' }); }, 60);
+}
+
+function selectDate(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  selectedDate = new Date(y, m-1, d);
+  saveLastDate(key);
+  buildCarousel();
+  clearSearch(true);
+  stopEntryMusicCompletely();
+  playDateMusic(key, true);
+  renderEntries();
+  setDefaultDates();
+resetRing('next');
+  updateCalFabState();
+}
+
+function stopEntryMusicCompletely() {
+  if (!entryAudio.paused) { entryAudio.pause(); entryAudio.currentTime = 0; }
+  currentEntryAudioUrl = null;
+  document.querySelectorAll('.music-player').forEach(p => {
+    const ov = p.querySelector('.music-cover-overlay');
+    const w = p.querySelector('.wave-bars');
+    const s = p.querySelector('.music-sub');
+    if (ov) ov.innerHTML = playIcon(); if (w) w.classList.add('paused'); if (s) s.textContent = 'apasă pentru redare';
+  });
+}
+
+function jumpDate(dir) {
+  if (!selectedDate) return;
+  const entryDates = [...new Set(entries.map(e => dateKey(e.posted_at)))];
+  const musicDates = Object.keys(dateMusicMap);
+  const allDates = [...new Set([...entryDates, ...musicDates])].sort();
+  if (!allDates.length) { showToast(dir===1?'nicio dată mai nouă':'nicio dată mai veche'); return; }
+  const cur = dateKey(selectedDate); let target = null;
+  if (dir===1) { for (let i=0;i<allDates.length;i++) { if (allDates[i]>cur) { target=allDates[i]; break; } } }
+  else { for (let i=allDates.length-1;i>=0;i--) { if (allDates[i]<cur) { target=allDates[i]; break; } } }
+  if (target) { selectDate(target); window.scrollTo({ top:0, behavior:'smooth' }); }
+  else showToast(dir===1?'nicio dată mai nouă':'nicio dată mai veche');
+}
+
+
+// ═══════════════════════════════════════
+// MEDIA SESSION
+// ═══════════════════════════════════════
+function updateMediaSession(title, coverUrl) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({ title:title||'carnet', artist:'', album:'carnet', artwork:coverUrl?[{src:coverUrl,sizes:'512x512',type:'image/jpeg'}]:[] });
+  navigator.mediaSession.setActionHandler('play', ()=>entryAudio.play());
+  navigator.mediaSession.setActionHandler('pause', ()=>entryAudio.pause());
+  navigator.mediaSession.setActionHandler('stop', ()=>{entryAudio.pause();entryAudio.currentTime=0;});
+}
+function updateDateMusicMediaSession(title, coverUrl) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({ title:title||'melodia zilei', artist:'', album:'carnet · melodia zilei', artwork:coverUrl?[{src:coverUrl,sizes:'512x512',type:'image/jpeg'}]:[] });
+  navigator.mediaSession.setActionHandler('play', ()=>dmAudio.play());
+  navigator.mediaSession.setActionHandler('pause', ()=>dmAudio.pause());
+}
+
+// ═══════════════════════════════════════
+// DATE MUSIC AUDIO
+// ═══════════════════════════════════════
+function playDateMusic(dk, autoplay) {
+  const dm = dateMusicMap[dk];
+  if (dm && dm.url) {
+    if (dmAudio.src !== dm.url) { dmAudio.src = dm.url; dmAudioLoaded = true; }
+    updateDateMusicMediaSession(dm.title, dm.cover);
+    if (autoplay) {
+      dmAudio.volume = 0.28;
+      if (userHasInteracted) { dmAudio.play().catch(()=>{}); }
+      else { pendingDateMusicKey = dk; pendingDateMusicAutoplay = true; }
+    }
+  } else {
+    dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false;
+    pendingDateMusicKey = null; pendingDateMusicAutoplay = false;
+  }
+  syncDateMusicWaves();
+}
+
+function syncDateMusicWaves() {
+  const waves = document.getElementById('dateMusicWaves');
+  if (!waves) return;
+  const playing = dmAudioLoaded && !dmAudio.paused;
+  waves.querySelectorAll('.dm-wave-bar').forEach(b => { b.style.animationPlayState = playing?'running':'paused'; });
+}
+function toggleDateMusicBanner() { if (!dmAudioLoaded) return; if (dmAudio.paused) { dmAudio.play().catch(()=>{}); } else { dmAudio.pause(); } syncDateMusicWaves(); }
+setInterval(syncDateMusicWaves, 500);
+
+// ═══════════════════════════════════════
+// LOAD
+// ═══════════════════════════════════════
+async function loadEntries() {
+  const { data, error } = await sb.from('entries').select('*').order('posted_at', { ascending:true });
+  if (error) { showToast('eroare la încărcare'); return; }
+  entries = data || [];
+}
+
+// ═══════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════
+const TYPE_KEYWORD_MAP = {
+  'nota':'note','notita':'note','notite':'note','notița':'note','notițe':'note','note':'note',
+  'foto':'photo','poza':'photo','poze':'photo','photo':'photo','imagine':'photo','imagini':'photo',
+  'video':'video','videoclip':'video','videoclipuri':'video','clip':'video',
+  'muzica':'music','muzică':'music','music':'music','melodie':'music','melodii':'music','cantec':'music','cântec':'music',
+  'pdf':'pdf','document':'pdf','documente':'pdf',
+};
+
+function getTypeFromQuery(q) { return TYPE_KEYWORD_MAP[normRo(q.trim().toLowerCase())] || null; }
+
+function onSearch(val) {
+  searchQuery = val.trim();
+  document.getElementById('searchClear').classList.toggle('visible', !!searchQuery);
+  const parsed = parseDateQuery(searchQuery);
+  if (parsed) {
+    renderDateSearch(parsed);
+    return;
+  }
+  renderEntries();
+}
+
+function clearSearch(silent=false) {
+  if (!silent) document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  document.getElementById('searchLabel').classList.remove('visible');
+  if (!silent) renderEntries();
+}
+
+function highlightText(text, query) {
+  if (!query||!text) return escHtml(text||'');
+  const qn = normRo(query); const tn = normRo(text);
+  let result = '', i = 0;
+  while (i < text.length) {
+    const idx = tn.indexOf(qn, i);
+    if (idx === -1) { result += escHtml(text.slice(i)); break; }
+    result += escHtml(text.slice(i,idx)) + `<mark class="search-highlight">${escHtml(text.slice(idx,idx+qn.length))}</mark>`;
+    i = idx + qn.length;
+  }
+  return result;
+}
+
+function highlightHtml(html, query) {
+  if (!query||!html) return html||'';
+  const qn = normRo(query); if (!qn.length) return html;
+  const tmp = document.createElement('div'); tmp.innerHTML = html;
+  function walkNodes(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent; const normText = normRo(text); const idx = normText.indexOf(qn);
+      if (idx === -1) return;
+      const before = text.slice(0,idx); const match = text.slice(idx,idx+qn.length); const after = text.slice(idx+qn.length);
+      const frag = document.createDocumentFragment();
+      if (before) frag.appendChild(document.createTextNode(before));
+      const mark = document.createElement('mark'); mark.className='search-highlight'; mark.textContent=match; frag.appendChild(mark);
+      if (after) frag.appendChild(document.createTextNode(after));
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'MARK') {
+      [...node.childNodes].forEach(walkNodes);
+    }
+  }
+  walkNodes(tmp); return tmp.innerHTML;
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function renderEntries() {
+  const container = document.getElementById('entries-container');
+  const label = document.getElementById('searchLabel');
+  const carouselWrap = document.getElementById('carouselWrap');
+  let filtered; let typeFilter = null;
+
+  if (searchQuery) {
+    carouselWrap.style.display = 'none';
+    typeFilter = getTypeFromQuery(searchQuery);
+    if (typeFilter) filtered = entries.filter(e => e.type === typeFilter);
+    else filtered = entries.filter(e => entryMatchesSearch(e, searchQuery));
+    label.textContent = `${filtered.length} rezultat${filtered.length===1?'':'e'}`;
+    label.classList.add('visible');
+  } else {
+    carouselWrap.style.display = '';
+    label.classList.remove('visible');
+    if (selectedDate) {
+      const k = dateKey(selectedDate);
+      filtered = entries.filter(e => dateKey(e.posted_at) === k);
+    } else { filtered = [...entries]; }
+  }
+  filtered.sort((a,b) => new Date(a.posted_at) - new Date(b.posted_at));
+
+  if (!filtered.length && !searchQuery) {
+    let html = '';
+    const dk = selectedDate ? dateKey(selectedDate) : null;
+    if (dk && dateMusicMap[dk]) html += renderDateMusicBanner(dk);
+    html += `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
+    container.innerHTML = html; syncDateMusicWaves(); return;
+  }
+  if (!filtered.length && searchQuery) {
+    container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg></div><div class="empty-text">nicio notiță găsită</div></div>`; return;
+  }
+
+  let html = '';
+  const hlQuery = (searchQuery && !typeFilter) ? searchQuery : '';
+if (searchQuery) {
+    const groups = {};
+    const groupKeys = {};
+    filtered.forEach(e => {
+      const k = dateKey(e.posted_at);
+      const lbl = new Date(e.posted_at).toLocaleDateString('ro-RO',{year:'numeric',month:'long',day:'numeric'});
+      if (!groups[lbl]) { groups[lbl] = []; groupKeys[lbl] = k; }
+      groups[lbl].push(e);
+    });
+    for (const [lbl, group] of Object.entries(groups)) {
+      const dk = groupKeys[lbl];
+      html += `<div class="section-lbl" style="cursor:pointer;display:flex;align-items:center;gap:6px;" onclick="jumpToDateFromSearch('${dk}')">${lbl}<span style="font-size:9px;color:var(--blue);border:1px solid rgba(122,162,200,0.3);border-radius:20px;padding:1px 8px;letter-spacing:0.06em;">→ ziua</span></div>`;
+      group.forEach(e => { html += renderEntry(e, hlQuery); });
+    }
+
+  } else {
+    const dk = selectedDate ? dateKey(selectedDate) : null;
+    if (dk && dateMusicMap[dk]) html += renderDateMusicBanner(dk);
+    filtered.forEach(e => { html += renderEntry(e, ''); });
+  }
+  container.innerHTML = html;
+  syncDateMusicWaves();
+}
+
+function renderDateMusicBanner(dk) {
+  const dm = dateMusicMap[dk]; if (!dm) return '';
+  const coverHtml = dm.cover
+    ? `<div class="dm-banner-cover"><img src="${escHtml(dm.cover)}" alt=""></div>`
+    : `<div class="dm-banner-cover"><span class="dm-banner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
+  return `<div class="date-music-banner">
+    <div class="dm-banner-left" onclick="toggleDateMusicBanner()">
+      ${coverHtml}
+      <div class="dm-banner-text">
+        <div class="dm-banner-title">${escHtml(dm.title||'melodia zilei')}</div>
+        <div class="dm-banner-sub">melodia zilei · apasă pentru control</div>
+      </div>
+      <div class="dm-wave-bars" id="dateMusicWaves">
+        <div class="dm-wave-bar"></div><div class="dm-wave-bar"></div><div class="dm-wave-bar"></div>
+        <div class="dm-wave-bar"></div><div class="dm-wave-bar"></div>
+      </div>
+    </div>
+    <div class="dm-banner-right">
+      <button class="dm-delete-btn" onclick="openDeleteDateMusic('${escHtml(dk)}')" title="șterge muzica zilei">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>`;
+}
+
+function entryMatchesSearch(e, q) {
+  const qn = normRo(q);
+  const haystack = normRo([e.content||'', e.caption||'', e.type||''].join(' '));
+  return haystack.includes(qn);
+}
+
+// ═══════════════════════════════════════
+// RENDER ENTRY — private overlay redesign
+// ═══════════════════════════════════════
+function renderEntry(e, hlQuery) {
+  const posted = new Date(e.posted_at);
+  const timeStr = formatTime(posted);
+  const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
+  const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică', pdf:'pdf' };
+  const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music', pdf:'chip-pdf' };
+  let mediaHtml = '';
+  const isPrivate = !!e.blur_18;
+  const isRevealed = isPrivateUnlocked || revealedPrivateSet.has(String(e.id));
+
+  // Private overlay HTML (full-card, below meta)
+  const privateOverlayHtml = isPrivate ? `<div class="private-overlay${isRevealed?' revealed':''}" onclick="revealPrivateCard('${escHtml(String(e.id))}')">
+    <div class="private-overlay-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="private-overlay-line"></div>
+    <div class="private-overlay-label">conținut privat</div>
+  </div>` : '';
+
+  if (e.type === 'photo') {
+    const urls = e.media_urls || [];
+    const isBlurred = e.blur_images;
+    const cols = urls.length === 1 ? 'cols-1' : urls.length === 2 ? 'cols-2' : 'cols-3';
+    const entryIdStr = e.id;
+    const imgs = urls.map((u, idx) => {
+      const privImgHtml = isPrivate ? `<div class="private-img-overlay${isRevealed?' revealed':''}" onclick="revealPrivateCard('${escHtml(String(e.id))}')">
+        <div class="private-img-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="private-img-label">privat</div>
+      </div>` : '';
+      return `<div class="media-item" onclick="${(!isBlurred&&!isPrivate)||isRevealed ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+        <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
+        ${isBlurred && !isPrivate ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this,'${entryIdStr}',${idx})">
+          <div class="img-blur-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg></div>
+        </div>` : ''}
+        ${privImgHtml}
+      </div>`;
+    }).join('');
+    const captionHtml = e.caption
+      ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
+      : '';
+    mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
+
+  } else if (e.type === 'video') {
+    const url = e.media_urls?.[0] || '';
+    const ytId = extractYouTubeId(url);
+    const captionHtml = e.caption
+      ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
+      : '';
+    let videoHtml;
+    if (ytId) {
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white`;
+      videoHtml = `<div class="video-embed-wrap"><iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" loading="lazy"></iframe></div>`;
+    } else {
+      videoHtml = `<video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>`;
+    }
+    mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
+
+  } else if (e.type === 'music') {
+    const aurl = e.media_urls?.[0] || '';
+    const cover = e.cover_url || '';
+    const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
+    const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
+    const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
+    const titleText = e.caption || 'melodie';
+    const noteText = e.content || '';
+    const noteHtml = noteText ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>` : '';
+    mediaHtml = `<div class="music-player">
+      <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this.closest('.music-player'))">
+        ${iconBgHtml}${coverImgHtml}
+        <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
+      </div>
+      <div class="music-info">
+        <div class="music-title">${hlQuery ? highlightText(titleText, hlQuery) : escHtml(titleText)}</div>
+        <div class="music-sub">${isPlaying ? 'redare...' : 'apasă pentru redare'}</div>
+      </div>
+      <div class="wave-bars ${isPlaying?'':'paused'}">
+        <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+      </div>
+    </div>${noteHtml}`;
+
+  } else if (e.type === 'pdf') {
+    const pdfUrl = e.media_urls?.[0] || '';
+    const pdfTitle = e.caption || 'document PDF';
+    const pdfNote = e.content || '';
+    const noteHtml = pdfNote ? `<div style="margin-top:6px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;">${hlQuery ? highlightText(pdfNote, hlQuery) : escHtml(pdfNote)}</div>` : '';
+    mediaHtml = `<a class="pdf-entry" href="${escHtml(pdfUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <div class="pdf-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/>
+        </svg>
+      </div>
+      <div class="pdf-info">
+        <div class="pdf-title">${hlQuery ? highlightText(pdfTitle, hlQuery) : escHtml(pdfTitle)}</div>
+        <div class="pdf-sub">deschide PDF în browser</div>
+      </div>
+      <div class="pdf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </a>${noteHtml}`;
+  }
+
+  let textHtml = '';
+  if (e.content && e.type === 'note') {
+    const htmlContent = hlQuery ? highlightHtml(e.content, hlQuery) : e.content;
+    textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
+  } else if (e.content && e.type !== 'music' && e.type !== 'pdf') {
+    textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
+  }
+
+  // Dacă e privat, wrappuim conținutul + overlay într-un div relativ
+  const contentInner = `${textHtml}${mediaHtml}`;
+  const wrappedContent = isPrivate
+    ? `<div class="private-card-wrap">${contentInner}${privateOverlayHtml}</div>`
+    : contentInner;
+
+  return `<div class="entry-card" data-id="${e.id}">
+    <div class="card-inner">
+      <div class="card-meta">
+        <div class="card-meta-left">
+          <span class="type-chip ${chipClass[e.type]||'chip-note'}">${typeLabels[e.type]||e.type}</span>
+          <span class="card-time">${timeStr} · ${dateStr}</span>
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn" onclick="openDebugFor('${e.id}')" title="debug">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-btn" onclick="openEditFor('${e.id}')" title="editează">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="icon-btn del" onclick="openDeleteFor('${e.id}')" title="șterge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      ${wrappedContent}
+    </div>
+  </div>`;
+}
+
+function handleBlurClick(e) { const span = e.target.closest('.blur-text-span'); if (span) span.classList.toggle('revealed'); }
+function handleCaptionClick(e) { const link = e.target.closest('a'); if (link) { e.stopPropagation(); window.open(link.href, '_blank', 'noopener'); } }
+
+// ═══════════════════════════════════════
+// PRIVATE REVEAL
+// ═══════════════════════════════════════
+function revealPrivateCard(entryId) {
+  if (isPrivateUnlocked) {
+    revealedPrivateSet.add(entryId);
+    document.querySelectorAll(`.entry-card[data-id="${entryId}"] .private-overlay,
+      .entry-card[data-id="${entryId}"] .private-img-overlay`).forEach(el => el.classList.add('revealed'));
+    return;
+  }
+  _pendingPrivateEntryId = entryId;
+  openPinOverlay('private');
+}
+
+// ═══════════════════════════════════════
+// LIGHTBOX
+// ═══════════════════════════════════════
+let lbImages = [], lbIndex = 0;
+let lbScale = 1, lbTransX = 0, lbTransY = 0;
+let lbTouchStartX = 0, lbTouchStartY = 0;
+let lbPinchStart = 0, lbScaleBase = 1, lbPanStartX = 0, lbPanStartY = 0, lbPanBaseX = 0, lbPanBaseY = 0;
+let lbIsPanning = false, lbIsPinching = false;
+let lbLastTap = 0;
+
+function openLightboxForEntry(entryId, idx) {
+  const entry = entries.find(e => e.id == entryId || e.id === entryId);
+  if (!entry) return;
+  openLightbox(entry.media_urls || [], idx);
+}
+
+function openLightbox(urls, idx) {
+  lbImages = urls; lbIndex = idx;
+  lbScale = 1; lbTransX = 0; lbTransY = 0;
+  showLbImage();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  lbScale = 1; lbTransX = 0; lbTransY = 0;
+  applyLbTransform();
+}
+
+function showLbImage() {
+  const img = document.getElementById('lbImg');
+  img.src = lbImages[lbIndex];
+  lbScale = 1; lbTransX = 0; lbTransY = 0;
+  applyLbTransform(true);
+  document.getElementById('lbPrev').classList.toggle('hidden', lbIndex === 0);
+  document.getElementById('lbNext').classList.toggle('hidden', lbIndex === lbImages.length-1);
+  document.getElementById('lbCounter').textContent = lbImages.length > 1 ? `${lbIndex+1} / ${lbImages.length}` : '';
+  document.getElementById('lbZoomReset').classList.toggle('visible', false);
+}
+
+function lbResetZoom() {
+  lbScale = 1; lbTransX = 0; lbTransY = 0;
+  applyLbTransform(true);
+  document.getElementById('lbZoomReset').classList.remove('visible');
+}
+
+function applyLbTransform(transition) {
+  const img = document.getElementById('lbImg');
+  img.style.transition = transition ? 'transform 0.2s ease' : 'none';
+  img.style.transform = `translate(${lbTransX}px, ${lbTransY}px) scale(${lbScale})`;
+}
+
+function lbClampPan() {
+  const wrap = document.getElementById('lbImgWrap');
+  const img  = document.getElementById('lbImg');
+  const wr = wrap.getBoundingClientRect();
+  const scaledW = img.naturalWidth  > 0 ? img.offsetWidth  * lbScale : wr.width  * lbScale;
+  const scaledH = img.naturalHeight > 0 ? img.offsetHeight * lbScale : wr.height * lbScale;
+  const maxPanX = Math.max(0, (scaledW - wr.width)  / 2);
+  const maxPanY = Math.max(0, (scaledH - wr.height) / 2);
+  lbTransX = Math.max(-maxPanX, Math.min(maxPanX, lbTransX));
+  lbTransY = Math.max(-maxPanY, Math.min(maxPanY, lbTransY));
+}
+
+function lbNav(dir) {
+  if (lbScale > 1.05) return;
+  lbIndex = Math.max(0, Math.min(lbImages.length-1, lbIndex+dir));
+  showLbImage();
+}
+
+const lbWrap = document.getElementById('lbImgWrap');
+
+lbWrap.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    lbTouchStartX = e.touches[0].clientX;
+    lbTouchStartY = e.touches[0].clientY;
+    lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
+    lbIsPanning = false; lbIsPinching = false;
+    const now = Date.now();
+    if (now - lbLastTap < 320) {
+      if (lbScale > 1.05) { lbResetZoom(); }
+      else {
+        lbScale = 2.5;
+        const rect = lbWrap.getBoundingClientRect();
+        lbTransX = (rect.width/2 - e.touches[0].clientX + rect.left) * (lbScale-1) / lbScale;
+        lbTransY = (rect.height/2 - e.touches[0].clientY + rect.top) * (lbScale-1) / lbScale;
+        lbClampPan();
+        applyLbTransform(true);
+        document.getElementById('lbZoomReset').classList.add('visible');
+      }
+    }
+    lbLastTap = now;
+  } else if (e.touches.length === 2) {
+    lbIsPinching = true;
+    lbPinchStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    lbScaleBase = lbScale;
+    lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
+    lbPanStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    lbPanStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  }
+  e.stopPropagation();
+}, { passive: true });
+
+lbWrap.addEventListener('touchmove', (e) => {
+  if (lbIsPinching && e.touches.length === 2) {
+    const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    lbScale = Math.min(8, Math.max(1, lbScaleBase * (dist / lbPinchStart)));
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    lbTransX = lbPanBaseX + (midX - lbPanStartX);
+    lbTransY = lbPanBaseY + (midY - lbPanStartY);
+    lbClampPan();
+    applyLbTransform(false);
+    document.getElementById('lbZoomReset').classList.toggle('visible', lbScale > 1.05);
+    e.preventDefault();
+  } else if (!lbIsPinching && e.touches.length === 1) {
+    const dx = e.touches[0].clientX - lbTouchStartX;
+    const dy = e.touches[0].clientY - lbTouchStartY;
+    if (!lbIsPanning && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) lbIsPanning = true;
+    if (!lbIsPanning) return;
+    if (lbScale > 1.05) {
+      lbTransX = lbPanBaseX + dx;
+      lbTransY = lbPanBaseY + dy;
+      lbClampPan();
+      applyLbTransform(false);
+      e.preventDefault();
+    }
+  }
+}, { passive: false });
+
+lbWrap.addEventListener('touchend', (e) => {
+  if (lbIsPinching) { lbIsPinching = false; lbClampPan(); applyLbTransform(true); return; }
+  if (lbIsPanning && lbScale <= 1.05) {
+    const dx = (e.changedTouches[0]?.clientX || 0) - lbTouchStartX;
+    if (Math.abs(dx) > 60) lbNav(dx < 0 ? 1 : -1);
+  }
+  lbIsPanning = false;
+}, { passive: true });
+
+let lbMouseDown = false, lbMouseStartX = 0, lbMouseStartY = 0;
+lbWrap.addEventListener('mousedown', (e) => {
+  if (lbScale <= 1.05) return;
+  lbMouseDown = true;
+  lbMouseStartX = e.clientX; lbMouseStartY = e.clientY;
+  lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
+  lbWrap.classList.add('grabbing');
+  e.preventDefault();
+});
+document.addEventListener('mousemove', (e) => {
+  if (!lbMouseDown) return;
+  lbTransX = lbPanBaseX + (e.clientX - lbMouseStartX);
+  lbTransY = lbPanBaseY + (e.clientY - lbMouseStartY);
+  lbClampPan();
+  applyLbTransform(false);
+});
+document.addEventListener('mouseup', () => { if (lbMouseDown) { lbMouseDown = false; lbWrap.classList.remove('grabbing'); } });
+
+lbWrap.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.85 : 1.15;
+  lbScale = Math.min(8, Math.max(1, lbScale * delta));
+  lbClampPan();
+  applyLbTransform(false);
+  document.getElementById('lbZoomReset').classList.toggle('visible', lbScale > 1.05);
+}, { passive: false });
+
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+
+function revealBlurredImg(overlay, entryId, idx) {
+  overlay.classList.add('revealed');
+  const item = overlay.closest('.media-item');
+  if (item) { item.style.cursor = 'pointer'; item.onclick = () => openLightboxForEntry(entryId, idx); }
+}
+
+// ═══════════════════════════════════════
+// ENTRY MUSIC CONTROLS
+// ═══════════════════════════════════════
+function toggleEntryMusic(url, title, cover, container) {
+  if (typeof container === 'string') container = event.currentTarget.closest('.music-player');
+  const overlay = container.querySelector('.music-cover-overlay');
+  const waves   = container.querySelector('.wave-bars');
+  const sub     = container.querySelector('.music-sub');
+  const isCurrentlyPlaying = currentEntryAudioUrl === url && !entryAudio.paused;
+
+  document.querySelectorAll('.music-player').forEach(p => {
+    if (p !== container) {
+      const ov = p.querySelector('.music-cover-overlay'); const w = p.querySelector('.wave-bars'); const s = p.querySelector('.music-sub');
+      if (ov) ov.innerHTML = playIcon(); if (w) w.classList.add('paused'); if (s) s.textContent = 'apasă pentru redare';
+    }
+  });
+  if (isCurrentlyPlaying) {
+    entryAudio.pause();
+    if (overlay) overlay.innerHTML = playIcon(); if (waves) waves.classList.add('paused'); if (sub) sub.textContent = 'apasă pentru redare';
+    currentEntryAudioUrl = null;
+  } else {
+    if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
+    updateMediaSession(title, cover);
+    entryAudio.play().catch(() => showToast('nu se poate reda audio'));
+    if (overlay) overlay.innerHTML = pauseIcon(); if (waves) waves.classList.remove('paused'); if (sub) sub.textContent = 'redare...';
+  }
+}
+
+entryAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
+entryAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
+dmAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
+dmAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
+
+// ═══════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════
+async function submitEntry(type) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  let payload = { type };
+
+  if (type === 'note') {
+    const html = getRteHtml('rte-editor');
+    const plain = document.getElementById('rte-editor').innerText.trim();
+    const date = document.getElementById('note-date').value;
+    if (!plain) { showToast('scrie ceva mai întâi'); return; }
+    payload.content = html;
+    payload.blur_18 = note18Enabled;
+    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+  } else if (type === 'photo') {
+    const raw = document.getElementById('photo-urls').value.trim();
+    const date = document.getElementById('photo-date').value;
+    const captionHtml = getCapHtml('photo-cap-editor');
+    if (!raw) { showToast('adaugă cel puțin un link'); return; }
+    payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
+    payload.caption = captionHtml;
+    payload.blur_images = photoBlurEnabled;
+    payload.blur_18 = photo18Enabled;
+    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+  } else if (type === 'video') {
+    const url = document.getElementById('video-url').value.trim();
+    const date = document.getElementById('video-date').value;
+    const captionHtml = getCapHtml('video-cap-editor');
+    if (!url) { showToast('adaugă un link'); return; }
+    payload.media_urls = [url];
+    payload.caption = captionHtml;
+    payload.blur_18 = video18Enabled;
+    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+  } else if (type === 'music') {
+    const url = document.getElementById('music-url').value.trim();
+    const title = document.getElementById('music-title-inp').value.trim();
+    const cover = document.getElementById('music-cover-inp').value.trim();
+    const date = document.getElementById('music-date').value;
+    const note = document.getElementById('music-note').value.trim();
+    if (!url) { showToast('adaugă un link'); return; }
+    payload.media_urls = [url]; payload.caption = title; payload.content = note; payload.cover_url = cover;
+    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+  } else if (type === 'pdf') {
+    const url = document.getElementById('pdf-url').value.trim();
+    const title = document.getElementById('pdf-title').value.trim();
+    const note = document.getElementById('pdf-note').value.trim();
+    const date = document.getElementById('pdf-date').value;
+    if (!url) { showToast('adaugă un link PDF'); return; }
+    payload.media_urls = [url]; payload.caption = title || 'document PDF'; payload.content = note;
+    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+  }
+
+  payload.modified_at = payload.posted_at;
+  const { error } = await sb.from('entries').insert([payload]);
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast('salvat');
+  closeModal(type);
+  clearForm(type);
+  await reloadAndRender();
+}
+
+function clearForm(type) {
+  if (type === 'note') {
+    document.getElementById('rte-editor').innerHTML = '';
+    document.getElementById('rte-link-bar').classList.remove('visible');
+    if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-private'); }
+  } else if (type === 'photo') {
+    document.getElementById('photo-urls').value = '';
+    document.getElementById('photo-cap-editor').innerHTML = '';
+    if (photoBlurEnabled) togglePhotoBlur();
+    if (photo18Enabled) { photo18Enabled=false; document.getElementById('photo-18-toggle').classList.remove('on-private'); }
+  } else if (type === 'video') {
+    document.getElementById('video-url').value = '';
+    document.getElementById('video-cap-editor').innerHTML = '';
+    if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-private'); }
+  } else if (type === 'music') {
+    document.getElementById('music-url').value = ''; document.getElementById('music-title-inp').value = '';
+    document.getElementById('music-note').value = ''; document.getElementById('music-cover-inp').value = '';
+  } else if (type === 'pdf') {
+    document.getElementById('pdf-url').value = ''; document.getElementById('pdf-title').value = ''; document.getElementById('pdf-note').value = '';
+  }
+  setDefaultDates();
+}
+
+async function reloadAndRender() { await loadEntries(); buildCarousel(); renderEntries(); }
+
+// ═══════════════════════════════════════
+// IMPORT
+// ═══════════════════════════════════════
+function parseImportText(raw) {
+  const results = [];
+  const parts = raw.split(/\s*ᏂᎧᎮᏋ[^\[]+/u).filter(p => p.trim());
+  parts.forEach(part => {
+    const m = part.match(/^\[(\d{1,2})\s+(\w+)\.?,?\s+(\d{4})\s+la\s+(\d{1,2}):(\d{2})\]/u);
+    if (!m) return;
+    const [, day, monthStr, year, hour, min] = m;
+    const monthMap = { ian:0,feb:1,mar:2,apr:3,mai:4,iun:5,iul:6,aug:7,sep:8,oct:9,noi:10,dec:11 };
+    const month = monthMap[monthStr.toLowerCase().substring(0,3)];
+    if (month === undefined) return;
+    const date = new Date(+year, month, +day, +hour, +min);
+    const text = part.replace(/^\[\d{1,2}\s+\w+\.?,?\s+\d{4}\s+la\s+\d{1,2}:\d{2}\]\s*/u,'').trim();
+    if (text) results.push({ date, text });
+  });
+  return results;
+}
+function previewImport() {
+  const raw = document.getElementById('import-text').value;
+  const preview = document.getElementById('import-preview'); const previewText = document.getElementById('import-preview-text');
+  const parsed = parseImportText(raw);
+  if (parsed.length) { preview.style.display='block'; previewText.textContent=parsed.map(p=>`[${p.date.toLocaleString('ro-RO')}]\n${p.text}`).join('\n\n'); }
+  else preview.style.display='none';
+}
+async function importEntries() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const raw = document.getElementById('import-text').value;
+  const parsed = parseImportText(raw);
+  if (!parsed.length) { showToast('nu am găsit nimic de importat'); return; }
+  const rows = parsed.map((p,i) => { const date = new Date(p.date.getTime()+i*1000); return { type:'note', content:p.text, posted_at:date.toISOString(), modified_at:date.toISOString() }; });
+  const { error } = await sb.from('entries').insert(rows);
+  if (error) { showToast('eroare la import'); return; }
+  showToast(`${rows.length} notițe importate`);
+  closeModal('import');
+  document.getElementById('import-text').value = ''; document.getElementById('import-preview').style.display='none';
+  await reloadAndRender();
+}
+
+// ═══════════════════════════════════════
+// EDIT
+// ═══════════════════════════════════════
+function openEditFor(id) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-type').value = e.type;
+  document.getElementById('edit-date').value = toLocal(e.posted_at);
+  document.getElementById('edit-cover-group').style.display = (e.type==='music') ? 'block':'none';
+  document.getElementById('edit-cover').value = e.cover_url || '';
+
+  const blurGroup = document.getElementById('edit-blur-group');
+  if (e.type === 'photo') { blurGroup.style.display='flex'; editBlurEnabled=!!e.blur_images; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
+  else { blurGroup.style.display='none'; editBlurEnabled=false; }
+
+  const g18 = document.getElementById('edit-18-group');
+  if (e.type === 'note' || e.type === 'photo' || e.type === 'video') {
+    g18.style.display = 'flex'; edit18Enabled = !!e.blur_18;
+    document.getElementById('edit-18-toggle').classList.toggle('on-private', edit18Enabled);
+  } else { g18.style.display='none'; edit18Enabled=false; }
+
+  const editCapWrap = document.getElementById('editCapWrap');
+  const editCapTa   = document.getElementById('edit-caption');
+
+  if (e.type === 'note') {
+    document.getElementById('edit-rte-group').style.display='block';
+    document.getElementById('edit-plain-group').style.display='none';
+    document.getElementById('edit-caption-group').style.display='none';
+    document.getElementById('rte-editor2').innerHTML = e.content||'';
+  } else if (e.type === 'photo') {
+    document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-plain-group').style.display='block';
+    document.getElementById('edit-content').value = (e.media_urls||[]).join('\n');
+    document.getElementById('edit-content').placeholder = 'link-uri (unul per linie)';
+    document.getElementById('edit-caption-group').style.display='block';
+    document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
+    editCapWrap.style.display='block'; editCapTa.style.display='none';
+    document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
+  } else if (e.type === 'video') {
+    document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-plain-group').style.display='block';
+    document.getElementById('edit-content').value = e.media_urls?.[0]||'';
+    document.getElementById('edit-content').placeholder='link video';
+    document.getElementById('edit-caption-group').style.display='block';
+    document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
+    editCapWrap.style.display='block'; editCapTa.style.display='none';
+    document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
+  } else if (e.type === 'music') {
+    document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-plain-group').style.display='block';
+    document.getElementById('edit-content').value = e.media_urls?.[0]||'';
+    document.getElementById('edit-content').placeholder='link audio';
+    document.getElementById('edit-caption-group').style.display='block';
+    document.getElementById('edit-caption-lbl').textContent='descriere';
+    editCapWrap.style.display='none'; editCapTa.style.display='block';
+    editCapTa.value = e.content||'';
+  } else if (e.type === 'pdf') {
+    document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-plain-group').style.display='block';
+    document.getElementById('edit-content').value = e.media_urls?.[0]||'';
+    document.getElementById('edit-content').placeholder='link PDF';
+    document.getElementById('edit-caption-group').style.display='block';
+    document.getElementById('edit-caption-lbl').textContent='titlu document';
+    editCapWrap.style.display='none'; editCapTa.style.display='block';
+    editCapTa.value = e.caption||'';
+    document.getElementById('edit-plain-lbl').textContent='link PDF';
+  } else {
+    document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-plain-group').style.display='block';
+    document.getElementById('edit-content').value = e.media_urls?.[0]||'';
+    document.getElementById('edit-caption-group').style.display='block';
+    document.getElementById('edit-caption-lbl').textContent='descriere / titlu';
+    editCapWrap.style.display='none'; editCapTa.style.display='block';
+    editCapTa.value = e.caption||'';
+  }
+  openModal('edit');
+}
+
+async function saveEdit() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const id = document.getElementById('edit-id').value;
+  const type = document.getElementById('edit-type').value;
+  const dateVal = document.getElementById('edit-date').value;
+  const cover = document.getElementById('edit-cover').value.trim();
+  const update = { posted_at: dateVal ? new Date(dateVal).toISOString() : undefined, modified_at: new Date().toISOString() };
+
+  if (type === 'note') {
+    update.content = getRteHtml('rte-editor2');
+    update.blur_18 = edit18Enabled;
+  } else if (type === 'music') {
+    const content = document.getElementById('edit-content').value.trim();
+    const caption = document.getElementById('edit-caption').value.trim();
+    update.media_urls = [content]; update.content = caption; update.cover_url = cover;
+  } else if (type === 'photo') {
+    const content = document.getElementById('edit-content').value.trim();
+    const capHtml = getCapHtml('edit-cap-editor');
+    update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean);
+    update.caption = capHtml; update.blur_images = editBlurEnabled; update.blur_18 = edit18Enabled;
+  } else if (type === 'video') {
+    const content = document.getElementById('edit-content').value.trim();
+    const capHtml = getCapHtml('edit-cap-editor');
+    update.media_urls = [content]; update.caption = capHtml; update.blur_18 = edit18Enabled;
+  } else if (type === 'pdf') {
+    const content = document.getElementById('edit-content').value.trim();
+    const caption = document.getElementById('edit-caption').value.trim();
+    update.media_urls = [content]; update.caption = caption || 'document PDF';
+  } else {
+    const content = document.getElementById('edit-content').value.trim();
+    const caption = document.getElementById('edit-caption').value.trim();
+    update.media_urls = [content]; update.caption = caption;
+  }
+
+  const { error } = await sb.from('entries').update(update).eq('id', id);
+  if (error) { showToast('eroare'); return; }
+  showToast('modificat'); closeModal('edit'); await reloadAndRender();
+}
+
+// ═══════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════
+function openDeleteFor(id) { if (isLocked) { showToast('deblochează mai întâi'); return; } document.getElementById('delete-id').value = id; openModal('delete'); }
+async function confirmDelete() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const id = document.getElementById('delete-id').value;
+  const { error } = await sb.from('entries').delete().eq('id', id);
+  if (error) { showToast('eroare'); return; }
+  showToast('șters'); closeModal('delete'); await reloadAndRender();
+}
+
+// ═══════════════════════════════════════
+// DEBUG
+// ═══════════════════════════════════════
+function openDebugFor(id) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const e = entries.find(x => x.id === id); if (!e) return;
+  document.getElementById('debug-id').value = id;
+  document.getElementById('debug-posted').value = toLocal(e.posted_at);
+  document.getElementById('debug-modified').value = toLocal(e.modified_at || e.posted_at);
+  openModal('debug');
+}
+async function saveDebug() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const id = document.getElementById('debug-id').value;
+  const posted = document.getElementById('debug-posted').value;
+  const modified = document.getElementById('debug-modified').value;
+  const update = {};
+  if (posted) update.posted_at = new Date(posted).toISOString();
+  if (modified) update.modified_at = new Date(modified).toISOString();
+  const { error } = await sb.from('entries').update(update).eq('id', id);
+  if (error) { showToast('eroare'); return; }
+  showToast('date modificate'); closeModal('debug'); await reloadAndRender();
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function openModal(name) {
+  if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm'].includes(name)) { showToast('deblochează mai întâi'); return; }
+  closeFab(); closeCalPopup();
+  if (name === 'date-music' && selectedDate) {
+    document.getElementById('dm-date').value = dateKey(selectedDate);
+    document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
+    const dk = dateKey(selectedDate);
+    if (dateMusicMap[dk]) { document.getElementById('dm-url').value=dateMusicMap[dk].url||''; document.getElementById('dm-title').value=dateMusicMap[dk].title||''; document.getElementById('dm-cover').value=dateMusicMap[dk].cover||''; }
+  }
+  document.getElementById(`modal-${name}`).classList.add('open');
+}
+function closeModal(name) { document.getElementById(`modal-${name}`).classList.remove('open'); }
+document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); }); });
+
+// ═══════════════════════════════════════
+// FAB
+// ═══════════════════════════════════════
+function toggleFab() {
+  if (isLocked) { openPinOverlay('main'); return; }
+  fabOpen = !fabOpen;
+  document.getElementById('fabMenu').classList.toggle('open', fabOpen);
+  document.getElementById('fabMain').classList.toggle('open', fabOpen);
+  if (fabOpen) closeCalPopup();
+}
+function closeFab() {
+  fabOpen = false;
+  const fm = document.getElementById('fabMenu'); const fb = document.getElementById('fabMain');
+  if (fm) fm.classList.remove('open'); if (fb) fb.classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// PHOTO BLUR TOGGLE
+// ═══════════════════════════════════════
+function togglePhotoBlur() {
+  photoBlurEnabled = !photoBlurEnabled;
+  const track = document.getElementById('photo-blur-track'); const thumb = document.getElementById('photo-blur-thumb');
+  if (photoBlurEnabled) { track.style.background='rgba(200,169,126,0.25)'; track.style.borderColor='rgba(200,169,126,0.4)'; thumb.style.background='var(--accent2)'; thumb.style.transform='translateX(16px)'; }
+  else { track.style.background='var(--surface2)'; track.style.borderColor='var(--border)'; thumb.style.background='var(--text3)'; thumb.style.transform='translateX(0)'; }
+}
+function toggleEditBlur() { editBlurEnabled=!editBlurEnabled; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
+
+// ═══════════════════════════════════════
+// RICH TEXT EDITOR
+// ═══════════════════════════════════════
+let savedRange = null;
+function rteSaveRange() { const sel=window.getSelection(); if(sel&&sel.rangeCount>0) savedRange=sel.getRangeAt(0).cloneRange(); }
+function rteRestoreRange(editorId) { const editor=document.getElementById(editorId); if(!editor) return; editor.focus(); if(savedRange){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);} }
+function rteCmd(cmd) { document.getElementById('rte-editor').focus(); document.execCommand(cmd,false,null); updateRteState(); }
+function rteCmd2(cmd) { document.getElementById('rte-editor2').focus(); document.execCommand(cmd,false,null); }
+function updateRteState() { document.getElementById('rte-bold')?.classList.toggle('active', document.queryCommandState('bold')); }
+document.addEventListener('selectionchange', () => { if (document.activeElement&&document.activeElement.closest('#modal-note')) updateRteState(); });
+function rteToggleLinkBar() { rteSaveRange(); const bar=document.getElementById('rte-link-bar'); const inp=document.getElementById('rte-link-input'); if(bar.classList.toggle('visible')){inp.value='';setTimeout(()=>inp.focus(),50);} }
+function rteToggleLinkBar2() { rteSaveRange(); const bar=document.getElementById('rte-link-bar2'); const inp=document.getElementById('rte-link-input2'); if(bar.classList.toggle('visible')){inp.value='';setTimeout(()=>inp.focus(),50);} }
+function rteInsertLink() {
+  const url=document.getElementById('rte-link-input').value.trim(); if(!url) return;
+  rteRestoreRange('rte-editor'); const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0&&!sel.isCollapsed){document.execCommand('createLink',false,url);}
+  else{const a=document.createElement('a');a.href=url;a.textContent=url;a.target='_blank';const range=window.getSelection().getRangeAt(0);range.insertNode(a);range.setStartAfter(a);range.collapse(true);window.getSelection().removeAllRanges();window.getSelection().addRange(range);}
+  document.getElementById('rte-link-bar').classList.remove('visible');
+}
+function rteInsertLink2() {
+  const url=document.getElementById('rte-link-input2').value.trim(); if(!url) return;
+  rteRestoreRange('rte-editor2'); const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0&&!sel.isCollapsed){document.execCommand('createLink',false,url);}
+  else{const a=document.createElement('a');a.href=url;a.textContent=url;a.target='_blank';const range=window.getSelection().getRangeAt(0);range.insertNode(a);range.setStartAfter(a);range.collapse(true);window.getSelection().removeAllRanges();window.getSelection().addRange(range);}
+  document.getElementById('rte-link-bar2').classList.remove('visible');
+}
+function rteBlurSelected() { _rteToggleBlur('rte-editor'); }
+function rteBlurSelected2() { _rteToggleBlur('rte-editor2'); }
+
+function _rteToggleBlur(editorId) {
+  const editor = document.getElementById(editorId);
+  editor.focus();
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed) { showToast('selectează textul mai întâi'); return; }
+  const range = sel.getRangeAt(0);
+  // Dacă selecția este exact un blur-span, îl scoatem
+  const container = range.commonAncestorContainer;
+  const blurSpan = container.nodeType === Node.TEXT_NODE
+    ? container.parentElement?.closest('.blur-text-span')
+    : container.closest?.('.blur-text-span');
+  if (blurSpan && editor.contains(blurSpan)) {
+    const parent = blurSpan.parentNode;
+    while (blurSpan.firstChild) parent.insertBefore(blurSpan.firstChild, blurSpan);
+    parent.removeChild(blurSpan);
+    sel.removeAllRanges();
+    return;
+  }
+  // Altfel, aplicăm blur
+  const span = document.createElement('span');
+  span.className = 'blur-text-span';
+  span.title = 'apasă pentru a revela';
+  try { range.surroundContents(span); }
+  catch(e) { const frag = range.extractContents(); span.appendChild(frag); range.insertNode(span); }
+  sel.removeAllRanges();
+}
+
+function getRteHtml(editorId) { const editor=document.getElementById(editorId); if(!editor) return ''; editor.querySelectorAll('a').forEach(a=>{a.target='_blank';a.rel='noopener';}); return editor.innerHTML; }
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+init();
+</script>
+</body>
+</html>
