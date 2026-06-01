@@ -2521,6 +2521,7 @@ let touchDirectionLocked = false; // 'h' | 'v' | false
 
 function onTouchStart(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (e.target.closest('.backdrop.open')) return;
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   touchStartY = e.touches[0].clientY;
   touchStartX = e.touches[0].clientX;
@@ -2531,9 +2532,9 @@ function onTouchStart(e) {
   topscrollActive = window.scrollY <= 4;
 }
 
-// CU ASTA
 function onTouchMove(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (e.target.closest('.backdrop.open')) return;
   const y = e.touches[0].clientY;
   const x = e.touches[0].clientX;
   const dy = touchLastY - y;
@@ -2541,12 +2542,10 @@ function onTouchMove(e) {
   const totalDY = Math.abs(y - touchStartY);
   touchLastY = y;
 
-  // Detectează direcția predominantă o singură dată
   if (!touchDirectionLocked && (totalDX > 6 || totalDY > 6)) {
     touchDirectionLocked = totalDX > totalDY ? 'h' : 'v';
   }
 
-  // Dacă mișcarea e predominant orizontală, nu face nimic
   if (touchDirectionLocked === 'h') return;
 
   if (overscrollActive && !jumpLocked) {
@@ -2579,9 +2578,9 @@ function onTouchMove(e) {
   }
 }
 
-// CU ASTA
 function onTouchEnd(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (e.target.closest('.backdrop.open')) return;
   if (overscrollActive) {
     if (ringProgress >= 1 && !jumpLocked) { jumpLocked = true; jumpDate(1); setTimeout(() => resetRing('next'), 400); }
     else { setRingProgress(0, 'next'); jumpLocked = false; }
@@ -2592,6 +2591,7 @@ function onTouchEnd(e) {
     topscrollDelta = 0; topscrollActive = false;
   }
 }
+
 
 
 
