@@ -967,6 +967,183 @@ audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── NOTE THEMES ── */
+.entry-card.theme-card { overflow: visible; }
+.note-theme-wrap {
+  position: relative;
+  border-radius: var(--r);
+  overflow: hidden;
+  margin: 0;
+  padding: 12px 13px 13px;
+}
+
+
+
+/* Canvas pentru animații */
+.theme-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: var(--r2);
+}
+
+/* Conținutul peste canvas */
+.note-theme-wrap .card-text,
+.note-theme-wrap .private-card-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TEMA 1: Stele căzătoare ── */
+.theme-stars {
+  background: linear-gradient(160deg, #0a0a1a 0%, #0d0820 50%, #080d1a 100%);
+  min-height: 80px;
+}
+.theme-stars .card-text { color: #e8e4f0; text-shadow: 0 0 20px rgba(180,160,255,0.15); }
+
+/* ── TEMA 2: Aurora (gradient dark) ── */
+.theme-aurora {
+  background: linear-gradient(135deg, #020b14 0%, #0a1628 30%, #071420 60%, #0d0a20 100%);
+  min-height: 80px;
+}
+.aurora-layer {
+  position: absolute; inset: 0; border-radius: var(--r2);
+  background:
+    radial-gradient(ellipse 80% 40% at 20% 60%, rgba(0,210,150,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 30%, rgba(80,120,255,0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 80%, rgba(160,60,255,0.12) 0%, transparent 50%);
+  animation: auroraShift 8s ease-in-out infinite alternate;
+  pointer-events: none; z-index: 0;
+}
+@keyframes auroraShift {
+  0%   { opacity: 0.7; transform: scaleX(1) scaleY(1); }
+  33%  { opacity: 1;   transform: scaleX(1.08) scaleY(1.05); }
+  66%  { opacity: 0.8; transform: scaleX(0.95) scaleY(1.1); }
+  100% { opacity: 1;   transform: scaleX(1.05) scaleY(0.97); }
+}
+.theme-aurora .card-text { color: #d0f0e8; }
+
+/* ── TEMA 3: Glow ── */
+.theme-glow {
+  background: #08060f;
+  min-height: 80px;
+}
+.glow-orb {
+  position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+  animation: orbPulse 4s ease-in-out infinite alternate;
+}
+.glow-orb-1 {
+  width: 70%; height: 200%;
+  top: -50%; left: -10%;
+  background: radial-gradient(circle, rgba(200,80,255,0.22) 0%, transparent 65%);
+  animation-delay: 0s;
+}
+.glow-orb-2 {
+  width: 60%; height: 180%;
+  top: -40%; right: -5%;
+  background: radial-gradient(circle, rgba(80,160,255,0.2) 0%, transparent 60%);
+  animation-delay: 1.5s;
+}
+.glow-orb-3 {
+  width: 50%; height: 150%;
+  bottom: -30%; left: 25%;
+  background: radial-gradient(circle, rgba(255,100,150,0.15) 0%, transparent 60%);
+  animation-delay: 0.8s;
+}
+@keyframes orbPulse {
+  0%   { transform: scale(1) translate(0,0); opacity: 0.8; }
+  50%  { transform: scale(1.15) translate(3%,2%); opacity: 1; }
+  100% { transform: scale(0.9) translate(-2%,4%); opacity: 0.75; }
+}
+.theme-glow .card-text { color: #f0e8ff; text-shadow: 0 0 12px rgba(200,160,255,0.3); }
+
+/* ── TEMA 4: Inimi și flori ── */
+.theme-hearts {
+  background: linear-gradient(145deg, #1a0812 0%, #220d18 50%, #1a0d20 100%);
+  min-height: 80px;
+}
+.theme-hearts .card-text { color: #ffd6e8; }
+
+/* ── TEMA 5: Ploaie depresivă ── */
+.theme-rain {
+  background: linear-gradient(180deg, #070b0f 0%, #0a0f14 40%, #080d12 100%);
+  min-height: 80px;
+}
+.theme-rain .card-text { color: #b8c8d8; }
+
+/* ── TEMA 6: Foc și lavă ── */
+.theme-fire {
+  background: linear-gradient(180deg, #0f0500 0%, #1a0800 50%, #120400 100%);
+  min-height: 80px;
+}
+.theme-fire .card-text { color: #ffe8c0; }
+
+/* ── TEMA 7: Ocean ── */
+.theme-ocean {
+  background: linear-gradient(180deg, #020c14 0%, #041828 50%, #020e1c 100%);
+  min-height: 80px;
+}
+.theme-ocean .card-text { color: #c0e8ff; }
+
+/* ── TEMA 8: Nebulă ── */
+.theme-nebula {
+  background: radial-gradient(ellipse at center, #0e0618 0%, #060410 100%);
+  min-height: 80px;
+}
+.theme-nebula .card-text { color: #e8d0ff; }
+
+/* ── TEMA 9: Matrix ── */
+.theme-matrix {
+  background: #000800;
+  min-height: 80px;
+}
+.theme-matrix .card-text {
+  color: #00ff41;
+  font-family: var(--mono) !important;
+  font-size: 13px !important;
+  text-shadow: 0 0 8px rgba(0,255,65,0.5);
+}
+
+/* ── TEMA 10: Nisip de aur ── */
+.theme-gold {
+  background: linear-gradient(135deg, #0f0900 0%, #1a1000 50%, #0c0800 100%);
+  min-height: 80px;
+}
+.theme-gold .card-text { color: #ffe8a0; }
+
+/* ── SELECTOR TEME în modal ── */
+.theme-selector-wrap { margin-bottom: 14px; }
+.theme-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 7px;
+}
+.theme-swatch {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-swatch:hover { transform: scale(1.08); }
+.theme-swatch.selected { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(200,169,126,0.25); }
+.theme-swatch-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  font-family: var(--mono); font-size: 7px; letter-spacing: 0.04em;
+  text-align: center; padding: 2px 1px;
+  background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+}
+.theme-swatch-icon { font-size: 16px; line-height: 1; position: relative; z-index: 1; }
+
+
+
 </style>
 </head>
 <body class="locked">
@@ -1288,7 +1465,57 @@ audio { display: none; }
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">notiță nouă</div>
-    <div class="form-group">
+   <div class="theme-selector-wrap form-group">
+  <label class="form-label">temă vizuală</label>
+  <div class="theme-selector-grid" id="themeSelectorGrid">
+    <div class="theme-swatch selected" data-theme="none" onclick="selectNoteTheme('none')" style="background:#17171d;">
+      <span class="theme-swatch-icon">✏️</span>
+      <span class="theme-swatch-label">implicit</span>
+    </div>
+    <div class="theme-swatch" data-theme="stars" onclick="selectNoteTheme('stars')" style="background:linear-gradient(160deg,#0a0a1a,#0d0820);">
+      <span class="theme-swatch-icon">🌠</span>
+      <span class="theme-swatch-label">stele</span>
+    </div>
+    <div class="theme-swatch" data-theme="aurora" onclick="selectNoteTheme('aurora')" style="background:linear-gradient(135deg,#020b14,#0a1628);">
+      <span class="theme-swatch-icon">🌌</span>
+      <span class="theme-swatch-label">aurora</span>
+    </div>
+    <div class="theme-swatch" data-theme="glow" onclick="selectNoteTheme('glow')" style="background:#08060f;">
+      <span class="theme-swatch-icon">💜</span>
+      <span class="theme-swatch-label">glow</span>
+    </div>
+    <div class="theme-swatch" data-theme="hearts" onclick="selectNoteTheme('hearts')" style="background:linear-gradient(145deg,#1a0812,#220d18);">
+      <span class="theme-swatch-icon">🌸</span>
+      <span class="theme-swatch-label">inimi</span>
+    </div>
+    <div class="theme-swatch" data-theme="rain" onclick="selectNoteTheme('rain')" style="background:linear-gradient(180deg,#070b0f,#0a0f14);">
+      <span class="theme-swatch-icon">🌧️</span>
+      <span class="theme-swatch-label">ploaie</span>
+    </div>
+    <div class="theme-swatch" data-theme="fire" onclick="selectNoteTheme('fire')" style="background:linear-gradient(180deg,#0f0500,#1a0800);">
+      <span class="theme-swatch-icon">🔥</span>
+      <span class="theme-swatch-label">foc</span>
+    </div>
+    <div class="theme-swatch" data-theme="ocean" onclick="selectNoteTheme('ocean')" style="background:linear-gradient(180deg,#020c14,#041828);">
+      <span class="theme-swatch-icon">🌊</span>
+      <span class="theme-swatch-label">ocean</span>
+    </div>
+    <div class="theme-swatch" data-theme="nebula" onclick="selectNoteTheme('nebula')" style="background:radial-gradient(ellipse,#0e0618,#060410);">
+      <span class="theme-swatch-icon">🔮</span>
+      <span class="theme-swatch-label">nebulă</span>
+    </div>
+    <div class="theme-swatch" data-theme="matrix" onclick="selectNoteTheme('matrix')" style="background:#000800;">
+      <span class="theme-swatch-icon">💚</span>
+      <span class="theme-swatch-label">matrix</span>
+    </div>
+    <div class="theme-swatch" data-theme="gold" onclick="selectNoteTheme('gold')" style="background:linear-gradient(135deg,#0f0900,#1a1000);">
+      <span class="theme-swatch-icon">✨</span>
+      <span class="theme-swatch-label">aur</span>
+    </div>
+  </div>
+</div>
+
+     <div class="form-group">
       <label class="form-label">text</label>
       <div class="rte-wrap">
         <div class="rte-toolbar">
@@ -1547,7 +1774,25 @@ audio { display: none; }
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">editează</div>
-    <input type="hidden" id="edit-id">
+   <div class="theme-selector-wrap form-group" id="edit-theme-group" style="display:none">
+  <label class="form-label">temă vizuală</label>
+  <div class="theme-selector-grid" id="editThemeSelectorGrid">
+    <!-- același conținut ca mai sus, dar cu onclick="selectEditTheme(...)" -->
+    <div class="theme-swatch selected" data-theme="none" onclick="selectEditTheme('none')" style="background:#17171d;"><span class="theme-swatch-icon">✏️</span><span class="theme-swatch-label">implicit</span></div>
+    <div class="theme-swatch" data-theme="stars" onclick="selectEditTheme('stars')" style="background:linear-gradient(160deg,#0a0a1a,#0d0820);"><span class="theme-swatch-icon">🌠</span><span class="theme-swatch-label">stele</span></div>
+    <div class="theme-swatch" data-theme="aurora" onclick="selectEditTheme('aurora')" style="background:linear-gradient(135deg,#020b14,#0a1628);"><span class="theme-swatch-icon">🌌</span><span class="theme-swatch-label">aurora</span></div>
+    <div class="theme-swatch" data-theme="glow" onclick="selectEditTheme('glow')" style="background:#08060f;"><span class="theme-swatch-icon">💜</span><span class="theme-swatch-label">glow</span></div>
+    <div class="theme-swatch" data-theme="hearts" onclick="selectEditTheme('hearts')" style="background:linear-gradient(145deg,#1a0812,#220d18);"><span class="theme-swatch-icon">🌸</span><span class="theme-swatch-label">inimi</span></div>
+    <div class="theme-swatch" data-theme="rain" onclick="selectEditTheme('rain')" style="background:linear-gradient(180deg,#070b0f,#0a0f14);"><span class="theme-swatch-icon">🌧️</span><span class="theme-swatch-label">ploaie</span></div>
+    <div class="theme-swatch" data-theme="fire" onclick="selectEditTheme('fire')" style="background:linear-gradient(180deg,#0f0500,#1a0800);"><span class="theme-swatch-icon">🔥</span><span class="theme-swatch-label">foc</span></div>
+    <div class="theme-swatch" data-theme="ocean" onclick="selectEditTheme('ocean')" style="background:linear-gradient(180deg,#020c14,#041828);"><span class="theme-swatch-icon">🌊</span><span class="theme-swatch-label">ocean</span></div>
+    <div class="theme-swatch" data-theme="nebula" onclick="selectEditTheme('nebula')" style="background:radial-gradient(ellipse,#0e0618,#060410);"><span class="theme-swatch-icon">🔮</span><span class="theme-swatch-label">nebulă</span></div>
+    <div class="theme-swatch" data-theme="matrix" onclick="selectEditTheme('matrix')" style="background:#000800;"><span class="theme-swatch-icon">💚</span><span class="theme-swatch-label">matrix</span></div>
+    <div class="theme-swatch" data-theme="gold" onclick="selectEditTheme('gold')" style="background:linear-gradient(135deg,#0f0900,#1a1000);"><span class="theme-swatch-icon">✨</span><span class="theme-swatch-label">aur</span></div>
+  </div>
+</div>
+
+     <input type="hidden" id="edit-id">
     <input type="hidden" id="edit-type">
     <div class="form-group" id="edit-rte-group" style="display:none">
       <label class="form-label">text</label>
@@ -1730,6 +1975,23 @@ let _pendingPrivateEntryId = null;
 // PIN SYSTEM
 // ═══════════════════════════════════════
 const PIN_CODE = '2727';
+
+const NOTE_THEMES = {
+  none:   { label: 'implicit',   icon: '✏️',  bg: '#17171d' },
+  stars:  { label: 'stele',      icon: '🌠',  bg: 'linear-gradient(160deg,#0a0a1a,#0d0820)' },
+  aurora: { label: 'aurora',     icon: '🌌',  bg: 'linear-gradient(135deg,#020b14,#0a1628)' },
+  glow:   { label: 'glow',       icon: '💜',  bg: '#08060f' },
+  hearts: { label: 'inimi',      icon: '🌸',  bg: 'linear-gradient(145deg,#1a0812,#220d18)' },
+  rain:   { label: 'ploaie',     icon: '🌧️',  bg: 'linear-gradient(180deg,#070b0f,#0a0f14)' },
+  fire:   { label: 'foc',        icon: '🔥',  bg: 'linear-gradient(180deg,#0f0500,#1a0800)' },
+  ocean:  { label: 'ocean',      icon: '🌊',  bg: 'linear-gradient(180deg,#020c14,#041828)' },
+  nebula: { label: 'nebulă',     icon: '🔮',  bg: 'radial-gradient(ellipse,#0e0618,#060410)' },
+  matrix: { label: 'matrix',     icon: '💚',  bg: '#000800' },
+  gold:   { label: 'aur',        icon: '✨',  bg: 'linear-gradient(135deg,#0f0900,#1a1000)' },
+};
+
+
+
 let pinBuffer = '';
 
 function openPinOverlay(mode) {
@@ -2919,7 +3181,9 @@ if (searchQuery) {
   }
   container.innerHTML = html;
   syncDateMusicWaves();
+  requestAnimationFrame(initThemeCanvases);
 }
+
 
 function renderDateMusicBanner(dk) {
   const dm = dateMusicMap[dk]; if (!dm) return '';
@@ -3073,15 +3337,19 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
     textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
   }
 
-  // Dacă e privat, wrappuim conținutul + overlay într-un div relativ
   const contentInner = `${textHtml}${mediaHtml}`;
   const wrappedContent = isPrivate
     ? `<div class="private-card-wrap">${contentInner}${privateOverlayHtml}</div>`
     : contentInner;
 
-  return `<div class="entry-card" data-id="${e.id}">
-    <div class="card-inner">
-      <div class="card-meta">
+  const theme = (e.type === 'note' && e.theme && e.theme !== 'none') ? e.theme : '';
+  const themeCardClass = theme ? 'theme-card' : '';
+  const canvasId = `tc-${e.id}`;
+
+  return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
+    <div class="card-inner${theme ? ` note-theme-wrap theme-${theme}` : ''}" id="twrap-${e.id}">
+      ${theme ? buildThemeExtras(theme, canvasId) : ''}
+      <div class="card-meta" style="position:relative;z-index:1">
         <div class="card-meta-left">
           <span class="type-chip ${chipClass[e.type]||'chip-note'}">${typeLabels[e.type]||e.type}</span>
           <span class="card-time">${timeStr} · ${dateStr}</span>
@@ -3091,17 +3359,403 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14" stroke-linecap="round"/></svg>
           </button>
           <button class="icon-btn" onclick="openEditFor('${e.id}')" title="editează">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button class="icon-btn del" onclick="openDeleteFor('${e.id}')" title="șterge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
       </div>
-      ${wrappedContent}
+      <div style="position:relative;z-index:1">${wrappedContent}</div>
     </div>
   </div>`;
+
 }
+
+
+function buildThemeExtras(theme, canvasId) {
+  if (theme === 'aurora') return `<div class="aurora-layer"></div><canvas class="theme-canvas" id="${canvasId}"></canvas>`;
+  if (theme === 'glow')   return `<div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div><div class="glow-orb glow-orb-3"></div>`;
+  if (['stars','hearts','rain','fire','ocean','nebula','matrix','gold'].includes(theme))
+    return `<canvas class="theme-canvas" id="${canvasId}"></canvas>`;
+  return '';
+}
+
+function initThemeCanvases() {
+  document.querySelectorAll('.note-theme-wrap').forEach(wrap => {
+    const entryCard = wrap.closest('.entry-card');
+    if (!entryCard) return;
+    const id = entryCard.dataset.id;
+    const entry = entries.find(e => String(e.id) === String(id));
+    if (!entry || !entry.theme || entry.theme === 'none') return;
+    const canvas = wrap.querySelector('.theme-canvas');
+    if (!canvas || canvas.dataset.init) return;
+    canvas.dataset.init = '1';
+    const theme = entry.theme;
+    const rect = wrap.getBoundingClientRect();
+    canvas.width = Math.max(rect.width, 280);
+    canvas.height = Math.max(rect.height, 80);
+    if (theme === 'stars')  startStars(canvas);
+    if (theme === 'hearts') startHearts(canvas);
+    if (theme === 'rain')   startRain(canvas);
+    if (theme === 'fire')   startFire(canvas);
+    if (theme === 'ocean')  startOcean(canvas);
+    if (theme === 'nebula') startNebula(canvas);
+    if (theme === 'matrix') startMatrix(canvas);
+    if (theme === 'gold')   startGold(canvas);
+    if (theme === 'aurora') startAurora(canvas);
+  });
+}
+
+/* ── ANIMAȚII ── */
+function startStars(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Stele fixe de fundal — pâlpâie lent
+  const staticStars = Array.from({length: 40}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*0.9+0.2,
+    phase: Math.random()*Math.PI*2,
+    speed: Math.random()*0.004+0.001,
+  }));
+
+  // Stele căzătoare — puține, lente, rare
+  const shootingStars = Array.from({length: 3}, (_, i) => ({
+    x: Math.random()*W, y: Math.random()*H*0.6,
+    vx: -(Math.random()*0.6+0.3),
+    vy: Math.random()*0.25+0.1,
+    size: Math.random()*0.8+0.4,
+    tail: Math.random()*22+14,
+    opacity: 0,
+    delay: i * 180 + Math.random()*120,
+    life: 0,
+    maxLife: Math.random()*220+180,
+  }));
+
+  function frame() {
+    ctx.clearRect(0,0,W,H);
+    const now = Date.now();
+
+    // Fundal gradient noaptea
+    const bg = ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0, 'rgba(4,4,18,0.55)');
+    bg.addColorStop(1, 'rgba(8,6,22,0.35)');
+    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+    // Stele fixe
+    staticStars.forEach(s => {
+      const op = 0.25 + Math.sin(now * s.speed + s.phase) * 0.22;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(210,215,255,${Math.max(0,op)})`; ctx.fill();
+    });
+
+    // Stele căzătoare
+    shootingStars.forEach(s => {
+      s.life++;
+      if (s.life < s.delay) return;
+      const progress = (s.life - s.delay) / s.maxLife;
+      if (progress >= 1) {
+        // reset
+        s.x = W * 0.3 + Math.random() * W * 0.7;
+        s.y = Math.random() * H * 0.4;
+        s.vx = -(Math.random()*0.6+0.3);
+        s.vy = Math.random()*0.25+0.1;
+        s.tail = Math.random()*22+14;
+        s.maxLife = Math.random()*220+180;
+        s.delay = Math.random()*300+100;
+        s.life = 0;
+        return;
+      }
+
+      // fade in/out
+      const fade = progress < 0.15
+        ? progress / 0.15
+        : progress > 0.75
+          ? 1 - (progress - 0.75) / 0.25
+          : 1;
+      const op = fade * 0.75;
+
+      s.x += s.vx; s.y += s.vy;
+
+      const grad = ctx.createLinearGradient(s.x, s.y, s.x - s.vx*s.tail, s.y - s.vy*s.tail);
+      grad.addColorStop(0, `rgba(255,252,220,${op})`);
+      grad.addColorStop(0.4, `rgba(200,210,255,${op*0.4})`);
+      grad.addColorStop(1, 'rgba(200,210,255,0)');
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x - s.vx*s.tail, s.y - s.vy*s.tail);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = s.size;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // punct luminos în cap
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.size*0.9, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,252,230,${op})`; ctx.fill();
+    });
+
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+
+function startHearts(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const items = Array.from({length: 22}, (_, i) => ({
+    x: Math.random()*W, y: H + Math.random()*H,
+    vx: (Math.random()-0.5)*0.5, vy: -(Math.random()*0.7+0.3),
+    size: Math.random()*10+5, opacity: Math.random()*0.6+0.2,
+    rot: Math.random()*Math.PI*2, rotV: (Math.random()-0.5)*0.03,
+    type: i % 3 === 0 ? 'flower' : 'heart', wobble: Math.random()*100
+  }));
+  function drawHeart(ctx, x, y, size, op) {
+    ctx.save(); ctx.globalAlpha = op;
+    ctx.fillStyle = `hsl(${330+Math.random()*30},80%,70%)`;
+    ctx.beginPath();
+    ctx.moveTo(x, y+size*0.3);
+    ctx.bezierCurveTo(x, y, x-size, y, x-size, y+size*0.4);
+    ctx.bezierCurveTo(x-size, y+size*0.9, x, y+size*1.3, x, y+size*1.5);
+    ctx.bezierCurveTo(x, y+size*1.3, x+size, y+size*0.9, x+size, y+size*0.4);
+    ctx.bezierCurveTo(x+size, y, x, y, x, y+size*0.3);
+    ctx.fill(); ctx.restore();
+  }
+  function drawFlower(ctx, x, y, size, op) {
+    ctx.save(); ctx.globalAlpha = op;
+    for (let p=0; p<5; p++) {
+      const angle = (p/5)*Math.PI*2;
+      ctx.beginPath();
+      ctx.ellipse(x+Math.cos(angle)*size*0.5, y+Math.sin(angle)*size*0.5, size*0.4, size*0.25, angle, 0, Math.PI*2);
+      ctx.fillStyle = `hsl(${300+p*15},70%,75%)`; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(x,y,size*0.3,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,220,180,0.9)'; ctx.fill(); ctx.restore();
+  }
+  function frame() {
+    ctx.clearRect(0,0,W,H);
+    items.forEach(s => {
+      s.x += s.vx + Math.sin(Date.now()/1200+s.wobble)*0.3;
+      s.y += s.vy; s.rot += s.rotV;
+      if (s.y < -40) { s.y = H+10; s.x = Math.random()*W; }
+      ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.rot);
+      if (s.type === 'heart') drawHeart(ctx, 0, -s.size/2, s.size*0.5, s.opacity);
+      else drawFlower(ctx, 0, 0, s.size*0.7, s.opacity);
+      ctx.restore();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startRain(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const drops = Array.from({length: 80}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    speed: Math.random()*4+3, length: Math.random()*15+8,
+    opacity: Math.random()*0.4+0.1, width: Math.random()*0.8+0.2
+  }));
+  // bruma pe fundal
+  function frame() {
+    ctx.clearRect(0,0,W,H);
+    // fog layer
+    const fog = ctx.createLinearGradient(0,0,0,H);
+    fog.addColorStop(0,'rgba(30,40,55,0.08)');
+    fog.addColorStop(1,'rgba(10,18,28,0.12)');
+    ctx.fillStyle = fog; ctx.fillRect(0,0,W,H);
+    drops.forEach(d => {
+      d.y += d.speed;
+      if (d.y > H+20) { d.y=-10; d.x=Math.random()*W; }
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - 1, d.y - d.length);
+      ctx.strokeStyle = `rgba(140,180,220,${d.opacity})`;
+      ctx.lineWidth = d.width; ctx.stroke();
+    });
+    // occasional lightning flash
+    if (Math.random() < 0.003) {
+      ctx.fillStyle = 'rgba(200,220,255,0.04)';
+      ctx.fillRect(0,0,W,H);
+    }
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startFire(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const particles = Array.from({length:50}, () => ({
+    x: W/2+(Math.random()-0.5)*W*0.6, y: H,
+    vx:(Math.random()-0.5)*1.2, vy:-(Math.random()*2+1),
+    size: Math.random()*6+2, life:0, maxLife: Math.random()*60+40
+  }));
+  function frame() {
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      p.x+=p.vx+(Math.random()-0.5)*0.4; p.y+=p.vy; p.life++;
+      if (p.life > p.maxLife) {
+        p.x=W/2+(Math.random()-0.5)*W*0.6; p.y=H+5;
+        p.life=0; p.maxLife=Math.random()*60+40;
+        p.vx=(Math.random()-0.5)*1.2; p.vy=-(Math.random()*2+1);
+        p.size=Math.random()*6+2;
+      }
+      const t = p.life/p.maxLife;
+      const op = (1-t)*0.7;
+      const hue = 20-t*20, sat=100, light=50+t*20;
+      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*(1-t*0.5));
+      grad.addColorStop(0,`hsla(${hue},${sat}%,${light+20}%,${op})`);
+      grad.addColorStop(1,`hsla(${hue-10},${sat}%,${light}%,0)`);
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(1-t*0.3),0,Math.PI*2);
+      ctx.fillStyle=grad; ctx.fill();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startOcean(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+  const bubbles = Array.from({length:20}, ()=>({
+    x:Math.random()*W, y:H+Math.random()*H, r:Math.random()*3+1, speed:Math.random()*0.5+0.2
+  }));
+  function frame() {
+    ctx.clearRect(0,0,W,H);
+    t += 0.01;
+    // wave layers
+    for (let w=0; w<3; w++) {
+      ctx.beginPath();
+      const yBase = H*(0.3+w*0.25);
+      ctx.moveTo(0, yBase);
+      for (let x=0; x<=W; x+=4) {
+        const y = yBase + Math.sin(x/40+t+w*1.2)*6 + Math.sin(x/20+t*1.5+w)*3;
+        ctx.lineTo(x,y);
+      }
+      ctx.lineTo(W,H+20); ctx.lineTo(0,H+20); ctx.closePath();
+      ctx.fillStyle = `rgba(0,${100+w*30},${180+w*20},${0.04+w*0.02})`;
+      ctx.fill();
+    }
+    // bubbles
+    bubbles.forEach(b => {
+      b.y -= b.speed; b.x += Math.sin(t+b.r)*0.3;
+      if (b.y < -10) { b.y=H+5; b.x=Math.random()*W; }
+      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(100,200,255,0.35)`; ctx.lineWidth=0.8; ctx.stroke();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startNebula(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const stars = Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,twinkle:Math.random()*100}));
+  let t=0;
+  function frame() {
+    ctx.clearRect(0,0,W,H); t+=0.005;
+    // nebula clouds
+    [[0.3,0.4,'160,60,255'],[0.7,0.6,'60,120,255'],[0.5,0.3,'255,60,160']].forEach(([cx,cy,rgb],i) => {
+      const grad = ctx.createRadialGradient(cx*W+Math.sin(t+i)*15,cy*H+Math.cos(t*0.7+i)*10,0,cx*W,cy*H,W*0.5);
+      grad.addColorStop(0,`rgba(${rgb},0.12)`);
+      grad.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+    });
+    stars.forEach(s => {
+      const op = 0.3+Math.sin(Date.now()/800+s.twinkle)*0.4;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,240,255,${Math.max(0,op)})`; ctx.fill();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startMatrix(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cols = Math.floor(W/12);
+  const drops = Array.from({length:cols},()=>Math.random()*H/16|0);
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789ABCDEF';
+  function frame() {
+    ctx.fillStyle='rgba(0,8,0,0.12)'; ctx.fillRect(0,0,W,H);
+    ctx.font=`10px ${getComputedStyle(document.body).getPropertyValue('--mono')||'monospace'}`;
+    drops.forEach((y,i) => {
+      const ch = chars[Math.random()*chars.length|0];
+      const bright = Math.random() > 0.95;
+      ctx.fillStyle = bright ? '#afffaf' : `rgba(0,${180+Math.random()*75|0},40,0.85)`;
+      ctx.fillText(ch, i*12, y*16);
+      if (y*16 > H && Math.random() > 0.975) drops[i]=0;
+      else drops[i]++;
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startGold(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const particles = Array.from({length:40},()=>({
+    x:Math.random()*W, y:Math.random()*H,
+    vx:(Math.random()-0.5)*0.4, vy:-(Math.random()*0.5+0.1),
+    size:Math.random()*2.5+0.5, opacity:Math.random(),
+    hue:35+Math.random()*25, wobble:Math.random()*100
+  }));
+  function frame() {
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      p.x += p.vx+Math.sin(Date.now()/1500+p.wobble)*0.2;
+      p.y += p.vy;
+      if (p.y < -5) { p.y=H+5; p.x=Math.random()*W; }
+      const op = p.opacity * (0.5+Math.sin(Date.now()/800+p.wobble)*0.5);
+      // star shape
+      ctx.save(); ctx.translate(p.x,p.y);
+      ctx.beginPath();
+      for (let i=0;i<5;i++) {
+        const a = (i*4*Math.PI/5)-Math.PI/2;
+        const b = ((i*4+2)*Math.PI/5)-Math.PI/2;
+        ctx.lineTo(Math.cos(a)*p.size,Math.sin(a)*p.size);
+        ctx.lineTo(Math.cos(b)*p.size*0.4,Math.sin(b)*p.size*0.4);
+      }
+      ctx.closePath();
+      ctx.fillStyle=`hsla(${p.hue},90%,65%,${op})`; ctx.fill();
+      ctx.restore();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
+function startAurora(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let t=0;
+  const stars=Array.from({length:30},()=>({x:Math.random()*W,y:Math.random()*H*0.6,r:Math.random()*0.8+0.2,tw:Math.random()*100}));
+  function frame() {
+    ctx.clearRect(0,0,W,H); t+=0.006;
+    [[0,'0,210,150'],[1,'80,120,255'],[2,'160,60,255']].forEach(([i,rgb])=>{
+      const yOff = Math.sin(t*0.7+i*1.8)*H*0.12;
+      const grad=ctx.createLinearGradient(0,H*0.2+yOff,0,H*0.7+yOff);
+      grad.addColorStop(0,`rgba(${rgb},0)`);
+      grad.addColorStop(0.4,`rgba(${rgb},${0.08+Math.sin(t+i)*0.04})`);
+      grad.addColorStop(1,`rgba(${rgb},0)`);
+      ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+    });
+    stars.forEach(s=>{
+      const op=0.4+Math.sin(Date.now()/700+s.tw)*0.4;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(220,240,255,${Math.max(0,op)})`; ctx.fill();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+
 
 function handleBlurClick(e) { const span = e.target.closest('.blur-text-span'); if (span) span.classList.toggle('revealed'); }
 function handleCaptionClick(e) { const link = e.target.closest('a'); if (link) { e.stopPropagation(); window.open(link.href, '_blank', 'noopener'); } }
@@ -3346,6 +4000,7 @@ async function submitEntry(type) {
     payload.content = html;
     payload.blur_18 = note18Enabled;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+      payload.theme = selectedNoteTheme || 'none';
   } else if (type === 'photo') {
     const raw = document.getElementById('photo-urls').value.trim();
     const date = document.getElementById('photo-date').value;
@@ -3398,6 +4053,8 @@ function clearForm(type) {
     document.getElementById('rte-editor').innerHTML = '';
     document.getElementById('rte-link-bar').classList.remove('visible');
     if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-private'); }
+        selectedNoteTheme = 'none';
+    selectNoteTheme('none')
     clearTimeout(draftSaveTimer);
     setDraftStatus('empty');
     sb.from('drafts').delete().eq('id', 'note').then(() => {});
@@ -3486,6 +4143,14 @@ function openEditFor(id) {
 
   const editCapWrap = document.getElementById('editCapWrap');
   const editCapTa   = document.getElementById('edit-caption');
+  const editThemeGroup = document.getElementById('edit-theme-group');
+  if (e.type === 'note') {
+    editThemeGroup.style.display = 'block';
+    selectedEditTheme = e.theme || 'none';
+    selectEditTheme(selectedEditTheme);
+  } else {
+    editThemeGroup.style.display = 'none';
+  }
 
   if (e.type === 'note') {
     document.getElementById('edit-rte-group').style.display='block';
@@ -3552,6 +4217,8 @@ async function saveEdit() {
   if (type === 'note') {
     update.content = getRteHtml('rte-editor2');
     update.blur_18 = edit18Enabled;
+        update.theme = selectedEditTheme || 'none';
+
   } else if (type === 'music') {
     const content = document.getElementById('edit-content').value.trim();
     const caption = document.getElementById('edit-caption').value.trim();
@@ -3663,6 +4330,24 @@ function togglePhotoBlur() {
   else { track.style.background='var(--surface2)'; track.style.borderColor='var(--border)'; thumb.style.background='var(--text3)'; thumb.style.transform='translateX(0)'; }
 }
 function toggleEditBlur() { editBlurEnabled=!editBlurEnabled; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
+
+let selectedNoteTheme = 'none';
+let selectedEditTheme = 'none';
+
+function selectNoteTheme(theme) {
+  selectedNoteTheme = theme;
+  document.querySelectorAll('#themeSelectorGrid .theme-swatch').forEach(s => {
+    s.classList.toggle('selected', s.dataset.theme === theme);
+  });
+}
+
+function selectEditTheme(theme) {
+  selectedEditTheme = theme;
+  document.querySelectorAll('#editThemeSelectorGrid .theme-swatch').forEach(s => {
+    s.classList.toggle('selected', s.dataset.theme === theme);
+  });
+}
+
 
 // ═══════════════════════════════════════
 // RICH TEXT EDITOR
