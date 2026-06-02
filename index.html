@@ -1069,9 +1069,10 @@ audio { display: none; }
 
 /* ── TEMA 5: Ploaie depresivă ── */
 .theme-rain {
-  background: linear-gradient(180deg, #070b0f 0%, #0a0f14 40%, #080d12 100%);
+  background: transparent;
   min-height: 80px;
 }
+
 .theme-rain .card-text { color: #b8c8d8; }
 
 /* ── TEMA 6: Foc și lavă ── */
@@ -3343,7 +3344,7 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
     ? `<div class="private-card-wrap">${contentInner}${privateOverlayHtml}</div>`
     : contentInner;
 
-  const theme = (e.type === 'note' && e.theme && e.theme !== 'none') ? e.theme : '';
+const theme = (e.theme && e.theme !== 'none') ? e.theme : '';
   const themeCardClass = theme ? 'theme-card' : '';
   const canvasId = `tc-${e.id}`;
 
@@ -3388,7 +3389,7 @@ function initThemeCanvases() {
     if (!entryCard) return;
     const id = entryCard.dataset.id;
     const entry = entries.find(e => String(e.id) === String(id));
-    if (!entry || !entry.theme || entry.theme === 'none') return;
+if (!entry || !entry.theme || entry.theme === 'none') return;
     const canvas = wrap.querySelector('.theme-canvas');
     if (!canvas || canvas.dataset.init) return;
     canvas.dataset.init = '1';
@@ -3548,37 +3549,46 @@ function startHearts(canvas) {
 function startRain(canvas) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const drops = Array.from({length: 80}, () => ({
-    x: Math.random()*W, y: Math.random()*H,
-    speed: Math.random()*4+3, length: Math.random()*15+8,
-    opacity: Math.random()*0.4+0.1, width: Math.random()*0.8+0.2
+  const drops = Array.from({length: 55}, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    speed: Math.random() * 0.8 + 0.4,
+    length: Math.random() * 12 + 6,
+    opacity: Math.random() * 0.18 + 0.06,
+    width: Math.random() * 0.5 + 0.2,
+    angle: 0.08,
+    wobble: Math.random() * 1000,
   }));
-  // bruma pe fundal
   function frame() {
-    ctx.clearRect(0,0,W,H);
-    // fog layer
-    const fog = ctx.createLinearGradient(0,0,0,H);
-    fog.addColorStop(0,'rgba(30,40,55,0.08)');
-    fog.addColorStop(1,'rgba(10,18,28,0.12)');
-    ctx.fillStyle = fog; ctx.fillRect(0,0,W,H);
+    ctx.clearRect(0, 0, W, H);
+    const t = Date.now() / 4000;
     drops.forEach(d => {
+      const sway = Math.sin(t + d.wobble) * 0.04;
+      d.x += (d.angle + sway) * d.speed;
       d.y += d.speed;
-      if (d.y > H+20) { d.y=-10; d.x=Math.random()*W; }
+      if (d.y > H + 20) {
+        d.y = -d.length;
+        d.x = Math.random() * W;
+        d.speed = Math.random() * 0.8 + 0.4;
+        d.opacity = Math.random() * 0.18 + 0.06;
+      }
+      const grad = ctx.createLinearGradient(d.x, d.y, d.x - d.length * d.angle, d.y - d.length);
+      grad.addColorStop(0, `rgba(180,215,240,${d.opacity})`);
+      grad.addColorStop(1, `rgba(180,215,240,0)`);
       ctx.beginPath();
       ctx.moveTo(d.x, d.y);
-      ctx.lineTo(d.x - 1, d.y - d.length);
-      ctx.strokeStyle = `rgba(140,180,220,${d.opacity})`;
-      ctx.lineWidth = d.width; ctx.stroke();
+      ctx.lineTo(d.x - d.length * d.angle, d.y - d.length);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = d.width;
+      ctx.lineCap = 'round';
+      ctx.stroke();
     });
-    // occasional lightning flash
-    if (Math.random() < 0.003) {
-      ctx.fillStyle = 'rgba(200,220,255,0.04)';
-      ctx.fillRect(0,0,W,H);
-    }
     canvas._raf = requestAnimationFrame(frame);
   }
   canvas._raf = requestAnimationFrame(frame);
 }
+
+
 
 function startFire(canvas) {
   const ctx = canvas.getContext('2d');
@@ -4034,7 +4044,7 @@ async function submitEntry(type) {
     payload.media_urls = [url]; payload.caption = title || 'document PDF'; payload.content = note;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   }
-
+payload.theme = selectedNoteTheme || 'none';
   payload.modified_at = payload.posted_at;
   const { error } = await sb.from('entries').insert([payload]);
   if (error) { showToast('eroare: ' + error.message); return; }
@@ -4140,13 +4150,9 @@ function openEditFor(id) {
   const editCapWrap = document.getElementById('editCapWrap');
   const editCapTa   = document.getElementById('edit-caption');
   const editThemeGroup = document.getElementById('edit-theme-group');
-  if (e.type === 'note') {
-    editThemeGroup.style.display = 'block';
-    selectedEditTheme = e.theme || 'none';
-    selectEditTheme(selectedEditTheme);
-  } else {
-    editThemeGroup.style.display = 'none';
-  }
+editThemeGroup.style.display = 'block';
+selectedEditTheme = e.theme || 'none';
+selectEditTheme(selectedEditTheme);
 
   if (e.type === 'note') {
     document.getElementById('edit-rte-group').style.display='block';
@@ -4210,11 +4216,11 @@ async function saveEdit() {
   const cover = document.getElementById('edit-cover').value.trim();
   const update = { posted_at: dateVal ? new Date(dateVal).toISOString() : undefined, modified_at: new Date().toISOString() };
 
+  update.theme = selectedEditTheme || 'none';
+
   if (type === 'note') {
     update.content = getRteHtml('rte-editor2');
     update.blur_18 = edit18Enabled;
-        update.theme = selectedEditTheme || 'none';
-
   } else if (type === 'music') {
     const content = document.getElementById('edit-content').value.trim();
     const caption = document.getElementById('edit-caption').value.trim();
@@ -4242,6 +4248,7 @@ async function saveEdit() {
   if (error) { showToast('eroare'); return; }
   showToast('modificat'); closeModal('edit'); await reloadAndRender();
 }
+
 
 // ═══════════════════════════════════════
 // DELETE
