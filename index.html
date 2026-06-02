@@ -3029,8 +3029,8 @@ function renderEntry(e, hlQuery) {
     const titleText = e.caption || 'melodie';
     const noteText = e.content || '';
     const noteHtml = noteText ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>` : '';
-    mediaHtml = `<div class="music-player">
-      <div class="music-cover-btn" onclick="toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this.closest('.music-player'))">
+mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this)" style="cursor:pointer;">
+      <div class="music-cover-btn" onclick="event.stopPropagation()">
         ${iconBgHtml}${coverImgHtml}
         <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
       </div>
