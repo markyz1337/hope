@@ -998,9 +998,10 @@ audio { display: none; }
 
 /* ── TEMA 1: Stele căzătoare ── */
 .theme-stars {
-  background: linear-gradient(160deg, #0a0a1a 0%, #0d0820 50%, #080d1a 100%);
+  background: transparent;
   min-height: 80px;
 }
+
 .theme-stars .card-text { color: #e8e4f0; text-shadow: 0 0 20px rgba(180,160,255,0.15); }
 
 /* ── TEMA 2: Aurora (gradient dark) ── */
@@ -3437,12 +3438,7 @@ function startStars(canvas) {
     ctx.clearRect(0,0,W,H);
     const now = Date.now();
 
-    // Fundal gradient noaptea
-    const bg = ctx.createLinearGradient(0,0,0,H);
-    bg.addColorStop(0, 'rgba(4,4,18,0.55)');
-    bg.addColorStop(1, 'rgba(8,6,22,0.35)');
-    ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-
+    
     // Stele fixe
     staticStars.forEach(s => {
       const op = 0.25 + Math.sin(now * s.speed + s.phase) * 0.22;
