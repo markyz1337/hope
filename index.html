@@ -4680,9 +4680,18 @@ async function saveDebug() {
 function openModal(name) {
   if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm'].includes(name)) { showToast('deblochează mai întâi'); return; }
   closeFab(); closeCalPopup();
-  if (name === 'note') {
+if (name === 'note') {
     loadDraft();
+    setDefaultDates();
+    const noteInterval = setInterval(() => {
+      if (!document.getElementById('modal-note').classList.contains('open')) {
+        clearInterval(noteInterval);
+        return;
+      }
+      setDefaultDates();
+    }, 30000);
   }
+
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
