@@ -303,7 +303,12 @@ body::before {
   to   { opacity:1; transform:translateY(0); }
 }
 .card-inner { padding: 12px 13px 13px; }
-.card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.card-meta {
+  position: relative;
+  z-index: 4;
+  margin-bottom: 8px;
+}
+
 .card-meta-left { display: flex; align-items: center; gap: 7px; }
 .card-time { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
 .type-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
@@ -420,11 +425,11 @@ body.locked .card-actions { display: none !important; }
 /* Overlay-ul privat — acoperă TOT mai puțin header-ul */
 .private-overlay {
   position: absolute;
-  left: -13px; right: -13px;
-  bottom: -13px;
-  top: 0; /* de la începutul zonei de conținut, sub meta */
-  border-radius: 0 0 var(--r) var(--r);
-  z-index: 5;
+  left: 0; right: 0;
+  bottom: 0;
+  top: 0;
+  border-radius: var(--r);
+  z-index: 3;
   cursor: pointer;
   overflow: hidden;
   display: flex;
@@ -3706,22 +3711,23 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
   }
 
   const contentInner = `${textHtml}${mediaHtml}`;
-  const wrappedContent = isPrivate
-    ? `<div class="private-card-wrap">${contentInner}${privateOverlayHtml}</div>`
-    : contentInner;
+const wrappedContent = isPrivate
+  ? `<div class="private-card-wrap">${contentInner}</div>`
+  : contentInner;
+
+
 
 const theme = (e.theme && e.theme !== 'none') ? e.theme : '';
   const themeCardClass = theme ? 'theme-card' : '';
   const canvasId = `tc-${e.id}`;
 
-  return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
+return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
     <div class="card-inner${theme ? ` note-theme-wrap theme-${theme}` : ''}" id="twrap-${e.id}">
       ${theme ? buildThemeExtras(theme, canvasId) : ''}
       <div class="card-meta" style="position:relative;z-index:1">
         <div class="card-meta-left">
           <span class="type-chip ${chipClass[e.type]||'chip-note'}">${typeLabels[e.type]||e.type}</span>
-${renderTimeIcon(e.posted_at)}<span class="card-time">${timeStr} · ${dateStr}</span>
-
+          ${renderTimeIcon(e.posted_at)}<span class="card-time">${timeStr} · ${dateStr}</span>
         </div>
         <div class="card-actions">
           <button class="icon-btn" onclick="openDebugFor('${e.id}')" title="debug">
@@ -3735,6 +3741,7 @@ ${renderTimeIcon(e.posted_at)}<span class="card-time">${timeStr} · ${dateStr}</
           </button>
         </div>
       </div>
+      ${isPrivate ? privateOverlayHtml : ''}
       <div style="position:relative;z-index:1">${wrappedContent}</div>
     </div>
   </div>`;
