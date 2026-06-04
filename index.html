@@ -3114,11 +3114,30 @@ function goBackToToday() { selectDate(todayKey()); }
 function setupNavButtons() {
   const prev = document.getElementById('navPrev');
   const next = document.getElementById('navNext');
+
   prev.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(-1); });
   next.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(1); });
-  prev.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(-1); }, { passive:false });
-  next.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(1); }, { passive:false });
+
+  prev.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+  next.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+
+  prev.addEventListener('touchend', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    overscrollDelta = 0; overscrollActive = false;
+    topscrollDelta = 0; topscrollActive = false;
+    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
+    jumpDate(-1);
+  }, { passive: false });
+
+  next.addEventListener('touchend', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    overscrollDelta = 0; overscrollActive = false;
+    topscrollDelta = 0; topscrollActive = false;
+    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
+    jumpDate(1);
+  }, { passive: false });
 }
+
 
 // ═══════════════════════════════════════
 // OVERSCROLL / RING
