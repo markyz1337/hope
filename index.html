@@ -2307,14 +2307,14 @@ function openPinOverlay(mode) {
     document.getElementById('pinTitle').textContent = 'conținut privat';
     document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
   } else if (pinMode === 'visitor') {
-    document.getElementById('pinTitle').textContent = 'carnet';
+    document.getElementById('pinTitle').textContent = 'hope';
     document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
   } else if (pinMode === 'time') {
     document.getElementById('pinTitle').textContent = 'prea devreme 🌙';
     document.getElementById('pinSubtitle').textContent = `carnetul e disponibil între ${SETTING_TIME_LOCK_HOUR} și ${SETTING_TIME_LOCK_END} · introdu codul dacă știi`;
   }
  else {
-    document.getElementById('pinTitle').textContent = 'carnet';
+    document.getElementById('pinTitle').textContent = 'hope';
     document.getElementById('pinSubtitle').textContent = 'introdu codul PIN';
   }
   overlay.classList.add('open');
