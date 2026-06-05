@@ -2454,6 +2454,8 @@ async function continueInitAfterAuth() {
     else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
   }
 
+
+
   buildCarousel();
   renderEntries();
   setDefaultDates();
@@ -2461,6 +2463,19 @@ async function continueInitAfterAuth() {
   setupNavButtons();
   setupOverscroll();
   setupCardTextLinks();
+  
+  if (selectedDate) {
+  const dk = dateKey(selectedDate);
+  if (dateMusicMap[dk] && dateMusicMap[dk].url) {
+    pendingDateMusicKey = dk;
+    pendingDateMusicAutoplay = true;
+    dmAudio.src = dateMusicMap[dk].url;
+    dmAudioLoaded = true;
+    updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+  }
+}
+
+  
 }
 
 
