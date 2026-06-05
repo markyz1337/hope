@@ -3254,12 +3254,18 @@ function checkTimeLock() {
   const [endH, endM] = SETTING_TIME_LOCK_END.split(':').map(Number);
   const startMin = startH * 60 + startM;
   const endMin   = endH * 60 + endM;
+
+  let isAllowed;
   if (startMin <= endMin) {
-    return nowMinutes < startMin || nowMinutes >= endMin;
+    isAllowed = nowMinutes >= startMin && nowMinutes < endMin;
   } else {
-    return nowMinutes < startMin && nowMinutes >= endMin;
+    // interval peste miezul nopții: ex. 20:00 → 03:00
+    isAllowed = nowMinutes >= startMin || nowMinutes < endMin;
   }
+
+  return !isAllowed; // true = blocat
 }
+
 
 function getMinutesUntilUnlock() {
   const now = new Date();
@@ -3302,27 +3308,33 @@ function showTimeLockOverlay() {
 
 
 function setupHeaderTitleTripleTap() {
-  const el = document.getElementById('headerTitle');
+  function handleTripleTap(el) {
+    let tapCount = 0;
+    let tapTimer = null;
+    el.addEventListener('click', () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+      if (tapCount >= 3) {
+        tapCount = 0;
+        pinBuffer = '';
+        updatePinDots();
+        const overlay = document.getElementById('pinOverlay');
+        overlay.classList.remove('mode-private');
+        document.getElementById('pinTitle').textContent = 'carnet';
+        document.getElementById('pinSubtitle').textContent = 'cod creator';
+        _pinModeOverride = 'creator';
+        overlay.classList.add('open');
+      } else {
+        tapTimer = setTimeout(() => { tapCount = 0; }, 700);
+      }
+    });
+  }
 
-  el.addEventListener('click', () => {
-    headerTitleTapCount++;
-    clearTimeout(headerTitleTapTimer);
-    if (headerTitleTapCount >= 3) {
-      headerTitleTapCount = 0;
-      // Deschide PIN creator — funcționează și dacă time lock e activ
-      pinBuffer = '';
-      updatePinDots();
-      const overlay = document.getElementById('pinOverlay');
-      overlay.classList.remove('mode-private');
-      document.getElementById('pinTitle').textContent = 'carnet';
-      document.getElementById('pinSubtitle').textContent = 'cod creator';
-      _pinModeOverride = 'creator';
-      overlay.classList.add('open');
-    } else {
-      headerTitleTapTimer = setTimeout(() => { headerTitleTapCount = 0; }, 700);
-    }
-  });
+  handleTripleTap(document.getElementById('headerTitle'));
+  handleTripleTap(document.getElementById('timeLockTitle'));
 }
+
+
 
 
 function openCreatorPinFromTitle() {
@@ -3364,12 +3376,11 @@ SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
 
 setUnlocked(false);
 if (SETTING_TIME_LOCK && checkTimeLock()) {
-  // Time lock activ — arată DOAR overlay-ul cu countdown, niciun PIN
   showTimeLockOverlay();
 } else if (SETTING_VISITOR_LOCK) {
-  // Visitor lock activ, dar nu e time lock — cere PIN vizitatori
   openPinOverlay('visitor');
 }
+
 // Dacă niciuna nu e activă — rămâne blocat, user apasă lacătul
 setupHeaderTitleTripleTap();
 
