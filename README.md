@@ -304,10 +304,14 @@ body::before {
 }
 .card-inner { padding: 12px 13px 13px; }
 .card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: relative;
   z-index: 4;
   margin-bottom: 8px;
 }
+
 
 .card-meta-left { display: flex; align-items: center; gap: 7px; }
 .card-time { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
@@ -1149,21 +1153,31 @@ audio { display: none; }
 /* ── SELECTOR TEME în modal ── */
 .theme-selector-wrap { margin-bottom: 14px; }
 .theme-selector-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
   margin-top: 7px;
 }
+.theme-selector-grid::-webkit-scrollbar { display: none; }
 .theme-swatch {
-  aspect-ratio: 1;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  width: 56px;
+  height: 56px;
   border-radius: 10px;
   border: 2px solid transparent;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   transition: all 0.18s;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .theme-swatch:hover { transform: scale(1.08); }
 .theme-swatch.selected { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(200,169,126,0.25); }
 .theme-swatch-label {
@@ -3100,11 +3114,30 @@ function goBackToToday() { selectDate(todayKey()); }
 function setupNavButtons() {
   const prev = document.getElementById('navPrev');
   const next = document.getElementById('navNext');
+
   prev.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(-1); });
   next.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(1); });
-  prev.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(-1); }, { passive:false });
-  next.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); jumpDate(1); }, { passive:false });
+
+  prev.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+  next.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
+
+  prev.addEventListener('touchend', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    overscrollDelta = 0; overscrollActive = false;
+    topscrollDelta = 0; topscrollActive = false;
+    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
+    jumpDate(-1);
+  }, { passive: false });
+
+  next.addEventListener('touchend', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    overscrollDelta = 0; overscrollActive = false;
+    topscrollDelta = 0; topscrollActive = false;
+    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
+    jumpDate(1);
+  }, { passive: false });
 }
+
 
 // ═══════════════════════════════════════
 // OVERSCROLL / RING
@@ -3667,7 +3700,7 @@ function renderEntry(e, hlQuery) {
     const noteText = e.content || '';
     const noteHtml = noteText ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>` : '';
 mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this)" style="cursor:pointer;">
-      <div class="music-cover-btn" onclick="event.stopPropagation()">
+<div class="music-cover-btn" onclick="event.stopPropagation();toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this.closest('.music-player'))">
         ${iconBgHtml}${coverImgHtml}
         <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
       </div>
@@ -4666,9 +4699,18 @@ async function saveDebug() {
 function openModal(name) {
   if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm'].includes(name)) { showToast('deblochează mai întâi'); return; }
   closeFab(); closeCalPopup();
-  if (name === 'note') {
+if (name === 'note') {
     loadDraft();
+    setDefaultDates();
+    const noteInterval = setInterval(() => {
+      if (!document.getElementById('modal-note').classList.contains('open')) {
+        clearInterval(noteInterval);
+        return;
+      }
+      setDefaultDates();
+    }, 30000);
   }
+
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
