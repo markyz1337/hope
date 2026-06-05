@@ -2363,17 +2363,23 @@ function updatePinDots() {
 
 function checkPin() {
   // ── Creator PIN funcționează ORIUNDE, indiferent de mod ──
-  if (pinBuffer === PIN_CODE) {
-    _pinModeOverride = null;
-    // Închide orice overlay deschis
-    document.getElementById('pinOverlay').classList.remove('open');
-    document.getElementById('timeLockOverlay')?.classList.remove('open');
-    clearInterval(timeLockInterval);
-    pinBuffer = '';
-    updatePinDots();
-    setUnlocked(true);
-    return;
+if (pinBuffer === PIN_CODE) {
+  _pinModeOverride = null;
+  document.getElementById('pinOverlay').classList.remove('open');
+  document.getElementById('timeLockOverlay')?.classList.remove('open');
+  clearInterval(timeLockInterval);
+  pinBuffer = '';
+  updatePinDots();
+  setUnlocked(true);
+  
+  // ← ADAUGĂ ASTA:
+  if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
+    timeLockBypassed = true;
+    continueInitAfterAuth();
   }
+  return;
+}
+
 
   // ── Dacă era forțat la creator PIN (triple tap din time lock) ──
   if (_pinModeOverride === 'creator') {
@@ -2419,6 +2425,43 @@ function checkPin() {
   }
 }
 
+async function continueInitAfterAuth() {
+  await loadDateMusicMap();
+  await loadEntries();
+
+  const savedKey = await loadLastDate();
+  const _settings = await loadSettings();
+  SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
+
+  const allDates = [
+    ...entries.map(e => dateKey(e.posted_at)),
+    ...Object.keys(dateMusicMap)
+  ].sort();
+
+  if (SETTING_NAV_MODE === 'today') {
+    const today = new Date(); today.setHours(0,0,0,0);
+    selectedDate = today;
+  } else if (SETTING_NAV_MODE === 'last') {
+    const lastDate = allDates[allDates.length - 1];
+    if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+  } else if (SETTING_NAV_MODE === 'first') {
+    const firstDate = allDates[0];
+    if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+  } else {
+    if (savedKey) { const [y,m,d] = savedKey.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+  }
+
+  buildCarousel();
+  renderEntries();
+  setDefaultDates();
+  updateCalFabState();
+  setupNavButtons();
+  setupOverscroll();
+  setupCardTextLinks();
+}
 
 
 function pinError() {
@@ -3294,16 +3337,30 @@ function showTimeLockOverlay() {
   }
 
   updateCountdown();
-  timeLockInterval = setInterval(() => {
-    if (!checkTimeLock()) {
-      clearInterval(timeLockInterval);
-      document.getElementById('timeLockOverlay').classList.remove('open');
-      // Dacă visitor lock e activ, cere PIN vizitatori acum
-      if (SETTING_VISITOR_LOCK) openPinOverlay('visitor');
-    } else {
-      updateCountdown();
+  timeLockInterval = setInterval(async () => {
+  if (!checkTimeLock()) {
+    clearInterval(timeLockInterval);
+    document.getElementById('timeLockOverlay').classList.remove('open');
+    // Acum încarcă datele
+    if (SETTING_VISITOR_LOCK) {
+      openPinOverlay('visitor');
+      await waitForVisitorPin();
     }
-  }, 30000);
+    await loadDateMusicMap();
+    await loadEntries();
+    const savedKey = await loadLastDate();
+    // restul logicii de init după încărcare
+    buildCarousel();
+    renderEntries();
+    setDefaultDates();
+    updateCalFabState();
+    setupNavButtons();
+    setupOverscroll();
+    setupCardTextLinks();
+  } else {
+    updateCountdown();
+  }
+}, 30000);
 }
 
 
@@ -3352,6 +3409,18 @@ let _pinModeOverride = null;
 
 
 
+function waitForVisitorPin() {
+  return new Promise(resolve => {
+    function checkPin() {
+      if (!document.getElementById('pinOverlay').classList.contains('open')) {
+        resolve();
+      } else {
+        setTimeout(checkPin, 300);
+      }
+    }
+    setTimeout(checkPin, 300);
+  });
+}
 
 
 
@@ -3360,6 +3429,7 @@ let _pinModeOverride = null;
 // ═══════════════════════════════════════
 async function init() {
 updateHeaderDate();
+setupHeaderTitleTripleTap();
 setupInteractionCapture();
 
 // Încarcă setările din Supabase
@@ -3376,19 +3446,21 @@ SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
 
 setUnlocked(false);
 if (SETTING_TIME_LOCK && checkTimeLock()) {
+  timeLockBypassed = false; // ← asigură-te că e reset
   showTimeLockOverlay();
-} else if (SETTING_VISITOR_LOCK) {
-  openPinOverlay('visitor');
+  return;
 }
 
-// Dacă niciuna nu e activă — rămâne blocat, user apasă lacătul
-setupHeaderTitleTripleTap();
 
+if (SETTING_VISITOR_LOCK) {
+  openPinOverlay('visitor');
+  // nu facem return — dar nu încărcăm până la confirmare
+  await waitForVisitorPin();
+}
 
+await loadDateMusicMap();
+await loadEntries();
 
-
-  await loadDateMusicMap();
-  await loadEntries();
 const savedKey = await loadLastDate();
 SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
 
