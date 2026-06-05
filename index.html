@@ -2403,18 +2403,20 @@ if (pinBuffer === PIN_CODE) {
     return;
   }
 
+
   // ── PIN vizitatori ──
   if (pinMode === 'visitor') {
     if (pinBuffer === PIN_VISITOR) {
       document.getElementById('pinOverlay').classList.remove('open');
       pinBuffer = '';
       updatePinDots();
-      // Nu deblocăm modul creator, rămâne locked (vizitator)
+      userHasInteracted = true; // ← ADAUGĂ ASTA
     } else {
       pinError();
     }
     return;
   }
+
 
   // ── PIN main (butonul lacăt normal) ──
   if (pinBuffer === PIN_CODE) {
@@ -3509,13 +3511,20 @@ if (SETTING_NAV_MODE === 'today') {
   if (selectedDate) {
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-      pendingDateMusicKey = dk;
-      pendingDateMusicAutoplay = true;
       dmAudio.src = dateMusicMap[dk].url;
       dmAudioLoaded = true;
       updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+      if (userHasInteracted) {
+        dmAudio.volume = 0.28;
+        dmAudio.play().catch(() => {});
+        syncDateMusicWaves();
+      } else {
+        pendingDateMusicKey = dk;
+        pendingDateMusicAutoplay = true;
+      }
     }
   }
+
   setupNavButtons();
   setupOverscroll();
   setupCardTextLinks();
