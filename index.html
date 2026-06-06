@@ -5247,12 +5247,13 @@ async function submitEntry(type) {
   }
 payload.theme = selectedNoteTheme || 'none';
   payload.modified_at = payload.posted_at;
-  const { error } = await sb.from('entries').insert([payload]);
+  const { data: inserted, error } = await sb.from('entries').insert([payload]).select().single();
   if (error) { showToast('eroare: ' + error.message); return; }
   showToast('salvat');
   closeModal(type);
   clearForm(type);
-  await reloadAndRender();
+  await reloadAndRender(inserted?.id);
+
 }
 
 function clearForm(type) {
@@ -5283,7 +5284,18 @@ function clearForm(type) {
   setDefaultDates();
 }
 
-async function reloadAndRender() { await loadEntries(); buildCarousel(); renderEntries(); }
+async function reloadAndRender(scrollToId) {
+  await loadEntries();
+  buildCarousel();
+  renderEntries();
+  if (scrollToId) {
+    setTimeout(() => {
+      const el = document.querySelector(`.entry-card[data-id="${scrollToId}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  }
+}
+
 
 // ═══════════════════════════════════════
 // IMPORT
@@ -5447,7 +5459,8 @@ async function saveEdit() {
 
   const { error } = await sb.from('entries').update(update).eq('id', id);
   if (error) { showToast('eroare'); return; }
-  showToast('modificat'); closeModal('edit'); await reloadAndRender();
+  showToast('modificat'); closeModal('edit'); await reloadAndRender(id);
+
 }
 
 
@@ -5461,6 +5474,7 @@ async function confirmDelete() {
   const { error } = await sb.from('entries').delete().eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('șters'); closeModal('delete'); await reloadAndRender();
+
 }
 
 // ═══════════════════════════════════════
