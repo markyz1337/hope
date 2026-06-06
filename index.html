@@ -3908,28 +3908,29 @@ function setupNavButtons() {
   const prev = document.getElementById('navPrev');
   const next = document.getElementById('navNext');
 
-  prev.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(-1); });
-  next.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(1); });
+  let navTouchHandled = false;
+
+  function handleNavTouch(dir, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    navTouchHandled = true;
+    overscrollDelta = 0; overscrollActive = false;
+    topscrollDelta = 0; topscrollActive = false;
+    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
+    jumpDate(dir);
+    setTimeout(() => { navTouchHandled = false; }, 600);
+  }
+
+  prev.addEventListener('touchend', (e) => handleNavTouch(-1, e), { passive: false });
+  next.addEventListener('touchend', (e) => handleNavTouch(1, e), { passive: false });
+
+  prev.addEventListener('click', (e) => { if (navTouchHandled) { e.stopPropagation(); return; } e.stopPropagation(); jumpDate(-1); });
+  next.addEventListener('click', (e) => { if (navTouchHandled) { e.stopPropagation(); return; } e.stopPropagation(); jumpDate(1); });
 
   prev.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
   next.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
-
-  prev.addEventListener('touchend', (e) => {
-    e.preventDefault(); e.stopPropagation();
-    overscrollDelta = 0; overscrollActive = false;
-    topscrollDelta = 0; topscrollActive = false;
-    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
-    jumpDate(-1);
-  }, { passive: false });
-
-  next.addEventListener('touchend', (e) => {
-    e.preventDefault(); e.stopPropagation();
-    overscrollDelta = 0; overscrollActive = false;
-    topscrollDelta = 0; topscrollActive = false;
-    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
-    jumpDate(1);
-  }, { passive: false });
 }
+
 
 
 // ═══════════════════════════════════════
