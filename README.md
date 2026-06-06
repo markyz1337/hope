@@ -2,8 +2,8 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>carnet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>hope</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -108,6 +108,10 @@ body::before {
   padding: 24px;
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
+  padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
+
+  
 }
 .pin-overlay.open { opacity: 1; pointer-events: all; }
 
@@ -1190,6 +1194,113 @@ audio { display: none; }
 .theme-swatch-icon { font-size: 16px; line-height: 1; position: relative; z-index: 1; }
 
 
+/* ── SETTINGS MENU ── */
+.settings-overlay {
+  position: fixed; inset: 0;
+  background: rgba(4,4,8,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 600;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 20px 16px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+  overflow-y: auto;
+}
+.settings-overlay.open { opacity: 1; pointer-events: all; }
+
+.settings-modal {
+  width: 100%; max-width: 400px;
+  background: linear-gradient(180deg, #181820 0%, #111115 100%);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  padding: 20px;
+  margin-top: 8px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.65);
+}
+
+.settings-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 22px;
+}
+.settings-title {
+  font-family: var(--serif); font-size: 20px; font-style: italic;
+  color: var(--accent2); font-weight: 400;
+}
+.settings-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: rgba(255,255,255,0.04);
+  color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.settings-close:hover { background: rgba(200,80,80,0.12); color: var(--rose); border-color: rgba(200,80,80,0.3); }
+.settings-close svg { width: 13px; height: 13px; }
+
+.settings-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.settings-section-title {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text4);
+  margin-bottom: 12px;
+}
+
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 10px;
+}
+.settings-row:last-child { margin-bottom: 0; }
+.settings-row-label {
+  font-family: var(--sans); font-size: 13px; color: var(--text2);
+  line-height: 1.4; flex: 1;
+}
+.settings-row-sub {
+  font-family: var(--mono); font-size: 10px; color: var(--text4);
+  margin-top: 2px; letter-spacing: 0.03em;
+}
+
+.settings-pin-group {
+  margin-top: 10px;
+  display: flex; gap: 8px; align-items: center;
+}
+.settings-pin-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 9px 12px; color: var(--text);
+  font-family: var(--mono); font-size: 14px; letter-spacing: 0.1em;
+  outline: none; transition: border-color 0.2s;
+  -webkit-text-security: disc;
+}
+.settings-pin-input:focus { border-color: var(--border2); background: var(--surface2); }
+.settings-pin-btn {
+  padding: 9px 16px; border-radius: 10px;
+  border: 1px solid rgba(200,169,126,0.3);
+  background: rgba(200,169,126,0.08);
+  color: var(--accent2); font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.06em; cursor: pointer; white-space: nowrap;
+  transition: all 0.15s;
+}
+.settings-pin-btn:hover { background: rgba(200,169,126,0.18); }
+
+.settings-time-input {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 7px 12px; color: var(--text);
+  font-family: var(--mono); font-size: 13px;
+  outline: none; transition: border-color 0.2s;
+  width: 90px; text-align: center;
+}
+.settings-time-input:focus { border-color: var(--border2); }
+
+.header-title { cursor: default; transition: color 0.2s; }
+.header-title.unlocked-mode { cursor: pointer; }
+.header-title.unlocked-mode:hover { color: var(--accent); }
+
+
 
 </style>
 </head>
@@ -1203,7 +1314,7 @@ audio { display: none; }
           <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <span class="header-title">carnet</span>
+<span class="header-title" id="headerTitle" onclick="if(!isLocked)openSettings()">hope</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="header-date-display" id="headerDateDisplay"></div>
@@ -1371,6 +1482,24 @@ audio { display: none; }
     </button>
   </div>
 </div>
+
+
+<!-- TIME LOCK OVERLAY -->
+<div class="pin-overlay" id="timeLockOverlay" style="flex-direction:column;gap:16px;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;inset:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);">
+
+
+
+  <canvas id="timeLockStarsCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+
+<div class="pin-modal" style="align-items:center;gap:16px;position:relative;z-index:1;" id="timeLockModal">
+    <div class="pin-title" id="timeLockTitle">prea devreme 🌙</div>
+    <div class="pin-subtitle" id="timeLockSubtitle"></div>
+    <div id="timeLockCountdown" style="font-family:var(--mono);font-size:28px;color:var(--accent2);letter-spacing:0.08em;"></div>
+<div style="display:none;" id="timeLockNote"></div>
+
+  </div>
+</div>
+
 
 <!-- PIN OVERLAY -->
 <div class="pin-overlay" id="pinOverlay">
@@ -1971,6 +2100,147 @@ audio { display: none; }
   </div>
 </div>
 
+<!-- Settings Menu -->
+<div class="settings-overlay" id="settingsOverlay" onclick="handleSettingsOverlayClick(event)">
+  <div class="settings-modal" id="settingsModal">
+    <div class="settings-header">
+      <div class="settings-title">setări carnet</div>
+      <button class="settings-close" onclick="closeSettings()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 1. Ziua inițială -->
+<div class="settings-section">
+  <div class="settings-section-title">navigare inițială</div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <input type="radio" name="nav-mode" value="today" style="accent-color:var(--accent)">
+      <div><div class="settings-row-label">Ziua de azi</div><div class="settings-row-sub">mereu la ziua curentă</div></div>
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <input type="radio" name="nav-mode" value="last" style="accent-color:var(--accent)">
+      <div><div class="settings-row-label">Ultima zi cu conținut</div><div class="settings-row-sub">cea mai recentă zi înregistrată</div></div>
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <input type="radio" name="nav-mode" value="saved" style="accent-color:var(--accent)">
+      <div><div class="settings-row-label">Ultima zi vizitată</div><div class="settings-row-sub">ziua salvată în Supabase</div></div>
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <input type="radio" name="nav-mode" value="first" style="accent-color:var(--accent)">
+      <div><div class="settings-row-label">Prima zi cu conținut</div><div class="settings-row-sub">cea mai veche înregistrare</div></div>
+    </label>
+  </div>
+</div>
+
+
+    <!-- 2. Parole -->
+    <div class="settings-section">
+      <div class="settings-section-title">parole</div>
+
+      <div class="settings-row" style="margin-bottom:6px;">
+        <div class="settings-row-label">Parolă mod creator (curentă: <span id="settings-creator-pin-display">••••</span>)</div>
+      </div>
+      <div class="settings-pin-group" style="margin-bottom:14px;">
+        <input class="settings-pin-input" id="settings-new-creator-pin" type="tel" maxlength="4" placeholder="PIN nou (4 cifre)">
+        <button class="settings-pin-btn" onclick="changeCreatorPin()">schimbă</button>
+      </div>
+
+      <div class="settings-row" style="margin-bottom:6px;">
+        <div class="settings-row-label">Parolă carduri private (curentă: <span id="settings-private-pin-display">••••</span>)</div>
+      </div>
+      <div class="settings-pin-group">
+        <input class="settings-pin-input" id="settings-new-private-pin" type="tel" maxlength="4" placeholder="PIN nou (4 cifre)">
+        <button class="settings-pin-btn" onclick="changePrivatePin()">schimbă</button>
+      </div>
+    </div>
+
+    <!-- 3. Parolă vizitatori -->
+    <div class="settings-section">
+      <div class="settings-section-title">acces vizitatori</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Protejează cu parolă la intrare</div>
+          <div class="settings-row-sub">vizitatorii trebuie să introducă un PIN</div>
+        </div>
+        <div class="toggle-track" id="settings-visitor-lock-toggle" onclick="toggleSettingVisitorLock()">
+          <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <div id="settings-visitor-pin-group" style="display:none;margin-top:8px;">
+        <div class="settings-row" style="margin-bottom:6px;">
+          <div class="settings-row-label">Parolă vizitatori (curentă: <span id="settings-visitor-pin-display">••••</span>)</div>
+        </div>
+        <div class="settings-pin-group">
+          <input class="settings-pin-input" id="settings-new-visitor-pin" type="tel" maxlength="4" placeholder="PIN nou (4 cifre)">
+          <button class="settings-pin-btn" onclick="changeVisitorPin()">schimbă</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Restricție orar -->
+<div class="settings-section">
+  <div class="settings-section-title">restricție orar</div>
+  <div class="settings-row">
+    <div>
+      <div class="settings-row-label">Activează restricție orar</div>
+      <div class="settings-row-sub" id="settings-time-lock-sub">dezactivat</div>
+    </div>
+    <div class="toggle-track" id="settings-time-lock-toggle" onclick="toggleSettingTimeLock()">
+      <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+    </div>
+  </div>
+  <div id="settings-time-lock-group" style="display:none;margin-top:8px;">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+      <div style="flex:1">
+        <div class="settings-row-label" style="font-size:12px;">Blocat înainte de</div>
+        <input class="settings-time-input" id="settings-time-start" type="time" value="20:00"
+          onchange="saveTimeLockHours()">
+      </div>
+      <div style="color:var(--text3);font-family:var(--mono);font-size:12px;padding-top:18px;">→</div>
+      <div style="flex:1">
+        <div class="settings-row-label" style="font-size:12px;">Deblocat până la</div>
+        <input class="settings-time-input" id="settings-time-end" type="time" value="03:00"
+          onchange="saveTimeLockHours()">
+      </div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text4);line-height:1.6;">
+      Accesibil liber între orele setate. În afara intervalului → parolă vizitatori.
+    </div>
+  </div>
+</div>
+
+
+    <!-- 4b. Melodie ecran așteptare -->
+    <div class="settings-section">
+      <div class="settings-section-title">melodie ecran așteptare</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Pornește la atingere</div>
+          <div class="settings-row-sub">se aude în timp ce aștepți</div>
+        </div>
+        <div class="toggle-track" id="settings-timelock-music-toggle" onclick="toggleTimelockMusic()">
+          <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <div id="settings-timelock-music-group" style="display:none;margin-top:8px;">
+        <div class="form-group" style="margin-bottom:8px;">
+          <label class="form-label">link audio (mp3...)</label>
+          <input class="settings-pin-input" id="settings-timelock-music-url" type="url" placeholder="https://..." style="-webkit-text-security:none;font-size:11px;letter-spacing:0;">
+        </div>
+        <button class="settings-pin-btn" style="width:100%;margin-top:4px;" onclick="saveTimelockMusic()">salvează melodia</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
 <script>
 // ═══════════════════════════════════════
 // SUPABASE
@@ -1996,8 +2266,14 @@ let video18Enabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
 let isLocked = true;
+let SETTING_TIMELOCK_MUSIC_URL = '';
+let SETTING_TIMELOCK_MUSIC_ON  = false;
+let timeLockAudio = null;
+let timeLockBypassed = false;
+let headerTitleTapCount = 0;
+let headerTitleTapTimer = null;
 
-const PIN_PRIVATE = '6969';
+
 let isPrivateUnlocked = false;
 const revealedPrivateSet = new Set();
 
@@ -2015,13 +2291,47 @@ let calPopupYear = new Date().getFullYear();
 let calPopupMonth = new Date().getMonth();
 
 // PIN mode: 'main' = app unlock, 'private' = conținut privat
+let pinBuffer = '';
 let pinMode = 'main';
+
 let _pendingPrivateEntryId = null;
 
 // ═══════════════════════════════════════
 // PIN SYSTEM
 // ═══════════════════════════════════════
-const PIN_CODE = '2727';
+// ── SETTINGS STORAGE ──
+async function loadSettings() {
+  try {
+    const { data, error } = await sb.from('app_state').select('value').eq('key', 'carnet_settings').single();
+    if (!error && data) return JSON.parse(data.value);
+  } catch(e) {}
+  // fallback localStorage
+  try { return JSON.parse(localStorage.getItem('carnet_settings') || '{}'); } catch(e) { return {}; }
+}
+
+async function saveSettings(obj) {
+  const current = await loadSettings();
+  const merged = { ...current, ...obj };
+  const json = JSON.stringify(merged);
+  try {
+    await sb.from('app_state').upsert([{ key: 'carnet_settings', value: json }], { onConflict: 'key' });
+  } catch(e) {}
+  // fallback localStorage
+  try { localStorage.setItem('carnet_settings', json); } catch(e) {}
+}
+
+let PIN_CODE             = '2727';
+let PIN_PRIVATE          = '6969';
+let PIN_VISITOR          = '0000';
+let SETTING_NAV_MODE     = 'today'; // 'today' | 'last' | 'saved' | 'first'
+let SETTING_GOTO_TODAY   = true; // păstrat pentru compatibilitate
+let SETTING_VISITOR_LOCK = false;
+let SETTING_TIME_LOCK    = false;
+let SETTING_TIME_LOCK_HOUR  = '20:00';
+let SETTING_TIME_LOCK_END   = '03:00';
+
+
+
 
 const NOTE_THEMES = {
   none:   { label: 'implicit',   icon: '✏️',  bg: '#17171d' },
@@ -2039,31 +2349,38 @@ const NOTE_THEMES = {
 
 
 
-let pinBuffer = '';
 
+// pin mode: 'main' | 'private' | 'visitor' | 'time'
 function openPinOverlay(mode) {
   pinMode = mode || 'main';
   pinBuffer = '';
   updatePinDots();
   const overlay = document.getElementById('pinOverlay');
+  overlay.classList.remove('mode-private');
   if (pinMode === 'private') {
     overlay.classList.add('mode-private');
     document.getElementById('pinTitle').textContent = 'conținut privat';
     document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
+  } else if (pinMode === 'visitor') {
+    document.getElementById('pinTitle').textContent = 'hope';
+    document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
   } else {
-    overlay.classList.remove('mode-private');
-    document.getElementById('pinTitle').textContent = 'carnet';
+
+    document.getElementById('pinTitle').textContent = 'hope';
     document.getElementById('pinSubtitle').textContent = 'introdu codul PIN';
   }
   overlay.classList.add('open');
 }
 
 function closePinOverlay() {
+  if (pinMode === 'visitor') return;
+
   document.getElementById('pinOverlay').classList.remove('open');
   document.getElementById('pinOverlay').classList.remove('mode-private');
   pinBuffer = '';
   updatePinDots();
 }
+
 
 function pinPress(digit) {
   if (pinBuffer.length >= 4) return;
@@ -2085,6 +2402,40 @@ function updatePinDots() {
 }
 
 function checkPin() {
+  // ── Creator PIN funcționează ORIUNDE, indiferent de mod ──
+if (pinBuffer === PIN_CODE) {
+  _pinModeOverride = null;
+  document.getElementById('pinOverlay').classList.remove('open');
+  document.getElementById('timeLockOverlay')?.classList.remove('open');
+  clearInterval(timeLockInterval);
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+  
+  if (timeLockAudio) { timeLockAudio.pause(); timeLockAudio = null; }
+
+  pinBuffer = '';
+  updatePinDots();
+  setUnlocked(true);
+
+  
+  // ← ADAUGĂ ASTA:
+  if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
+    timeLockBypassed = true;
+    continueInitAfterAuth();
+  }
+  return;
+}
+
+
+  // ── Dacă era forțat la creator PIN (triple tap din time lock) ──
+  if (_pinModeOverride === 'creator') {
+    pinError();
+    _pinModeOverride = null;
+    return;
+  }
+
+  // ── PIN privat ──
   if (pinMode === 'private') {
     if (pinBuffer === PIN_PRIVATE) {
       isPrivateUnlocked = true;
@@ -2096,15 +2447,91 @@ function checkPin() {
     } else {
       pinError();
     }
-  } else {
-    if (pinBuffer === PIN_CODE) {
-      setUnlocked(true);
-      closePinOverlay();
+    return;
+  }
+
+
+  // ── PIN vizitatori ──
+  if (pinMode === 'visitor') {
+    if (pinBuffer === PIN_VISITOR) {
+      document.getElementById('pinOverlay').classList.remove('open');
+      pinBuffer = '';
+      updatePinDots();
+      userHasInteracted = true; // ← ADAUGĂ ASTA
     } else {
       pinError();
     }
+    return;
+  }
+
+
+  // ── PIN main (butonul lacăt normal) ──
+  if (pinBuffer === PIN_CODE) {
+    setUnlocked(true);
+    closePinOverlay();
+  } else {
+    pinError();
   }
 }
+
+async function continueInitAfterAuth() {
+  await loadDateMusicMap();
+  await loadEntries();
+
+  const savedKey = await loadLastDate();
+  const _settings = await loadSettings();
+  SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
+
+  const allDates = [
+    ...entries.map(e => dateKey(e.posted_at)),
+    ...Object.keys(dateMusicMap)
+  ].sort();
+
+  if (SETTING_NAV_MODE === 'today') {
+    const today = new Date(); today.setHours(0,0,0,0);
+    selectedDate = today;
+  } else if (SETTING_NAV_MODE === 'last') {
+    const lastDate = allDates[allDates.length - 1];
+    if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+  } else if (SETTING_NAV_MODE === 'first') {
+    const firstDate = allDates[0];
+    if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+  } else {
+    if (savedKey) { const [y,m,d] = savedKey.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+  }
+
+
+
+  buildCarousel();
+  renderEntries();
+  setDefaultDates();
+  updateCalFabState();
+  setupNavButtons();
+  setupOverscroll();
+  setupCardTextLinks();
+  
+  if (selectedDate) {
+    const dk = dateKey(selectedDate);
+    if (dateMusicMap[dk] && dateMusicMap[dk].url) {
+      dmAudio.src = dateMusicMap[dk].url;
+      dmAudioLoaded = true;
+      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+      dmAudio.volume = 0.28;
+      dmAudio.play().catch(() => {
+        pendingDateMusicKey = dk;
+        pendingDateMusicAutoplay = true;
+      });
+      syncDateMusicWaves();
+    }
+  }
+
+
+  
+}
+
 
 function pinError() {
   for (let i = 0; i < 4; i++) {
@@ -2124,6 +2551,7 @@ function setUnlocked(unlocked) {
     document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 019.9-1" stroke-linecap="round"/>`;
     document.getElementById('lockFabWrap').style.display = 'none';
     document.getElementById('fabWrap').style.display = '';
+    document.getElementById('headerTitle').classList.add('unlocked-mode');
     showToast('deblocat');
   } else {
     document.body.classList.add('locked');
@@ -2132,6 +2560,7 @@ function setUnlocked(unlocked) {
     document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>`;
     document.getElementById('lockFabWrap').style.display = '';
     document.getElementById('fabWrap').style.display = 'none';
+    document.getElementById('headerTitle').classList.remove('unlocked-mode');
     closeFab();
     document.querySelectorAll('.backdrop.open').forEach(m => m.classList.remove('open'));
   }
@@ -2141,6 +2570,7 @@ document.getElementById('lockBadge').addEventListener('click', () => {
   if (!isLocked) { setUnlocked(false); showToast('blocat'); }
   else openPinOverlay('main');
 });
+
 
 // ═══════════════════════════════════════
 // PRIVATE TOGGLES (form)
@@ -2814,25 +3244,381 @@ function setDraftStatus(state, ts) {
 }
 
 
+// ═══════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════
+function openSettings() {
+  if (isLocked) return;
+  syncSettingsUI();
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+function handleSettingsOverlayClick(e) {
+  if (e.target === document.getElementById('settingsOverlay')) closeSettings();
+}
+
+function syncSettingsUI() {
+  // Nav mode radio
+  const navMode = SETTING_NAV_MODE || (SETTING_GOTO_TODAY ? 'today' : 'last');
+  document.querySelectorAll('input[name="nav-mode"]').forEach(r => {
+    r.checked = r.value === navMode;
+    r.onchange = () => {
+      SETTING_NAV_MODE = r.value;
+      SETTING_GOTO_TODAY = r.value === 'today';
+      saveSettings({ navMode: r.value, gotoToday: SETTING_GOTO_TODAY });
+      showToast('mod navigare salvat');
+    };
+  });
+
+  // Visitor lock
+  const vlt = document.getElementById('settings-visitor-lock-toggle');
+  vlt.classList.toggle('on', SETTING_VISITOR_LOCK);
+  document.getElementById('settings-visitor-pin-group').style.display = SETTING_VISITOR_LOCK ? 'block' : 'none';
+
+  // Time lock
+  const tlt = document.getElementById('settings-time-lock-toggle');
+  tlt.classList.toggle('on', SETTING_TIME_LOCK);
+  document.getElementById('settings-time-lock-group').style.display = SETTING_TIME_LOCK ? 'block' : 'none';
+  document.getElementById('settings-time-lock-sub').textContent =
+    SETTING_TIME_LOCK ? `liber ${SETTING_TIME_LOCK_HOUR}–${SETTING_TIME_LOCK_END}` : 'dezactivat';
+  document.getElementById('settings-time-start').value = SETTING_TIME_LOCK_HOUR;
+  document.getElementById('settings-time-end').value   = SETTING_TIME_LOCK_END;
+
+  document.getElementById('settings-creator-pin-display').textContent = '••••';
+  document.getElementById('settings-private-pin-display').textContent = '••••';
+  document.getElementById('settings-visitor-pin-display').textContent = '••••';
+
+
+const tlmt = document.getElementById('settings-timelock-music-toggle');
+tlmt.classList.toggle('on', SETTING_TIMELOCK_MUSIC_ON);
+document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
+document.getElementById('settings-timelock-music-url').value = SETTING_TIMELOCK_MUSIC_URL;
+
+
+}
+
+
+function toggleSettingGotoToday() {
+  SETTING_GOTO_TODAY = !SETTING_GOTO_TODAY;
+  saveSettings({ gotoToday: SETTING_GOTO_TODAY });
+  document.getElementById('settings-goto-today-toggle').classList.toggle('on', SETTING_GOTO_TODAY);
+  showToast(SETTING_GOTO_TODAY ? 'merge la ziua de azi' : 'merge la ultima zi cu conținut');
+}
+
+function toggleSettingVisitorLock() {
+  SETTING_VISITOR_LOCK = !SETTING_VISITOR_LOCK;
+  saveSettings({ visitorLock: SETTING_VISITOR_LOCK });
+  document.getElementById('settings-visitor-lock-toggle').classList.toggle('on', SETTING_VISITOR_LOCK);
+  document.getElementById('settings-visitor-pin-group').style.display = SETTING_VISITOR_LOCK ? 'block' : 'none';
+  showToast(SETTING_VISITOR_LOCK ? 'protecție vizitatori activată' : 'protecție vizitatori dezactivată');
+}
+
+function toggleSettingTimeLock() {
+  SETTING_TIME_LOCK = !SETTING_TIME_LOCK;
+  saveSettings({ timeLock: SETTING_TIME_LOCK });
+  document.getElementById('settings-time-lock-toggle').classList.toggle('on', SETTING_TIME_LOCK);
+  document.getElementById('settings-time-lock-group').style.display = SETTING_TIME_LOCK ? 'block' : 'none';
+  document.getElementById('settings-time-lock-sub').textContent =
+    SETTING_TIME_LOCK ? `liber ${SETTING_TIME_LOCK_HOUR}–${SETTING_TIME_LOCK_END}` : 'dezactivat';
+  showToast(SETTING_TIME_LOCK ? 'restricție orar activată' : 'restricție orar dezactivată');
+}
+
+
+function saveTimeLockHours() {
+  SETTING_TIME_LOCK_HOUR = document.getElementById('settings-time-start').value;
+  SETTING_TIME_LOCK_END  = document.getElementById('settings-time-end').value;
+  saveSettings({ timeLockHour: SETTING_TIME_LOCK_HOUR, timeLockEnd: SETTING_TIME_LOCK_END });
+  const sub = `liber ${SETTING_TIME_LOCK_HOUR}–${SETTING_TIME_LOCK_END}`;
+  document.getElementById('settings-time-lock-sub').textContent = sub;
+  showToast(`interval: ${sub}`);
+}
+
+
+function changeCreatorPin() {
+  const inp = document.getElementById('settings-new-creator-pin');
+  const val = inp.value.trim();
+  if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
+  PIN_CODE = val;
+  saveSettings({ creatorPin: val });
+  inp.value = '';
+  showToast('parolă creator schimbată');
+}
+
+function changePrivatePin() {
+  const inp = document.getElementById('settings-new-private-pin');
+  const val = inp.value.trim();
+  if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
+  PIN_PRIVATE = val;
+  saveSettings({ privatePin: val });
+  inp.value = '';
+  showToast('parolă privat schimbată');
+}
+
+function changeVisitorPin() {
+  const inp = document.getElementById('settings-new-visitor-pin');
+  const val = inp.value.trim();
+  if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
+  PIN_VISITOR = val;
+  saveSettings({ visitorPin: val });
+  inp.value = '';
+  showToast('parolă vizitatori schimbată');
+}
+
+function toggleTimelockMusic() {
+  SETTING_TIMELOCK_MUSIC_ON = !SETTING_TIMELOCK_MUSIC_ON;
+  saveSettings({ timelockMusicOn: SETTING_TIMELOCK_MUSIC_ON });
+  document.getElementById('settings-timelock-music-toggle').classList.toggle('on', SETTING_TIMELOCK_MUSIC_ON);
+  document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
+  showToast(SETTING_TIMELOCK_MUSIC_ON ? 'melodie ecran activată' : 'melodie ecran dezactivată');
+}
+
+function saveTimelockMusic() {
+  SETTING_TIMELOCK_MUSIC_URL = document.getElementById('settings-timelock-music-url').value.trim();
+  saveSettings({ timelockMusicUrl: SETTING_TIMELOCK_MUSIC_URL });
+  showToast('melodie salvată');
+}
+
+
+
+function checkTimeLock() {
+  if (!SETTING_TIME_LOCK) return false;
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = SETTING_TIME_LOCK_HOUR.split(':').map(Number);
+  const [endH, endM] = SETTING_TIME_LOCK_END.split(':').map(Number);
+  const startMin = startH * 60 + startM;
+  const endMin   = endH * 60 + endM;
+
+  let isAllowed;
+  if (startMin <= endMin) {
+    isAllowed = nowMinutes >= startMin && nowMinutes < endMin;
+  } else {
+    // interval peste miezul nopții: ex. 20:00 → 03:00
+    isAllowed = nowMinutes >= startMin || nowMinutes < endMin;
+  }
+
+  return !isAllowed; // true = blocat
+}
+
+
+function getMinutesUntilUnlock() {
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const [startH, startM] = SETTING_TIME_LOCK_HOUR.split(':').map(Number);
+  const startMin = startH * 60 + startM;
+  let diff = startMin - nowMinutes;
+  if (diff < 0) diff += 1440;
+  return diff;
+}
+
+let timeLockInterval = null;
+
+function showTimeLockOverlay() {
+  const overlay = document.getElementById('timeLockOverlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+document.body.style.position = 'fixed';
+document.body.style.width = '100%';
+
+
+if (SETTING_TIMELOCK_MUSIC_ON && SETTING_TIMELOCK_MUSIC_URL) {
+    timeLockAudio = new Audio(SETTING_TIMELOCK_MUSIC_URL);
+    timeLockAudio.loop = true;
+    timeLockAudio.volume = 0.3;
+
+    let timeLockMusicStarted = false;
+    function tryPlayTimeLockAudio() {
+      if (timeLockMusicStarted) return;
+      timeLockAudio.play().then(() => {
+        timeLockMusicStarted = true;
+        document.removeEventListener('click', tryPlayTimeLockAudio);
+        document.removeEventListener('touchstart', tryPlayTimeLockAudio);
+        document.removeEventListener('touchend', tryPlayTimeLockAudio);
+        document.removeEventListener('touchmove', tryPlayTimeLockAudio);
+        document.removeEventListener('scroll', tryPlayTimeLockAudio);
+      }).catch(() => {});
+    }
+    document.addEventListener('click', tryPlayTimeLockAudio);
+    document.addEventListener('touchstart', tryPlayTimeLockAudio, { passive: true });
+    document.addEventListener('touchend', tryPlayTimeLockAudio, { passive: true });
+    document.addEventListener('touchmove', tryPlayTimeLockAudio, { passive: true });
+    document.addEventListener('scroll', tryPlayTimeLockAudio, { passive: true });
+  }
+
+
+
+  function updateCountdown() {
+    const diff = getMinutesUntilUnlock();
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    const sub = document.getElementById('timeLockSubtitle');
+    const cd  = document.getElementById('timeLockCountdown');
+    sub.textContent = `disponibil între ${SETTING_TIME_LOCK_HOUR} și ${SETTING_TIME_LOCK_END}`;
+    cd.textContent  = h > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m`;
+  }
+
+  updateCountdown();
+  timeLockInterval = setInterval(async () => {
+  if (!checkTimeLock()) {
+clearInterval(timeLockInterval);
+    document.getElementById('timeLockOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+
+    // Acum încarcă datele
+    if (SETTING_VISITOR_LOCK) {
+      openPinOverlay('visitor');
+      await waitForVisitorPin();
+    }
+    await loadDateMusicMap();
+    await loadEntries();
+    const savedKey = await loadLastDate();
+    // restul logicii de init după încărcare
+    buildCarousel();
+    renderEntries();
+    setDefaultDates();
+    updateCalFabState();
+    setupNavButtons();
+    setupOverscroll();
+    setupCardTextLinks();
+  } else {
+    updateCountdown();
+  }
+}, 30000);
+}
+
+
+function setupHeaderTitleTripleTap() {
+  function handleTripleTap(el) {
+    let tapCount = 0;
+    let tapTimer = null;
+    el.addEventListener('click', () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+      if (tapCount >= 3) {
+        tapCount = 0;
+        pinBuffer = '';
+        updatePinDots();
+        const overlay = document.getElementById('pinOverlay');
+        overlay.classList.remove('mode-private');
+        document.getElementById('pinTitle').textContent = 'carnet';
+        document.getElementById('pinSubtitle').textContent = 'cod creator';
+        _pinModeOverride = 'creator';
+        overlay.classList.add('open');
+      } else {
+        tapTimer = setTimeout(() => { tapCount = 0; }, 700);
+      }
+    });
+  }
+
+  handleTripleTap(document.getElementById('headerTitle'));
+  handleTripleTap(document.getElementById('timeLockTitle'));
+}
+
+
+
+
+function openCreatorPinFromTitle() {
+  pinBuffer = '';
+  updatePinDots();
+  const overlay = document.getElementById('pinOverlay');
+  overlay.classList.remove('mode-private');
+  document.getElementById('pinTitle').textContent = 'carnet';
+  document.getElementById('pinSubtitle').textContent = 'cod creator';
+  // Suprascriem temporar checkPin să accepte doar creator PIN
+  _pinModeOverride = 'creator';
+  overlay.classList.add('open');
+}
+let _pinModeOverride = null;
+
+
+
+function waitForVisitorPin() {
+  return new Promise(resolve => {
+    function checkPin() {
+      if (!document.getElementById('pinOverlay').classList.contains('open')) {
+        resolve();
+      } else {
+        setTimeout(checkPin, 300);
+      }
+    }
+    setTimeout(checkPin, 300);
+  });
+}
+
 
 
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 async function init() {
-  updateHeaderDate();
-  setupInteractionCapture();
-  setUnlocked(false);
-  await loadDateMusicMap();
-  await loadEntries();
-  const savedKey = await loadLastDate();
-  if (savedKey) {
-    const [y,m,d] = savedKey.split('-').map(Number);
-    selectedDate = new Date(y, m-1, d);
-  } else {
-    const today = new Date(); today.setHours(0,0,0,0);
-    selectedDate = today;
-  }
+updateHeaderDate();
+setupHeaderTitleTripleTap();
+setupInteractionCapture();
+
+// Încarcă setările din Supabase
+const _settings = await loadSettings();
+PIN_CODE             = _settings.creatorPin    || '2727';
+PIN_PRIVATE          = _settings.privatePin    || '6969';
+PIN_VISITOR          = _settings.visitorPin    || '0000';
+SETTING_GOTO_TODAY   = _settings.gotoToday   !== undefined ? _settings.gotoToday   : true;
+SETTING_VISITOR_LOCK = _settings.visitorLock !== undefined ? _settings.visitorLock : false;
+SETTING_TIME_LOCK    = _settings.timeLock    !== undefined ? _settings.timeLock    : false;
+SETTING_TIME_LOCK_HOUR = _settings.timeLockHour || '20:00';
+SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
+SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
+SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
+
+
+
+setUnlocked(false);
+startTimeLockStars();
+if (SETTING_TIME_LOCK && checkTimeLock()) {
+
+  timeLockBypassed = false; // ← asigură-te că e reset
+  showTimeLockOverlay();
+  return;
+}
+
+
+if (SETTING_VISITOR_LOCK) {
+  openPinOverlay('visitor');
+  // nu facem return — dar nu încărcăm până la confirmare
+  await waitForVisitorPin();
+}
+
+await loadDateMusicMap();
+await loadEntries();
+
+const savedKey = await loadLastDate();
+SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
+
+const allDates = [
+  ...entries.map(e => dateKey(e.posted_at)),
+  ...Object.keys(dateMusicMap)
+].sort();
+
+if (SETTING_NAV_MODE === 'today') {
+  const today = new Date(); today.setHours(0,0,0,0);
+  selectedDate = today;
+} else if (SETTING_NAV_MODE === 'last') {
+  const lastDate = allDates[allDates.length - 1];
+  if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+  else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+} else if (SETTING_NAV_MODE === 'first') {
+  const firstDate = allDates[0];
+  if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+  else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+} else {
+  // 'saved'
+  if (savedKey) { const [y,m,d] = savedKey.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+  else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+}
+
+
   buildCarousel();
   renderEntries();
   setDefaultDates();
@@ -2840,13 +3626,20 @@ async function init() {
   if (selectedDate) {
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-      pendingDateMusicKey = dk;
-      pendingDateMusicAutoplay = true;
       dmAudio.src = dateMusicMap[dk].url;
       dmAudioLoaded = true;
       updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+      if (userHasInteracted) {
+        dmAudio.volume = 0.28;
+        dmAudio.play().catch(() => {});
+        syncDateMusicWaves();
+      } else {
+        pendingDateMusicKey = dk;
+        pendingDateMusicAutoplay = true;
+      }
     }
   }
+
   setupNavButtons();
   setupOverscroll();
   setupCardTextLinks();
@@ -3115,28 +3908,29 @@ function setupNavButtons() {
   const prev = document.getElementById('navPrev');
   const next = document.getElementById('navNext');
 
-  prev.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(-1); });
-  next.addEventListener('click', (e) => { e.stopPropagation(); jumpDate(1); });
+  let navTouchHandled = false;
+
+  function handleNavTouch(dir, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    navTouchHandled = true;
+    overscrollDelta = 0; overscrollActive = false;
+    topscrollDelta = 0; topscrollActive = false;
+    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
+    jumpDate(dir);
+    setTimeout(() => { navTouchHandled = false; }, 600);
+  }
+
+  prev.addEventListener('touchend', (e) => handleNavTouch(-1, e), { passive: false });
+  next.addEventListener('touchend', (e) => handleNavTouch(1, e), { passive: false });
+
+  prev.addEventListener('click', (e) => { if (navTouchHandled) { e.stopPropagation(); return; } e.stopPropagation(); jumpDate(-1); });
+  next.addEventListener('click', (e) => { if (navTouchHandled) { e.stopPropagation(); return; } e.stopPropagation(); jumpDate(1); });
 
   prev.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
   next.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
-
-  prev.addEventListener('touchend', (e) => {
-    e.preventDefault(); e.stopPropagation();
-    overscrollDelta = 0; overscrollActive = false;
-    topscrollDelta = 0; topscrollActive = false;
-    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
-    jumpDate(-1);
-  }, { passive: false });
-
-  next.addEventListener('touchend', (e) => {
-    e.preventDefault(); e.stopPropagation();
-    overscrollDelta = 0; overscrollActive = false;
-    topscrollDelta = 0; topscrollActive = false;
-    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
-    jumpDate(1);
-  }, { passive: false });
 }
+
 
 
 // ═══════════════════════════════════════
@@ -4835,6 +5629,71 @@ function showToast(msg) { const t=document.getElementById('toast'); t.textConten
 // START
 // ═══════════════════════════════════════
 init();
+
+// Time lock stars canvas
+function startTimeLockStars() {
+  const canvas = document.getElementById('timeLockStarsCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  const staticStars = Array.from({length: 80}, () => ({
+    x: Math.random(), y: Math.random(),
+    r: Math.random()*0.9+0.2,
+    phase: Math.random()*Math.PI*2,
+    speed: Math.random()*0.004+0.001,
+  }));
+  const shootingStars = Array.from({length: 3}, (_, i) => ({
+    x: 0, y: 0, vx: 0, vy: 0,
+    size: Math.random()*0.8+0.4,
+    tail: Math.random()*22+14,
+    life: 0, maxLife: 0, delay: i*180+Math.random()*120,
+  }));
+  shootingStars.forEach(s => {
+    s.x = 0.3+Math.random()*0.7; s.y = Math.random()*0.4;
+    s.vx = -(Math.random()*0.6+0.3)/canvas.width*500;
+    s.vy = (Math.random()*0.25+0.1)/canvas.height*500;
+    s.maxLife = Math.random()*220+180;
+  });
+  function frame() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    const now = Date.now();
+    staticStars.forEach(s => {
+      const op = 0.25 + Math.sin(now * s.speed + s.phase) * 0.22;
+      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(210,215,255,${Math.max(0,op)})`; ctx.fill();
+    });
+    shootingStars.forEach(s => {
+      s.life++;
+      if (s.life < s.delay) return;
+      const progress = (s.life - s.delay) / s.maxLife;
+      if (progress >= 1) {
+        s.x = 0.3+Math.random()*0.7; s.y = Math.random()*0.4;
+        s.vx = -(Math.random()*0.6+0.3)/W*500;
+        s.vy = (Math.random()*0.25+0.1)/H*500;
+        s.tail = Math.random()*22+14; s.maxLife = Math.random()*220+180;
+        s.delay = Math.random()*300+100; s.life = 0; return;
+      }
+      const fade = progress < 0.15 ? progress/0.15 : progress > 0.75 ? 1-(progress-0.75)/0.25 : 1;
+      const op = fade * 0.75;
+      s.x += s.vx/60; s.y += s.vy/60;
+      const grad = ctx.createLinearGradient(s.x*W, s.y*H, s.x*W - s.vx/60*s.tail*W, s.y*H - s.vy/60*s.tail*H);
+      grad.addColorStop(0, `rgba(255,252,220,${op})`);
+      grad.addColorStop(1, 'rgba(200,210,255,0)');
+      ctx.beginPath(); ctx.moveTo(s.x*W, s.y*H);
+      ctx.lineTo(s.x*W - s.vx/60*s.tail*W, s.y*H - s.vy/60*s.tail*H);
+      ctx.strokeStyle = grad; ctx.lineWidth = s.size; ctx.lineCap = 'round'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.size*0.9, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,252,230,${op})`; ctx.fill();
+    });
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  canvas._raf = requestAnimationFrame(frame);
+}
+startTimeLockStars();
+
 </script>
 </body>
 </html>
