@@ -1752,14 +1752,29 @@ audio { display: none; }
 
 
 <!-- Photo -->
+<!-- Photo -->
 <div class="backdrop" id="modal-photo">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă poze</div>
     <div class="form-group">
-      <label class="form-label">link-uri imagini (unul per linie)</label>
+      <label class="form-label">încarcă imagini pe Cloudinary</label>
+      <div id="photo-upload-area" style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('photo-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handlePhotoDrop(event)">
+        <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotosToCloudinary(this.files)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">trage sau apasă pentru upload</div>
+        <div id="photo-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
+      </div>
+      <div id="photo-upload-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link-uri externe (unul per linie)
+      </label>
       <textarea class="form-textarea" id="photo-urls" placeholder="https://...&#10;https://..."></textarea>
     </div>
+
     <div class="form-group">
       <label class="form-label">descriere (cu link-uri opțional)</label>
       <div class="cap-rte-wrap" id="photoCapWrap">
@@ -1803,7 +1818,19 @@ audio { display: none; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă videoclip</div>
     <div class="form-group">
-      <label class="form-label">link video (YouTube sau mp4/webm direct)</label>
+      <label class="form-label">încarcă video pe Cloudinary</label>
+      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('video-file-input').click()">
+        <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="uploadVideoToCloudinary(this.files[0])">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload video</div>
+        <div id="video-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern (YouTube, mp4...)
+      </label>
       <input type="url" class="form-input" id="video-url" placeholder="https://youtu.be/... sau https://...mp4">
       <div style="margin-top:8px;padding:8px 12px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.15);border-radius:10px;">
         <p style="font-family:var(--mono);font-size:10px;color:var(--blue);line-height:1.7;letter-spacing:0.02em;">
@@ -1812,6 +1839,7 @@ audio { display: none; }
         </p>
       </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">descriere (cu link-uri opțional)</label>
       <div class="cap-rte-wrap">
@@ -1843,22 +1871,51 @@ audio { display: none; }
 </div>
 
 <!-- Music -->
+<!-- Music -->
 <div class="backdrop" id="modal-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă muzică</div>
     <div class="form-group">
-      <label class="form-label">link fișier audio (mp3, ogg...)</label>
+      <label class="form-label">încarcă fișier audio pe Cloudinary</label>
+      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('music-file-input').click()">
+<input type="file" id="music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadMusicToCloudinary(this.files[0])">
+
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload audio</div>
+        <div id="music-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern (mp3, ogg...)
+      </label>
       <input type="url" class="form-input" id="music-url" placeholder="https://...">
     </div>
+
     <div class="form-group">
       <label class="form-label">titlu melodie</label>
       <input type="text" class="form-input" id="music-title-inp" placeholder="numele piesei...">
     </div>
     <div class="form-group">
-      <label class="form-label">link copertă (opțional)</label>
-      <input type="url" class="form-input" id="music-cover-inp" placeholder="https://...">
+      <label class="form-label">copertă (opțional)</label>
+      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('music-cover-file-input').click()">
+        <input type="file" id="music-cover-file-input" accept="image/*,.jpg,.jpeg,.png,.webp" style="display:none" onchange="uploadMusicCoverToCloudinary(this.files[0])">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload copertă</div>
+        <div id="music-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
+        <div id="music-cover-preview" style="margin-top:8px;display:none;"><img id="music-cover-preview-img" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border2);" src=""></div>
+      </div>
+      <div style="margin-top:8px;">
+        <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          sau link extern copertă
+        </label>
+        <input type="url" class="form-input" id="music-cover-inp" placeholder="https://...">
+      </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="music-date" step="1">
@@ -1873,14 +1930,28 @@ audio { display: none; }
 </div>
 
 <!-- PDF -->
+<!-- PDF -->
 <div class="backdrop" id="modal-pdf">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă PDF</div>
     <div class="form-group">
-      <label class="form-label">link PDF</label>
+      <label class="form-label">încarcă PDF pe Cloudinary</label>
+      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('pdf-file-input').click()">
+        <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="uploadPdfToCloudinary(this.files[0])">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload PDF</div>
+        <div id="pdf-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern PDF
+      </label>
       <input type="url" class="form-input" id="pdf-url" placeholder="https://...pdf">
     </div>
+
     <div class="form-group">
       <label class="form-label">titlu document</label>
       <input type="text" class="form-input" id="pdf-title" placeholder="numele documentului...">
@@ -1899,6 +1970,7 @@ audio { display: none; }
 </div>
 
 <!-- Date Music -->
+<!-- Date Music -->
 <div class="backdrop" id="modal-date-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1909,9 +1981,22 @@ audio { display: none; }
       <input type="date" class="form-input" id="dm-date">
     </div>
     <div class="form-group">
-      <label class="form-label">link audio (mp3, ogg...)</label>
+      <label class="form-label">încarcă fișier audio pe Cloudinary</label>
+      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('dm-file-input').click()">
+        <input type="file" id="dm-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadDmMusicToCloudinary(this.files[0])">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload audio</div>
+        <div id="dm-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern (mp3, ogg...)
+      </label>
       <input type="url" class="form-input" id="dm-url" placeholder="https://...">
     </div>
+
     <div class="form-group">
       <label class="form-label">titlu (opțional)</label>
       <input type="text" class="form-input" id="dm-title" placeholder="numele piesei...">
@@ -2687,6 +2772,77 @@ function toLocal(date) {
 function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// Rezolvă un string stocat — poate fi cloudinary:tip:publicId sau URL extern
+function resolveUrl(stored) {
+  if (!stored) return '';
+  if (stored.startsWith('cloudinary:')) {
+    const parts = stored.split(':');
+    // format: cloudinary:resourceType:public/id (public_id poate conține ':')
+    const resourceType = parts[1];
+    const publicId = parts.slice(2).join(':');
+    return cdnUrl(publicId, resourceType);
+  }
+  return stored; // URL extern — îl returnăm neschimbat
+}
+
+// Rezolvă o listă de URL-uri/id-uri (newline separated sau array)
+function resolveUrls(arr) {
+  if (!arr) return [];
+  if (typeof arr === 'string') arr = arr.split('\n').map(s => s.trim()).filter(Boolean);
+  return arr.map(resolveUrl);
+}
+
+
+// ═══════════════════════════════════════
+// MIGRARE CLOUDINARY
+// Când muți pe alt cont:
+// 1. Schimbă CLOUDINARY_CLOUD de sus
+// 2. Descarcă toate fișierele din contul vechi
+// 3. Încarcă-le pe noul cont cu același public_id
+// 4. Gata — toate link-urile se rezolvă automat
+// ═══════════════════════════════════════
+
+// Funcție de export backup — listează toate public_id-urile salvate
+async function exportCloudinaryIds() {
+  const { data } = await sb.from('entries').select('id, type, media_urls, cover_url');
+  const { data: dmData } = await sb.from('date_music').select('date, url, cover');
+  
+  const ids = [];
+  
+  (data || []).forEach(e => {
+    (e.media_urls || []).forEach(u => {
+      if (u && u.startsWith('cloudinary:')) {
+        const parts = u.split(':');
+        ids.push({ entryId: e.id, type: parts[1], publicId: parts.slice(2).join(':') });
+      }
+    });
+    if (e.cover_url && e.cover_url.startsWith('cloudinary:')) {
+      const parts = e.cover_url.split(':');
+      ids.push({ entryId: e.id, type: parts[1], publicId: parts.slice(2).join(':'), isCover: true });
+    }
+  });
+  
+  (dmData || []).forEach(dm => {
+    if (dm.url && dm.url.startsWith('cloudinary:')) {
+      const parts = dm.url.split(':');
+      ids.push({ date: dm.date, type: parts[1], publicId: parts.slice(2).join(':') });
+    }
+    if (dm.cover && dm.cover.startsWith('cloudinary:')) {
+      const parts = dm.cover.split(':');
+      ids.push({ date: dm.date, type: parts[1], publicId: parts.slice(2).join(':'), isCover: true });
+    }
+  });
+  
+  console.log('=== CLOUDINARY BACKUP IDs ===');
+  console.log(JSON.stringify(ids, null, 2));
+  console.log(`Total: ${ids.length} fișiere`);
+  showToast(`${ids.length} fișiere Cloudinary găsite — vezi consola`);
+  return ids;
+}
+
+
+
 function formatTime(date) {
   const d = new Date(date);
   return d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
@@ -4099,7 +4255,9 @@ async function saveDateMusic() {
   const title = document.getElementById('dm-title').value.trim();
   const cover = document.getElementById('dm-cover').value.trim();
   if (!date||!url) { showToast('completează data și link-ul'); return; }
+  // url și cover pot fi cloudinary:video:publicId sau URL-uri externe
   const row = { date, url, title:title||'melodie', cover:cover||'' };
+
   try { const { error } = await sb.from('date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
   dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'' };
   document.getElementById('dm-url').value = ''; document.getElementById('dm-title').value = ''; document.getElementById('dm-cover').value = '';
@@ -4222,7 +4380,9 @@ function updateDateMusicMediaSession(title, coverUrl) {
 function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
   if (dm && dm.url) {
-    if (dmAudio.src !== dm.url) { dmAudio.src = dm.url; dmAudioLoaded = true; }
+    const resolvedDmUrl = resolveUrl(dm.url);
+    if (dmAudio.src !== resolvedDmUrl) { dmAudio.src = resolvedDmUrl; dmAudioLoaded = true; }
+
     updateDateMusicMediaSession(dm.title, dm.cover);
     if (autoplay) {
       dmAudio.volume = 0.28;
@@ -4388,7 +4548,8 @@ if (searchQuery) {
 function renderDateMusicBanner(dk) {
   const dm = dateMusicMap[dk]; if (!dm) return '';
   const coverHtml = dm.cover
-    ? `<div class="dm-banner-cover"><img src="${escHtml(dm.cover)}" alt=""></div>`
+    ? `<div class="dm-banner-cover"><img src="${escHtml(resolveUrl(dm.cover))}" alt=""></div>`
+
     : `<div class="dm-banner-cover"><span class="dm-banner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
   return `<div class="date-music-banner">
     <div class="dm-banner-left" onclick="toggleDateMusicBanner()">
@@ -4442,7 +4603,8 @@ function renderEntry(e, hlQuery) {
   </div>` : '';
 
   if (e.type === 'photo') {
-    const urls = e.media_urls || [];
+    const urls = resolveUrls(e.media_urls || []);
+
     const isBlurred = e.blur_images;
     const cols = urls.length === 1 ? 'cols-1' : urls.length === 2 ? 'cols-2' : 'cols-3';
     const entryIdStr = e.id;
@@ -4470,7 +4632,8 @@ function renderEntry(e, hlQuery) {
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
   } else if (e.type === 'video') {
-    const url = e.media_urls?.[0] || '';
+    const url = resolveUrl(e.media_urls?.[0] || '');
+
     const ytId = extractYouTubeId(url);
     const captionHtml = e.caption
       ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
@@ -4485,8 +4648,9 @@ function renderEntry(e, hlQuery) {
     mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
 
   } else if (e.type === 'music') {
-    const aurl = e.media_urls?.[0] || '';
-    const cover = e.cover_url || '';
+    const aurl = resolveUrl(e.media_urls?.[0] || '');
+    const cover = resolveUrl(e.cover_url || '');
+
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
     const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
     const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
@@ -4509,7 +4673,7 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
     </div>${noteHtml}`;
 
   } else if (e.type === 'pdf') {
-    const pdfUrl = e.media_urls?.[0] || '';
+    const pdfUrl = resolveUrl(e.media_urls?.[0] || '');
     const pdfTitle = e.caption || 'document PDF';
     const pdfNote = e.content || '';
     const noteHtml = pdfNote ? `<div style="margin-top:6px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;">${hlQuery ? highlightText(pdfNote, hlQuery) : escHtml(pdfNote)}</div>` : '';
@@ -5214,6 +5378,8 @@ async function submitEntry(type) {
     const captionHtml = getCapHtml('photo-cap-editor');
     if (!raw) { showToast('adaugă cel puțin un link'); return; }
     payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
+    // media_urls poate conține cloudinary:image:publicId sau URL-uri externe — ambele sunt ok
+
     payload.caption = captionHtml;
     payload.blur_images = photoBlurEnabled;
     payload.blur_18 = photo18Enabled;
@@ -5234,7 +5400,9 @@ async function submitEntry(type) {
     const date = document.getElementById('music-date').value;
     const note = document.getElementById('music-note').value.trim();
     if (!url) { showToast('adaugă un link'); return; }
+    // url și cover pot fi cloudinary:video:publicId sau URL externe
     payload.media_urls = [url]; payload.caption = title; payload.content = note; payload.cover_url = cover;
+
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   } else if (type === 'pdf') {
     const url = document.getElementById('pdf-url').value.trim();
@@ -5269,17 +5437,36 @@ function clearForm(type) {
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-cap-editor').innerHTML = '';
+    document.getElementById('photo-upload-previews').innerHTML = '';
+    document.getElementById('photo-upload-status').textContent = '';
+    document.getElementById('photo-file-input').value = '';
     if (photoBlurEnabled) togglePhotoBlur();
     if (photo18Enabled) { photo18Enabled=false; document.getElementById('photo-18-toggle').classList.remove('on-private'); }
+
   } else if (type === 'video') {
     document.getElementById('video-url').value = '';
     document.getElementById('video-cap-editor').innerHTML = '';
+    document.getElementById('video-upload-status').textContent = '';
+    document.getElementById('video-file-input').value = '';
     if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-private'); }
+
+
   } else if (type === 'music') {
     document.getElementById('music-url').value = ''; document.getElementById('music-title-inp').value = '';
     document.getElementById('music-note').value = ''; document.getElementById('music-cover-inp').value = '';
+    document.getElementById('music-upload-status').textContent = '';
+    document.getElementById('music-file-input').value = '';
+    document.getElementById('music-cover-upload-status').textContent = '';
+    document.getElementById('music-cover-file-input').value = '';
+    document.getElementById('music-cover-preview').style.display = 'none';
+    document.getElementById('music-cover-preview-img').src = '';
+
+
   } else if (type === 'pdf') {
     document.getElementById('pdf-url').value = ''; document.getElementById('pdf-title').value = ''; document.getElementById('pdf-note').value = '';
+    document.getElementById('pdf-upload-status').textContent = '';
+    document.getElementById('pdf-file-input').value = '';
+
   }
   setDefaultDates();
 }
@@ -5576,6 +5763,152 @@ function selectEditTheme(theme) {
   document.querySelectorAll('#editThemeSelectorGrid .theme-swatch').forEach(s => {
     s.classList.toggle('selected', s.dataset.theme === theme);
   });
+}
+
+// ═══════════════════════════════════════
+// CLOUDINARY UPLOAD
+// ═══════════════════════════════════════
+const CLOUDINARY_CLOUD = 'dzqboif1m';
+const CLOUDINARY_PRESET = 'carnet_unsigned';
+
+function cdnUrl(publicId, resourceType) {
+  if (!publicId) return '';
+  // Dacă e deja un URL complet extern (YouTube, link direct etc.) — îl returnăm neschimbat
+  if (publicId.startsWith('http://') || publicId.startsWith('https://')) return publicId;
+  // Construim URL-ul din cloud name + public_id
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/${resourceType}/upload/${publicId}`;
+}
+
+function isCloudinaryId(str) {
+  if (!str) return false;
+  return !str.startsWith('http://') && !str.startsWith('https://');
+}
+
+
+async function uploadToCloudinary(file, resourceType = 'auto') {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`, {
+    method: 'POST', body: fd
+  });
+  if (!res.ok) throw new Error('Upload eșuat');
+  const data = await res.json();
+  // Returnăm public_id și resource_type în loc de URL
+  return { publicId: data.public_id, resourceType: data.resource_type, secureUrl: data.secure_url };
+}
+
+
+async function uploadPhotosToCloudinary(files) {
+  const status = document.getElementById('photo-upload-status');
+  const previews = document.getElementById('photo-upload-previews');
+  const urlsField = document.getElementById('photo-urls');
+  status.textContent = `se încarcă ${files.length} fișier(e)...`;
+  const ids = [];
+  for (let i = 0; i < files.length; i++) {
+    status.textContent = `se încarcă ${i+1}/${files.length}...`;
+    try {
+      const result = await uploadToCloudinary(files[i], 'image');
+      // Salvăm public_id prefixat cu tip pentru reconstruire URL
+      const stored = `cloudinary:image:${result.publicId}`;
+      ids.push(stored);
+      const previewUrl = result.secureUrl;
+      const img = document.createElement('div');
+      img.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);';
+      img.innerHTML = `<img src="${previewUrl}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removePhotoPreview(this,'${stored}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>`;
+      previews.appendChild(img);
+    } catch(e) {
+      status.textContent = `eroare la fișierul ${i+1}`; return;
+    }
+  }
+  const existing = urlsField.value.trim();
+  urlsField.value = existing ? existing + '\n' + ids.join('\n') : ids.join('\n');
+  status.textContent = `✓ ${ids.length} imagine(i) încărcate`;
+  setTimeout(() => status.textContent = '', 3000);
+}
+
+async function uploadMusicToCloudinary(file) {
+  const status = document.getElementById('music-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToCloudinary(file, 'video');
+    document.getElementById('music-url').value = `cloudinary:video:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+async function uploadMusicCoverToCloudinary(file) {
+  const status = document.getElementById('music-cover-upload-status');
+  const preview = document.getElementById('music-cover-preview');
+  const previewImg = document.getElementById('music-cover-preview-img');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToCloudinary(file, 'image');
+    document.getElementById('music-cover-inp').value = `cloudinary:image:${result.publicId}`;
+    previewImg.src = result.secureUrl;
+    preview.style.display = 'block';
+    status.textContent = '✓ copertă încărcată';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+async function uploadDmMusicToCloudinary(file) {
+  const status = document.getElementById('dm-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToCloudinary(file, 'video');
+    document.getElementById('dm-url').value = `cloudinary:video:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+async function uploadPdfToCloudinary(file) {
+  const status = document.getElementById('pdf-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToCloudinary(file, 'raw');
+    document.getElementById('pdf-url').value = `cloudinary:raw:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+async function uploadVideoToCloudinary(file) {
+  const status = document.getElementById('video-upload-status');
+  status.textContent = 'se încarcă (poate dura...)';
+  try {
+    const result = await uploadToCloudinary(file, 'video');
+    document.getElementById('video-url').value = `cloudinary:video:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+function removePhotoPreview(btn, url) {
+  btn.closest('div').remove();
+  const field = document.getElementById('photo-urls');
+  field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
+}
+
+function handlePhotoDrop(e) {
+  e.preventDefault();
+  document.getElementById('photo-upload-area').style.borderColor = 'var(--border2)';
+  const files = e.dataTransfer.files;
+  if (files.length) uploadPhotosToCloudinary(files);
 }
 
 
