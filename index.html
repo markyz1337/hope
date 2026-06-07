@@ -2773,18 +2773,20 @@ function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Rezolvă un string stocat — poate fi cloudinary:tip:publicId sau URL extern
 function resolveUrl(stored) {
   if (!stored) return '';
   if (stored.startsWith('cloudinary:')) {
     const parts = stored.split(':');
-    // format: cloudinary:resourceType:public/id (public_id poate conține ':')
     const resourceType = parts[1];
     const publicId = parts.slice(2).join(':');
     return cdnUrl(publicId, resourceType);
   }
-  return stored; // URL extern — îl returnăm neschimbat
+  if (stored.startsWith('r2:')) {
+    return `${R2_PUBLIC_URL}/${stored.slice(3)}`;
+  }
+  return stored;
 }
+
 
 // Rezolvă o listă de URL-uri/id-uri (newline separated sau array)
 function resolveUrls(arr) {
@@ -5765,38 +5767,49 @@ function selectEditTheme(theme) {
   });
 }
 
-// ═══════════════════════════════════════
-// CLOUDINARY UPLOAD
-// ═══════════════════════════════════════
-const CLOUDINARY_CLOUD = 'dzqboif1m';
-const CLOUDINARY_PRESET = 'carnet_unsigned';
-
-function cdnUrl(publicId, resourceType) {
-  if (!publicId) return '';
-  // Dacă e deja un URL complet extern (YouTube, link direct etc.) — îl returnăm neschimbat
-  if (publicId.startsWith('http://') || publicId.startsWith('https://')) return publicId;
-  // Construim URL-ul din cloud name + public_id
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/${resourceType}/upload/${publicId}`;
-}
-
-function isCloudinaryId(str) {
-  if (!str) return false;
-  return !str.startsWith('http://') && !str.startsWith('https://');
-}
+// ── R2 CONFIG ──
+const R2_WORKER_URL = 'https://carnet-upload.sergiu-disk.workers.dev';
+const R2_UPLOAD_SECRET = 'carnet2026secret'; // ce ai pus tu la UPLOAD_SECRET
+const R2_PUBLIC_URL = 'https://pub-b2074a6250b94e72a2f56ff71f7dbc94.r2.dev';
 
 
-async function uploadToCloudinary(file, resourceType = 'auto') {
+// Înlocuiește funcția uploadToCloudinary cu asta:
+async function uploadToR2(file, resourceType = 'auto') {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const ext = file.name.split('.').pop() || '';
+  const typePrefix = file.type.startsWith('image/') ? 'photo' :
+                     file.type.startsWith('audio/') ? 'audio' :
+                     file.type.startsWith('video/') ? 'video' : 'file';
+  const publicId = `${typePrefix}_${timestamp}.${ext}`;
+
   const fd = new FormData();
   fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_PRESET);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`, {
-    method: 'POST', body: fd
+  fd.append('public_id', publicId);
+
+  const res = await fetch(R2_WORKER_URL, {
+    method: 'POST',
+    headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET },
+    body: fd,
   });
+
   if (!res.ok) throw new Error('Upload eșuat');
   const data = await res.json();
-  // Returnăm public_id și resource_type în loc de URL
-  return { publicId: data.public_id, resourceType: data.resource_type, secureUrl: data.secure_url };
+  return {
+    publicId: data.public_id,
+    resourceType: data.resource_type,
+    secureUrl: data.secure_url,
+  };
 }
+
+// Înlocuiește cdnUrl cu asta:
+function cdnUrl(publicId, resourceType) {
+  if (!publicId) return '';
+  if (publicId.startsWith('http://') || publicId.startsWith('https://')) return publicId;
+  return `${R2_PUBLIC_URL}/${publicId}`;
+}
+
 
 
 async function uploadPhotosToCloudinary(files) {
@@ -5808,9 +5821,8 @@ async function uploadPhotosToCloudinary(files) {
   for (let i = 0; i < files.length; i++) {
     status.textContent = `se încarcă ${i+1}/${files.length}...`;
     try {
-      const result = await uploadToCloudinary(files[i], 'image');
-      // Salvăm public_id prefixat cu tip pentru reconstruire URL
-      const stored = `cloudinary:image:${result.publicId}`;
+const result = await uploadToR2(files[i], 'image');
+const stored = `r2:${result.publicId}`;
       ids.push(stored);
       const previewUrl = result.secureUrl;
       const img = document.createElement('div');
@@ -5831,8 +5843,8 @@ async function uploadMusicToCloudinary(file) {
   const status = document.getElementById('music-upload-status');
   status.textContent = 'se încarcă...';
   try {
-    const result = await uploadToCloudinary(file, 'video');
-    document.getElementById('music-url').value = `cloudinary:video:${result.publicId}`;
+const result = await uploadToR2(file, 'audio');
+document.getElementById('music-url').value = `r2:${result.publicId}`;
     status.textContent = '✓ încărcat';
     setTimeout(() => status.textContent = '', 3000);
   } catch(e) {
@@ -5846,8 +5858,9 @@ async function uploadMusicCoverToCloudinary(file) {
   const previewImg = document.getElementById('music-cover-preview-img');
   status.textContent = 'se încarcă...';
   try {
-    const result = await uploadToCloudinary(file, 'image');
-    document.getElementById('music-cover-inp').value = `cloudinary:image:${result.publicId}`;
+const result = await uploadToR2(file, 'image');
+document.getElementById('music-cover-inp').value = `r2:${result.publicId}`;
+
     previewImg.src = result.secureUrl;
     preview.style.display = 'block';
     status.textContent = '✓ copertă încărcată';
@@ -5862,8 +5875,9 @@ async function uploadDmMusicToCloudinary(file) {
   const status = document.getElementById('dm-upload-status');
   status.textContent = 'se încarcă...';
   try {
-    const result = await uploadToCloudinary(file, 'video');
-    document.getElementById('dm-url').value = `cloudinary:video:${result.publicId}`;
+const result = await uploadToR2(file, 'audio');
+document.getElementById('dm-url').value = `r2:${result.publicId}`;
+
     status.textContent = '✓ încărcat';
     setTimeout(() => status.textContent = '', 3000);
   } catch(e) {
@@ -5875,8 +5889,9 @@ async function uploadPdfToCloudinary(file) {
   const status = document.getElementById('pdf-upload-status');
   status.textContent = 'se încarcă...';
   try {
-    const result = await uploadToCloudinary(file, 'raw');
-    document.getElementById('pdf-url').value = `cloudinary:raw:${result.publicId}`;
+const result = await uploadToR2(file, 'raw');
+document.getElementById('pdf-url').value = `r2:${result.publicId}`;
+
     status.textContent = '✓ încărcat';
     setTimeout(() => status.textContent = '', 3000);
   } catch(e) {
@@ -5888,8 +5903,8 @@ async function uploadVideoToCloudinary(file) {
   const status = document.getElementById('video-upload-status');
   status.textContent = 'se încarcă (poate dura...)';
   try {
-    const result = await uploadToCloudinary(file, 'video');
-    document.getElementById('video-url').value = `cloudinary:video:${result.publicId}`;
+const result = await uploadToR2(file, 'video');
+document.getElementById('video-url').value = `r2:${result.publicId}`;
     status.textContent = '✓ încărcat';
     setTimeout(() => status.textContent = '', 3000);
   } catch(e) {
