@@ -6280,6 +6280,30 @@ function renderR2Gallery(files) {
       
     </div>`;
 
+  if (orphans.length > 0) {
+    html += `<div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--rose);letter-spacing:0.1em;">NEFOLOSITE (${orphans.length})</div>
+        <button onclick="deleteAllOrphans()" style="padding:5px 12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:20px;color:#e07070;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:0.04em;">șterge toate</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="orphans-grid">`;
+    orphans.sort((a, b) => b.key.localeCompare(a.key)).forEach((f, idx) => {
+
+      const url = `${R2_PUBLIC_URL}/${f.key}`;
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
+      const globalIdx = files.indexOf(f);
+      const thumb = isImage
+        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
+      html += `<div data-r2key="${f.key}" data-idx="${globalIdx}" style="position:relative;aspect-ratio:1;background:rgba(200,80,80,0.06);border:1px solid rgba(200,80,80,0.35);border-radius:10px;overflow:hidden;cursor:pointer;">
+        ${thumb}
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 4px;font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.key.split('/').pop()}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+
   html += `<div style="margin-bottom:16px;">
     <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
