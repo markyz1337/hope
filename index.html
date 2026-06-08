@@ -1759,12 +1759,13 @@ audio { display: none; }
     <div class="sheet-title">adaugă poze</div>
     <div class="form-group">
       <label class="form-label">încarcă imagini pe Cloudinary</label>
-      <div id="photo-upload-area" style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('photo-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handlePhotoDrop(event)">
-        <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotosToCloudinary(this.files)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">trage sau apasă pentru upload</div>
-        <div id="photo-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
-      </div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('photo-file-input').click()">
+  <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotosToCloudinary(this.files)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege imagini</span>
+  <span id="photo-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
       <div id="photo-upload-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
     </div>
     <div class="form-group">
@@ -1819,12 +1820,13 @@ audio { display: none; }
     <div class="sheet-title">adaugă videoclip</div>
     <div class="form-group">
       <label class="form-label">încarcă video pe Cloudinary</label>
-      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('video-file-input').click()">
-        <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="uploadVideoToCloudinary(this.files[0])">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload video</div>
-        <div id="video-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
-      </div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('video-file-input').click()">
+  <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="uploadVideoToCloudinary(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege video</span>
+  <span id="video-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
     </div>
     <div class="form-group">
       <label class="form-label" style="display:flex;align-items:center;gap:6px;">
@@ -1871,20 +1873,20 @@ audio { display: none; }
 </div>
 
 <!-- Music -->
-<!-- Music -->
+
 <div class="backdrop" id="modal-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă muzică</div>
     <div class="form-group">
       <label class="form-label">încarcă fișier audio pe Cloudinary</label>
-      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('music-file-input').click()">
-<input type="file" id="music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadMusicToCloudinary(this.files[0])">
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('music-file-input').click()">
+  <input type="file" id="music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadMusicToCloudinary(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
+  <span id="music-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
 
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload audio</div>
-        <div id="music-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
-      </div>
     </div>
     <div class="form-group">
       <label class="form-label" style="display:flex;align-items:center;gap:6px;">
@@ -1900,13 +1902,14 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">copertă (opțional)</label>
-      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('music-cover-file-input').click()">
-        <input type="file" id="music-cover-file-input" accept="image/*,.jpg,.jpeg,.png,.webp" style="display:none" onchange="uploadMusicCoverToCloudinary(this.files[0])">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload copertă</div>
-        <div id="music-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
-        <div id="music-cover-preview" style="margin-top:8px;display:none;"><img id="music-cover-preview-img" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border2);" src=""></div>
-      </div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('music-cover-file-input').click()">
+  <input type="file" id="music-cover-file-input" accept="image/*" style="display:none" onchange="uploadMusicCoverToCloudinary(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege copertă</span>
+  <span id="music-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+  <div id="music-cover-preview" style="display:none;flex-shrink:0;"><img id="music-cover-preview-img" style="width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2);" src=""></div>
+</div>
+
       <div style="margin-top:8px;">
         <label class="form-label" style="display:flex;align-items:center;gap:6px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
@@ -1937,12 +1940,13 @@ audio { display: none; }
     <div class="sheet-title">adaugă PDF</div>
     <div class="form-group">
       <label class="form-label">încarcă PDF pe Cloudinary</label>
-      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('pdf-file-input').click()">
-        <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="uploadPdfToCloudinary(this.files[0])">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload PDF</div>
-        <div id="pdf-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
-      </div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('pdf-file-input').click()">
+  <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="uploadPdfToCloudinary(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege PDF</span>
+  <span id="pdf-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
     </div>
     <div class="form-group">
       <label class="form-label" style="display:flex;align-items:center;gap:6px;">
@@ -1982,12 +1986,13 @@ audio { display: none; }
     </div>
     <div class="form-group">
       <label class="form-label">încarcă fișier audio pe Cloudinary</label>
-      <div style="border:1px dashed var(--border2);border-radius:var(--r2);padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--surface);" onclick="document.getElementById('dm-file-input').click()">
-        <input type="file" id="dm-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadDmMusicToCloudinary(this.files[0])">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:24px;height:24px;color:var(--text3);margin-bottom:6px;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">apasă pentru upload audio</div>
-        <div id="dm-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px;min-height:14px;"></div>
-      </div>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('dm-file-input').click()">
+  <input type="file" id="dm-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadDmMusicToCloudinary(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
+  <span id="dm-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
     </div>
     <div class="form-group">
       <label class="form-label" style="display:flex;align-items:center;gap:6px;">
@@ -5829,7 +5834,7 @@ async function uploadPhotosToCloudinary(files) {
 const result = await uploadToR2(files[i], 'image');
 const stored = `r2:${result.publicId}`;
       ids.push(stored);
-      const previewUrl = result.secureUrl;
+const previewUrl = `${R2_PUBLIC_URL}/${result.publicId}`;
       const img = document.createElement('div');
       img.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);';
       img.innerHTML = `<img src="${previewUrl}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removePhotoPreview(this,'${stored}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>`;
