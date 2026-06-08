@@ -5977,7 +5977,9 @@ async function uploadToR2(file, resourceType = 'auto') {
   const isGif = ext.toLowerCase() === 'gif';
   const folderMap = { 'audio': 'music', 'video': 'video', 'file': 'pdf' };
   const folder = isGif ? 'gifs' : (folderMap[typePrefix] || 'photos');
-  const publicId = `${folder}/${typePrefix}_${timestamp}.${ext}`;
+  const rand = Math.random().toString(36).slice(2, 4);
+  const publicId = `${folder}/${typePrefix}_${timestamp}_${rand}.${ext}`;
+
 
   const fd = new FormData();
   fd.append('file', file);
