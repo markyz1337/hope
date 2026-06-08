@@ -1001,6 +1001,9 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
   transform: scale(1.15);
 }
 
+.r2-cell:hover .r2-hover-layer { background: rgba(0,0,0,0.5) !important; }
+.r2-cell:hover .r2-actions-layer { opacity: 1 !important; pointer-events: all !important; }
+
 
 audio { display: none; }
 ::-webkit-scrollbar { width: 3px; }
@@ -2008,9 +2011,18 @@ audio { display: none; }
       <input type="text" class="form-input" id="dm-title" placeholder="numele piesei...">
     </div>
     <div class="form-group">
-      <label class="form-label">link copertă (opțional)</label>
+      <label class="form-label">copertă (opțional)</label>
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;margin-bottom:8px;" onclick="document.getElementById('dm-cover-file-input').click()">
+        <input type="file" id="dm-cover-file-input" accept="image/*" style="display:none" onchange="uploadDmCoverToR2(this.files[0])">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">încarcă copertă</span>
+        <span id="dm-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+      </div>
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">sau link extern copertă</label>
       <input type="url" class="form-input" id="dm-cover" placeholder="https://...">
     </div>
+
+
     <button class="btn-primary" onclick="saveDateMusic()">salvează</button>
     <button class="btn-secondary" onclick="closeModal('date-music')">anulează</button>
   </div>
@@ -2101,8 +2113,19 @@ audio { display: none; }
     </div>
     <div class="form-group" id="edit-plain-group">
       <label class="form-label" id="edit-plain-lbl">conținut / URL-uri</label>
+      <div id="edit-upload-section" style="display:none;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('edit-file-input').click()">
+          <input type="file" id="edit-file-input" style="display:none" onchange="handleEditFileUpload(this.files[0])">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="edit-upload-label" style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">încarcă fișier</span>
+          <span id="edit-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+        </div>
+        <div id="edit-upload-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text4);margin-top:6px;letter-spacing:0.04em;">sau introdu link direct mai jos</div>
+      </div>
       <textarea class="form-textarea" id="edit-content"></textarea>
     </div>
+
     <div class="form-group" id="edit-caption-group">
       <label class="form-label" id="edit-caption-lbl">descriere / titlu</label>
       <div class="cap-rte-wrap" id="editCapWrap" style="display:none">
@@ -5591,6 +5614,33 @@ function openEditFor(id) {
   if (!e) return;
   document.getElementById('edit-id').value = id;
   document.getElementById('edit-type').value = e.type;
+  
+  // Reset upload section
+  const uploadSection = document.getElementById('edit-upload-section');
+  const editFileInput = document.getElementById('edit-file-input');
+  const editUploadPreviews = document.getElementById('edit-upload-previews');
+  editFileInput.value = '';
+  document.getElementById('edit-upload-status').textContent = '';
+  if (editUploadPreviews) editUploadPreviews.innerHTML = '';
+  
+  // Configurează upload per tip
+  const uploadConfigs = {
+    photo: { accept: 'image/*', label: 'încarcă imagini', show: true, multiple: true },
+    video: { accept: 'video/*,.mp4,.webm', label: 'încarcă video', show: true, multiple: false },
+    music: { accept: 'audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a', label: 'încarcă audio', show: true, multiple: false },
+    pdf:   { accept: '.pdf', label: 'încarcă PDF', show: true, multiple: false },
+    note:  { show: false },
+  };
+  const cfg = uploadConfigs[e.type] || { show: false };
+  if (uploadSection) {
+    uploadSection.style.display = cfg.show ? 'block' : 'none';
+    if (cfg.show) {
+      editFileInput.accept = cfg.accept;
+      editFileInput.multiple = !!cfg.multiple;
+      document.getElementById('edit-upload-label').textContent = cfg.label;
+    }
+  }
+
   document.getElementById('edit-date').value = toLocal(e.posted_at);
   document.getElementById('edit-cover-group').style.display = (e.type==='music') ? 'block':'none';
   document.getElementById('edit-cover').value = e.cover_url || '';
@@ -5669,6 +5719,41 @@ document.getElementById('edit-cover-file-input').value = '';
   }
   openModal('edit');
 }
+
+
+async function handleEditFileUpload(file) {
+  if (!file) return;
+  const status = document.getElementById('edit-upload-status');
+  const type = document.getElementById('edit-type').value;
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToR2(file, 'auto');
+    const stored = `r2:${result.publicId}`;
+    const content = document.getElementById('edit-content');
+    if (type === 'photo') {
+      const existing = content.value.trim();
+      content.value = existing ? existing + '\n' + stored : stored;
+      const previews = document.getElementById('edit-upload-previews');
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);';
+      div.innerHTML = `<img src="${result.secureUrl}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removeEditPhotoPreview(this,'${stored}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>`;
+      previews.appendChild(div);
+    } else {
+      content.value = stored;
+    }
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+function removeEditPhotoPreview(btn, url) {
+  btn.closest('div').remove();
+  const field = document.getElementById('edit-content');
+  field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
+}
+
 
 async function saveEdit() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
@@ -5967,6 +6052,22 @@ document.getElementById('dm-url').value = `r2:${result.publicId}`;
   }
 }
 
+
+async function uploadDmCoverToR2(file) {
+  const status = document.getElementById('dm-cover-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToR2(file, 'image');
+    document.getElementById('dm-cover').value = `r2:${result.publicId}`;
+    status.textContent = '✓ copertă încărcată';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+
 async function uploadPdfToCloudinary(file) {
   const status = document.getElementById('pdf-upload-status');
   status.textContent = 'se încarcă...';
@@ -6035,8 +6136,16 @@ function handleR2GalleryClick(e) {
   if (e.target === document.getElementById('r2GalleryOverlay')) closeR2Gallery();
 }
 function closeR2Gallery() {
-  document.getElementById('r2GalleryOverlay').classList.remove('open');
+  const ov = document.getElementById('r2GalleryOverlay');
+  ov.classList.remove('open');
+  // Resetează body-ul galeriei ca să nu rămână butoane active în DOM
+  setTimeout(() => { 
+    if (!ov.classList.contains('open')) {
+      document.getElementById('r2GalleryBody').innerHTML = '';
+    }
+  }, 300);
 }
+
 
 async function openR2Gallery() {
   closeSettings();
@@ -6061,7 +6170,6 @@ function renderR2Gallery(files) {
     return;
   }
 
-  // Grupează pe foldere
   const groups = {};
   files.forEach(f => {
     const folder = f.key.includes('/') ? f.key.split('/')[0] : 'altele';
@@ -6069,7 +6177,6 @@ function renderR2Gallery(files) {
     groups[folder].push(f);
   });
 
-  // Calculează ce chei sunt folosite în Supabase
   const usedKeys = new Set();
   entries.forEach(e => {
     (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
@@ -6112,15 +6219,11 @@ function renderR2Gallery(files) {
       const isUsed = usedKeys.has(f.key);
       const thumb = isImage
         ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
-        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
-html += `<div data-r2key="${f.key}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.3)'};border-radius:10px;overflow:hidden;" title="${f.key}">
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
+      const escapedKey = f.key.replace(/'/g, "\\'");
+      html += `<div onclick="openR2FileDetail('${escapedKey}',${f.size},${isUsed})" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
         ${thumb}
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.15s;" onmouseover="this.style.background='rgba(0,0,0,0.5)';this.nextElementSibling.style.opacity='1'" onmouseout="this.style.background='rgba(0,0,0,0)';this.nextElementSibling.style.opacity='0'"></div>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;opacity:0;transition:opacity 0.15s;pointer-events:none;">
-          <div style="font-family:var(--mono);font-size:8px;color:white;text-align:center;padding:0 4px;word-break:break-all;">${formatBytes(f.size)}</div>
-<button onclick="deleteR2File('${f.key}',this)" style="pointer-events:all;padding:4px 10px;background:rgba(200,80,80,0.85);border:none;border-radius:20px;color:white;font-family:var(--mono);font-size:9px;cursor:pointer;">șterge</button>
-        </div>
-        ${!isUsed ? '<div style="position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--rose);"></div>' : ''}
+        ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
       </div>`;
     });
     html += `</div>`;
@@ -6129,11 +6232,159 @@ html += `<div data-r2key="${f.key}" style="position:relative;aspect-ratio:1;back
   document.getElementById('r2GalleryBody').innerHTML = html;
 }
 
+
+function openR2FileDetail(key, size, isUsed) {
+  const url = `${R2_PUBLIC_URL}/${key}`;
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(key);
+  const isAudio = /\.(mp3|ogg|wav|flac|aac|m4a)$/i.test(key);
+  const isVideo = /\.(mp4|webm|mov)$/i.test(key);
+  const fileName = key.split('/').pop();
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(16px);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); };
+
+  let previewHtml = '';
+  if (isImage) {
+    previewHtml = `<img src="${url}" style="width:100%;max-height:220px;object-fit:contain;border-radius:12px;border:1px solid var(--border2);background:rgba(0,0,0,0.3);">`;
+  } else if (isAudio) {
+    previewHtml = `<div style="display:flex;align-items:center;justify-content:center;height:80px;background:rgba(122,200,149,0.07);border:1px solid rgba(122,200,149,0.2);border-radius:12px;font-size:40px;">🎵</div>
+    <audio controls src="${url}" style="width:100%;margin-top:10px;border-radius:8px;"></audio>`;
+  } else if (isVideo) {
+    previewHtml = `<video controls src="${url}" style="width:100%;max-height:200px;border-radius:12px;border:1px solid var(--border2);background:#000;"></video>`;
+  } else {
+    previewHtml = `<div style="display:flex;align-items:center;justify-content:center;height:80px;background:rgba(160,122,200,0.07);border:1px solid rgba(160,122,200,0.2);border-radius:12px;font-size:40px;">📄</div>`;
+  }
+
+  overlay.innerHTML = `
+    <div style="background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid var(--border2);border-radius:22px;padding:20px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;">
+        <div>
+          <div style="font-family:var(--serif);font-size:17px;font-style:italic;color:var(--accent2);line-height:1.3;word-break:break-all;">${fileName}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${isUsed ? '<span style="color:var(--green)">folosit</span>' : '<span style="color:var(--rose)">nefolosit</span>'}</div>
+        </div>
+        <button onclick="this.closest('div[style*=\"position:fixed\"]').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
+      </div>
+
+      <div style="margin-bottom:16px;">${previewHtml}</div>
+
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.08em;margin-bottom:8px;word-break:break-all;line-height:1.6;padding:8px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border);">${key}</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <button onclick="copyR2Link('${key}','direct')" style="padding:11px 8px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
+          📋 link direct
+        </button>
+        <button onclick="copyR2Link('${key}','r2')" style="padding:11px 8px;background:rgba(160,122,200,0.1);border:1px solid rgba(160,122,200,0.3);border-radius:10px;color:var(--purple);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
+          📎 r2: ref
+        </button>
+        <button onclick="downloadR2File('${key}')" style="padding:11px 8px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:10px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
+          ⬇️ descarcă
+        </button>
+        <button onclick="goToR2FileDay('${key}');this.closest('div[style*=\\"position:fixed\\"]').remove()" style="padding:11px 8px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:10px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
+          📅 → ziua
+        </button>
+      </div>
+
+      <button onclick="if(confirm('Ștergi ${fileName}?')){deleteR2File('${key}',null);this.closest('div[style*=\\"position:fixed\\"]').remove();openR2Gallery();}" style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">
+        🗑️ șterge fișierul
+      </button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+
 function formatBytes(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
   return (bytes/(1024*1024)).toFixed(1) + ' MB';
 }
+
+function copyR2Link(key, type) {
+  let text;
+  if (type === 'direct') {
+    text = `${R2_PUBLIC_URL}/${key}`;
+  } else {
+    text = `r2:${key}`;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(type === 'direct' ? 'link direct copiat' : 'referință r2: copiată');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('copiat');
+  });
+}
+
+function downloadR2File(key) {
+  const url = `${R2_PUBLIC_URL}/${key}`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = key.split('/').pop();
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function goToR2FileDay(key) {
+  // Găsește toate entry-urile care conțin acest fișier
+  const matches = [];
+  entries.forEach(e => {
+    const allUrls = [...(e.media_urls || []), e.cover_url || ''].filter(Boolean);
+    if (allUrls.some(u => u === `r2:${key}` || u === key)) {
+      matches.push(dateKey(e.posted_at));
+    }
+  });
+  Object.entries(dateMusicMap).forEach(([date, dm]) => {
+    if (dm.url === `r2:${key}` || dm.cover === `r2:${key}`) matches.push(date);
+  });
+  const uniqueDays = [...new Set(matches)];
+  if (!uniqueDays.length) { showToast('fișier negăsit în nicio notiță'); return; }
+  closeR2Gallery();
+  if (uniqueDays.length === 1) {
+    selectDate(uniqueDays[0]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    // Afișează picker
+    const chosen = await pickDayFromList(uniqueDays);
+    if (chosen) { selectDate(chosen); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  }
+}
+
+function pickDayFromList(days) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.85);backdrop-filter:blur(10px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:#181820;border:1px solid rgba(255,255,255,0.13);border-radius:18px;padding:20px;width:100%;max-width:300px;';
+    modal.innerHTML = `<div style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--accent2);margin-bottom:16px;">Alege ziua</div>` +
+      days.map(d => {
+        const label = new Date(d+'T12:00:00').toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'});
+        return `<button onclick="this.closest('.r2-day-picker').dataset.chosen='${d}'" style="width:100%;padding:12px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--sans);font-size:14px;cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">${label}</button>`;
+      }).join('') +
+      `<button onclick="this.closest('.r2-day-picker').dataset.chosen='cancel'" style="width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;margin-top:4px;">anulează</button>`;
+    modal.className = 'r2-day-picker';
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    const obs = new MutationObserver(() => {
+      const chosen = modal.dataset.chosen;
+      if (chosen) {
+        obs.disconnect();
+        document.body.removeChild(overlay);
+        resolve(chosen === 'cancel' ? null : chosen);
+      }
+    });
+    obs.observe(modal, { attributes: true });
+  });
+}
+
 
 async function deleteR2File(key, btnEl) {
   if (!confirm(`Ștergi ${key}?`)) return;
