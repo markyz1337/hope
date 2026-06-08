@@ -5782,7 +5782,10 @@ async function uploadToR2(file, resourceType = 'auto') {
   const typePrefix = file.type.startsWith('image/') ? 'photo' :
                      file.type.startsWith('audio/') ? 'audio' :
                      file.type.startsWith('video/') ? 'video' : 'file';
-  const publicId = `${typePrefix}_${timestamp}.${ext}`;
+const folderMap = { 'photo': 'photos', 'audio': 'music', 'video': 'video', 'file': 'pdf' };
+const folder = folderMap[typePrefix] || 'files';
+const publicId = `${folder}/${typePrefix}_${timestamp}.${ext}`;
+
 
   const fd = new FormData();
   fd.append('file', file);
