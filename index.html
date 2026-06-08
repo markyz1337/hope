@@ -6226,6 +6226,23 @@ async function openR2Gallery() {
   }
 }
 
+
+function copyAllR2Links() {
+  const btn = document.getElementById('copyAllR2Btn');
+  const links = JSON.parse(btn.dataset.links);
+  const text = links.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`${links.length} link-uri copiate`);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(`${links.length} link-uri copiate`);
+  });
+}
+
+
 function renderR2Gallery(files) {
   files = files.filter(f => !f.key.endsWith('/'));
   if (!files.length) {
@@ -6280,7 +6297,14 @@ function renderR2Gallery(files) {
       
     </div>`;
 
+
+
+  // Buton Copy All Direct Links
+  const allDirectLinks = files.map(f => `${R2_PUBLIC_URL}/${f.key}`);
+  html += `<button onclick="copyAllR2Links()" data-links='${JSON.stringify(allDirectLinks)}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază toate link-urile directe (${files.length})</button>`;
+
   if (orphans.length > 0) {
+
     html += `<div style="margin-bottom:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div style="font-family:var(--mono);font-size:9px;color:var(--rose);letter-spacing:0.1em;">NEFOLOSITE (${orphans.length})</div>
