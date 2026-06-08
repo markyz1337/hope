@@ -2366,7 +2366,8 @@ audio { display: none; }
 </div>
 
 <!-- R2 Gallery -- separat, la același nivel cu settingsOverlay -->
-<div class="settings-overlay" id="r2GalleryOverlay" onclick="handleR2GalleryClick(event)">
+<div class="settings-overlay" id="r2GalleryOverlay" onclick="handleR2GalleryClick(event)" style="overscroll-behavior:contain;" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()">
+
   <div class="settings-modal" id="r2GalleryModal" style="max-height:85vh;overflow-y:auto;">
     <div class="settings-header">
       <div class="settings-title">fișiere R2</div>
@@ -2803,6 +2804,27 @@ function extractYouTubeId(url) {
   for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
   return null;
 }
+
+function loadVideoEmbed(wrap) {
+  const embedUrl = wrap.dataset.embed;
+  if (!embedUrl) return;
+  const iframe = document.createElement('iframe');
+  iframe.src = embedUrl;
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:var(--r2);';
+  iframe.allowFullscreen = true;
+  iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+  wrap.innerHTML = '';
+  wrap.appendChild(iframe);
+  wrap.onclick = null;
+  wrap.style.cursor = 'default';
+}
+
+function captureVideoThumb(video) {
+  // Setează currentTime pentru a afișa primul frame
+  video.currentTime = 0.5;
+}
+
+
 
 // ═══════════════════════════════════════
 // UTILS
@@ -4696,7 +4718,7 @@ function renderEntry(e, hlQuery) {
         </div>
         <div class="private-img-label">privat</div>
       </div>` : '';
-      return `<div class="media-item" onclick="${(!isBlurred&&!isPrivate)||isRevealed ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+      return `<div class="media-item" onclick="${((!isBlurred&&!isPrivate)||isRevealed) ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
         <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
         ${isBlurred && !isPrivate ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this,'${entryIdStr}',${idx})">
           <div class="img-blur-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg></div>
@@ -4709,19 +4731,31 @@ function renderEntry(e, hlQuery) {
       : '';
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
-  } else if (e.type === 'video') {
+    } else if (e.type === 'video') {
     const url = resolveUrl(e.media_urls?.[0] || '');
-
     const ytId = extractYouTubeId(url);
     const captionHtml = e.caption
       ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
       : '';
     let videoHtml;
     if (ytId) {
-      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white`;
-      videoHtml = `<div class="video-embed-wrap"><iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" loading="lazy"></iframe></div>`;
+      const thumbUrl = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white&autoplay=1`;
+      videoHtml = `<div class="video-thumb-wrap" data-embed="${escHtml(embedUrl)}" onclick="loadVideoEmbed(this)" style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);aspect-ratio:16/9;cursor:pointer;">
+        <img src="${escHtml(thumbUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.75);border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;margin-left:3px;"><polygon points="5 3 19 12 5 21"/></svg>
+          </div>
+        </div>
+      </div>`;
     } else {
-      videoHtml = `<video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>`;
+      // video din R2/direct — generăm thumbnail din primul frame
+      videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
+        <video class="entry-video" preload="metadata" src="${escHtml(url)}#t=0.5" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" 
+          onloadedmetadata="captureVideoThumb(this)"
+          controls></video>
+      </div>`;
     }
     mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
 
@@ -5234,10 +5268,12 @@ let lbIsPanning = false, lbIsPinching = false;
 let lbLastTap = 0;
 
 function openLightboxForEntry(entryId, idx) {
-  const entry = entries.find(e => e.id == entryId || e.id === entryId);
+  const entry = entries.find(e => String(e.id) === String(entryId));
   if (!entry) return;
-  openLightbox(entry.media_urls || [], idx);
+  const resolvedUrls = resolveUrls(entry.media_urls || []);
+  openLightbox(resolvedUrls, idx);
 }
+
 
 function openLightbox(urls, idx) {
   lbImages = urls; lbIndex = idx;
@@ -5422,12 +5458,18 @@ function toggleEntryMusic(url, title, cover, container) {
     if (overlay) overlay.innerHTML = playIcon(); if (waves) waves.classList.add('paused'); if (sub) sub.textContent = 'apasă pentru redare';
     currentEntryAudioUrl = null;
   } else {
+    // Oprește muzica zilei când pornești o melodie din notițe
+    if (!dmAudio.paused) {
+      dmAudio.pause();
+      syncDateMusicWaves();
+    }
     if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
     updateMediaSession(title, cover);
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     if (overlay) overlay.innerHTML = pauseIcon(); if (waves) waves.classList.remove('paused'); if (sub) sub.textContent = 'redare...';
   }
 }
+
 
 entryAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
 entryAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
@@ -5917,21 +5959,20 @@ const R2_UPLOAD_SECRET = 'carnet2026secret'; // ce ai pus tu la UPLOAD_SECRET
 const R2_PUBLIC_URL = 'https://pub-b2074a6250b94e72a2f56ff71f7dbc94.r2.dev';
 
 
-// Înlocuiește funcția uploadToCloudinary cu asta:
 async function uploadToR2(file, resourceType = 'auto') {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
-  const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const ms = String(now.getMilliseconds()).padStart(3, '0');
+  const rand = Math.random().toString(36).slice(2, 6);
+  const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}_${ms}_${rand}`;
   const ext = file.name.split('.').pop() || '';
   const typePrefix = file.type.startsWith('image/') ? 'photo' :
                      file.type.startsWith('audio/') ? 'audio' :
                      file.type.startsWith('video/') ? 'video' : 'file';
-const folderMap = { 'audio': 'music', 'video': 'video', 'file': 'pdf' };
-const isGif = ext === 'gif';
-const folder = isGif ? 'gifs' : (folderMap[typePrefix] || 'photos');
-const publicId = `${folder}/${typePrefix}_${timestamp}.${ext}`;
-
-
+  const isGif = ext.toLowerCase() === 'gif';
+  const folderMap = { 'audio': 'music', 'video': 'video', 'file': 'pdf' };
+  const folder = isGif ? 'gifs' : (folderMap[typePrefix] || 'photos');
+  const publicId = `${folder}/${typePrefix}_${timestamp}.${ext}`;
 
   const fd = new FormData();
   fd.append('file', file);
@@ -5951,6 +5992,7 @@ const publicId = `${folder}/${typePrefix}_${timestamp}.${ext}`;
     secureUrl: data.secure_url,
   };
 }
+
 
 // Înlocuiește cdnUrl cu asta:
 function cdnUrl(publicId, resourceType) {
@@ -6113,18 +6155,30 @@ function handlePhotoDrop(e) {
 async function deleteFromR2(entry) {
   const urls = entry.media_urls || [];
   const cover = entry.cover_url || '';
-  const keys = [...urls, cover]
-    .filter(u => u && u.startsWith('r2:'))
-    .map(u => u.slice(3)); // scoate prefixul "r2:"
-  if (!keys.length) return;
+  const candidates = [...urls, cover].filter(u => u && u.startsWith('r2:')).map(u => u.slice(3));
+  if (!candidates.length) return;
+
+  // Verifică ce chei mai sunt folosite în alte notițe
+  const keysToDelete = [];
+  for (const key of candidates) {
+    const usedElsewhere = entries.some(e => {
+      if (String(e.id) === String(entry.id)) return false; // skip current entry
+      const allUrls = [...(e.media_urls || []), e.cover_url || ''].filter(Boolean);
+      return allUrls.some(u => u === `r2:${key}`);
+    });
+    // Verifică și în dateMusicMap
+    const usedInDm = Object.values(dateMusicMap).some(dm =>
+      dm.url === `r2:${key}` || dm.cover === `r2:${key}`
+    );
+    if (!usedElsewhere && !usedInDm) keysToDelete.push(key);
+  }
+
+  if (!keysToDelete.length) return;
   try {
     await fetch(R2_WORKER_URL, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Upload-Secret': R2_UPLOAD_SECRET,
-      },
-      body: JSON.stringify({ keys }),
+      headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+      body: JSON.stringify({ keys: keysToDelete }),
     });
   } catch(e) {
     console.warn('R2 delete failed:', e);
@@ -6132,9 +6186,11 @@ async function deleteFromR2(entry) {
 }
 
 
+
 function handleR2GalleryClick(e) {
   if (e.target === document.getElementById('r2GalleryOverlay')) closeR2Gallery();
 }
+
 function closeR2Gallery() {
   const ov = document.getElementById('r2GalleryOverlay');
   ov.classList.remove('open');
@@ -6202,13 +6258,23 @@ function renderR2Gallery(files) {
         <div style="font-family:var(--serif);font-size:18px;color:${orphans.length ? 'var(--rose)' : 'var(--text)'}">${orphans.length} fișiere</div>
         <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(orphans.reduce((a,f)=>a+f.size,0))}</div>
       </div>
+      
     </div>`;
 
-  if (orphans.length) {
-    html += `<button onclick="deleteOrphans()" style="width:100%;padding:10px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;margin-bottom:16px;">
-      șterge toate fișierele nefolosite (${orphans.length})
-    </button>`;
-  }
+  html += `<div style="margin-bottom:16px;">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      ${['photos','music','video','gifs','pdf'].map(cat => {
+        const count = files.filter(f => f.key.startsWith(cat+'/')).length;
+        const icons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
+        return `<button onclick="downloadR2Category('${cat}')" style="padding:11px 8px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;text-align:left;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;">
+          <span>${icons[cat]}</span><span>${cat} (${count})</span>
+        </button>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+
 
   for (const [folder, folderFiles] of Object.entries(groups)) {
     html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
@@ -6240,19 +6306,24 @@ function openR2FileDetail(key, size, isUsed) {
   const isVideo = /\.(mp4|webm|mov)$/i.test(key);
   const fileName = key.split('/').pop();
 
-  // Overlay
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(16px);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;';
-  overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); };
+  overlay.onclick = (e) => { 
+    if (e.target === overlay) {
+      // Oprește media înainte să închidă
+      overlay.querySelectorAll('audio,video').forEach(m => m.pause());
+      document.body.removeChild(overlay); 
+    }
+  };
 
   let previewHtml = '';
   if (isImage) {
     previewHtml = `<img src="${url}" style="width:100%;max-height:220px;object-fit:contain;border-radius:12px;border:1px solid var(--border2);background:rgba(0,0,0,0.3);">`;
   } else if (isAudio) {
-    previewHtml = `<div style="display:flex;align-items:center;justify-content:center;height:80px;background:rgba(122,200,149,0.07);border:1px solid rgba(122,200,149,0.2);border-radius:12px;font-size:40px;">🎵</div>
-    <audio controls src="${url}" style="width:100%;margin-top:10px;border-radius:8px;"></audio>`;
+    previewHtml = `<div style="display:flex;align-items:center;justify-content:center;height:60px;background:rgba(122,200,149,0.07);border:1px solid rgba(122,200,149,0.2);border-radius:12px;font-size:32px;margin-bottom:10px;">🎵</div>
+    <audio controls src="${url}" style="width:100%;border-radius:8px;" preload="metadata"></audio>`;
   } else if (isVideo) {
-    previewHtml = `<video controls src="${url}" style="width:100%;max-height:200px;border-radius:12px;border:1px solid var(--border2);background:#000;"></video>`;
+    previewHtml = `<video controls src="${url}" style="width:100%;max-height:220px;border-radius:12px;border:1px solid var(--border2);background:#000;" preload="metadata"></video>`;
   } else {
     previewHtml = `<div style="display:flex;align-items:center;justify-content:center;height:80px;background:rgba(160,122,200,0.07);border:1px solid rgba(160,122,200,0.2);border-radius:12px;font-size:40px;">📄</div>`;
   }
@@ -6264,35 +6335,22 @@ function openR2FileDetail(key, size, isUsed) {
           <div style="font-family:var(--serif);font-size:17px;font-style:italic;color:var(--accent2);line-height:1.3;word-break:break-all;">${fileName}</div>
           <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${isUsed ? '<span style="color:var(--green)">folosit</span>' : '<span style="color:var(--rose)">nefolosit</span>'}</div>
         </div>
-        <button onclick="this.closest('div[style*=\"position:fixed\"]').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
+        <button onclick="this.closest('div').querySelectorAll('audio,video').forEach(m=>m.pause());this.closest('[style*=position\\:fixed]').remove()" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
       </div>
-
       <div style="margin-bottom:16px;">${previewHtml}</div>
-
       <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.08em;margin-bottom:8px;word-break:break-all;line-height:1.6;padding:8px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border);">${key}</div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <button onclick="copyR2Link('${key}','direct')" style="padding:11px 8px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
-          📋 link direct
-        </button>
-        <button onclick="copyR2Link('${key}','r2')" style="padding:11px 8px;background:rgba(160,122,200,0.1);border:1px solid rgba(160,122,200,0.3);border-radius:10px;color:var(--purple);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
-          📎 r2: ref
-        </button>
-        <button onclick="downloadR2File('${key}')" style="padding:11px 8px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:10px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
-          ⬇️ descarcă
-        </button>
-        <button onclick="goToR2FileDay('${key}');this.closest('div[style*=\\"position:fixed\\"]').remove()" style="padding:11px 8px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:10px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">
-          📅 → ziua
-        </button>
+        <button onclick="copyR2Link('${key}','direct')" style="padding:11px 8px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📋 link direct</button>
+        <button onclick="copyR2Link('${key}','r2')" style="padding:11px 8px;background:rgba(160,122,200,0.1);border:1px solid rgba(160,122,200,0.3);border-radius:10px;color:var(--purple);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📎 r2: ref</button>
+        <button onclick="downloadR2File('${key}')" style="padding:11px 8px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:10px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">⬇️ descarcă</button>
+        <button onclick="goToR2FileDay('${key}');this.closest('[style*=position\\:fixed]').remove()" style="padding:11px 8px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:10px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📅 → ziua</button>
       </div>
-
-      <button onclick="if(confirm('Ștergi ${fileName}?')){deleteR2File('${key}',null);this.closest('div[style*=\\"position:fixed\\"]').remove();openR2Gallery();}" style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">
-        🗑️ șterge fișierul
-      </button>
+      <button onclick="if(confirm('Ștergi ${fileName}?')){this.closest('[style*=position\\:fixed]').querySelectorAll('audio,video').forEach(m=>m.pause());deleteR2File('${key}',null);this.closest('[style*=position\\:fixed]').remove();openR2Gallery();}" style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">🗑️ șterge fișierul</button>
     </div>`;
 
   document.body.appendChild(overlay);
 }
+
 
 
 function formatBytes(bytes) {
@@ -6404,28 +6462,35 @@ async function deleteR2File(key, btnEl) {
   }
 }
 
-async function deleteOrphans() {
-  const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
-  const { files } = await res.json();
-  const usedKeys = new Set();
-  entries.forEach(e => {
-    (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
-    if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
-  });
-  Object.values(dateMusicMap).forEach(dm => {
-    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
-    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
-  });
-  const orphanKeys = files.filter(f => !usedKeys.has(f.key)).map(f => f.key);
-  if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
-  if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
-  await fetch(R2_WORKER_URL, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-    body: JSON.stringify({ keys: orphanKeys }),
-  });
-  showToast(`${orphanKeys.length} fișiere șterse`);
-  openR2Gallery();
+
+async function downloadR2Category(folder) {
+  showToast(`se pregătește descărcarea categoriei "${folder}"...`);
+  try {
+    const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+    const { files } = await res.json();
+    const catFiles = files.filter(f => {
+      if (folder === 'altele') return !f.key.includes('/') || !['photos','music','gifs','pdf','video'].includes(f.key.split('/')[0]);
+      return f.key.startsWith(folder + '/');
+    });
+    if (!catFiles.length) { showToast('niciun fișier în această categorie'); return; }
+
+    // Descarcă unul câte unul
+    let count = 0;
+    for (const f of catFiles) {
+      await new Promise(resolve => setTimeout(resolve, 300)); // mică pauză între descărcări
+      const a = document.createElement('a');
+      a.href = `${R2_PUBLIC_URL}/${f.key}`;
+      a.download = f.key.split('/').pop();
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      count++;
+    }
+    showToast(`${count} fișiere descărcate`);
+  } catch(e) {
+    showToast('eroare la descărcare');
+  }
 }
 
 
