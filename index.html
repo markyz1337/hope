@@ -5967,7 +5967,6 @@ async function uploadToR2(file, resourceType = 'auto') {
   const now = new Date();
   const pad = n => String(n).padStart(2, '0');
   const ms = String(now.getMilliseconds()).padStart(3, '0');
-  const rand = Math.random().toString(36).slice(2, 4);
   const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 
   const ext = file.name.split('.').pop() || '';
