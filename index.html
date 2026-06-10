@@ -399,11 +399,15 @@ body.locked .card-actions { display: none !important; }
   background: rgba(0,0,0,0.2);
 }
 
+/* DUPĂ */
+/* ÎNAINTE */
 .img-blur-overlay {
   position: absolute; inset: 0;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   background: rgba(12,12,15,0.55);
+
+
   border-radius: var(--r2);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
@@ -5448,10 +5452,25 @@ document.getElementById('lightbox').addEventListener('click', e => {
 });
 
 function revealBlurredImg(overlay, entryId, idx) {
-  overlay.classList.add('revealed');
-  const item = overlay.closest('.media-item');
-  if (item) { item.style.cursor = 'pointer'; item.onclick = () => openLightboxForEntry(entryId, idx); }
+  // Deblurează toate imaginile din aceeași notiță
+  const card = overlay.closest('.entry-card');
+  if (card) {
+    card.querySelectorAll('.img-blur-overlay').forEach((ov, i) => {
+      ov.classList.add('revealed');
+      const item = ov.closest('.media-item');
+      if (item) {
+        item.style.cursor = 'pointer';
+        const capturedIdx = parseInt(ov.closest('.media-item')?.dataset?.idx ?? i);
+        item.onclick = () => openLightboxForEntry(entryId, capturedIdx);
+      }
+    });
+    // Setează onclick corect per index
+    card.querySelectorAll('.media-item').forEach((item, i) => {
+      item.onclick = () => openLightboxForEntry(entryId, i);
+    });
+  }
 }
+
 
 // ═══════════════════════════════════════
 // ENTRY MUSIC CONTROLS
