@@ -6560,10 +6560,15 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
   // Autoplay audio dacă e fișier audio
   if (isAudio) {
     setTimeout(() => {
+      // Oprește muzica zilei și muzica din notițe
+      dmAudio.pause();
+      entryAudio.pause();
+      syncDateMusicWaves();
       const audio = modal.querySelector('#r2-preview-audio');
       if (audio) audio.play().catch(() => {});
     }, 150);
   }
+
 
 
 
