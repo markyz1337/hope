@@ -2617,9 +2617,18 @@ if (pinBuffer === PIN_CODE) {
   // ── PIN vizitatori ──
   if (pinMode === 'visitor') {
     if (pinBuffer === PIN_VISITOR) {
-      document.getElementById('pinOverlay').classList.remove('open');
-      pinBuffer = '';
-      updatePinDots();
+document.getElementById('pinOverlay').classList.remove('open');
+pinBuffer = '';
+updatePinDots();
+userHasInteracted = true;
+if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+  const dk = pendingDateMusicKey;
+  pendingDateMusicKey = null;
+  pendingDateMusicAutoplay = false;
+  dmAudio.volume = 0.28;
+  dmAudio.play().catch(() => {});
+  syncDateMusicWaves();
+}
       userHasInteracted = true; // ← ADAUGĂ ASTA
     } else {
       pinError();
@@ -2630,8 +2639,17 @@ if (pinBuffer === PIN_CODE) {
 
   // ── PIN main (butonul lacăt normal) ──
   if (pinBuffer === PIN_CODE) {
-    setUnlocked(true);
-    closePinOverlay();
+setUnlocked(true);
+closePinOverlay();
+userHasInteracted = true;
+if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+  const dk = pendingDateMusicKey;
+  pendingDateMusicKey = null;
+  pendingDateMusicAutoplay = false;
+  dmAudio.volume = 0.28;
+  dmAudio.play().catch(() => {});
+  syncDateMusicWaves();
+}
   } else {
     pinError();
   }
@@ -3881,22 +3899,25 @@ if (SETTING_NAV_MODE === 'today') {
   renderEntries();
   setDefaultDates();
   updateCalFabState();
-  if (selectedDate) {
+if (selectedDate) {
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-      dmAudio.src = dateMusicMap[dk].url;
+      const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
+      dmAudio.src = resolvedUrl;
       dmAudioLoaded = true;
       updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-      if (userHasInteracted) {
-        dmAudio.volume = 0.28;
-        dmAudio.play().catch(() => {});
+      dmAudio.volume = 0.28;
+      // Încearcă direct — PIN-ul a fost deja apăsat deci browserul permite
+      dmAudio.play().then(() => {
         syncDateMusicWaves();
-      } else {
+      }).catch(() => {
+        // Fallback: la primul touch/click
         pendingDateMusicKey = dk;
         pendingDateMusicAutoplay = true;
-      }
+      });
     }
   }
+
 
   setupNavButtons();
   setupOverscroll();
@@ -6489,9 +6510,8 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
   } else if (isAudio) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(122,200,149,0.2);background:rgba(122,200,149,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
       <div style="font-size:48px;">🎵</div>
-      <audio id="r2-detail-audio" controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
+      <audio controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
     </div>`;
-
   } else if (isVideo) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:#000;overflow:hidden;">
       <video controls src="${url}" style="width:100%;height:100%;object-fit:contain;" preload="metadata"></video>
@@ -6536,16 +6556,6 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
-
-  if (isAudio) {
-    const r2Audio = modal.querySelector('#r2-detail-audio');
-    if (r2Audio) {
-      if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
-      if (!entryAudio.paused) { entryAudio.pause(); currentEntryAudioUrl = null; }
-      r2Audio.play().catch(() => {});
-    }
-  }
-
 
   modal.querySelector('#r2-close-btn').addEventListener('click', closeOverlay);
   modal.querySelector('#r2-btn-direct').addEventListener('click', () => copyR2Link(key, 'direct'));
