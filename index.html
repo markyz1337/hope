@@ -6305,19 +6305,7 @@ function copyAllR2Links() {
 function renderR2Gallery(files) {
   files = files.filter(f => !f.key.endsWith('/'));
   if (!files.length) {
-  document.getElementById('r2GalleryBody').innerHTML = html;
-
-  // Click handler delegat pentru celule
-  const body = document.getElementById('r2GalleryBody');
-  body.addEventListener('click', (e) => {
-    const cell = e.target.closest('[data-r2key]');
-    if (!cell) return;
-    const key = cell.dataset.r2key;
-    const idx = parseInt(cell.dataset.idx);
-    const f = files[idx];
-    openR2FileDetail(f.key, f.size, usedKeys.has(f.key), files, idx);
-  });
-
+    document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">niciun fișier în R2</div></div>';
     return;
   }
 
@@ -6333,7 +6321,7 @@ function renderR2Gallery(files) {
     (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
     if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
   });
-Object.values(dateMusicMap).forEach(dm => {
+  Object.values(dateMusicMap).forEach(dm => {
     if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
     if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
   });
@@ -6341,9 +6329,9 @@ Object.values(dateMusicMap).forEach(dm => {
     usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
   }
 
-
   const totalSize = files.reduce((a, f) => a + f.size, 0);
   const orphans = files.filter(f => !usedKeys.has(f.key));
+  const sortedOrphans = [...orphans].sort((a, b) => b.key.localeCompare(a.key));
 
   let html = `
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
@@ -6357,39 +6345,31 @@ Object.values(dateMusicMap).forEach(dm => {
         <div style="font-family:var(--serif);font-size:18px;color:${orphans.length ? 'var(--rose)' : 'var(--text)'}">${orphans.length} fișiere</div>
         <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(orphans.reduce((a,f)=>a+f.size,0))}</div>
       </div>
-      
     </div>`;
 
-
-
-  // Buton Copy All Direct Links
   const allDirectLinks = files.map(f => `${R2_PUBLIC_URL}/${f.key}`);
   html += `<button onclick="copyAllR2Links()" data-links='${JSON.stringify(allDirectLinks)}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază toate link-urile directe (${files.length})</button>`;
 
-  if (orphans.length > 0) {
-
+  if (sortedOrphans.length > 0) {
     html += `<div style="margin-bottom:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--rose);letter-spacing:0.1em;">NEFOLOSITE (${orphans.length})</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--rose);letter-spacing:0.1em;">NEFOLOSITE (${sortedOrphans.length})</div>
         <button onclick="deleteAllOrphans()" style="padding:5px 12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:20px;color:#e07070;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:0.04em;">șterge toate</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="orphans-grid">`;
-    orphans.sort((a, b) => b.key.localeCompare(a.key)).forEach((f, idx) => {
-
+    sortedOrphans.forEach((f, localIdx) => {
       const url = `${R2_PUBLIC_URL}/${f.key}`;
       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
-      const globalIdx = files.indexOf(f);
       const thumb = isImage
         ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
         : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
-      html += `<div data-r2key="${f.key}" data-idx="${globalIdx}" style="position:relative;aspect-ratio:1;background:rgba(200,80,80,0.06);border:1px solid rgba(200,80,80,0.35);border-radius:10px;overflow:hidden;cursor:pointer;">
+      html += `<div data-r2key="${f.key}" data-idx="${localIdx}" style="position:relative;aspect-ratio:1;background:rgba(200,80,80,0.06);border:1px solid rgba(200,80,80,0.35);border-radius:10px;overflow:hidden;cursor:pointer;">
         ${thumb}
         <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 4px;font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.key.split('/').pop()}</div>
       </div>`;
     });
     html += `</div></div>`;
   }
-
 
   html += `<div style="margin-bottom:16px;">
     <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
@@ -6404,43 +6384,76 @@ Object.values(dateMusicMap).forEach(dm => {
     </div>
   </div>`;
 
-
-
-    let fileIndex = 0;
-    const flatFiles = files; // pentru nav global
-
-    for (const [folder, folderFiles] of Object.entries(groups)) {
-      html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
-      html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" data-folder="${folder}">`;
-      folderFiles.forEach((f) => {
-        const url = `${R2_PUBLIC_URL}/${f.key}`;
-        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
-        const isUsed = usedKeys.has(f.key);
-        const globalIdx = flatFiles.indexOf(f);
-        const thumb = isImage
-          ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
-          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
-        html += `<div data-r2key="${f.key}" data-idx="${globalIdx}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
-          ${thumb}
-          ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
-        </div>`;
-      });
-      html += `</div>`;
-    }
-
+  // Construiește ordinea vizuală pentru folderuri
+  const visualOrder = [];
+  for (const [folder, folderFiles] of Object.entries(groups)) {
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">`;
+    folderFiles.forEach((f) => {
+      const url = `${R2_PUBLIC_URL}/${f.key}`;
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
+      const isUsed = usedKeys.has(f.key);
+      const visualIdx = visualOrder.length;
+      visualOrder.push(f);
+      const thumb = isImage
+        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
+      html += `<div data-r2key="${f.key}" data-idx="${visualIdx}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
+        ${thumb}
+        ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  }
 
   document.getElementById('r2GalleryBody').innerHTML = html;
 
-  // Click handler delegat pentru celule
   const body = document.getElementById('r2GalleryBody');
   body.addEventListener('click', (e) => {
     const cell = e.target.closest('[data-r2key]');
     if (!cell) return;
     const key = cell.dataset.r2key;
     const idx = parseInt(cell.dataset.idx);
-    const f = files[idx];
-    openR2FileDetail(f.key, f.size, usedKeys.has(f.key), files, idx);
+    const isOrphan = !!cell.closest('#orphans-grid');
+
+    if (isOrphan) {
+      openR2FileDetailFromGallery(key, sortedOrphans[idx], sortedOrphans, idx);
+    } else {
+      openR2FileDetailFromGallery(key, visualOrder[idx], visualOrder, idx);
+    }
   });
+}
+
+
+
+async function deleteAllOrphans() {
+  const usedKeys = new Set();
+  entries.forEach(e => {
+    (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
+    if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+  });
+  Object.values(dateMusicMap).forEach(dm => {
+    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
+    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
+  });
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+
+  const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+  const { files } = await res.json();
+  const orphanKeys = files.filter(f => !f.key.endsWith('/') && !usedKeys.has(f.key)).map(f => f.key);
+  if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
+  if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
+  try {
+    await fetch(R2_WORKER_URL, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+      body: JSON.stringify({ keys: orphanKeys }),
+    });
+    showToast(`${orphanKeys.length} fișiere șterse`);
+    await openR2Gallery();
+  } catch(e) {
+    showToast('eroare la ștergere');
+  }
 }
 
 
@@ -6451,7 +6464,6 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
   const isVideo = /\.(mp4|webm|mov)$/i.test(key);
   const fileName = key.split('/').pop();
 
-  // Elimină overlay existent dacă există
   const existingOverlay = document.getElementById('r2-detail-overlay');
   if (existingOverlay) {
     existingOverlay.querySelectorAll('audio,video').forEach(m => m.pause());
@@ -6487,8 +6499,6 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(160,122,200,0.2);background:rgba(160,122,200,0.07);display:flex;align-items:center;justify-content:center;font-size:48px;">📄</div>`;
   }
 
-
-  // Nav prev/next
   const hasPrev = allFiles && currentIndex > 0;
   const hasNext = allFiles && currentIndex < allFiles.length - 1;
   const navHtml = allFiles ? `
@@ -6497,13 +6507,17 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
       <button id="r2-nav-next" ${!hasNext?'disabled':''} style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:${hasNext?'var(--text2)':'var(--text4)'};font-family:var(--mono);font-size:10px;cursor:${hasNext?'pointer':'default'};letter-spacing:0.04em;">următor →</button>
     </div>` : '';
 
+  const usedLabel = isUsed
+    ? `<span style="color:var(--green)">folosit</span>`
+    : `<span style="color:var(--rose)">nefolosit</span>`;
+
   const modal = document.createElement('div');
   modal.style.cssText = 'background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid var(--border2);border-radius:22px;padding:20px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto;';
   modal.innerHTML = `
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;">
       <div>
         <div style="font-family:var(--serif);font-size:17px;font-style:italic;color:var(--accent2);line-height:1.3;word-break:break-all;">${fileName}</div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${isUsed ? '<span style="color:var(--green)">folosit</span>' : '<span style="color:var(--rose)">nefolosit</span>'}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${usedLabel}</div>
       </div>
       <button id="r2-close-btn" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
     </div>
@@ -6522,32 +6536,26 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Event listeners curate
   modal.querySelector('#r2-close-btn').addEventListener('click', closeOverlay);
-
   modal.querySelector('#r2-btn-direct').addEventListener('click', () => copyR2Link(key, 'direct'));
   modal.querySelector('#r2-btn-ref').addEventListener('click', () => copyR2Link(key, 'r2'));
   modal.querySelector('#r2-btn-download').addEventListener('click', () => downloadR2File(key));
-
   modal.querySelector('#r2-btn-day').addEventListener('click', async () => {
     closeOverlay();
     closeR2Gallery();
     await goToR2FileDay(key);
   });
-
   modal.querySelector('#r2-btn-delete').addEventListener('click', async () => {
     if (!confirm(`Ștergi ${fileName}?`)) return;
     closeOverlay();
     await deleteR2File(key);
-    // Reîncarcă galeria fără scroll
     const scrollPos = document.getElementById('r2GalleryModal').scrollTop;
     await openR2Gallery();
     setTimeout(() => {
-      const modal = document.getElementById('r2GalleryModal');
-      if (modal) modal.scrollTop = scrollPos;
+      const m = document.getElementById('r2GalleryModal');
+      if (m) m.scrollTop = scrollPos;
     }, 300);
   });
-
 
   if (allFiles) {
     const prevBtn = modal.querySelector('#r2-nav-prev');
@@ -6556,22 +6564,37 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
       prevBtn.addEventListener('click', () => {
         closeOverlay();
         const prev = allFiles[currentIndex - 1];
-        const prevUsed = prev.key && document.querySelector(`[data-r2key="${prev.key}"]`)?.style.borderColor !== 'rgba(200,80,80,0.35)';
-        openR2FileDetail(prev.key, prev.size, prevUsed, allFiles, currentIndex - 1);
+        openR2FileDetailFromGallery(prev.key, prev, allFiles, currentIndex - 1);
       });
     }
     if (nextBtn && hasNext) {
       nextBtn.addEventListener('click', () => {
         closeOverlay();
         const next = allFiles[currentIndex + 1];
-        const nextUsed = next.key && document.querySelector(`[data-r2key="${next.key}"]`)?.style.borderColor !== 'rgba(200,80,80,0.35)';
-        openR2FileDetail(next.key, next.size, nextUsed, allFiles, currentIndex + 1);
+        openR2FileDetailFromGallery(next.key, next, allFiles, currentIndex + 1);
       });
     }
   }
-
 }
 
+
+function openR2FileDetailFromGallery(key, fileObj, allFiles, currentIndex) {
+  // Recalculează usedKeys din starea curentă
+  const usedKeys = new Set();
+  entries.forEach(e => {
+    (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
+    if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+  });
+  Object.values(dateMusicMap).forEach(dm => {
+    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
+    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
+  });
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
+    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+  }
+  const isUsed = usedKeys.has(key);
+  openR2FileDetail(key, fileObj.size, isUsed, allFiles, currentIndex);
+}
 
 
 
