@@ -4660,8 +4660,6 @@ if (searchQuery) {
     filtered.forEach(e => { html += renderEntry(e, ''); });
   }
   container.innerHTML = html;
-  setTimeout(autoplayVisibleMusic, 80);
-
   syncDateMusicWaves();
   requestAnimationFrame(initThemeCanvases);
 }
@@ -4791,8 +4789,7 @@ function renderEntry(e, hlQuery) {
     const titleText = e.caption || 'melodie';
     const noteText = e.content || '';
     const noteHtml = noteText ? `<div class="music-note-text">${hlQuery ? highlightText(noteText, hlQuery) : escHtml(noteText)}</div>` : '';
-mediaHtml = `<div class="music-player" data-autoplay="1" data-aurl="${escHtml(aurl)}" data-title="${escHtml(titleText)}" data-cover="${escHtml(cover)}" onclick="toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this)" style="cursor:pointer;">
-
+mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this)" style="cursor:pointer;">
 <div class="music-cover-btn" onclick="event.stopPropagation();toggleEntryMusic('${escHtml(aurl)}','${escHtml(titleText)}','${escHtml(cover)}',this.closest('.music-player'))">
         ${iconBgHtml}${coverImgHtml}
         <div class="music-cover-overlay">${isPlaying ? pauseIcon() : playIcon()}</div>
@@ -4872,29 +4869,6 @@ return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
     </div>
   </div>`;
 
-}
-
-
-function autoplayVisibleMusic() {
-  if (!userHasInteracted) return;
-  const players = document.querySelectorAll('.music-player[data-autoplay="1"]');
-  if (!players.length) return;
-  const first = players[0];
-  const aurl = first.dataset.aurl;
-  const title = first.dataset.title;
-  const cover = first.dataset.cover;
-  if (currentEntryAudioUrl === aurl && !entryAudio.paused) return;
-  if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
-  entryAudio.src = aurl;
-  currentEntryAudioUrl = aurl;
-  updateMediaSession(title, cover);
-  entryAudio.play().catch(() => {});
-  const overlay = first.querySelector('.music-cover-overlay');
-  const waves   = first.querySelector('.wave-bars');
-  const sub     = first.querySelector('.music-sub');
-  if (overlay) overlay.innerHTML = pauseIcon();
-  if (waves)   waves.classList.remove('paused');
-  if (sub)     sub.textContent = 'redare...';
 }
 
 
@@ -5519,14 +5493,17 @@ function toggleEntryMusic(url, title, cover, container) {
     if (overlay) overlay.innerHTML = playIcon(); if (waves) waves.classList.add('paused'); if (sub) sub.textContent = 'apasă pentru redare';
     currentEntryAudioUrl = null;
   } else {
-    if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
+    // Oprește muzica zilei când pornești o melodie din notițe
+    if (!dmAudio.paused) {
+      dmAudio.pause();
+      syncDateMusicWaves();
+    }
     if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
     updateMediaSession(title, cover);
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     if (overlay) overlay.innerHTML = pauseIcon(); if (waves) waves.classList.remove('paused'); if (sub) sub.textContent = 'redare...';
   }
 }
-
 
 
 entryAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
@@ -6512,8 +6489,9 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
   } else if (isAudio) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(122,200,149,0.2);background:rgba(122,200,149,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
       <div style="font-size:48px;">🎵</div>
-      <audio controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
+      <audio id="r2-detail-audio" controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
     </div>`;
+
   } else if (isVideo) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:#000;overflow:hidden;">
       <video controls src="${url}" style="width:100%;height:100%;object-fit:contain;" preload="metadata"></video>
@@ -6558,6 +6536,16 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+
+  if (isAudio) {
+    const r2Audio = modal.querySelector('#r2-detail-audio');
+    if (r2Audio) {
+      if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
+      if (!entryAudio.paused) { entryAudio.pause(); currentEntryAudioUrl = null; }
+      r2Audio.play().catch(() => {});
+    }
+  }
+
 
   modal.querySelector('#r2-close-btn').addEventListener('click', closeOverlay);
   modal.querySelector('#r2-btn-direct').addEventListener('click', () => copyR2Link(key, 'direct'));
