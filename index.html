@@ -6507,11 +6507,12 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:rgba(0,0,0,0.3);overflow:hidden;display:flex;align-items:center;justify-content:center;">
       <img src="${url}" style="width:100%;height:100%;object-fit:contain;">
     </div>`;
-  } else if (isAudio) {
+} else if (isAudio) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(122,200,149,0.2);background:rgba(122,200,149,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
       <div style="font-size:48px;">🎵</div>
-      <audio controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
+      <audio id="r2-preview-audio" controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
     </div>`;
+
   } else if (isVideo) {
     previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:#000;overflow:hidden;">
       <video controls src="${url}" style="width:100%;height:100%;object-fit:contain;" preload="metadata"></video>
@@ -6556,6 +6557,15 @@ function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  // Autoplay audio dacă e fișier audio
+  if (isAudio) {
+    setTimeout(() => {
+      const audio = modal.querySelector('#r2-preview-audio');
+      if (audio) audio.play().catch(() => {});
+    }, 150);
+  }
+
+
 
   modal.querySelector('#r2-close-btn').addEventListener('click', closeOverlay);
   modal.querySelector('#r2-btn-direct').addEventListener('click', () => copyR2Link(key, 'direct'));
