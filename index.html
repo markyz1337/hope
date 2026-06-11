@@ -2935,52 +2935,6 @@ function resolveUrls(arr) {
 }
 
 
-// ═══════════════════════════════════════
-// MIGRARE CLOUDINARY
-// Când muți pe alt cont:
-// 1. Schimbă CLOUDINARY_CLOUD de sus
-// 2. Descarcă toate fișierele din contul vechi
-// 3. Încarcă-le pe noul cont cu același public_id
-// 4. Gata -- toate link-urile se rezolvă automat
-// ═══════════════════════════════════════
-
-// Funcție de export backup -- listează toate public_id-urile salvate
-async function exportCloudinaryIds() {
-  const { data } = await sb.from('entries').select('id, type, media_urls, cover_url');
-  const { data: dmData } = await sb.from('date_music').select('date, url, cover');
-  
-  const ids = [];
-  
-  (data || []).forEach(e => {
-    (e.media_urls || []).forEach(u => {
-      if (u && u.startsWith('cloudinary:')) {
-        const parts = u.split(':');
-        ids.push({ entryId: e.id, type: parts[1], publicId: parts.slice(2).join(':') });
-      }
-    });
-    if (e.cover_url && e.cover_url.startsWith('cloudinary:')) {
-      const parts = e.cover_url.split(':');
-      ids.push({ entryId: e.id, type: parts[1], publicId: parts.slice(2).join(':'), isCover: true });
-    }
-  });
-  
-  (dmData || []).forEach(dm => {
-    if (dm.url && dm.url.startsWith('cloudinary:')) {
-      const parts = dm.url.split(':');
-      ids.push({ date: dm.date, type: parts[1], publicId: parts.slice(2).join(':') });
-    }
-    if (dm.cover && dm.cover.startsWith('cloudinary:')) {
-      const parts = dm.cover.split(':');
-      ids.push({ date: dm.date, type: parts[1], publicId: parts.slice(2).join(':'), isCover: true });
-    }
-  });
-  
-  console.log('=== CLOUDINARY BACKUP IDs ===');
-  console.log(JSON.stringify(ids, null, 2));
-  console.log(`Total: ${ids.length} fișiere`);
-  showToast(`${ids.length} fișiere Cloudinary găsite -- vezi consola`);
-  return ids;
-}
 
 
 
