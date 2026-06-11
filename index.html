@@ -6797,9 +6797,14 @@ function startTimeLockStars() {
     s.vy = (Math.random()*0.25+0.1)/canvas.height*500;
     s.maxLife = Math.random()*220+180;
   });
-  function frame() {
+function frame() {
+    if (!document.getElementById('timeLockOverlay').classList.contains('open')) {
+      canvas._raf = requestAnimationFrame(frame);
+      return;
+    }
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0,0,W,H);
+
     const now = Date.now();
     staticStars.forEach(s => {
       const op = 0.25 + Math.sin(now * s.speed + s.phase) * 0.22;
@@ -6833,7 +6838,7 @@ function startTimeLockStars() {
   }
   canvas._raf = requestAnimationFrame(frame);
 }
-startTimeLockStars();
+
 
 </script>
 </body>
