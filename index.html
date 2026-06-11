@@ -1840,6 +1840,15 @@ audio[controls] { display: block; }
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
     </div>
+    
+    <div class="blur-toggle-row">
+  <label class="form-label">pornește automat (fără sunet)</label>
+  <div class="toggle-track" id="video-autoplay-toggle" onclick="toggleVideoAutoplay()">
+    <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+  </div>
+</div>
+
+    
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="video-date" step="1">
@@ -2140,6 +2149,14 @@ audio[controls] { display: block; }
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
     </div>
+    
+    <div class="blur-toggle-row" id="edit-video-autoplay-group" style="display:none">
+  <label class="form-label">pornește automat (fără sunet)</label>
+  <div class="toggle-track" id="edit-video-autoplay-toggle" onclick="toggleEditVideoAutoplay()">
+    <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+  </div>
+</div>
+
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="edit-date" step="1">
@@ -2406,6 +2423,7 @@ let photoBlurEnabled = false;
 let photo18Enabled = false;
 let note18Enabled  = false;
 let video18Enabled = false;
+let videoAutoplayEnabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
 let isLocked = true;
@@ -2757,6 +2775,15 @@ function toggleVideo18() {
   const t = document.getElementById('video-18-toggle');
   t.classList.toggle('on-private', video18Enabled);
 }
+
+
+function toggleVideoAutoplay() {
+  videoAutoplayEnabled = !videoAutoplayEnabled;
+  const t = document.getElementById('video-autoplay-toggle');
+  t.classList.toggle('on', videoAutoplayEnabled);
+}
+
+
 function toggleEdit18() {
   edit18Enabled = !edit18Enabled;
   const t = document.getElementById('edit-18-toggle');
@@ -4798,31 +4825,42 @@ function renderEntry(e, hlQuery) {
       : '';
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
-    } else if (e.type === 'video') {
+} else if (e.type === 'video') {
     const url = resolveUrl(e.media_urls?.[0] || '');
     const ytId = extractYouTubeId(url);
+    const autoplay = !!e.video_autoplay;
     const captionHtml = e.caption
       ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
       : '';
     let videoHtml;
     if (ytId) {
       const thumbUrl = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
-      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white&autoplay=1`;
-      videoHtml = `<div class="video-thumb-wrap" data-embed="${escHtml(embedUrl)}" onclick="loadVideoEmbed(this)" style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);aspect-ratio:16/9;cursor:pointer;">
-        <img src="${escHtml(thumbUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;">
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
-          <div style="width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.75);border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;">
-            <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;margin-left:3px;"><polygon points="5 3 19 12 5 21"/></svg>
+      const autoplayParam = autoplay ? '&autoplay=1&mute=1' : '';
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white${autoplayParam}`;
+      if (autoplay) {
+        // Autoplay YouTube — încarcă iframe direct, fără thumbnail click
+        videoHtml = `<div class="video-embed-wrap">
+          <iframe src="${escHtml(embedUrl)}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+        </div>`;
+      } else {
+        videoHtml = `<div class="video-thumb-wrap" data-embed="${escHtml(embedUrl)}" onclick="loadVideoEmbed(this)" style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);aspect-ratio:16/9;cursor:pointer;">
+          <img src="${escHtml(thumbUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
+            <div style="width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.75);border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;">
+              <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;margin-left:3px;"><polygon points="5 3 19 12 5 21"/></svg>
+            </div>
           </div>
-        </div>
-      </div>`;
+        </div>`;
+      }
     } else {
-      // video din R2/direct — generăm thumbnail din primul frame
+      // Video nativ R2/direct
+      const autoplayAttrs = autoplay ? 'autoplay muted playsinline loop' : 'controls';
       videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
-<video class="entry-video" preload="metadata" src="${escHtml(url)}#t=0.5" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" controls></video>
+        <video class="entry-video" preload="metadata" src="${escHtml(url)}" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" ${autoplayAttrs}></video>
       </div>`;
     }
     mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
+
 
   } else if (e.type === 'music') {
     const aurl = resolveUrl(e.media_urls?.[0] || '');
@@ -5497,6 +5535,8 @@ async function submitEntry(type) {
     payload.media_urls = [url];
     payload.caption = captionHtml;
     payload.blur_18 = video18Enabled;
+    payload.video_autoplay = videoAutoplayEnabled;
+
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   } else if (type === 'music') {
     const url = document.getElementById('music-url').value.trim();
@@ -5554,6 +5594,7 @@ function clearForm(type) {
     document.getElementById('video-upload-status').textContent = '';
     document.getElementById('video-file-input').value = '';
     if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-private'); }
+if (videoAutoplayEnabled) { videoAutoplayEnabled=false; document.getElementById('video-autoplay-toggle').classList.remove('on'); }
 
 
   } else if (type === 'music') {
@@ -5682,6 +5723,14 @@ function openEditFor(id) {
     document.getElementById('edit-18-toggle').classList.toggle('on-private', edit18Enabled);
   } else { g18.style.display='none'; edit18Enabled=false; }
 
+const gAutoplay = document.getElementById('edit-video-autoplay-group');
+if (e.type === 'video') {
+  gAutoplay.style.display = 'flex';
+  editVideoAutoplayEnabled = !!e.video_autoplay;
+  document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
+} else { gAutoplay.style.display='none'; editVideoAutoplayEnabled=false; }
+
+
   const editCapWrap = document.getElementById('editCapWrap');
   const editCapTa   = document.getElementById('edit-caption');
   const editThemeGroup = document.getElementById('edit-theme-group');
@@ -5719,7 +5768,7 @@ urls.forEach(u => {
     document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
     editCapWrap.style.display='block'; editCapTa.style.display='none';
     document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
-  } else if (e.type === 'video') {
+} else if (e.type === 'video') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-plain-group').style.display='block';
     document.getElementById('edit-content').value = e.media_urls?.[0]||'';
@@ -5728,6 +5777,9 @@ urls.forEach(u => {
     document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
     editCapWrap.style.display='block'; editCapTa.style.display='none';
     document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
+    edit18Enabled = !!e.video_autoplay;
+    document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', !!e.video_autoplay);
+
   } else if (e.type === 'music') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-cover-upload-status').textContent = '';
@@ -5820,10 +5872,12 @@ async function saveEdit() {
     const capHtml = getCapHtml('edit-cap-editor');
     update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean);
     update.caption = capHtml; update.blur_images = editBlurEnabled; update.blur_18 = edit18Enabled;
-  } else if (type === 'video') {
+} else if (type === 'video') {
     const content = document.getElementById('edit-content').value.trim();
     const capHtml = getCapHtml('edit-cap-editor');
     update.media_urls = [content]; update.caption = capHtml; update.blur_18 = edit18Enabled;
+    update.video_autoplay = editVideoAutoplayEnabled;
+
   } else if (type === 'pdf') {
     const content = document.getElementById('edit-content').value.trim();
     const caption = document.getElementById('edit-caption').value.trim();
@@ -5939,6 +5993,14 @@ function toggleEditBlur() { editBlurEnabled=!editBlurEnabled; document.getElemen
 
 let selectedNoteTheme = 'none';
 let selectedEditTheme = 'none';
+
+
+let editVideoAutoplayEnabled = false;
+function toggleEditVideoAutoplay() {
+  editVideoAutoplayEnabled = !editVideoAutoplayEnabled;
+  document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
+}
+
 
 function selectNoteTheme(theme) {
   selectedNoteTheme = theme;
