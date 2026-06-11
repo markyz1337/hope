@@ -2582,11 +2582,12 @@ if (pinBuffer === PIN_CODE) {
   setUnlocked(true);
 
   
-  // ← ADAUGĂ ASTA:
-  if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
+if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
     timeLockBypassed = true;
+    userHasInteracted = true; // ← adaugă asta
     continueInitAfterAuth();
   }
+
   return;
 }
 
@@ -2697,15 +2698,18 @@ async function continueInitAfterAuth() {
   if (selectedDate) {
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-      dmAudio.src = dateMusicMap[dk].url;
-      dmAudioLoaded = true;
-      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-      dmAudio.volume = 0.28;
-      dmAudio.play().catch(() => {
-        pendingDateMusicKey = dk;
-        pendingDateMusicAutoplay = true;
-      });
-      syncDateMusicWaves();
+const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
+dmAudio.src = resolvedUrl;
+dmAudioLoaded = true;
+updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+dmAudio.volume = 0.28;
+dmAudio.play().then(() => {
+  syncDateMusicWaves();
+}).catch(() => {
+  pendingDateMusicKey = dk;
+  pendingDateMusicAutoplay = true;
+});
+
     }
   }
 
