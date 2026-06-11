@@ -2347,6 +2347,22 @@ audio[controls] { display: block; }
       </div>
     </div>
 
+
+<!-- 6. Titlu dinamic -->
+<div class="settings-section">
+  <div class="settings-section-title">titlu dinamic</div>
+  <p style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;margin-bottom:12px;">
+    Titlul „hope" se schimbă automat după data aleasă.
+  </p>
+  <div id="title-rules-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <input type="date" id="settings-title-rule-date" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+    <input type="text" id="settings-title-rule-text" placeholder="textul titlului..." style="flex:2;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;">
+  </div>
+  <button class="settings-pin-btn" style="width:100%" onclick="addTitleRule()">adaugă regulă</button>
+</div>
+
+
     <!-- 6. Melodie ecran așteptare -->
     <div class="settings-section">
       <div class="settings-section-title">melodie ecran așteptare</div>
@@ -2430,6 +2446,7 @@ let editBlurEnabled = false;
 let edit18Enabled   = false;
 let isLocked = true;
 let SETTING_TIMELOCK_MUSIC_URL = '';
+let SETTING_TITLE_RULES = []; // [{ date: "2026-06-15", text: "..." }]
 let SETTING_TIMELOCK_MUSIC_ON  = false;
 let timeLockAudio = null;
 let timeLockBypassed = false;
@@ -3574,6 +3591,7 @@ const tlmt = document.getElementById('settings-timelock-music-toggle');
 tlmt.classList.toggle('on', SETTING_TIMELOCK_MUSIC_ON);
 document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
 document.getElementById('settings-timelock-music-url').value = SETTING_TIMELOCK_MUSIC_URL;
+renderTitleRulesList();
 
 
 }
@@ -3851,6 +3869,8 @@ SETTING_TIME_LOCK_HOUR = _settings.timeLockHour || '20:00';
 SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
 SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
 SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
+SETTING_TITLE_RULES = _settings.titleRules || [];
+updateDynamicTitle();
 
 
 
@@ -3955,6 +3975,65 @@ function updateHeaderDate() {
   const el = document.getElementById('headerDateDisplay');
   if (el) el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
+
+function updateDynamicTitle() {
+  const refKey = selectedDate ? dateKey(selectedDate) : todayKey();
+  let activeText = 'hope';
+  const sorted = [...SETTING_TITLE_RULES].sort((a, b) => b.date.localeCompare(a.date));
+  for (const rule of sorted) {
+    if (rule.date <= refKey) { activeText = rule.text; break; }
+  }
+  const el = document.getElementById('headerTitle');
+  if (el) el.textContent = activeText;
+}
+
+
+
+function renderTitleRulesList() {
+  const container = document.getElementById('title-rules-list');
+  if (!container) return;
+  if (!SETTING_TITLE_RULES.length) {
+    container.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text4);letter-spacing:0.06em;">nicio regulă — titlul va fi mereu „hope"</div>';
+    return;
+  }
+  const sorted = [...SETTING_TITLE_RULES].sort((a, b) => a.date.localeCompare(b.date));
+  container.innerHTML = sorted.map((rule, i) => `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+      <div style="flex:1;">
+        <div style="font-family:var(--sans);font-size:13px;color:var(--text);">${escHtml(rule.text)}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;">din ${rule.date}</div>
+      </div>
+      <button onclick="removeTitleRule('${rule.date}')" style="width:26px;height:26px;border-radius:50%;border:1px solid rgba(200,80,80,0.25);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(200,80,80,0.5);flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.background='rgba(200,80,80,0.12)';this.style.color='#e07070'" onmouseout="this.style.background='none';this.style.color='rgba(200,80,80,0.5)'">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function addTitleRule() {
+  const date = document.getElementById('settings-title-rule-date').value;
+  const text = document.getElementById('settings-title-rule-text').value.trim();
+  if (!date || !text) { showToast('completează data și textul'); return; }
+  // Înlocuiește dacă există deja o regulă pentru aceeași dată
+  SETTING_TITLE_RULES = SETTING_TITLE_RULES.filter(r => r.date !== date);
+  SETTING_TITLE_RULES.push({ date, text });
+  saveSettings({ titleRules: SETTING_TITLE_RULES });
+  document.getElementById('settings-title-rule-date').value = '';
+  document.getElementById('settings-title-rule-text').value = '';
+  renderTitleRulesList();
+  updateDynamicTitle();
+  showToast('regulă adăugată');
+}
+
+function removeTitleRule(date) {
+  SETTING_TITLE_RULES = SETTING_TITLE_RULES.filter(r => r.date !== date);
+  saveSettings({ titleRules: SETTING_TITLE_RULES });
+  renderTitleRulesList();
+  updateDynamicTitle();
+  showToast('regulă ștearsă');
+}
+
+
 
 function setupCardTextLinks() {
   document.addEventListener('click', function(e) {
@@ -4470,9 +4549,11 @@ function selectDate(key) {
   playDateMusic(key, true);
   renderEntries();
   setDefaultDates();
-resetRing('next');
+  resetRing('next');
   updateCalFabState();
+  updateDynamicTitle(); // ← adaugă asta
 }
+
 
 function stopEntryMusicCompletely() {
   if (!entryAudio.paused) { entryAudio.pause(); entryAudio.currentTime = 0; }
