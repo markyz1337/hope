@@ -1005,8 +1005,7 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
   transform: scale(1.15);
 }
 
-.r2-cell:hover .r2-hover-layer { background: rgba(0,0,0,0.5) !important; }
-.r2-cell:hover .r2-actions-layer { opacity: 1 !important; pointer-events: all !important; }
+
 
 
 audio { display: none; }
@@ -2840,9 +2839,7 @@ function loadVideoEmbed(wrap) {
   wrap.style.cursor = 'default';
 }
 
-function captureVideoThumb(video) {
-  video.currentTime = video.duration > 2 ? video.duration / 2 : 0.5;
-}
+
 
 
 
@@ -4250,11 +4247,15 @@ function resetRing(which) {
   else { setRingProgress(0, 'next'); jumpLocked = false; }
 }
 
+let _overscrollSetup = false;
 function setupOverscroll() {
+  if (_overscrollSetup) return;
+  _overscrollSetup = true;
   window.addEventListener('touchstart', onTouchStart, { passive:true });
   window.addEventListener('touchmove', onTouchMove, { passive:false });
   window.addEventListener('touchend', onTouchEnd, { passive:false });
 }
+
 // CU ASTA
 let touchStartX = 0;
 let touchDirectionLocked = false; // 'h' | 'v' | false
@@ -4550,7 +4551,17 @@ function syncDateMusicWaves() {
   const playing = dmAudioLoaded && !dmAudio.paused;
   waves.querySelectorAll('.dm-wave-bar').forEach(b => { b.style.animationPlayState = playing?'running':'paused'; });
 }
-function toggleDateMusicBanner() { if (!dmAudioLoaded) return; if (dmAudio.paused) { dmAudio.play().catch(()=>{}); } else { dmAudio.pause(); } syncDateMusicWaves(); }
+
+function toggleDateMusicBanner() {
+  if (!dmAudioLoaded) return;
+  if (dmAudio.paused) {
+    dmAudio.play().catch(() => {});
+  } else {
+    dmAudio.pause();
+  }
+  syncDateMusicWaves();
+}
+
 
 // ═══════════════════════════════════════
 // LOAD
@@ -4631,8 +4642,12 @@ function highlightHtml(html, query) {
 // RENDER
 // ═══════════════════════════════════════
 function renderEntries() {
+  document.querySelectorAll('.theme-canvas').forEach(c => {
+    if (c._raf) cancelAnimationFrame(c._raf);
+  });
   const container = document.getElementById('entries-container');
   const label = document.getElementById('searchLabel');
+
   const carouselWrap = document.getElementById('carouselWrap');
   let filtered; let typeFilter = null;
 
@@ -4799,9 +4814,7 @@ function renderEntry(e, hlQuery) {
     } else {
       // video din R2/direct — generăm thumbnail din primul frame
       videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
-        <video class="entry-video" preload="metadata" src="${escHtml(url)}#t=0.5" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" 
-          onloadedmetadata="captureVideoThumb(this)"
-          controls></video>
+<video class="entry-video" preload="metadata" src="${escHtml(url)}#t=0.5" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" controls></video>
       </div>`;
     }
     mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
