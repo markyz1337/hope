@@ -4466,7 +4466,12 @@ function selectDate(key) {
   const [y,m,d] = key.split('-').map(Number);
   selectedDate = new Date(y, m-1, d);
   saveLastDate(key);
-  buildCarousel();
+const prevActive = document.querySelector('.date-pill.active');
+if (prevActive) prevActive.classList.remove('active');
+const nextActive = document.querySelector(`.date-pill[data-key="${key}"]`);
+if (nextActive) nextActive.classList.add('active');
+scrollCarouselToSelected();
+
   clearSearch(true);
   stopEntryMusicCompletely();
   playDateMusic(key, true);
