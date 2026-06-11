@@ -1123,26 +1123,6 @@ audio[controls] { display: block; }
 
 .theme-rain .card-text { color: #b8c8d8; }
 
-/* ── TEMA 6: Foc și lavă ── */
-.theme-fire {
-  background: linear-gradient(180deg, #0f0500 0%, #1a0800 50%, #120400 100%);
-  min-height: 80px;
-}
-.theme-fire .card-text { color: #ffe8c0; }
-
-/* ── TEMA 7: Ocean ── */
-.theme-ocean {
-  background: linear-gradient(180deg, #020c14 0%, #041828 50%, #020e1c 100%);
-  min-height: 80px;
-}
-.theme-ocean .card-text { color: #c0e8ff; }
-
-/* ── TEMA 8: Nebulă ── */
-.theme-nebula {
-  background: radial-gradient(ellipse at center, #0e0618 0%, #060410 100%);
-  min-height: 80px;
-}
-.theme-nebula .card-text { color: #e8d0ff; }
 
 /* ── TEMA 9: Matrix ── */
 .theme-matrix {
@@ -1678,18 +1658,6 @@ audio[controls] { display: block; }
       <span class="theme-swatch-icon">🌧️</span>
       <span class="theme-swatch-label">ploaie</span>
     </div>
-    <div class="theme-swatch" data-theme="fire" onclick="selectNoteTheme('fire')" style="background:linear-gradient(180deg,#0f0500,#1a0800);">
-      <span class="theme-swatch-icon">🔥</span>
-      <span class="theme-swatch-label">foc</span>
-    </div>
-    <div class="theme-swatch" data-theme="ocean" onclick="selectNoteTheme('ocean')" style="background:linear-gradient(180deg,#020c14,#041828);">
-      <span class="theme-swatch-icon">🌊</span>
-      <span class="theme-swatch-label">ocean</span>
-    </div>
-    <div class="theme-swatch" data-theme="nebula" onclick="selectNoteTheme('nebula')" style="background:radial-gradient(ellipse,#0e0618,#060410);">
-      <span class="theme-swatch-icon">🔮</span>
-      <span class="theme-swatch-label">nebulă</span>
-    </div>
     <div class="theme-swatch" data-theme="matrix" onclick="selectNoteTheme('matrix')" style="background:#000800;">
       <span class="theme-swatch-icon">💚</span>
       <span class="theme-swatch-label">matrix</span>
@@ -1768,9 +1736,9 @@ audio[controls] { display: block; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă poze</div>
     <div class="form-group">
-      <label class="form-label">încarcă imagini pe Cloudinary</label>
+      <label class="form-label">încarcă imagini pe R2</label>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('photo-file-input').click()">
-  <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotosToCloudinary(this.files)">
+  <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotosToR2(this.files)">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege imagini</span>
   <span id="photo-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
@@ -1829,9 +1797,9 @@ audio[controls] { display: block; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă videoclip</div>
     <div class="form-group">
-      <label class="form-label">încarcă video pe Cloudinary</label>
+      <label class="form-label">încarcă video pe R2</label>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('video-file-input').click()">
-  <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="uploadVideoToCloudinary(this.files[0])">
+  <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="uploadVideoToR2(this.files[0])">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege video</span>
   <span id="video-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
@@ -1889,9 +1857,9 @@ audio[controls] { display: block; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă muzică</div>
     <div class="form-group">
-      <label class="form-label">încarcă fișier audio pe Cloudinary</label>
+      <label class="form-label">încarcă fișier audio pe R2</label>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('music-file-input').click()">
-  <input type="file" id="music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadMusicToCloudinary(this.files[0])">
+  <input type="file" id="music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadMusicToR2(this.files[0])">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
   <span id="music-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
@@ -1913,7 +1881,7 @@ audio[controls] { display: block; }
     <div class="form-group">
       <label class="form-label">copertă (opțional)</label>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('music-cover-file-input').click()">
-  <input type="file" id="music-cover-file-input" accept="image/*" style="display:none" onchange="uploadMusicCoverToCloudinary(this.files[0])">
+  <input type="file" id="music-cover-file-input" accept="image/*" style="display:none" onchange="uploadMusicCoverToR2(this.files[0])">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege copertă</span>
   <span id="music-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
@@ -1949,9 +1917,9 @@ audio[controls] { display: block; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă PDF</div>
     <div class="form-group">
-      <label class="form-label">încarcă PDF pe Cloudinary</label>
+      <label class="form-label">încarcă PDF pe R2</label>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('pdf-file-input').click()">
-  <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="uploadPdfToCloudinary(this.files[0])">
+  <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="uploadPdfToR2(this.files[0])">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege PDF</span>
   <span id="pdf-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
@@ -1995,9 +1963,9 @@ audio[controls] { display: block; }
       <input type="date" class="form-input" id="dm-date">
     </div>
     <div class="form-group">
-      <label class="form-label">încarcă fișier audio pe Cloudinary</label>
+      <label class="form-label">încarcă fișier audio pe R2</label>
 <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('dm-file-input').click()">
-  <input type="file" id="dm-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadDmMusicToCloudinary(this.files[0])">
+  <input type="file" id="dm-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadDmMusicToR2(this.files[0])">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
   <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
   <span id="dm-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
@@ -2069,9 +2037,6 @@ audio[controls] { display: block; }
     <div class="theme-swatch" data-theme="glow" onclick="selectEditTheme('glow')" style="background:#08060f;"><span class="theme-swatch-icon">💜</span><span class="theme-swatch-label">glow</span></div>
     <div class="theme-swatch" data-theme="hearts" onclick="selectEditTheme('hearts')" style="background:linear-gradient(145deg,#1a0812,#220d18);"><span class="theme-swatch-icon">🌸</span><span class="theme-swatch-label">inimi</span></div>
     <div class="theme-swatch" data-theme="rain" onclick="selectEditTheme('rain')" style="background:linear-gradient(180deg,#070b0f,#0a0f14);"><span class="theme-swatch-icon">🌧️</span><span class="theme-swatch-label">ploaie</span></div>
-    <div class="theme-swatch" data-theme="fire" onclick="selectEditTheme('fire')" style="background:linear-gradient(180deg,#0f0500,#1a0800);"><span class="theme-swatch-icon">🔥</span><span class="theme-swatch-label">foc</span></div>
-    <div class="theme-swatch" data-theme="ocean" onclick="selectEditTheme('ocean')" style="background:linear-gradient(180deg,#020c14,#041828);"><span class="theme-swatch-icon">🌊</span><span class="theme-swatch-label">ocean</span></div>
-    <div class="theme-swatch" data-theme="nebula" onclick="selectEditTheme('nebula')" style="background:radial-gradient(ellipse,#0e0618,#060410);"><span class="theme-swatch-icon">🔮</span><span class="theme-swatch-label">nebulă</span></div>
     <div class="theme-swatch" data-theme="matrix" onclick="selectEditTheme('matrix')" style="background:#000800;"><span class="theme-swatch-icon">💚</span><span class="theme-swatch-label">matrix</span></div>
     <div class="theme-swatch" data-theme="gold" onclick="selectEditTheme('gold')" style="background:linear-gradient(135deg,#0f0900,#1a1000);"><span class="theme-swatch-icon">✨</span><span class="theme-swatch-label">aur</span></div>
   </div>
@@ -2914,7 +2879,7 @@ function escHtml(str) {
 
 function resolveUrl(stored) {
   if (!stored) return '';
-  if (stored.startsWith('cloudinary:')) {
+  if (stored.startsWith('R2:')) {
     const parts = stored.split(':');
     const resourceType = parts[1];
     const publicId = parts.slice(2).join(':');
@@ -3809,6 +3774,7 @@ function waitForVisitorPin() {
 // ═══════════════════════════════════════
 async function init() {
 updateHeaderDate();
+setInterval(updateHeaderDate, 60000);
 setupHeaderTitleTripleTap();
 setupInteractionCapture();
 
@@ -4417,7 +4383,7 @@ async function saveDateMusic() {
   const title = document.getElementById('dm-title').value.trim();
   const cover = document.getElementById('dm-cover').value.trim();
   if (!date||!url) { showToast('completează data și link-ul'); return; }
-  // url și cover pot fi cloudinary:video:publicId sau URL-uri externe
+  // url și cover pot fi R2:video:publicId sau URL-uri externe
   const row = { date, url, title:title||'melodie', cover:cover||'' };
 
   try { const { error } = await sb.from('date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
@@ -4585,7 +4551,6 @@ function syncDateMusicWaves() {
   waves.querySelectorAll('.dm-wave-bar').forEach(b => { b.style.animationPlayState = playing?'running':'paused'; });
 }
 function toggleDateMusicBanner() { if (!dmAudioLoaded) return; if (dmAudio.paused) { dmAudio.play().catch(()=>{}); } else { dmAudio.pause(); } syncDateMusicWaves(); }
-setInterval(syncDateMusicWaves, 500);
 
 // ═══════════════════════════════════════
 // LOAD
@@ -4937,7 +4902,7 @@ return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
 function buildThemeExtras(theme, canvasId) {
   if (theme === 'aurora') return `<div class="aurora-layer"></div><canvas class="theme-canvas" id="${canvasId}"></canvas>`;
   if (theme === 'glow')   return `<div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div><div class="glow-orb glow-orb-3"></div>`;
-  if (['stars','hearts','rain','fire','ocean','nebula','matrix','gold'].includes(theme))
+  if (['stars','hearts','rain','matrix','gold'].includes(theme))
     return `<canvas class="theme-canvas" id="${canvasId}"></canvas>`;
   return '';
 }
@@ -4959,9 +4924,6 @@ if (!entry || !entry.theme || entry.theme === 'none') return;
     if (theme === 'stars')  startStars(canvas);
     if (theme === 'hearts') startHearts(canvas);
     if (theme === 'rain')   startRain(canvas);
-    if (theme === 'fire')   startFire(canvas);
-    if (theme === 'ocean')  startOcean(canvas);
-    if (theme === 'nebula') startNebula(canvas);
     if (theme === 'matrix') startMatrix(canvas);
     if (theme === 'gold')   startGold(canvas);
     if (theme === 'aurora') startAurora(canvas);
@@ -5147,98 +5109,6 @@ function startRain(canvas) {
   canvas._raf = requestAnimationFrame(frame);
 }
 
-
-
-function startFire(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const particles = Array.from({length:50}, () => ({
-    x: W/2+(Math.random()-0.5)*W*0.6, y: H,
-    vx:(Math.random()-0.5)*1.2, vy:-(Math.random()*2+1),
-    size: Math.random()*6+2, life:0, maxLife: Math.random()*60+40
-  }));
-  function frame() {
-    ctx.clearRect(0,0,W,H);
-    particles.forEach(p => {
-      p.x+=p.vx+(Math.random()-0.5)*0.4; p.y+=p.vy; p.life++;
-      if (p.life > p.maxLife) {
-        p.x=W/2+(Math.random()-0.5)*W*0.6; p.y=H+5;
-        p.life=0; p.maxLife=Math.random()*60+40;
-        p.vx=(Math.random()-0.5)*1.2; p.vy=-(Math.random()*2+1);
-        p.size=Math.random()*6+2;
-      }
-      const t = p.life/p.maxLife;
-      const op = (1-t)*0.7;
-      const hue = 20-t*20, sat=100, light=50+t*20;
-      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*(1-t*0.5));
-      grad.addColorStop(0,`hsla(${hue},${sat}%,${light+20}%,${op})`);
-      grad.addColorStop(1,`hsla(${hue-10},${sat}%,${light}%,0)`);
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(1-t*0.3),0,Math.PI*2);
-      ctx.fillStyle=grad; ctx.fill();
-    });
-    canvas._raf = requestAnimationFrame(frame);
-  }
-  canvas._raf = requestAnimationFrame(frame);
-}
-
-function startOcean(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  let t = 0;
-  const bubbles = Array.from({length:20}, ()=>({
-    x:Math.random()*W, y:H+Math.random()*H, r:Math.random()*3+1, speed:Math.random()*0.5+0.2
-  }));
-  function frame() {
-    ctx.clearRect(0,0,W,H);
-    t += 0.01;
-    // wave layers
-    for (let w=0; w<3; w++) {
-      ctx.beginPath();
-      const yBase = H*(0.3+w*0.25);
-      ctx.moveTo(0, yBase);
-      for (let x=0; x<=W; x+=4) {
-        const y = yBase + Math.sin(x/40+t+w*1.2)*6 + Math.sin(x/20+t*1.5+w)*3;
-        ctx.lineTo(x,y);
-      }
-      ctx.lineTo(W,H+20); ctx.lineTo(0,H+20); ctx.closePath();
-      ctx.fillStyle = `rgba(0,${100+w*30},${180+w*20},${0.04+w*0.02})`;
-      ctx.fill();
-    }
-    // bubbles
-    bubbles.forEach(b => {
-      b.y -= b.speed; b.x += Math.sin(t+b.r)*0.3;
-      if (b.y < -10) { b.y=H+5; b.x=Math.random()*W; }
-      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(100,200,255,0.35)`; ctx.lineWidth=0.8; ctx.stroke();
-    });
-    canvas._raf = requestAnimationFrame(frame);
-  }
-  canvas._raf = requestAnimationFrame(frame);
-}
-
-function startNebula(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const stars = Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,twinkle:Math.random()*100}));
-  let t=0;
-  function frame() {
-    ctx.clearRect(0,0,W,H); t+=0.005;
-    // nebula clouds
-    [[0.3,0.4,'160,60,255'],[0.7,0.6,'60,120,255'],[0.5,0.3,'255,60,160']].forEach(([cx,cy,rgb],i) => {
-      const grad = ctx.createRadialGradient(cx*W+Math.sin(t+i)*15,cy*H+Math.cos(t*0.7+i)*10,0,cx*W,cy*H,W*0.5);
-      grad.addColorStop(0,`rgba(${rgb},0.12)`);
-      grad.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-    });
-    stars.forEach(s => {
-      const op = 0.3+Math.sin(Date.now()/800+s.twinkle)*0.4;
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,240,255,${Math.max(0,op)})`; ctx.fill();
-    });
-    canvas._raf = requestAnimationFrame(frame);
-  }
-  canvas._raf = requestAnimationFrame(frame);
-}
 
 function startMatrix(canvas) {
   const ctx = canvas.getContext('2d');
@@ -5595,7 +5465,7 @@ async function submitEntry(type) {
     const captionHtml = getCapHtml('photo-cap-editor');
     if (!raw) { showToast('adaugă cel puțin un link'); return; }
     payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
-    // media_urls poate conține cloudinary:image:publicId sau URL-uri externe -- ambele sunt ok
+    // media_urls poate conține R2:image:publicId sau URL-uri externe -- ambele sunt ok
 
     payload.caption = captionHtml;
     payload.blur_images = photoBlurEnabled;
@@ -5617,7 +5487,7 @@ async function submitEntry(type) {
     const date = document.getElementById('music-date').value;
     const note = document.getElementById('music-note').value.trim();
     if (!url) { showToast('adaugă un link'); return; }
-    // url și cover pot fi cloudinary:video:publicId sau URL externe
+    // url și cover pot fi R2:video:publicId sau URL externe
     payload.media_urls = [url]; payload.caption = title; payload.content = note; payload.cover_url = cover;
 
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
@@ -6118,7 +5988,7 @@ function cdnUrl(publicId, resourceType) {
 
 
 
-async function uploadPhotosToCloudinary(files) {
+async function uploadPhotosToR2(files) {
   const status = document.getElementById('photo-upload-status');
   const previews = document.getElementById('photo-upload-previews');
   const urlsField = document.getElementById('photo-urls');
@@ -6145,7 +6015,7 @@ const previewUrl = `${R2_PUBLIC_URL}/${result.publicId}`;
   setTimeout(() => status.textContent = '', 3000);
 }
 
-async function uploadMusicToCloudinary(file) {
+async function uploadMusicToR2(file) {
   const status = document.getElementById('music-upload-status');
   status.textContent = 'se încarcă...';
   try {
@@ -6176,7 +6046,7 @@ async function uploadEditCoverToR2(file) {
 }
 
 
-async function uploadMusicCoverToCloudinary(file) {
+async function uploadMusicCoverToR2(file) {
   const status = document.getElementById('music-cover-upload-status');
   const preview = document.getElementById('music-cover-preview');
   const previewImg = document.getElementById('music-cover-preview-img');
@@ -6195,7 +6065,7 @@ document.getElementById('music-cover-inp').value = `r2:${result.publicId}`;
 }
 
 
-async function uploadDmMusicToCloudinary(file) {
+async function uploadDmMusicToR2(file) {
   const status = document.getElementById('dm-upload-status');
   status.textContent = 'se încarcă...';
   try {
@@ -6238,7 +6108,7 @@ async function uploadTimelockMusicToR2(file) {
 }
 
 
-async function uploadPdfToCloudinary(file) {
+async function uploadPdfToR2(file) {
   const status = document.getElementById('pdf-upload-status');
   status.textContent = 'se încarcă...';
   try {
@@ -6252,7 +6122,7 @@ document.getElementById('pdf-url').value = `r2:${result.publicId}`;
   }
 }
 
-async function uploadVideoToCloudinary(file) {
+async function uploadVideoToR2(file) {
   const status = document.getElementById('video-upload-status');
   status.textContent = 'se încarcă (poate dura...)';
   try {
@@ -6276,7 +6146,7 @@ function handlePhotoDrop(e) {
   e.preventDefault();
   document.getElementById('photo-upload-area').style.borderColor = 'var(--border2)';
   const files = e.dataTransfer.files;
-  if (files.length) uploadPhotosToCloudinary(files);
+  if (files.length) uploadPhotosToR2(files);
 }
 
 
