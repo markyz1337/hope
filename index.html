@@ -4854,10 +4854,16 @@ function renderEntry(e, hlQuery) {
       }
     } else {
       // Video nativ R2/direct
-      const autoplayAttrs = autoplay ? 'autoplay muted playsinline loop' : 'controls';
-      videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
-        <video class="entry-video" preload="metadata" src="${escHtml(url)}" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" ${autoplayAttrs}></video>
-      </div>`;
+if (autoplay) {
+  videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
+    <video class="entry-video" preload="auto" src="${escHtml(url)}" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" autoplay muted playsinline loop></video>
+  </div>`;
+} else {
+  videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
+    <video class="entry-video" preload="metadata" src="${escHtml(url)}#t=0.5" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" controls playsinline></video>
+  </div>`;
+}
+
     }
     mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
 
