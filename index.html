@@ -2705,6 +2705,7 @@ async function continueInitAfterAuth() {
 
 
   buildCarousel();
+  updateDynamicTitle();
   renderEntries();
   setDefaultDates();
   updateCalFabState();
@@ -3870,7 +3871,6 @@ SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
 SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
 SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
 SETTING_TITLE_RULES = _settings.titleRules || [];
-updateDynamicTitle();
 
 
 
@@ -3920,10 +3920,12 @@ if (SETTING_NAV_MODE === 'today') {
 
 
   buildCarousel();
+  updateDynamicTitle();
   renderEntries();
   setDefaultDates();
   updateCalFabState();
 if (selectedDate) {
+
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
       const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
