@@ -1619,7 +1619,7 @@ audio[controls] { display: block; }
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="lb-counter" id="lbCounter"></div>
-    <div class="lb-zoom-hint">pinch = zoom · drag = pan · dublu tap = 2.5×</div>
+    <div class="lb-zoom-hint">pinch = zoom · drag = pan</div>
   </div>
 </div>
 
@@ -4291,6 +4291,8 @@ let touchDirectionLocked = false; // 'h' | 'v' | false
 function onTouchStart(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   touchStartY = e.touches[0].clientY;
   touchStartX = e.touches[0].clientX;
@@ -4304,6 +4306,8 @@ function onTouchStart(e) {
 function onTouchMove(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+
   const y = e.touches[0].clientY;
   const x = e.touches[0].clientX;
   const dy = touchLastY - y;
@@ -4348,13 +4352,10 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd(e) {
-  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) {
-    overscrollDelta = 0; overscrollActive = false;
-    topscrollDelta = 0; topscrollActive = false;
-    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
-    return;
-  }
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+
   if (overscrollActive) {
     if (ringProgress >= 1 && !jumpLocked) { jumpLocked = true; jumpDate(1); setTimeout(() => resetRing('next'), 400); }
     else { setRingProgress(0, 'next'); jumpLocked = false; }
@@ -4813,7 +4814,9 @@ function renderEntry(e, hlQuery) {
         </div>
         <div class="private-img-label">privat</div>
       </div>` : '';
-      return `<div class="media-item" onclick="${((!isBlurred&&!isPrivate)||isRevealed) ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+      return `
+<div class="media-item" ontouchend="if(!window._lbTouchMoved){event.preventDefault();event.stopPropagation();${((!isBlurred&&!isPrivate)||isRevealed) ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}}" ontouchstart="window._lbTouchMoved=false" ontouchmove="window._lbTouchMoved=true" onclick="${((!isBlurred&&!isPrivate)||isRevealed) ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+
         <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
         ${isBlurred && !isPrivate ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this,'${entryIdStr}',${idx})">
           <div class="img-blur-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg></div>
@@ -5354,22 +5357,6 @@ lbWrap.addEventListener('touchstart', (e) => {
     lbTouchStartY = e.touches[0].clientY;
     lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
     lbIsPanning = false; lbIsPinching = false;
-const now = Date.now();
-    if (now - lbLastTap < 320) {
-      lbLastTap = 0;
-
-      if (lbScale > 1.05) { lbResetZoom(); }
-      else {
-        lbScale = 2.5;
-        const rect = lbWrap.getBoundingClientRect();
-        lbTransX = (rect.width/2 - e.touches[0].clientX + rect.left) * (lbScale-1) / lbScale;
-        lbTransY = (rect.height/2 - e.touches[0].clientY + rect.top) * (lbScale-1) / lbScale;
-        lbClampPan();
-        applyLbTransform(true);
-        document.getElementById('lbZoomReset').classList.add('visible');
-      }
-    }
-    lbLastTap = now;
   } else if (e.touches.length === 2) {
     lbIsPinching = true;
     lbPinchStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -5378,8 +5365,8 @@ const now = Date.now();
     lbPanStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
     lbPanStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
   }
-  e.stopPropagation();
 }, { passive: true });
+
 
 lbWrap.addEventListener('touchmove', (e) => {
   if (lbIsPinching && e.touches.length === 2) {
@@ -5410,20 +5397,31 @@ lbWrap.addEventListener('touchmove', (e) => {
 
 lbWrap.addEventListener('touchend', (e) => {
   if (lbIsPinching) { lbIsPinching = false; lbClampPan(); applyLbTransform(true); return; }
+  
+  const dx = Math.abs((e.changedTouches[0]?.clientX || 0) - lbTouchStartX);
+  const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - lbTouchStartY);
+  const now2 = Date.now();
+  const isQuickTap = dx < 8 && dy < 8;
+
+
+
+
   if (lbIsPanning && lbScale <= 1.05) {
-    const dx = (e.changedTouches[0]?.clientX || 0) - lbTouchStartX;
-    if (Math.abs(dx) > 60) lbNav(dx < 0 ? 1 : -1);
-  }
-if (!lbIsPanning) {
-    const dx = Math.abs((e.changedTouches[0]?.clientX || 0) - lbTouchStartX);
-    const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - lbTouchStartY);
-    const now2 = Date.now();
-    if (dx < 8 && dy < 8 && (now2 - lbLastTap) > 350) { e.preventDefault(); closeLightbox(); }
+    const swipeDx = (e.changedTouches[0]?.clientX || 0) - lbTouchStartX;
+    if (Math.abs(swipeDx) > 60) lbNav(swipeDx < 0 ? 1 : -1);
   }
 
+  if (!lbIsPanning && isQuickTap) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeLightbox();
+  }
+
+lbLastTap = 0;
 
   lbIsPanning = false;
-}, { passive: true });
+}, { passive: false });
+
 
 
 let lbMouseDown = false, lbMouseStartX = 0, lbMouseStartY = 0;
