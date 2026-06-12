@@ -5783,8 +5783,7 @@ urls.forEach(u => {
     document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
     editCapWrap.style.display='block'; editCapTa.style.display='none';
     document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
-    edit18Enabled = !!e.video_autoplay;
-    document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', !!e.video_autoplay);
+
 
   } else if (e.type === 'music') {
     document.getElementById('edit-rte-group').style.display='none';
