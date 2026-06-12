@@ -3491,10 +3491,14 @@ function openSettings() {
   if (isLocked) return;
   syncSettingsUI();
   document.getElementById('settingsOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
+
 function closeSettings() {
   document.getElementById('settingsOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
+
 function handleSettingsOverlayClick(e) {
   if (e.target === document.getElementById('settingsOverlay')) closeSettings();
 }
@@ -4074,6 +4078,8 @@ function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
 function toggleCalPopup() { if (calPopupOpen) { closeCalPopup(); return; } openCalPopup(); }
 function openCalPopup() {
   calPopupOpen = true;
+  document.body.style.overflow = 'hidden';
+
   const ref = selectedDate || new Date();
   calPopupYear = ref.getFullYear(); calPopupMonth = ref.getMonth();
   renderCalPopup();
@@ -4083,9 +4089,11 @@ function openCalPopup() {
 }
 function closeCalPopup() {
   calPopupOpen = false;
+  document.body.style.overflow = '';
   document.getElementById('calPopupOverlay').classList.remove('open');
   document.getElementById('calFabBtn').classList.remove('is-active');
 }
+
 function handleCalOverlayClick(e) { if (e.target === document.getElementById('calPopupOverlay')) closeCalPopup(); }
 function calPopupNavMonth(dir) {
   calPopupMonth += dir;
@@ -4292,6 +4300,10 @@ function onTouchStart(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
   if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
+  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+
 
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   touchStartY = e.touches[0].clientY;
@@ -4307,6 +4319,10 @@ function onTouchMove(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
   if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
+  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+
 
   const y = e.touches[0].clientY;
   const x = e.touches[0].clientX;
@@ -4355,6 +4371,10 @@ function onTouchEnd(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
   if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
+  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+
 
   if (overscrollActive) {
     if (ringProgress >= 1 && !jumpLocked) { jumpLocked = true; jumpDate(1); setTimeout(() => resetRing('next'), 400); }
@@ -6288,6 +6308,8 @@ function handleR2GalleryClick(e) {
 function closeR2Gallery() {
   const ov = document.getElementById('r2GalleryOverlay');
   ov.classList.remove('open');
+  document.body.style.overflow = '';
+
   // Resetează body-ul galeriei ca să nu rămână butoane active în DOM
   setTimeout(() => { 
     if (!ov.classList.contains('open')) {
@@ -6300,6 +6322,8 @@ function closeR2Gallery() {
 async function openR2Gallery() {
   closeSettings();
   document.getElementById('r2GalleryOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
   document.getElementById('r2GalleryBody').innerHTML = '<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">se încarcă...</div></div>';
 
   try {
