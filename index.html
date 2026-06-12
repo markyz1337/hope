@@ -5354,8 +5354,10 @@ lbWrap.addEventListener('touchstart', (e) => {
     lbTouchStartY = e.touches[0].clientY;
     lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
     lbIsPanning = false; lbIsPinching = false;
-    const now = Date.now();
+const now = Date.now();
     if (now - lbLastTap < 320) {
+      lbLastTap = 0;
+
       if (lbScale > 1.05) { lbResetZoom(); }
       else {
         lbScale = 2.5;
@@ -5415,8 +5417,10 @@ lbWrap.addEventListener('touchend', (e) => {
 if (!lbIsPanning) {
     const dx = Math.abs((e.changedTouches[0]?.clientX || 0) - lbTouchStartX);
     const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - lbTouchStartY);
-    if (dx < 8 && dy < 8) { e.preventDefault(); closeLightbox(); }
+    const now2 = Date.now();
+    if (dx < 8 && dy < 8 && (now2 - lbLastTap) > 350) { e.preventDefault(); closeLightbox(); }
   }
+
 
   lbIsPanning = false;
 }, { passive: true });
