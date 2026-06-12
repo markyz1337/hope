@@ -5443,8 +5443,9 @@ lbWrap.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === document.getElementById('lightbox')) closeLightbox();
+  if (!e.target.closest('.lb-img-wrap') && !e.target.closest('.lb-nav') && !e.target.closest('.lb-close') && !e.target.closest('.lb-zoom-reset')) closeLightbox();
 });
+
 
 function revealBlurredImg(overlay, entryId, idx) {
   // Deblurează toate imaginile din aceeași notiță
