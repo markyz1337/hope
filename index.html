@@ -4201,7 +4201,8 @@ function renderCalPopup() {
   document.getElementById('calPopupGrid').innerHTML = html;
 }
 
-function calPopupSelectDay(key) { closeCalPopup(); selectDate(key); }
+function calPopupSelectDay(key) { closeCalPopup(); selectDate(key); window.scrollTo({top:0,behavior:'smooth'}); }
+
 function updateCalFabState() {
   const tk = todayKey();
   const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
