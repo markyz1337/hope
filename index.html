@@ -3993,10 +3993,9 @@ function setupCardTextLinks() {
     const link = e.target.closest('.card-text a, .entry-caption a');
     if (!link) return;
     e.stopPropagation();
-    const href = link.getAttribute('href');
-    if (href) window.open(href, '_blank', 'noopener');
   }, true);
 }
+
 
 // ═══════════════════════════════════════
 // FONT SIZE (RTE)
@@ -4925,7 +4924,8 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
     const pdfTitle = e.caption || 'document PDF';
     const pdfNote = e.content || '';
     const noteHtml = pdfNote ? `<div style="margin-top:6px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;">${hlQuery ? highlightText(pdfNote, hlQuery) : escHtml(pdfNote)}</div>` : '';
-    mediaHtml = `<a class="pdf-entry" href="${escHtml(pdfUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+    mediaHtml = `<a class="pdf-entry" href="${escHtml(pdfUrl)}" target="_blank" rel="noopener noreferrer">
+
       <div class="pdf-icon-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/>
