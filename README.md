@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
 <title>hope</title>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -44,6 +45,8 @@
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { scroll-behavior:smooth; }
+
+
 
 body {
   background: var(--bg);
@@ -137,7 +140,7 @@ padding-bottom: env(safe-area-inset-bottom);
 .pin-exit-btn:hover { background: rgba(200,80,80,0.15); border-color: rgba(200,80,80,0.4); color: var(--rose); }
 .pin-exit-btn svg { width: 14px; height: 14px; }
 
-/* PIN private mode styling — dark, elegant */
+/* PIN private mode styling -- dark, elegant */
 .pin-overlay.mode-private {
   background: rgba(2,2,6,0.97);
 }
@@ -399,11 +402,15 @@ body.locked .card-actions { display: none !important; }
   background: rgba(0,0,0,0.2);
 }
 
+/* DUPĂ */
+/* ÎNAINTE */
 .img-blur-overlay {
   position: absolute; inset: 0;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   background: rgba(12,12,15,0.55);
+
+
   border-radius: var(--r2);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
@@ -421,7 +428,7 @@ body.locked .card-actions { display: none !important; }
 .img-blur-icon svg { width: 16px; height: 16px; }
 
 /* ══════════════════════════════════════
-   CONȚINUT PRIVAT — blur overlay redesign
+   CONȚINUT PRIVAT -- blur overlay redesign
    Acoperă tot cardul, inclusiv meta (data/ora apare deasupra)
    ══════════════════════════════════════ */
 
@@ -430,7 +437,7 @@ body.locked .card-actions { display: none !important; }
   position: relative;
 }
 
-/* Overlay-ul privat — acoperă TOT mai puțin header-ul */
+/* Overlay-ul privat -- acoperă TOT mai puțin header-ul */
 .private-overlay {
   position: absolute;
   left: 0; right: 0;
@@ -1002,7 +1009,11 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 }
 
 
+
+
 audio { display: none; }
+audio[controls] { display: block; }
+
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
@@ -1114,26 +1125,6 @@ audio { display: none; }
 
 .theme-rain .card-text { color: #b8c8d8; }
 
-/* ── TEMA 6: Foc și lavă ── */
-.theme-fire {
-  background: linear-gradient(180deg, #0f0500 0%, #1a0800 50%, #120400 100%);
-  min-height: 80px;
-}
-.theme-fire .card-text { color: #ffe8c0; }
-
-/* ── TEMA 7: Ocean ── */
-.theme-ocean {
-  background: linear-gradient(180deg, #020c14 0%, #041828 50%, #020e1c 100%);
-  min-height: 80px;
-}
-.theme-ocean .card-text { color: #c0e8ff; }
-
-/* ── TEMA 8: Nebulă ── */
-.theme-nebula {
-  background: radial-gradient(ellipse at center, #0e0618 0%, #060410 100%);
-  min-height: 80px;
-}
-.theme-nebula .card-text { color: #e8d0ff; }
 
 /* ── TEMA 9: Matrix ── */
 .theme-matrix {
@@ -1206,6 +1197,7 @@ audio { display: none; }
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .settings-overlay.open { opacity: 1; pointer-events: all; }
 
@@ -1630,7 +1622,7 @@ audio { display: none; }
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="lb-counter" id="lbCounter"></div>
-    <div class="lb-zoom-hint">pinch = zoom · drag = pan · dublu tap = 2.5×</div>
+    <div class="lb-zoom-hint">pinch = zoom · drag = pan</div>
   </div>
 </div>
 
@@ -1667,18 +1659,6 @@ audio { display: none; }
     <div class="theme-swatch" data-theme="rain" onclick="selectNoteTheme('rain')" style="background:linear-gradient(180deg,#070b0f,#0a0f14);">
       <span class="theme-swatch-icon">🌧️</span>
       <span class="theme-swatch-label">ploaie</span>
-    </div>
-    <div class="theme-swatch" data-theme="fire" onclick="selectNoteTheme('fire')" style="background:linear-gradient(180deg,#0f0500,#1a0800);">
-      <span class="theme-swatch-icon">🔥</span>
-      <span class="theme-swatch-label">foc</span>
-    </div>
-    <div class="theme-swatch" data-theme="ocean" onclick="selectNoteTheme('ocean')" style="background:linear-gradient(180deg,#020c14,#041828);">
-      <span class="theme-swatch-icon">🌊</span>
-      <span class="theme-swatch-label">ocean</span>
-    </div>
-    <div class="theme-swatch" data-theme="nebula" onclick="selectNoteTheme('nebula')" style="background:radial-gradient(ellipse,#0e0618,#060410);">
-      <span class="theme-swatch-icon">🔮</span>
-      <span class="theme-swatch-label">nebulă</span>
     </div>
     <div class="theme-swatch" data-theme="matrix" onclick="selectNoteTheme('matrix')" style="background:#000800;">
       <span class="theme-swatch-icon">💚</span>
@@ -1752,14 +1732,30 @@ audio { display: none; }
 
 
 <!-- Photo -->
+<!-- Photo -->
 <div class="backdrop" id="modal-photo">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă poze</div>
     <div class="form-group">
-      <label class="form-label">link-uri imagini (unul per linie)</label>
+      <label class="form-label">încarcă imagini pe R2</label>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('photo-file-input').click()">
+  <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotosToR2(this.files)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege imagini</span>
+  <span id="photo-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
+      <div id="photo-upload-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link-uri externe (unul per linie)
+      </label>
       <textarea class="form-textarea" id="photo-urls" placeholder="https://...&#10;https://..."></textarea>
     </div>
+
     <div class="form-group">
       <label class="form-label">descriere (cu link-uri opțional)</label>
       <div class="cap-rte-wrap" id="photoCapWrap">
@@ -1803,7 +1799,20 @@ audio { display: none; }
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă videoclip</div>
     <div class="form-group">
-      <label class="form-label">link video (YouTube sau mp4/webm direct)</label>
+      <label class="form-label">încarcă video pe R2</label>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('video-file-input').click()">
+  <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="uploadVideoToR2(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege video</span>
+  <span id="video-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern (YouTube, mp4...)
+      </label>
       <input type="url" class="form-input" id="video-url" placeholder="https://youtu.be/... sau https://...mp4">
       <div style="margin-top:8px;padding:8px 12px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.15);border-radius:10px;">
         <p style="font-family:var(--mono);font-size:10px;color:var(--blue);line-height:1.7;letter-spacing:0.02em;">
@@ -1812,6 +1821,7 @@ audio { display: none; }
         </p>
       </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">descriere (cu link-uri opțional)</label>
       <div class="cap-rte-wrap">
@@ -1833,6 +1843,15 @@ audio { display: none; }
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
     </div>
+    
+    <div class="blur-toggle-row">
+  <label class="form-label">pornește automat (fără sunet)</label>
+  <div class="toggle-track" id="video-autoplay-toggle" onclick="toggleVideoAutoplay()">
+    <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+  </div>
+</div>
+
+    
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="video-date" step="1">
@@ -1843,22 +1862,52 @@ audio { display: none; }
 </div>
 
 <!-- Music -->
+
 <div class="backdrop" id="modal-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă muzică</div>
     <div class="form-group">
-      <label class="form-label">link fișier audio (mp3, ogg...)</label>
+      <label class="form-label">încarcă fișier audio pe R2</label>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('music-file-input').click()">
+  <input type="file" id="music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadMusicToR2(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
+  <span id="music-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern (mp3, ogg...)
+      </label>
       <input type="url" class="form-input" id="music-url" placeholder="https://...">
     </div>
+
     <div class="form-group">
       <label class="form-label">titlu melodie</label>
       <input type="text" class="form-input" id="music-title-inp" placeholder="numele piesei...">
     </div>
     <div class="form-group">
-      <label class="form-label">link copertă (opțional)</label>
-      <input type="url" class="form-input" id="music-cover-inp" placeholder="https://...">
+      <label class="form-label">copertă (opțional)</label>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('music-cover-file-input').click()">
+  <input type="file" id="music-cover-file-input" accept="image/*" style="display:none" onchange="uploadMusicCoverToR2(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege copertă</span>
+  <span id="music-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+  <div id="music-cover-preview" style="display:none;flex-shrink:0;"><img id="music-cover-preview-img" style="width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2);" src=""></div>
+</div>
+
+      <div style="margin-top:8px;">
+        <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+          sau link extern copertă
+        </label>
+        <input type="url" class="form-input" id="music-cover-inp" placeholder="https://...">
+      </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="music-date" step="1">
@@ -1873,14 +1922,29 @@ audio { display: none; }
 </div>
 
 <!-- PDF -->
+<!-- PDF -->
 <div class="backdrop" id="modal-pdf">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">adaugă PDF</div>
     <div class="form-group">
-      <label class="form-label">link PDF</label>
+      <label class="form-label">încarcă PDF pe R2</label>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('pdf-file-input').click()">
+  <input type="file" id="pdf-file-input" accept=".pdf" style="display:none" onchange="uploadPdfToR2(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege PDF</span>
+  <span id="pdf-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern PDF
+      </label>
       <input type="url" class="form-input" id="pdf-url" placeholder="https://...pdf">
     </div>
+
     <div class="form-group">
       <label class="form-label">titlu document</label>
       <input type="text" class="form-input" id="pdf-title" placeholder="numele documentului...">
@@ -1899,6 +1963,7 @@ audio { display: none; }
 </div>
 
 <!-- Date Music -->
+<!-- Date Music -->
 <div class="backdrop" id="modal-date-music">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1909,17 +1974,40 @@ audio { display: none; }
       <input type="date" class="form-input" id="dm-date">
     </div>
     <div class="form-group">
-      <label class="form-label">link audio (mp3, ogg...)</label>
+      <label class="form-label">încarcă fișier audio pe R2</label>
+<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('dm-file-input').click()">
+  <input type="file" id="dm-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadDmMusicToR2(this.files[0])">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
+  <span id="dm-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+</div>
+
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+        sau link extern (mp3, ogg...)
+      </label>
       <input type="url" class="form-input" id="dm-url" placeholder="https://...">
     </div>
+
     <div class="form-group">
       <label class="form-label">titlu (opțional)</label>
       <input type="text" class="form-input" id="dm-title" placeholder="numele piesei...">
     </div>
     <div class="form-group">
-      <label class="form-label">link copertă (opțional)</label>
+      <label class="form-label">copertă (opțional)</label>
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;margin-bottom:8px;" onclick="document.getElementById('dm-cover-file-input').click()">
+        <input type="file" id="dm-cover-file-input" accept="image/*" style="display:none" onchange="uploadDmCoverToR2(this.files[0])">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">încarcă copertă</span>
+        <span id="dm-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+      </div>
+      <label class="form-label" style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">sau link extern copertă</label>
       <input type="url" class="form-input" id="dm-cover" placeholder="https://...">
     </div>
+
+
     <button class="btn-primary" onclick="saveDateMusic()">salvează</button>
     <button class="btn-secondary" onclick="closeModal('date-music')">anulează</button>
   </div>
@@ -1960,9 +2048,6 @@ audio { display: none; }
     <div class="theme-swatch" data-theme="glow" onclick="selectEditTheme('glow')" style="background:#08060f;"><span class="theme-swatch-icon">💜</span><span class="theme-swatch-label">glow</span></div>
     <div class="theme-swatch" data-theme="hearts" onclick="selectEditTheme('hearts')" style="background:linear-gradient(145deg,#1a0812,#220d18);"><span class="theme-swatch-icon">🌸</span><span class="theme-swatch-label">inimi</span></div>
     <div class="theme-swatch" data-theme="rain" onclick="selectEditTheme('rain')" style="background:linear-gradient(180deg,#070b0f,#0a0f14);"><span class="theme-swatch-icon">🌧️</span><span class="theme-swatch-label">ploaie</span></div>
-    <div class="theme-swatch" data-theme="fire" onclick="selectEditTheme('fire')" style="background:linear-gradient(180deg,#0f0500,#1a0800);"><span class="theme-swatch-icon">🔥</span><span class="theme-swatch-label">foc</span></div>
-    <div class="theme-swatch" data-theme="ocean" onclick="selectEditTheme('ocean')" style="background:linear-gradient(180deg,#020c14,#041828);"><span class="theme-swatch-icon">🌊</span><span class="theme-swatch-label">ocean</span></div>
-    <div class="theme-swatch" data-theme="nebula" onclick="selectEditTheme('nebula')" style="background:radial-gradient(ellipse,#0e0618,#060410);"><span class="theme-swatch-icon">🔮</span><span class="theme-swatch-label">nebulă</span></div>
     <div class="theme-swatch" data-theme="matrix" onclick="selectEditTheme('matrix')" style="background:#000800;"><span class="theme-swatch-icon">💚</span><span class="theme-swatch-label">matrix</span></div>
     <div class="theme-swatch" data-theme="gold" onclick="selectEditTheme('gold')" style="background:linear-gradient(135deg,#0f0900,#1a1000);"><span class="theme-swatch-icon">✨</span><span class="theme-swatch-label">aur</span></div>
   </div>
@@ -2010,8 +2095,19 @@ audio { display: none; }
     </div>
     <div class="form-group" id="edit-plain-group">
       <label class="form-label" id="edit-plain-lbl">conținut / URL-uri</label>
+      <div id="edit-upload-section" style="display:none;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('edit-file-input').click()">
+          <input type="file" id="edit-file-input" style="display:none" onchange="handleEditFileUpload(this.files[0])">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="edit-upload-label" style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">încarcă fișier</span>
+          <span id="edit-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+        </div>
+        <div id="edit-upload-previews" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text4);margin-top:6px;letter-spacing:0.04em;">sau introdu link direct mai jos</div>
+      </div>
       <textarea class="form-textarea" id="edit-content"></textarea>
     </div>
+
     <div class="form-group" id="edit-caption-group">
       <label class="form-label" id="edit-caption-lbl">descriere / titlu</label>
       <div class="cap-rte-wrap" id="editCapWrap" style="display:none">
@@ -2028,10 +2124,22 @@ audio { display: none; }
       </div>
       <textarea class="form-textarea" id="edit-caption" style="min-height:70px;display:none"></textarea>
     </div>
-    <div class="form-group" id="edit-cover-group">
-      <label class="form-label">link copertă (opțional)</label>
-      <input type="url" class="form-input" id="edit-cover">
-    </div>
+<div class="form-group" id="edit-cover-group">
+  <label class="form-label">copertă (opțional)</label>
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;margin-bottom:8px;" onclick="document.getElementById('edit-cover-file-input').click()">
+    <input type="file" id="edit-cover-file-input" accept="image/*" style="display:none" onchange="uploadEditCoverToR2(this.files[0])">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">încarcă copertă</span>
+    <span id="edit-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+    <div id="edit-cover-preview" style="display:none;flex-shrink:0;"><img id="edit-cover-preview-img" style="width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2);" src=""></div>
+  </div>
+  <label class="form-label" style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+    sau link extern copertă
+  </label>
+  <input type="url" class="form-input" id="edit-cover" placeholder="https://...">
+</div>
+
     <div class="blur-toggle-row" id="edit-blur-group" style="display:none">
       <label class="form-label">blur imagini</label>
       <div class="toggle-track" id="edit-blur-toggle" onclick="toggleEditBlur()">
@@ -2044,6 +2152,14 @@ audio { display: none; }
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
     </div>
+    
+    <div class="blur-toggle-row" id="edit-video-autoplay-group" style="display:none">
+  <label class="form-label">pornește automat (fără sunet)</label>
+  <div class="toggle-track" id="edit-video-autoplay-toggle" onclick="toggleEditVideoAutoplay()">
+    <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+  </div>
+</div>
+
     <div class="form-group">
       <label class="form-label">data postării</label>
       <input type="datetime-local" class="form-input" id="edit-date" step="1">
@@ -2100,7 +2216,7 @@ audio { display: none; }
   </div>
 </div>
 
-<!-- Settings Menu -->
+<!-- Settings -->
 <div class="settings-overlay" id="settingsOverlay" onclick="handleSettingsOverlayClick(event)">
   <div class="settings-modal" id="settingsModal">
     <div class="settings-header">
@@ -2113,33 +2229,39 @@ audio { display: none; }
     </div>
 
     <!-- 1. Ziua inițială -->
-<div class="settings-section">
-  <div class="settings-section-title">navigare inițială</div>
-  <div style="display:flex;flex-direction:column;gap:8px;">
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-      <input type="radio" name="nav-mode" value="today" style="accent-color:var(--accent)">
-      <div><div class="settings-row-label">Ziua de azi</div><div class="settings-row-sub">mereu la ziua curentă</div></div>
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-      <input type="radio" name="nav-mode" value="last" style="accent-color:var(--accent)">
-      <div><div class="settings-row-label">Ultima zi cu conținut</div><div class="settings-row-sub">cea mai recentă zi înregistrată</div></div>
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-      <input type="radio" name="nav-mode" value="saved" style="accent-color:var(--accent)">
-      <div><div class="settings-row-label">Ultima zi vizitată</div><div class="settings-row-sub">ziua salvată în Supabase</div></div>
-    </label>
-    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
-      <input type="radio" name="nav-mode" value="first" style="accent-color:var(--accent)">
-      <div><div class="settings-row-label">Prima zi cu conținut</div><div class="settings-row-sub">cea mai veche înregistrare</div></div>
-    </label>
-  </div>
-</div>
+    <div class="settings-section">
+      <div class="settings-section-title">navigare inițială</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="radio" name="nav-mode" value="today" style="accent-color:var(--accent)">
+          <div><div class="settings-row-label">Ziua de azi</div><div class="settings-row-sub">mereu la ziua curentă</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="radio" name="nav-mode" value="last" style="accent-color:var(--accent)">
+          <div><div class="settings-row-label">Ultima zi cu conținut</div><div class="settings-row-sub">cea mai recentă zi înregistrată</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="radio" name="nav-mode" value="saved" style="accent-color:var(--accent)">
+          <div><div class="settings-row-label">Ultima zi vizitată</div><div class="settings-row-sub">ziua salvată în Supabase</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input type="radio" name="nav-mode" value="first" style="accent-color:var(--accent)">
+          <div><div class="settings-row-label">Prima zi cu conținut</div><div class="settings-row-sub">cea mai veche înregistrare</div></div>
+        </label>
+      </div>
+    </div>
 
+    <!-- 2. Stocare R2 -->
+    <div class="settings-section">
+      <div class="settings-section-title">stocare r2</div>
+      <button class="settings-pin-btn" style="width:100%" onclick="openR2Gallery()">
+        deschide galerie fișiere
+      </button>
+    </div>
 
-    <!-- 2. Parole -->
+    <!-- 3. Parole -->
     <div class="settings-section">
       <div class="settings-section-title">parole</div>
-
       <div class="settings-row" style="margin-bottom:6px;">
         <div class="settings-row-label">Parolă mod creator (curentă: <span id="settings-creator-pin-display">••••</span>)</div>
       </div>
@@ -2147,7 +2269,6 @@ audio { display: none; }
         <input class="settings-pin-input" id="settings-new-creator-pin" type="tel" maxlength="4" placeholder="PIN nou (4 cifre)">
         <button class="settings-pin-btn" onclick="changeCreatorPin()">schimbă</button>
       </div>
-
       <div class="settings-row" style="margin-bottom:6px;">
         <div class="settings-row-label">Parolă carduri private (curentă: <span id="settings-private-pin-display">••••</span>)</div>
       </div>
@@ -2157,7 +2278,7 @@ audio { display: none; }
       </div>
     </div>
 
-    <!-- 3. Parolă vizitatori -->
+    <!-- 4. Parolă vizitatori -->
     <div class="settings-section">
       <div class="settings-section-title">acces vizitatori</div>
       <div class="settings-row">
@@ -2180,40 +2301,53 @@ audio { display: none; }
       </div>
     </div>
 
-    <!-- 4. Restricție orar -->
+    <!-- 5. Restricție orar -->
+    <div class="settings-section">
+      <div class="settings-section-title">restricție orar</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Activează restricție orar</div>
+          <div class="settings-row-sub" id="settings-time-lock-sub">dezactivat</div>
+        </div>
+        <div class="toggle-track" id="settings-time-lock-toggle" onclick="toggleSettingTimeLock()">
+          <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <div id="settings-time-lock-group" style="display:none;margin-top:8px;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <div style="flex:1">
+            <div class="settings-row-label" style="font-size:12px;">Blocat înainte de</div>
+            <input class="settings-time-input" id="settings-time-start" type="time" value="20:00" onchange="saveTimeLockHours()">
+          </div>
+          <div style="color:var(--text3);font-family:var(--mono);font-size:12px;padding-top:18px;">→</div>
+          <div style="flex:1">
+            <div class="settings-row-label" style="font-size:12px;">Deblocat până la</div>
+            <input class="settings-time-input" id="settings-time-end" type="time" value="03:00" onchange="saveTimeLockHours()">
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text4);line-height:1.6;">
+          Accesibil liber între orele setate. În afara intervalului → parolă vizitatori.
+        </div>
+      </div>
+    </div>
+
+
+<!-- 6. Titlu dinamic -->
 <div class="settings-section">
-  <div class="settings-section-title">restricție orar</div>
-  <div class="settings-row">
-    <div>
-      <div class="settings-row-label">Activează restricție orar</div>
-      <div class="settings-row-sub" id="settings-time-lock-sub">dezactivat</div>
-    </div>
-    <div class="toggle-track" id="settings-time-lock-toggle" onclick="toggleSettingTimeLock()">
-      <div class="toggle-bg"></div><div class="toggle-thumb"></div>
-    </div>
+  <div class="settings-section-title">titlu dinamic</div>
+  <p style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;margin-bottom:12px;">
+    Titlul „hope" se schimbă automat după data aleasă.
+  </p>
+  <div id="title-rules-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <input type="date" id="settings-title-rule-date" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+    <input type="text" id="settings-title-rule-text" placeholder="textul titlului..." style="flex:2;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;">
   </div>
-  <div id="settings-time-lock-group" style="display:none;margin-top:8px;">
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-      <div style="flex:1">
-        <div class="settings-row-label" style="font-size:12px;">Blocat înainte de</div>
-        <input class="settings-time-input" id="settings-time-start" type="time" value="20:00"
-          onchange="saveTimeLockHours()">
-      </div>
-      <div style="color:var(--text3);font-family:var(--mono);font-size:12px;padding-top:18px;">→</div>
-      <div style="flex:1">
-        <div class="settings-row-label" style="font-size:12px;">Deblocat până la</div>
-        <input class="settings-time-input" id="settings-time-end" type="time" value="03:00"
-          onchange="saveTimeLockHours()">
-      </div>
-    </div>
-    <div style="font-family:var(--mono);font-size:10px;color:var(--text4);line-height:1.6;">
-      Accesibil liber între orele setate. În afara intervalului → parolă vizitatori.
-    </div>
-  </div>
+  <button class="settings-pin-btn" style="width:100%" onclick="addTitleRule()">adaugă regulă</button>
 </div>
 
 
-    <!-- 4b. Melodie ecran așteptare -->
+    <!-- 6. Melodie ecran așteptare -->
     <div class="settings-section">
       <div class="settings-section-title">melodie ecran așteptare</div>
       <div class="settings-row">
@@ -2225,17 +2359,46 @@ audio { display: none; }
           <div class="toggle-bg"></div><div class="toggle-thumb"></div>
         </div>
       </div>
-      <div id="settings-timelock-music-group" style="display:none;margin-top:8px;">
-        <div class="form-group" style="margin-bottom:8px;">
-          <label class="form-label">link audio (mp3...)</label>
-          <input class="settings-pin-input" id="settings-timelock-music-url" type="url" placeholder="https://..." style="-webkit-text-security:none;font-size:11px;letter-spacing:0;">
-        </div>
-        <button class="settings-pin-btn" style="width:100%;margin-top:4px;" onclick="saveTimelockMusic()">salvează melodia</button>
-      </div>
+<div id="settings-timelock-music-group" style="display:none;margin-top:8px;">
+  <div class="form-group" style="margin-bottom:8px;">
+    <label class="form-label">încarcă fișier audio</label>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('timelock-music-file-input').click()">
+      <input type="file" id="timelock-music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadTimelockMusicToR2(this.files[0])">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">alege fișier audio</span>
+      <span id="timelock-music-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span>
+    </div>
+  </div>
+  <div class="form-group" style="margin-bottom:8px;">
+    <label class="form-label">sau link / referință r2:</label>
+    <input class="settings-pin-input" id="settings-timelock-music-url" placeholder="https://... sau r2:music/..." style="-webkit-text-security:none;font-size:11px;letter-spacing:0;">
+  </div>
+  <button class="settings-pin-btn" style="width:100%;margin-top:4px;" onclick="saveTimelockMusic()">salvează melodia</button>
+</div>
+
     </div>
 
   </div>
 </div>
+
+<!-- R2 Gallery -- separat, la același nivel cu settingsOverlay -->
+<div class="settings-overlay" id="r2GalleryOverlay" onclick="handleR2GalleryClick(event)" style="overscroll-behavior:contain;" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()">
+
+  <div class="settings-modal" id="r2GalleryModal" style="max-height:85vh;overflow-y:auto;">
+    <div class="settings-header">
+      <div class="settings-title">fișiere R2</div>
+      <button class="settings-close" onclick="closeR2Gallery()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div id="r2GalleryBody">
+      <div class="loading-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
 
 
 
@@ -2263,10 +2426,12 @@ let photoBlurEnabled = false;
 let photo18Enabled = false;
 let note18Enabled  = false;
 let video18Enabled = false;
+let videoAutoplayEnabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
 let isLocked = true;
 let SETTING_TIMELOCK_MUSIC_URL = '';
+let SETTING_TITLE_RULES = []; // [{ date: "2026-06-15", text: "..." }]
 let SETTING_TIMELOCK_MUSIC_ON  = false;
 let timeLockAudio = null;
 let timeLockBypassed = false;
@@ -2419,11 +2584,12 @@ if (pinBuffer === PIN_CODE) {
   setUnlocked(true);
 
   
-  // ← ADAUGĂ ASTA:
-  if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
+if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
     timeLockBypassed = true;
+    userHasInteracted = true; // ← adaugă asta
     continueInitAfterAuth();
   }
+
   return;
 }
 
@@ -2454,9 +2620,18 @@ if (pinBuffer === PIN_CODE) {
   // ── PIN vizitatori ──
   if (pinMode === 'visitor') {
     if (pinBuffer === PIN_VISITOR) {
-      document.getElementById('pinOverlay').classList.remove('open');
-      pinBuffer = '';
-      updatePinDots();
+document.getElementById('pinOverlay').classList.remove('open');
+pinBuffer = '';
+updatePinDots();
+userHasInteracted = true;
+if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+  const dk = pendingDateMusicKey;
+  pendingDateMusicKey = null;
+  pendingDateMusicAutoplay = false;
+  dmAudio.volume = 0.28;
+  dmAudio.play().catch(() => {});
+  syncDateMusicWaves();
+}
       userHasInteracted = true; // ← ADAUGĂ ASTA
     } else {
       pinError();
@@ -2467,8 +2642,17 @@ if (pinBuffer === PIN_CODE) {
 
   // ── PIN main (butonul lacăt normal) ──
   if (pinBuffer === PIN_CODE) {
-    setUnlocked(true);
-    closePinOverlay();
+setUnlocked(true);
+closePinOverlay();
+userHasInteracted = true;
+if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+  const dk = pendingDateMusicKey;
+  pendingDateMusicKey = null;
+  pendingDateMusicAutoplay = false;
+  dmAudio.volume = 0.28;
+  dmAudio.play().catch(() => {});
+  syncDateMusicWaves();
+}
   } else {
     pinError();
   }
@@ -2506,6 +2690,7 @@ async function continueInitAfterAuth() {
 
 
   buildCarousel();
+  updateDynamicTitle();
   renderEntries();
   setDefaultDates();
   updateCalFabState();
@@ -2516,15 +2701,18 @@ async function continueInitAfterAuth() {
   if (selectedDate) {
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-      dmAudio.src = dateMusicMap[dk].url;
-      dmAudioLoaded = true;
-      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-      dmAudio.volume = 0.28;
-      dmAudio.play().catch(() => {
-        pendingDateMusicKey = dk;
-        pendingDateMusicAutoplay = true;
-      });
-      syncDateMusicWaves();
+const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
+dmAudio.src = resolvedUrl;
+dmAudioLoaded = true;
+updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+dmAudio.volume = 0.28;
+dmAudio.play().then(() => {
+  syncDateMusicWaves();
+}).catch(() => {
+  pendingDateMusicKey = dk;
+  pendingDateMusicAutoplay = true;
+});
+
     }
   }
 
@@ -2590,6 +2778,15 @@ function toggleVideo18() {
   const t = document.getElementById('video-18-toggle');
   t.classList.toggle('on-private', video18Enabled);
 }
+
+
+function toggleVideoAutoplay() {
+  videoAutoplayEnabled = !videoAutoplayEnabled;
+  const t = document.getElementById('video-autoplay-toggle');
+  t.classList.toggle('on', videoAutoplayEnabled);
+}
+
+
 function toggleEdit18() {
   edit18Enabled = !edit18Enabled;
   const t = document.getElementById('edit-18-toggle');
@@ -2658,6 +2855,25 @@ function extractYouTubeId(url) {
   return null;
 }
 
+function loadVideoEmbed(wrap) {
+  const embedUrl = wrap.dataset.embed;
+  if (!embedUrl) return;
+  const iframe = document.createElement('iframe');
+  iframe.src = embedUrl;
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:var(--r2);';
+  iframe.allowFullscreen = true;
+  iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+  wrap.innerHTML = '';
+  wrap.appendChild(iframe);
+  wrap.onclick = null;
+  wrap.style.cursor = 'default';
+}
+
+
+
+
+
+
 // ═══════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════
@@ -2687,6 +2903,33 @@ function toLocal(date) {
 function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function resolveUrl(stored) {
+  if (!stored) return '';
+  if (stored.startsWith('R2:')) {
+    const parts = stored.split(':');
+    const resourceType = parts[1];
+    const publicId = parts.slice(2).join(':');
+    return cdnUrl(publicId, resourceType);
+  }
+  if (stored.startsWith('r2:')) {
+    return `${R2_PUBLIC_URL}/${stored.slice(3)}`;
+  }
+  return stored;
+}
+
+
+// Rezolvă o listă de URL-uri/id-uri (newline separated sau array)
+function resolveUrls(arr) {
+  if (!arr) return [];
+  if (typeof arr === 'string') arr = arr.split('\n').map(s => s.trim()).filter(Boolean);
+  return arr.map(resolveUrl);
+}
+
+
+
+
+
 function formatTime(date) {
   const d = new Date(date);
   return d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
@@ -3125,7 +3368,7 @@ function renderDateSearch(parsed) {
     return;
   }
 
-  // Nu există — caută zile apropiate
+  // Nu există -- caută zile apropiate
   const allDates = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
   const dmDates = Object.keys(dateMusicMap);
   const allAvail = [...new Set([...allDates, ...dmDates])].sort();
@@ -3237,7 +3480,7 @@ function setDraftStatus(state, ts) {
     txt.textContent = `autosalvat la ${d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
   } else if (state === 'loaded' && ts) {
     const d = new Date(ts);
-    txt.textContent = `draft din ${d.toLocaleDateString('ro-RO', { day:'numeric', month:'short' })} la ${d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' })} — continuă de unde ai rămas`;
+    txt.textContent = `draft din ${d.toLocaleDateString('ro-RO', { day:'numeric', month:'short' })} la ${d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' })} -- continuă de unde ai rămas`;
   } else {
     txt.textContent = s.label;
   }
@@ -3251,10 +3494,14 @@ function openSettings() {
   if (isLocked) return;
   syncSettingsUI();
   document.getElementById('settingsOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
+
 function closeSettings() {
   document.getElementById('settingsOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
+
 function handleSettingsOverlayClick(e) {
   if (e.target === document.getElementById('settingsOverlay')) closeSettings();
 }
@@ -3295,6 +3542,7 @@ const tlmt = document.getElementById('settings-timelock-music-toggle');
 tlmt.classList.toggle('on', SETTING_TIMELOCK_MUSIC_ON);
 document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
 document.getElementById('settings-timelock-music-url').value = SETTING_TIMELOCK_MUSIC_URL;
+renderTitleRulesList();
 
 
 }
@@ -3424,7 +3672,8 @@ document.body.style.width = '100%';
 
 
 if (SETTING_TIMELOCK_MUSIC_ON && SETTING_TIMELOCK_MUSIC_URL) {
-    timeLockAudio = new Audio(SETTING_TIMELOCK_MUSIC_URL);
+timeLockAudio = new Audio(resolveUrl(SETTING_TIMELOCK_MUSIC_URL));
+
     timeLockAudio.loop = true;
     timeLockAudio.volume = 0.3;
 
@@ -3556,6 +3805,7 @@ function waitForVisitorPin() {
 // ═══════════════════════════════════════
 async function init() {
 updateHeaderDate();
+setInterval(updateHeaderDate, 60000);
 setupHeaderTitleTripleTap();
 setupInteractionCapture();
 
@@ -3571,6 +3821,7 @@ SETTING_TIME_LOCK_HOUR = _settings.timeLockHour || '20:00';
 SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
 SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
 SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
+SETTING_TITLE_RULES = _settings.titleRules || [];
 
 
 
@@ -3586,7 +3837,7 @@ if (SETTING_TIME_LOCK && checkTimeLock()) {
 
 if (SETTING_VISITOR_LOCK) {
   openPinOverlay('visitor');
-  // nu facem return — dar nu încărcăm până la confirmare
+  // nu facem return -- dar nu încărcăm până la confirmare
   await waitForVisitorPin();
 }
 
@@ -3620,25 +3871,30 @@ if (SETTING_NAV_MODE === 'today') {
 
 
   buildCarousel();
+  updateDynamicTitle();
   renderEntries();
   setDefaultDates();
   updateCalFabState();
-  if (selectedDate) {
+if (selectedDate) {
+
     const dk = dateKey(selectedDate);
     if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-      dmAudio.src = dateMusicMap[dk].url;
+      const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
+      dmAudio.src = resolvedUrl;
       dmAudioLoaded = true;
       updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-      if (userHasInteracted) {
-        dmAudio.volume = 0.28;
-        dmAudio.play().catch(() => {});
+      dmAudio.volume = 0.28;
+      // Încearcă direct — PIN-ul a fost deja apăsat deci browserul permite
+      dmAudio.play().then(() => {
         syncDateMusicWaves();
-      } else {
+      }).catch(() => {
+        // Fallback: la primul touch/click
         pendingDateMusicKey = dk;
         pendingDateMusicAutoplay = true;
-      }
+      });
     }
   }
+
 
   setupNavButtons();
   setupOverscroll();
@@ -3673,15 +3929,73 @@ function updateHeaderDate() {
   if (el) el.textContent = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
+function updateDynamicTitle() {
+  const refKey = selectedDate ? dateKey(selectedDate) : todayKey();
+  let activeText = 'hope';
+  const sorted = [...SETTING_TITLE_RULES].sort((a, b) => b.date.localeCompare(a.date));
+  for (const rule of sorted) {
+    if (rule.date <= refKey) { activeText = rule.text; break; }
+  }
+  const el = document.getElementById('headerTitle');
+  if (el) el.textContent = activeText;
+}
+
+
+
+function renderTitleRulesList() {
+  const container = document.getElementById('title-rules-list');
+  if (!container) return;
+  if (!SETTING_TITLE_RULES.length) {
+    container.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text4);letter-spacing:0.06em;">nicio regulă — titlul va fi mereu „hope"</div>';
+    return;
+  }
+  const sorted = [...SETTING_TITLE_RULES].sort((a, b) => a.date.localeCompare(b.date));
+  container.innerHTML = sorted.map((rule, i) => `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+      <div style="flex:1;">
+        <div style="font-family:var(--sans);font-size:13px;color:var(--text);">${escHtml(rule.text)}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px;">din ${rule.date}</div>
+      </div>
+      <button onclick="removeTitleRule('${rule.date}')" style="width:26px;height:26px;border-radius:50%;border:1px solid rgba(200,80,80,0.25);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(200,80,80,0.5);flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.background='rgba(200,80,80,0.12)';this.style.color='#e07070'" onmouseout="this.style.background='none';this.style.color='rgba(200,80,80,0.5)'">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function addTitleRule() {
+  const date = document.getElementById('settings-title-rule-date').value;
+  const text = document.getElementById('settings-title-rule-text').value.trim();
+  if (!date || !text) { showToast('completează data și textul'); return; }
+  // Înlocuiește dacă există deja o regulă pentru aceeași dată
+  SETTING_TITLE_RULES = SETTING_TITLE_RULES.filter(r => r.date !== date);
+  SETTING_TITLE_RULES.push({ date, text });
+  saveSettings({ titleRules: SETTING_TITLE_RULES });
+  document.getElementById('settings-title-rule-date').value = '';
+  document.getElementById('settings-title-rule-text').value = '';
+  renderTitleRulesList();
+  updateDynamicTitle();
+  showToast('regulă adăugată');
+}
+
+function removeTitleRule(date) {
+  SETTING_TITLE_RULES = SETTING_TITLE_RULES.filter(r => r.date !== date);
+  saveSettings({ titleRules: SETTING_TITLE_RULES });
+  renderTitleRulesList();
+  updateDynamicTitle();
+  showToast('regulă ștearsă');
+}
+
+
+
 function setupCardTextLinks() {
   document.addEventListener('click', function(e) {
     const link = e.target.closest('.card-text a, .entry-caption a');
     if (!link) return;
     e.stopPropagation();
-    const href = link.getAttribute('href');
-    if (href) window.open(href, '_blank', 'noopener');
   }, true);
 }
+
 
 // ═══════════════════════════════════════
 // FONT SIZE (RTE)
@@ -3723,7 +4037,7 @@ function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
   tempDiv.querySelectorAll('span').forEach(s => {
     SIZE_CLASSES.forEach(c => s.classList.remove(c));
     if (s.className === '' || s.className.trim() === '') {
-      // span gol de clase — unwrap dacă e posibil
+      // span gol de clase -- unwrap dacă e posibil
       const parent = s.parentNode;
       if (parent && !['blur-text-span','search-highlight'].some(c => s.classList.contains(c))) {
         while (s.firstChild) parent.insertBefore(s.firstChild, s);
@@ -3766,6 +4080,8 @@ function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
 function toggleCalPopup() { if (calPopupOpen) { closeCalPopup(); return; } openCalPopup(); }
 function openCalPopup() {
   calPopupOpen = true;
+  document.body.style.overflow = 'hidden';
+
   const ref = selectedDate || new Date();
   calPopupYear = ref.getFullYear(); calPopupMonth = ref.getMonth();
   renderCalPopup();
@@ -3775,9 +4091,11 @@ function openCalPopup() {
 }
 function closeCalPopup() {
   calPopupOpen = false;
+  document.body.style.overflow = '';
   document.getElementById('calPopupOverlay').classList.remove('open');
   document.getElementById('calFabBtn').classList.remove('is-active');
 }
+
 function handleCalOverlayClick(e) { if (e.target === document.getElementById('calPopupOverlay')) closeCalPopup(); }
 function calPopupNavMonth(dir) {
   calPopupMonth += dir;
@@ -3826,7 +4144,7 @@ function renderCalPopup() {
   const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
   const todayBtn = document.getElementById('calPopupTodayBtn');
   todayBtn.classList.toggle('active', isViewingToday);
-  document.getElementById('calPopupTodayTxt').textContent = `Azi — ${formatKeyLabelRo(tk)}`;
+  document.getElementById('calPopupTodayTxt').textContent = `Azi -- ${formatKeyLabelRo(tk)}`;
   document.getElementById('calPopupActiveBadge').style.display = isViewingToday ? '' : 'none';
 
   // Buton prima zi
@@ -3846,7 +4164,7 @@ function renderCalPopup() {
   }
   if (firstDay) {
     const fd = new Date(firstDay+'T12:00:00');
-    document.getElementById('calPopupFirstDayTxt').textContent = `Prima zi — ${fd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}`;
+    document.getElementById('calPopupFirstDayTxt').textContent = `Prima zi -- ${fd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}`;
     firstDayBtn.style.display = '';
   } else { firstDayBtn.style.display = 'none'; }
 
@@ -3893,7 +4211,8 @@ function renderCalPopup() {
   document.getElementById('calPopupGrid').innerHTML = html;
 }
 
-function calPopupSelectDay(key) { closeCalPopup(); selectDate(key); }
+function calPopupSelectDay(key) { closeCalPopup(); selectDate(key); window.scrollTo({top:0,behavior:'smooth'}); }
+
 function updateCalFabState() {
   const tk = todayKey();
   const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
@@ -3966,11 +4285,15 @@ function resetRing(which) {
   else { setRingProgress(0, 'next'); jumpLocked = false; }
 }
 
+let _overscrollSetup = false;
 function setupOverscroll() {
+  if (_overscrollSetup) return;
+  _overscrollSetup = true;
   window.addEventListener('touchstart', onTouchStart, { passive:true });
   window.addEventListener('touchmove', onTouchMove, { passive:false });
   window.addEventListener('touchend', onTouchEnd, { passive:false });
 }
+
 // CU ASTA
 let touchStartX = 0;
 let touchDirectionLocked = false; // 'h' | 'v' | false
@@ -3978,6 +4301,12 @@ let touchDirectionLocked = false; // 'h' | 'v' | false
 function onTouchStart(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
+  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+
+
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   touchStartY = e.touches[0].clientY;
   touchStartX = e.touches[0].clientX;
@@ -3991,6 +4320,12 @@ function onTouchStart(e) {
 function onTouchMove(e) {
   if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
+  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+
+
   const y = e.touches[0].clientY;
   const x = e.touches[0].clientX;
   const dy = touchLastY - y;
@@ -4035,13 +4370,14 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd(e) {
-  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) {
-    overscrollDelta = 0; overscrollActive = false;
-    topscrollDelta = 0; topscrollActive = false;
-    setRingProgress(0, 'next'); setRingProgress(0, 'prev');
-    return;
-  }
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
   if (e.target.closest('.backdrop.open')) return;
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
+  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+
+
   if (overscrollActive) {
     if (ringProgress >= 1 && !jumpLocked) { jumpLocked = true; jumpDate(1); setTimeout(() => resetRing('next'), 400); }
     else { setRingProgress(0, 'next'); jumpLocked = false; }
@@ -4099,7 +4435,9 @@ async function saveDateMusic() {
   const title = document.getElementById('dm-title').value.trim();
   const cover = document.getElementById('dm-cover').value.trim();
   if (!date||!url) { showToast('completează data și link-ul'); return; }
+  // url și cover pot fi R2:video:publicId sau URL-uri externe
   const row = { date, url, title:title||'melodie', cover:cover||'' };
+
   try { const { error } = await sb.from('date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
   dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'' };
   document.getElementById('dm-url').value = ''; document.getElementById('dm-title').value = ''; document.getElementById('dm-cover').value = '';
@@ -4113,11 +4451,26 @@ function openDeleteDateMusic(date) { document.getElementById('delete-dm-date').v
 async function confirmDeleteDateMusic() {
   const date = document.getElementById('delete-dm-date').value;
   if (!date) return;
+  const dm = dateMusicMap[date];
   if (selectedDate && dateKey(selectedDate) === date) { dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false; }
+  // Șterge de pe R2
+  if (dm) {
+    const keys = [dm.url, dm.cover]
+      .filter(u => u && u.startsWith('r2:'))
+      .map(u => u.slice(3));
+    if (keys.length) {
+      await fetch(R2_WORKER_URL, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+        body: JSON.stringify({ keys }),
+      });
+    }
+  }
   delete dateMusicMap[date];
   try { await sb.from('date_music').delete().eq('date', date); } catch(e) {}
   showToast('muzică ștearsă'); closeModal('delete-dm'); buildCarousel(); renderEntries();
 }
+
 
 // ═══════════════════════════════════════
 // DATE CAROUSEL
@@ -4164,15 +4517,22 @@ function selectDate(key) {
   const [y,m,d] = key.split('-').map(Number);
   selectedDate = new Date(y, m-1, d);
   saveLastDate(key);
-  buildCarousel();
+const prevActive = document.querySelector('.date-pill.active');
+if (prevActive) prevActive.classList.remove('active');
+const nextActive = document.querySelector(`.date-pill[data-key="${key}"]`);
+if (nextActive) nextActive.classList.add('active');
+scrollCarouselToSelected();
+
   clearSearch(true);
   stopEntryMusicCompletely();
   playDateMusic(key, true);
   renderEntries();
   setDefaultDates();
-resetRing('next');
+  resetRing('next');
   updateCalFabState();
+  updateDynamicTitle(); // ← adaugă asta
 }
+
 
 function stopEntryMusicCompletely() {
   if (!entryAudio.paused) { entryAudio.pause(); entryAudio.currentTime = 0; }
@@ -4204,14 +4564,17 @@ function jumpDate(dir) {
 // ═══════════════════════════════════════
 function updateMediaSession(title, coverUrl) {
   if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.metadata = new MediaMetadata({ title:title||'carnet', artist:'', album:'carnet', artwork:coverUrl?[{src:coverUrl,sizes:'512x512',type:'image/jpeg'}]:[] });
+  const resolvedCover = coverUrl ? resolveUrl(coverUrl) : '';
+  navigator.mediaSession.metadata = new MediaMetadata({ title:title||'carnet', artist:'', album:'carnet', artwork:resolvedCover?[{src:resolvedCover,sizes:'512x512',type:'image/jpeg'}]:[] });
   navigator.mediaSession.setActionHandler('play', ()=>entryAudio.play());
   navigator.mediaSession.setActionHandler('pause', ()=>entryAudio.pause());
   navigator.mediaSession.setActionHandler('stop', ()=>{entryAudio.pause();entryAudio.currentTime=0;});
 }
+
 function updateDateMusicMediaSession(title, coverUrl) {
   if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.metadata = new MediaMetadata({ title:title||'melodia zilei', artist:'', album:'carnet · melodia zilei', artwork:coverUrl?[{src:coverUrl,sizes:'512x512',type:'image/jpeg'}]:[] });
+  const resolvedCover = coverUrl ? resolveUrl(coverUrl) : '';
+  navigator.mediaSession.metadata = new MediaMetadata({ title:title||'melodia zilei', artist:'', album:'carnet · melodia zilei', artwork:resolvedCover?[{src:resolvedCover,sizes:'512x512',type:'image/jpeg'}]:[] });
   navigator.mediaSession.setActionHandler('play', ()=>dmAudio.play());
   navigator.mediaSession.setActionHandler('pause', ()=>dmAudio.pause());
 }
@@ -4222,7 +4585,9 @@ function updateDateMusicMediaSession(title, coverUrl) {
 function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
   if (dm && dm.url) {
-    if (dmAudio.src !== dm.url) { dmAudio.src = dm.url; dmAudioLoaded = true; }
+    const resolvedDmUrl = resolveUrl(dm.url);
+    if (dmAudio.src !== resolvedDmUrl) { dmAudio.src = resolvedDmUrl; dmAudioLoaded = true; }
+
     updateDateMusicMediaSession(dm.title, dm.cover);
     if (autoplay) {
       dmAudio.volume = 0.28;
@@ -4242,8 +4607,17 @@ function syncDateMusicWaves() {
   const playing = dmAudioLoaded && !dmAudio.paused;
   waves.querySelectorAll('.dm-wave-bar').forEach(b => { b.style.animationPlayState = playing?'running':'paused'; });
 }
-function toggleDateMusicBanner() { if (!dmAudioLoaded) return; if (dmAudio.paused) { dmAudio.play().catch(()=>{}); } else { dmAudio.pause(); } syncDateMusicWaves(); }
-setInterval(syncDateMusicWaves, 500);
+
+function toggleDateMusicBanner() {
+  if (!dmAudioLoaded) return;
+  if (dmAudio.paused) {
+    dmAudio.play().catch(() => {});
+  } else {
+    dmAudio.pause();
+  }
+  syncDateMusicWaves();
+}
+
 
 // ═══════════════════════════════════════
 // LOAD
@@ -4324,8 +4698,12 @@ function highlightHtml(html, query) {
 // RENDER
 // ═══════════════════════════════════════
 function renderEntries() {
+  document.querySelectorAll('.theme-canvas').forEach(c => {
+    if (c._raf) cancelAnimationFrame(c._raf);
+  });
   const container = document.getElementById('entries-container');
   const label = document.getElementById('searchLabel');
+
   const carouselWrap = document.getElementById('carouselWrap');
   let filtered; let typeFilter = null;
 
@@ -4388,7 +4766,8 @@ if (searchQuery) {
 function renderDateMusicBanner(dk) {
   const dm = dateMusicMap[dk]; if (!dm) return '';
   const coverHtml = dm.cover
-    ? `<div class="dm-banner-cover"><img src="${escHtml(dm.cover)}" alt=""></div>`
+    ? `<div class="dm-banner-cover"><img src="${escHtml(resolveUrl(dm.cover))}" alt=""></div>`
+
     : `<div class="dm-banner-cover"><span class="dm-banner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span></div>`;
   return `<div class="date-music-banner">
     <div class="dm-banner-left" onclick="toggleDateMusicBanner()">
@@ -4417,7 +4796,7 @@ function entryMatchesSearch(e, q) {
 }
 
 // ═══════════════════════════════════════
-// RENDER ENTRY — private overlay redesign
+// RENDER ENTRY -- private overlay redesign
 // ═══════════════════════════════════════
 function renderEntry(e, hlQuery) {
   const posted = new Date(e.posted_at);
@@ -4442,7 +4821,8 @@ function renderEntry(e, hlQuery) {
   </div>` : '';
 
   if (e.type === 'photo') {
-    const urls = e.media_urls || [];
+    const urls = resolveUrls(e.media_urls || []);
+
     const isBlurred = e.blur_images;
     const cols = urls.length === 1 ? 'cols-1' : urls.length === 2 ? 'cols-2' : 'cols-3';
     const entryIdStr = e.id;
@@ -4456,7 +4836,9 @@ function renderEntry(e, hlQuery) {
         </div>
         <div class="private-img-label">privat</div>
       </div>` : '';
-      return `<div class="media-item" onclick="${(!isBlurred&&!isPrivate)||isRevealed ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+      return `
+<div class="media-item" ontouchend="if(!window._lbTouchMoved){event.preventDefault();event.stopPropagation();${((!isBlurred&&!isPrivate)||isRevealed) ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}}" ontouchstart="window._lbTouchMoved=false" ontouchmove="window._lbTouchMoved=true" onclick="${((!isBlurred&&!isPrivate)||isRevealed) ? `openLightboxForEntry('${entryIdStr}', ${idx})` : ''}">
+
         <img class="entry-image" src="${escHtml(u)}" loading="lazy" onerror="this.style.opacity=0.2">
         ${isBlurred && !isPrivate ? `<div class="img-blur-overlay" onclick="revealBlurredImg(this,'${entryIdStr}',${idx})">
           <div class="img-blur-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg></div>
@@ -4469,24 +4851,53 @@ function renderEntry(e, hlQuery) {
       : '';
     mediaHtml = `<div class="media-wrap"><div class="media-grid ${cols}">${imgs}</div>${captionHtml}</div>`;
 
-  } else if (e.type === 'video') {
-    const url = e.media_urls?.[0] || '';
+} else if (e.type === 'video') {
+    const url = resolveUrl(e.media_urls?.[0] || '');
     const ytId = extractYouTubeId(url);
+    const autoplay = !!e.video_autoplay;
     const captionHtml = e.caption
       ? `<div class="entry-caption" onclick="handleCaptionClick(event)">${hlQuery ? highlightHtml(e.caption, hlQuery) : e.caption}</div>`
       : '';
     let videoHtml;
     if (ytId) {
-      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white`;
-      videoHtml = `<div class="video-embed-wrap"><iframe src="${embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture" loading="lazy"></iframe></div>`;
+      const thumbUrl = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+      const autoplayParam = autoplay ? '&autoplay=1&mute=1' : '';
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&iv_load_policy=3&color=white${autoplayParam}`;
+      if (autoplay) {
+        // Autoplay YouTube — încarcă iframe direct, fără thumbnail click
+        videoHtml = `<div class="video-embed-wrap">
+          <iframe src="${escHtml(embedUrl)}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+        </div>`;
+      } else {
+        videoHtml = `<div class="video-thumb-wrap" data-embed="${escHtml(embedUrl)}" onclick="loadVideoEmbed(this)" style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);aspect-ratio:16/9;cursor:pointer;">
+          <img src="${escHtml(thumbUrl)}" style="width:100%;height:100%;object-fit:cover;display:block;">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
+            <div style="width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.75);border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;">
+              <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;margin-left:3px;"><polygon points="5 3 19 12 5 21"/></svg>
+            </div>
+          </div>
+        </div>`;
+      }
     } else {
-      videoHtml = `<video class="entry-video" controls preload="none" src="${escHtml(url)}"></video>`;
+      // Video nativ R2/direct
+if (autoplay) {
+  videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
+    <video class="entry-video" preload="auto" src="${escHtml(url)}" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" autoplay muted playsinline loop></video>
+  </div>`;
+} else {
+  videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
+    <video class="entry-video" preload="metadata" src="${escHtml(url)}#t=0.5" style="width:100%;max-height:260px;display:block;border-radius:var(--r2);" controls playsinline></video>
+  </div>`;
+}
+
     }
     mediaHtml = `<div class="media-wrap">${videoHtml}${captionHtml}</div>`;
 
+
   } else if (e.type === 'music') {
-    const aurl = e.media_urls?.[0] || '';
-    const cover = e.cover_url || '';
+    const aurl = resolveUrl(e.media_urls?.[0] || '');
+    const cover = resolveUrl(e.cover_url || '');
+
     const isPlaying = currentEntryAudioUrl === aurl && !entryAudio.paused;
     const coverImgHtml = cover ? `<img src="${escHtml(cover)}" alt="" onerror="this.remove()">` : '';
     const iconBgHtml = cover ? '' : `<span class="music-cover-icon-bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>`;
@@ -4509,11 +4920,12 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
     </div>${noteHtml}`;
 
   } else if (e.type === 'pdf') {
-    const pdfUrl = e.media_urls?.[0] || '';
+    const pdfUrl = resolveUrl(e.media_urls?.[0] || '');
     const pdfTitle = e.caption || 'document PDF';
     const pdfNote = e.content || '';
     const noteHtml = pdfNote ? `<div style="margin-top:6px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;">${hlQuery ? highlightText(pdfNote, hlQuery) : escHtml(pdfNote)}</div>` : '';
-    mediaHtml = `<a class="pdf-entry" href="${escHtml(pdfUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+    mediaHtml = `<a class="pdf-entry" href="${escHtml(pdfUrl)}" target="_blank" rel="noopener noreferrer">
+
       <div class="pdf-icon-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/>
@@ -4579,7 +4991,7 @@ return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
 function buildThemeExtras(theme, canvasId) {
   if (theme === 'aurora') return `<div class="aurora-layer"></div><canvas class="theme-canvas" id="${canvasId}"></canvas>`;
   if (theme === 'glow')   return `<div class="glow-orb glow-orb-1"></div><div class="glow-orb glow-orb-2"></div><div class="glow-orb glow-orb-3"></div>`;
-  if (['stars','hearts','rain','fire','ocean','nebula','matrix','gold'].includes(theme))
+  if (['stars','hearts','rain','matrix','gold'].includes(theme))
     return `<canvas class="theme-canvas" id="${canvasId}"></canvas>`;
   return '';
 }
@@ -4601,9 +5013,6 @@ if (!entry || !entry.theme || entry.theme === 'none') return;
     if (theme === 'stars')  startStars(canvas);
     if (theme === 'hearts') startHearts(canvas);
     if (theme === 'rain')   startRain(canvas);
-    if (theme === 'fire')   startFire(canvas);
-    if (theme === 'ocean')  startOcean(canvas);
-    if (theme === 'nebula') startNebula(canvas);
     if (theme === 'matrix') startMatrix(canvas);
     if (theme === 'gold')   startGold(canvas);
     if (theme === 'aurora') startAurora(canvas);
@@ -4615,7 +5024,7 @@ function startStars(canvas) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
 
-  // Stele fixe de fundal — pâlpâie lent
+  // Stele fixe de fundal -- pâlpâie lent
   const staticStars = Array.from({length: 40}, () => ({
     x: Math.random()*W, y: Math.random()*H,
     r: Math.random()*0.9+0.2,
@@ -4623,7 +5032,7 @@ function startStars(canvas) {
     speed: Math.random()*0.004+0.001,
   }));
 
-  // Stele căzătoare — puține, lente, rare
+  // Stele căzătoare -- puține, lente, rare
   const shootingStars = Array.from({length: 3}, (_, i) => ({
     x: Math.random()*W, y: Math.random()*H*0.6,
     vx: -(Math.random()*0.6+0.3),
@@ -4790,98 +5199,6 @@ function startRain(canvas) {
 }
 
 
-
-function startFire(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const particles = Array.from({length:50}, () => ({
-    x: W/2+(Math.random()-0.5)*W*0.6, y: H,
-    vx:(Math.random()-0.5)*1.2, vy:-(Math.random()*2+1),
-    size: Math.random()*6+2, life:0, maxLife: Math.random()*60+40
-  }));
-  function frame() {
-    ctx.clearRect(0,0,W,H);
-    particles.forEach(p => {
-      p.x+=p.vx+(Math.random()-0.5)*0.4; p.y+=p.vy; p.life++;
-      if (p.life > p.maxLife) {
-        p.x=W/2+(Math.random()-0.5)*W*0.6; p.y=H+5;
-        p.life=0; p.maxLife=Math.random()*60+40;
-        p.vx=(Math.random()-0.5)*1.2; p.vy=-(Math.random()*2+1);
-        p.size=Math.random()*6+2;
-      }
-      const t = p.life/p.maxLife;
-      const op = (1-t)*0.7;
-      const hue = 20-t*20, sat=100, light=50+t*20;
-      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*(1-t*0.5));
-      grad.addColorStop(0,`hsla(${hue},${sat}%,${light+20}%,${op})`);
-      grad.addColorStop(1,`hsla(${hue-10},${sat}%,${light}%,0)`);
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(1-t*0.3),0,Math.PI*2);
-      ctx.fillStyle=grad; ctx.fill();
-    });
-    canvas._raf = requestAnimationFrame(frame);
-  }
-  canvas._raf = requestAnimationFrame(frame);
-}
-
-function startOcean(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  let t = 0;
-  const bubbles = Array.from({length:20}, ()=>({
-    x:Math.random()*W, y:H+Math.random()*H, r:Math.random()*3+1, speed:Math.random()*0.5+0.2
-  }));
-  function frame() {
-    ctx.clearRect(0,0,W,H);
-    t += 0.01;
-    // wave layers
-    for (let w=0; w<3; w++) {
-      ctx.beginPath();
-      const yBase = H*(0.3+w*0.25);
-      ctx.moveTo(0, yBase);
-      for (let x=0; x<=W; x+=4) {
-        const y = yBase + Math.sin(x/40+t+w*1.2)*6 + Math.sin(x/20+t*1.5+w)*3;
-        ctx.lineTo(x,y);
-      }
-      ctx.lineTo(W,H+20); ctx.lineTo(0,H+20); ctx.closePath();
-      ctx.fillStyle = `rgba(0,${100+w*30},${180+w*20},${0.04+w*0.02})`;
-      ctx.fill();
-    }
-    // bubbles
-    bubbles.forEach(b => {
-      b.y -= b.speed; b.x += Math.sin(t+b.r)*0.3;
-      if (b.y < -10) { b.y=H+5; b.x=Math.random()*W; }
-      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(100,200,255,0.35)`; ctx.lineWidth=0.8; ctx.stroke();
-    });
-    canvas._raf = requestAnimationFrame(frame);
-  }
-  canvas._raf = requestAnimationFrame(frame);
-}
-
-function startNebula(canvas) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const stars = Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,twinkle:Math.random()*100}));
-  let t=0;
-  function frame() {
-    ctx.clearRect(0,0,W,H); t+=0.005;
-    // nebula clouds
-    [[0.3,0.4,'160,60,255'],[0.7,0.6,'60,120,255'],[0.5,0.3,'255,60,160']].forEach(([cx,cy,rgb],i) => {
-      const grad = ctx.createRadialGradient(cx*W+Math.sin(t+i)*15,cy*H+Math.cos(t*0.7+i)*10,0,cx*W,cy*H,W*0.5);
-      grad.addColorStop(0,`rgba(${rgb},0.12)`);
-      grad.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-    });
-    stars.forEach(s => {
-      const op = 0.3+Math.sin(Date.now()/800+s.twinkle)*0.4;
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,240,255,${Math.max(0,op)})`; ctx.fill();
-    });
-    canvas._raf = requestAnimationFrame(frame);
-  }
-  canvas._raf = requestAnimationFrame(frame);
-}
-
 function startMatrix(canvas) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
@@ -4992,10 +5309,12 @@ let lbIsPanning = false, lbIsPinching = false;
 let lbLastTap = 0;
 
 function openLightboxForEntry(entryId, idx) {
-  const entry = entries.find(e => e.id == entryId || e.id === entryId);
+  const entry = entries.find(e => String(e.id) === String(entryId));
   if (!entry) return;
-  openLightbox(entry.media_urls || [], idx);
+  const resolvedUrls = resolveUrls(entry.media_urls || []);
+  openLightbox(resolvedUrls, idx);
 }
+
 
 function openLightbox(urls, idx) {
   lbImages = urls; lbIndex = idx;
@@ -5061,20 +5380,6 @@ lbWrap.addEventListener('touchstart', (e) => {
     lbTouchStartY = e.touches[0].clientY;
     lbPanBaseX = lbTransX; lbPanBaseY = lbTransY;
     lbIsPanning = false; lbIsPinching = false;
-    const now = Date.now();
-    if (now - lbLastTap < 320) {
-      if (lbScale > 1.05) { lbResetZoom(); }
-      else {
-        lbScale = 2.5;
-        const rect = lbWrap.getBoundingClientRect();
-        lbTransX = (rect.width/2 - e.touches[0].clientX + rect.left) * (lbScale-1) / lbScale;
-        lbTransY = (rect.height/2 - e.touches[0].clientY + rect.top) * (lbScale-1) / lbScale;
-        lbClampPan();
-        applyLbTransform(true);
-        document.getElementById('lbZoomReset').classList.add('visible');
-      }
-    }
-    lbLastTap = now;
   } else if (e.touches.length === 2) {
     lbIsPinching = true;
     lbPinchStart = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -5083,8 +5388,8 @@ lbWrap.addEventListener('touchstart', (e) => {
     lbPanStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
     lbPanStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
   }
-  e.stopPropagation();
 }, { passive: true });
+
 
 lbWrap.addEventListener('touchmove', (e) => {
   if (lbIsPinching && e.touches.length === 2) {
@@ -5115,12 +5420,32 @@ lbWrap.addEventListener('touchmove', (e) => {
 
 lbWrap.addEventListener('touchend', (e) => {
   if (lbIsPinching) { lbIsPinching = false; lbClampPan(); applyLbTransform(true); return; }
+  
+  const dx = Math.abs((e.changedTouches[0]?.clientX || 0) - lbTouchStartX);
+  const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - lbTouchStartY);
+  const now2 = Date.now();
+  const isQuickTap = dx < 8 && dy < 8;
+
+
+
+
   if (lbIsPanning && lbScale <= 1.05) {
-    const dx = (e.changedTouches[0]?.clientX || 0) - lbTouchStartX;
-    if (Math.abs(dx) > 60) lbNav(dx < 0 ? 1 : -1);
+    const swipeDx = (e.changedTouches[0]?.clientX || 0) - lbTouchStartX;
+    if (Math.abs(swipeDx) > 60) lbNav(swipeDx < 0 ? 1 : -1);
   }
+
+  if (!lbIsPanning && isQuickTap) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeLightbox();
+  }
+
+lbLastTap = 0;
+
   lbIsPanning = false;
-}, { passive: true });
+}, { passive: false });
+
+
 
 let lbMouseDown = false, lbMouseStartX = 0, lbMouseStartY = 0;
 lbWrap.addEventListener('mousedown', (e) => {
@@ -5150,14 +5475,30 @@ lbWrap.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === document.getElementById('lightbox')) closeLightbox();
+  if (!e.target.closest('.lb-img-wrap') && !e.target.closest('.lb-nav') && !e.target.closest('.lb-close') && !e.target.closest('.lb-zoom-reset')) closeLightbox();
 });
 
+
 function revealBlurredImg(overlay, entryId, idx) {
-  overlay.classList.add('revealed');
-  const item = overlay.closest('.media-item');
-  if (item) { item.style.cursor = 'pointer'; item.onclick = () => openLightboxForEntry(entryId, idx); }
+  // Deblurează toate imaginile din aceeași notiță
+  const card = overlay.closest('.entry-card');
+  if (card) {
+    card.querySelectorAll('.img-blur-overlay').forEach((ov, i) => {
+      ov.classList.add('revealed');
+      const item = ov.closest('.media-item');
+      if (item) {
+        item.style.cursor = 'pointer';
+        const capturedIdx = parseInt(ov.closest('.media-item')?.dataset?.idx ?? i);
+        item.onclick = () => openLightboxForEntry(entryId, capturedIdx);
+      }
+    });
+    // Setează onclick corect per index
+    card.querySelectorAll('.media-item').forEach((item, i) => {
+      item.onclick = () => openLightboxForEntry(entryId, i);
+    });
+  }
 }
+
 
 // ═══════════════════════════════════════
 // ENTRY MUSIC CONTROLS
@@ -5180,12 +5521,18 @@ function toggleEntryMusic(url, title, cover, container) {
     if (overlay) overlay.innerHTML = playIcon(); if (waves) waves.classList.add('paused'); if (sub) sub.textContent = 'apasă pentru redare';
     currentEntryAudioUrl = null;
   } else {
+    // Oprește muzica zilei când pornești o melodie din notițe
+    if (!dmAudio.paused) {
+      dmAudio.pause();
+      syncDateMusicWaves();
+    }
     if (currentEntryAudioUrl !== url) { entryAudio.src = url; currentEntryAudioUrl = url; }
     updateMediaSession(title, cover);
     entryAudio.play().catch(() => showToast('nu se poate reda audio'));
     if (overlay) overlay.innerHTML = pauseIcon(); if (waves) waves.classList.remove('paused'); if (sub) sub.textContent = 'redare...';
   }
 }
+
 
 entryAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
 entryAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
@@ -5214,6 +5561,8 @@ async function submitEntry(type) {
     const captionHtml = getCapHtml('photo-cap-editor');
     if (!raw) { showToast('adaugă cel puțin un link'); return; }
     payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
+    // media_urls poate conține R2:image:publicId sau URL-uri externe -- ambele sunt ok
+
     payload.caption = captionHtml;
     payload.blur_images = photoBlurEnabled;
     payload.blur_18 = photo18Enabled;
@@ -5226,6 +5575,8 @@ async function submitEntry(type) {
     payload.media_urls = [url];
     payload.caption = captionHtml;
     payload.blur_18 = video18Enabled;
+    payload.video_autoplay = videoAutoplayEnabled;
+
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   } else if (type === 'music') {
     const url = document.getElementById('music-url').value.trim();
@@ -5234,7 +5585,9 @@ async function submitEntry(type) {
     const date = document.getElementById('music-date').value;
     const note = document.getElementById('music-note').value.trim();
     if (!url) { showToast('adaugă un link'); return; }
+    // url și cover pot fi R2:video:publicId sau URL externe
     payload.media_urls = [url]; payload.caption = title; payload.content = note; payload.cover_url = cover;
+
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   } else if (type === 'pdf') {
     const url = document.getElementById('pdf-url').value.trim();
@@ -5247,12 +5600,13 @@ async function submitEntry(type) {
   }
 payload.theme = selectedNoteTheme || 'none';
   payload.modified_at = payload.posted_at;
-  const { error } = await sb.from('entries').insert([payload]);
+  const { data: inserted, error } = await sb.from('entries').insert([payload]).select().single();
   if (error) { showToast('eroare: ' + error.message); return; }
   showToast('salvat');
   closeModal(type);
   clearForm(type);
-  await reloadAndRender();
+  await reloadAndRender(inserted?.id);
+
 }
 
 function clearForm(type) {
@@ -5268,22 +5622,56 @@ function clearForm(type) {
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-cap-editor').innerHTML = '';
+    document.getElementById('photo-upload-previews').innerHTML = '';
+    document.getElementById('photo-upload-status').textContent = '';
+    document.getElementById('photo-file-input').value = '';
     if (photoBlurEnabled) togglePhotoBlur();
     if (photo18Enabled) { photo18Enabled=false; document.getElementById('photo-18-toggle').classList.remove('on-private'); }
+
   } else if (type === 'video') {
     document.getElementById('video-url').value = '';
     document.getElementById('video-cap-editor').innerHTML = '';
+    document.getElementById('video-upload-status').textContent = '';
+    document.getElementById('video-file-input').value = '';
     if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-private'); }
+if (videoAutoplayEnabled) { videoAutoplayEnabled=false; document.getElementById('video-autoplay-toggle').classList.remove('on'); }
+
+
   } else if (type === 'music') {
     document.getElementById('music-url').value = ''; document.getElementById('music-title-inp').value = '';
     document.getElementById('music-note').value = ''; document.getElementById('music-cover-inp').value = '';
+    document.getElementById('music-upload-status').textContent = '';
+    document.getElementById('music-file-input').value = '';
+    document.getElementById('music-cover-upload-status').textContent = '';
+    document.getElementById('music-cover-file-input').value = '';
+    document.getElementById('music-cover-preview').style.display = 'none';
+    document.getElementById('music-cover-preview-img').src = '';
+
+
   } else if (type === 'pdf') {
     document.getElementById('pdf-url').value = ''; document.getElementById('pdf-title').value = ''; document.getElementById('pdf-note').value = '';
+    document.getElementById('pdf-upload-status').textContent = '';
+    document.getElementById('pdf-file-input').value = '';
+
   }
   setDefaultDates();
 }
 
-async function reloadAndRender() { await loadEntries(); buildCarousel(); renderEntries(); }
+async function reloadAndRender(scrollToId) {
+  await loadEntries();
+  buildCarousel();
+  renderEntries();
+  if (scrollToId) {
+    setTimeout(() => {
+      const el = document.querySelector(`.entry-card[data-id="${scrollToId}"]`);
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2) + (el.offsetHeight / 2);
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
+    }, 80);
+  }
+}
+
 
 // ═══════════════════════════════════════
 // IMPORT
@@ -5334,6 +5722,33 @@ function openEditFor(id) {
   if (!e) return;
   document.getElementById('edit-id').value = id;
   document.getElementById('edit-type').value = e.type;
+  
+  // Reset upload section
+  const uploadSection = document.getElementById('edit-upload-section');
+  const editFileInput = document.getElementById('edit-file-input');
+  const editUploadPreviews = document.getElementById('edit-upload-previews');
+  editFileInput.value = '';
+  document.getElementById('edit-upload-status').textContent = '';
+  if (editUploadPreviews) editUploadPreviews.innerHTML = '';
+  
+  // Configurează upload per tip
+  const uploadConfigs = {
+    photo: { accept: 'image/*', label: 'încarcă imagini', show: true, multiple: true },
+    video: { accept: 'video/*,.mp4,.webm', label: 'încarcă video', show: true, multiple: false },
+    music: { accept: 'audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a', label: 'încarcă audio', show: true, multiple: false },
+    pdf:   { accept: '.pdf', label: 'încarcă PDF', show: true, multiple: false },
+    note:  { show: false },
+  };
+  const cfg = uploadConfigs[e.type] || { show: false };
+  if (uploadSection) {
+    uploadSection.style.display = cfg.show ? 'block' : 'none';
+    if (cfg.show) {
+      editFileInput.accept = cfg.accept;
+      editFileInput.multiple = !!cfg.multiple;
+      document.getElementById('edit-upload-label').textContent = cfg.label;
+    }
+  }
+
   document.getElementById('edit-date').value = toLocal(e.posted_at);
   document.getElementById('edit-cover-group').style.display = (e.type==='music') ? 'block':'none';
   document.getElementById('edit-cover').value = e.cover_url || '';
@@ -5347,6 +5762,14 @@ function openEditFor(id) {
     g18.style.display = 'flex'; edit18Enabled = !!e.blur_18;
     document.getElementById('edit-18-toggle').classList.toggle('on-private', edit18Enabled);
   } else { g18.style.display='none'; edit18Enabled=false; }
+
+const gAutoplay = document.getElementById('edit-video-autoplay-group');
+if (e.type === 'video') {
+  gAutoplay.style.display = 'flex';
+  editVideoAutoplayEnabled = !!e.video_autoplay;
+  document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
+} else { gAutoplay.style.display='none'; editVideoAutoplayEnabled=false; }
+
 
   const editCapWrap = document.getElementById('editCapWrap');
   const editCapTa   = document.getElementById('edit-caption');
@@ -5363,13 +5786,29 @@ selectEditTheme(selectedEditTheme);
   } else if (e.type === 'photo') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-plain-group').style.display='block';
-    document.getElementById('edit-content').value = (e.media_urls||[]).join('\n');
+const urls = (e.media_urls || []);
+document.getElementById('edit-content').value = urls.join('\n');
+
+// Populează previzualizările
+const previews = document.getElementById('edit-upload-previews');
+previews.innerHTML = '';
+urls.forEach(u => {
+  const resolvedUrl = resolveUrl(u);
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(u);
+  if (!isImage) return;
+  const div = document.createElement('div');
+  div.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);flex-shrink:0;';
+  div.innerHTML = `<img src="${resolvedUrl}" style="width:100%;height:100%;object-fit:cover;">
+    <button onclick="removeEditPhotoPreview(this,'${u}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>`;
+  previews.appendChild(div);
+});
+
     document.getElementById('edit-content').placeholder = 'link-uri (unul per linie)';
     document.getElementById('edit-caption-group').style.display='block';
     document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
     editCapWrap.style.display='block'; editCapTa.style.display='none';
     document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
-  } else if (e.type === 'video') {
+} else if (e.type === 'video') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-plain-group').style.display='block';
     document.getElementById('edit-content').value = e.media_urls?.[0]||'';
@@ -5378,8 +5817,14 @@ selectEditTheme(selectedEditTheme);
     document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
     editCapWrap.style.display='block'; editCapTa.style.display='none';
     document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
+
+
   } else if (e.type === 'music') {
     document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-cover-upload-status').textContent = '';
+document.getElementById('edit-cover-preview').style.display = 'none';
+document.getElementById('edit-cover-file-input').value = '';
+
     document.getElementById('edit-plain-group').style.display='block';
     document.getElementById('edit-content').value = e.media_urls?.[0]||'';
     document.getElementById('edit-content').placeholder='link audio';
@@ -5409,6 +5854,41 @@ selectEditTheme(selectedEditTheme);
   openModal('edit');
 }
 
+
+async function handleEditFileUpload(file) {
+  if (!file) return;
+  const status = document.getElementById('edit-upload-status');
+  const type = document.getElementById('edit-type').value;
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToR2(file, 'auto');
+    const stored = `r2:${result.publicId}`;
+    const content = document.getElementById('edit-content');
+    if (type === 'photo') {
+      const existing = content.value.trim();
+      content.value = existing ? existing + '\n' + stored : stored;
+      const previews = document.getElementById('edit-upload-previews');
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);';
+      div.innerHTML = `<img src="${result.secureUrl}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removeEditPhotoPreview(this,'${stored}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>`;
+      previews.appendChild(div);
+    } else {
+      content.value = stored;
+    }
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+function removeEditPhotoPreview(btn, url) {
+  btn.closest('div').remove();
+  const field = document.getElementById('edit-content');
+  field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
+}
+
+
 async function saveEdit() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
   const id = document.getElementById('edit-id').value;
@@ -5431,10 +5911,12 @@ async function saveEdit() {
     const capHtml = getCapHtml('edit-cap-editor');
     update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean);
     update.caption = capHtml; update.blur_images = editBlurEnabled; update.blur_18 = edit18Enabled;
-  } else if (type === 'video') {
+} else if (type === 'video') {
     const content = document.getElementById('edit-content').value.trim();
     const capHtml = getCapHtml('edit-cap-editor');
     update.media_urls = [content]; update.caption = capHtml; update.blur_18 = edit18Enabled;
+    update.video_autoplay = editVideoAutoplayEnabled;
+
   } else if (type === 'pdf') {
     const content = document.getElementById('edit-content').value.trim();
     const caption = document.getElementById('edit-caption').value.trim();
@@ -5447,7 +5929,8 @@ async function saveEdit() {
 
   const { error } = await sb.from('entries').update(update).eq('id', id);
   if (error) { showToast('eroare'); return; }
-  showToast('modificat'); closeModal('edit'); await reloadAndRender();
+  showToast('modificat'); closeModal('edit'); await reloadAndRender(id);
+
 }
 
 
@@ -5458,10 +5941,13 @@ function openDeleteFor(id) { if (isLocked) { showToast('deblochează mai întâi
 async function confirmDelete() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
   const id = document.getElementById('delete-id').value;
+  const entry = entries.find(e => String(e.id) === String(id));
+  if (entry) await deleteFromR2(entry); // ← adaugă asta
   const { error } = await sb.from('entries').delete().eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('șters'); closeModal('delete'); await reloadAndRender();
 }
+
 
 // ═══════════════════════════════════════
 // DEBUG
@@ -5547,6 +6033,14 @@ function toggleEditBlur() { editBlurEnabled=!editBlurEnabled; document.getElemen
 let selectedNoteTheme = 'none';
 let selectedEditTheme = 'none';
 
+
+let editVideoAutoplayEnabled = false;
+function toggleEditVideoAutoplay() {
+  editVideoAutoplayEnabled = !editVideoAutoplayEnabled;
+  document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
+}
+
+
 function selectNoteTheme(theme) {
   selectedNoteTheme = theme;
   document.querySelectorAll('#themeSelectorGrid .theme-swatch').forEach(s => {
@@ -5560,6 +6054,758 @@ function selectEditTheme(theme) {
     s.classList.toggle('selected', s.dataset.theme === theme);
   });
 }
+
+// ── R2 CONFIG ──
+const R2_WORKER_URL = 'https://carnet-upload.sergiu-disk.workers.dev';
+const R2_UPLOAD_SECRET = 'carnet2026secret'; // ce ai pus tu la UPLOAD_SECRET
+const R2_PUBLIC_URL = 'https://pub-b2074a6250b94e72a2f56ff71f7dbc94.r2.dev';
+
+
+async function uploadToR2(file, resourceType = 'auto') {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const ms = String(now.getMilliseconds()).padStart(3, '0');
+  const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+  const ext = file.name.split('.').pop() || '';
+  const typePrefix = file.type.startsWith('image/') ? 'photo' :
+                     file.type.startsWith('audio/') ? 'audio' :
+                     file.type.startsWith('video/') ? 'video' : 'file';
+  const isGif = ext.toLowerCase() === 'gif';
+  const folderMap = { 'audio': 'music', 'video': 'video', 'file': 'pdf' };
+  const folder = isGif ? 'gifs' : (folderMap[typePrefix] || 'photos');
+  const rand = Math.random().toString(36).slice(2, 4);
+  const publicId = `${folder}/${typePrefix}_${timestamp}_${rand}.${ext}`;
+
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('public_id', publicId);
+
+  const res = await fetch(R2_WORKER_URL, {
+    method: 'POST',
+    headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET },
+    body: fd,
+  });
+
+  if (!res.ok) throw new Error('Upload eșuat');
+  const data = await res.json();
+  return {
+    publicId: data.public_id,
+    resourceType: data.resource_type,
+    secureUrl: data.secure_url,
+  };
+}
+
+
+// Înlocuiește cdnUrl cu asta:
+function cdnUrl(publicId, resourceType) {
+  if (!publicId) return '';
+  if (publicId.startsWith('http://') || publicId.startsWith('https://')) return publicId;
+  return `${R2_PUBLIC_URL}/${publicId}`;
+}
+
+
+
+async function uploadPhotosToR2(files) {
+  const status = document.getElementById('photo-upload-status');
+  const previews = document.getElementById('photo-upload-previews');
+  const urlsField = document.getElementById('photo-urls');
+  status.textContent = `se încarcă ${files.length} fișier(e)...`;
+  const ids = [];
+  for (let i = 0; i < files.length; i++) {
+    status.textContent = `se încarcă ${i+1}/${files.length}...`;
+    try {
+const result = await uploadToR2(files[i], 'image');
+const stored = `r2:${result.publicId}`;
+      ids.push(stored);
+const previewUrl = `${R2_PUBLIC_URL}/${result.publicId}`;
+      const img = document.createElement('div');
+      img.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);';
+      img.innerHTML = `<img src="${previewUrl}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removePhotoPreview(this,'${stored}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>`;
+      previews.appendChild(img);
+    } catch(e) {
+      status.textContent = `eroare la fișierul ${i+1}`; return;
+    }
+  }
+  const existing = urlsField.value.trim();
+  urlsField.value = existing ? existing + '\n' + ids.join('\n') : ids.join('\n');
+  status.textContent = `✓ ${ids.length} imagine(i) încărcate`;
+  setTimeout(() => status.textContent = '', 3000);
+}
+
+async function uploadMusicToR2(file) {
+  const status = document.getElementById('music-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+const result = await uploadToR2(file, 'audio');
+document.getElementById('music-url').value = `r2:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+async function uploadEditCoverToR2(file) {
+  const status = document.getElementById('edit-cover-upload-status');
+  const preview = document.getElementById('edit-cover-preview');
+  const previewImg = document.getElementById('edit-cover-preview-img');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToR2(file, 'image');
+    document.getElementById('edit-cover').value = `r2:${result.publicId}`;
+    previewImg.src = result.secureUrl;
+    preview.style.display = 'block';
+    status.textContent = '✓ copertă încărcată';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+async function uploadMusicCoverToR2(file) {
+  const status = document.getElementById('music-cover-upload-status');
+  const preview = document.getElementById('music-cover-preview');
+  const previewImg = document.getElementById('music-cover-preview-img');
+  status.textContent = 'se încarcă...';
+  try {
+const result = await uploadToR2(file, 'image');
+document.getElementById('music-cover-inp').value = `r2:${result.publicId}`;
+
+    previewImg.src = result.secureUrl;
+    preview.style.display = 'block';
+    status.textContent = '✓ copertă încărcată';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+async function uploadDmMusicToR2(file) {
+  const status = document.getElementById('dm-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+const result = await uploadToR2(file, 'audio');
+document.getElementById('dm-url').value = `r2:${result.publicId}`;
+
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+async function uploadDmCoverToR2(file) {
+  const status = document.getElementById('dm-cover-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToR2(file, 'image');
+    document.getElementById('dm-cover').value = `r2:${result.publicId}`;
+    status.textContent = '✓ copertă încărcată';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+async function uploadTimelockMusicToR2(file) {
+  const status = document.getElementById('timelock-music-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const result = await uploadToR2(file, 'audio');
+    document.getElementById('settings-timelock-music-url').value = `r2:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+async function uploadPdfToR2(file) {
+  const status = document.getElementById('pdf-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+const result = await uploadToR2(file, 'raw');
+document.getElementById('pdf-url').value = `r2:${result.publicId}`;
+
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+async function uploadVideoToR2(file) {
+  const status = document.getElementById('video-upload-status');
+  status.textContent = 'se încarcă (poate dura...)';
+  try {
+const result = await uploadToR2(file, 'video');
+document.getElementById('video-url').value = `r2:${result.publicId}`;
+    status.textContent = '✓ încărcat';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) {
+    status.textContent = 'eroare la upload';
+  }
+}
+
+
+function removePhotoPreview(btn, url) {
+  btn.closest('div').remove();
+  const field = document.getElementById('photo-urls');
+  field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
+}
+
+function handlePhotoDrop(e) {
+  e.preventDefault();
+  document.getElementById('photo-upload-area').style.borderColor = 'var(--border2)';
+  const files = e.dataTransfer.files;
+  if (files.length) uploadPhotosToR2(files);
+}
+
+
+async function deleteFromR2(entry) {
+  const urls = entry.media_urls || [];
+  const cover = entry.cover_url || '';
+  const candidates = [...urls, cover].filter(u => u && u.startsWith('r2:')).map(u => u.slice(3));
+  if (!candidates.length) return;
+
+  // Verifică ce chei mai sunt folosite în alte notițe
+  const keysToDelete = [];
+  for (const key of candidates) {
+    const usedElsewhere = entries.some(e => {
+      if (String(e.id) === String(entry.id)) return false; // skip current entry
+      const allUrls = [...(e.media_urls || []), e.cover_url || ''].filter(Boolean);
+      return allUrls.some(u => u === `r2:${key}`);
+    });
+    // Verifică și în dateMusicMap
+    const usedInDm = Object.values(dateMusicMap).some(dm =>
+      dm.url === `r2:${key}` || dm.cover === `r2:${key}`
+    );
+    if (!usedElsewhere && !usedInDm) keysToDelete.push(key);
+  }
+
+  if (!keysToDelete.length) return;
+  try {
+    await fetch(R2_WORKER_URL, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+      body: JSON.stringify({ keys: keysToDelete }),
+    });
+  } catch(e) {
+    console.warn('R2 delete failed:', e);
+  }
+}
+
+
+
+function handleR2GalleryClick(e) {
+  if (e.target === document.getElementById('r2GalleryOverlay')) closeR2Gallery();
+}
+
+function closeR2Gallery() {
+  const ov = document.getElementById('r2GalleryOverlay');
+  ov.classList.remove('open');
+  document.body.style.overflow = '';
+
+  // Resetează body-ul galeriei ca să nu rămână butoane active în DOM
+  setTimeout(() => { 
+    if (!ov.classList.contains('open')) {
+      document.getElementById('r2GalleryBody').innerHTML = '';
+    }
+  }, 300);
+}
+
+
+async function openR2Gallery() {
+  closeSettings();
+  document.getElementById('r2GalleryOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  document.getElementById('r2GalleryBody').innerHTML = '<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">se încarcă...</div></div>';
+
+  try {
+    const res = await fetch(R2_WORKER_URL, {
+      headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET }
+    });
+    const { files } = await res.json();
+    renderR2Gallery(files);
+  } catch(e) {
+    document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">eroare la încărcare</div></div>';
+  }
+}
+
+
+function copyAllR2Links() {
+  const btn = document.getElementById('copyAllR2Btn');
+  const links = JSON.parse(btn.dataset.links);
+  const text = links.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`${links.length} link-uri copiate`);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(`${links.length} link-uri copiate`);
+  });
+}
+
+
+function renderR2Gallery(files) {
+  files = files.filter(f => !f.key.endsWith('/'));
+  if (!files.length) {
+    document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">niciun fișier în R2</div></div>';
+    return;
+  }
+
+  const groups = {};
+  files.forEach(f => {
+    const folder = f.key.includes('/') ? f.key.split('/')[0] : 'altele';
+    if (!groups[folder]) groups[folder] = [];
+    groups[folder].push(f);
+  });
+
+  const usedKeys = new Set();
+  entries.forEach(e => {
+    (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
+    if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+  });
+  Object.values(dateMusicMap).forEach(dm => {
+    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
+    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
+  });
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
+    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+  }
+
+  const totalSize = files.reduce((a, f) => a + f.size, 0);
+  const orphans = files.filter(f => !usedKeys.has(f.key));
+  const sortedOrphans = [...orphans].sort((a, b) => b.key.localeCompare(a.key));
+
+  let html = `
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:4px;">TOTAL</div>
+        <div style="font-family:var(--serif);font-size:18px;color:var(--text)">${files.length} fișiere</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(totalSize)}</div>
+      </div>
+      <div style="flex:1;background:${orphans.length ? 'rgba(200,80,80,0.07)' : 'var(--surface)'};border:1px solid ${orphans.length ? 'rgba(200,80,80,0.25)' : 'var(--border)'};border-radius:12px;padding:12px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:4px;">NEFOLOSITE</div>
+        <div style="font-family:var(--serif);font-size:18px;color:${orphans.length ? 'var(--rose)' : 'var(--text)'}">${orphans.length} fișiere</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(orphans.reduce((a,f)=>a+f.size,0))}</div>
+      </div>
+    </div>`;
+
+  const allDirectLinks = files.map(f => `${R2_PUBLIC_URL}/${f.key}`);
+  html += `<button onclick="copyAllR2Links()" data-links='${JSON.stringify(allDirectLinks)}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază toate link-urile directe (${files.length})</button>`;
+
+  if (sortedOrphans.length > 0) {
+    html += `<div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--rose);letter-spacing:0.1em;">NEFOLOSITE (${sortedOrphans.length})</div>
+        <button onclick="deleteAllOrphans()" style="padding:5px 12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:20px;color:#e07070;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:0.04em;">șterge toate</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="orphans-grid">`;
+    sortedOrphans.forEach((f, localIdx) => {
+      const url = `${R2_PUBLIC_URL}/${f.key}`;
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
+      const thumb = isImage
+        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
+      html += `<div data-r2key="${f.key}" data-idx="${localIdx}" style="position:relative;aspect-ratio:1;background:rgba(200,80,80,0.06);border:1px solid rgba(200,80,80,0.35);border-radius:10px;overflow:hidden;cursor:pointer;">
+        ${thumb}
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 4px;font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.key.split('/').pop()}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  html += `<div style="margin-bottom:16px;">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      ${['photos','music','video','gifs','pdf'].map(cat => {
+        const count = files.filter(f => f.key.startsWith(cat+'/')).length;
+        const icons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
+        return `<button onclick="downloadR2Category('${cat}')" style="padding:11px 8px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;text-align:left;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;">
+          <span>${icons[cat]}</span><span>${cat} (${count})</span>
+        </button>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // Construiește ordinea vizuală pentru folderuri
+  const visualOrder = [];
+  for (const [folder, folderFiles] of Object.entries(groups)) {
+    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">`;
+    folderFiles.forEach((f) => {
+      const url = `${R2_PUBLIC_URL}/${f.key}`;
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
+      const isUsed = usedKeys.has(f.key);
+      const visualIdx = visualOrder.length;
+      visualOrder.push(f);
+      const thumb = isImage
+        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
+      html += `<div data-r2key="${f.key}" data-idx="${visualIdx}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
+        ${thumb}
+        ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('r2GalleryBody').innerHTML = html;
+
+  const body = document.getElementById('r2GalleryBody');
+  body.addEventListener('click', (e) => {
+    const cell = e.target.closest('[data-r2key]');
+    if (!cell) return;
+    const key = cell.dataset.r2key;
+    const idx = parseInt(cell.dataset.idx);
+    const isOrphan = !!cell.closest('#orphans-grid');
+
+    if (isOrphan) {
+      openR2FileDetailFromGallery(key, sortedOrphans[idx], sortedOrphans, idx);
+    } else {
+      openR2FileDetailFromGallery(key, visualOrder[idx], visualOrder, idx);
+    }
+  });
+}
+
+
+
+async function deleteAllOrphans() {
+  const usedKeys = new Set();
+  entries.forEach(e => {
+    (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
+    if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+  });
+  Object.values(dateMusicMap).forEach(dm => {
+    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
+    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
+  });
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+
+  const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+  const { files } = await res.json();
+  const orphanKeys = files.filter(f => !f.key.endsWith('/') && !usedKeys.has(f.key)).map(f => f.key);
+  if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
+  if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
+  try {
+    await fetch(R2_WORKER_URL, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+      body: JSON.stringify({ keys: orphanKeys }),
+    });
+    showToast(`${orphanKeys.length} fișiere șterse`);
+    await openR2Gallery();
+  } catch(e) {
+    showToast('eroare la ștergere');
+  }
+}
+
+
+function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
+  const url = `${R2_PUBLIC_URL}/${key}`;
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(key);
+  const isAudio = /\.(mp3|ogg|wav|flac|aac|m4a)$/i.test(key);
+  const isVideo = /\.(mp4|webm|mov)$/i.test(key);
+  const fileName = key.split('/').pop();
+
+  const existingOverlay = document.getElementById('r2-detail-overlay');
+  if (existingOverlay) {
+    existingOverlay.querySelectorAll('audio,video').forEach(m => m.pause());
+    document.body.removeChild(existingOverlay);
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'r2-detail-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(16px);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  function closeOverlay() {
+    overlay.querySelectorAll('audio,video').forEach(m => m.pause());
+    if (document.body.contains(overlay)) document.body.removeChild(overlay);
+  }
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeOverlay(); });
+
+  let previewHtml = '';
+  if (isImage) {
+    previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:rgba(0,0,0,0.3);overflow:hidden;display:flex;align-items:center;justify-content:center;">
+      <img src="${url}" style="width:100%;height:100%;object-fit:contain;">
+    </div>`;
+} else if (isAudio) {
+    previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(122,200,149,0.2);background:rgba(122,200,149,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+      <div style="font-size:48px;">🎵</div>
+      <audio id="r2-preview-audio" controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
+    </div>`;
+
+  } else if (isVideo) {
+    previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:#000;overflow:hidden;">
+      <video controls src="${url}" style="width:100%;height:100%;object-fit:contain;" preload="metadata"></video>
+    </div>`;
+  } else {
+    previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(160,122,200,0.2);background:rgba(160,122,200,0.07);display:flex;align-items:center;justify-content:center;font-size:48px;">📄</div>`;
+  }
+
+  const hasPrev = allFiles && currentIndex > 0;
+  const hasNext = allFiles && currentIndex < allFiles.length - 1;
+  const navHtml = allFiles ? `
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button id="r2-nav-prev" ${!hasPrev?'disabled':''} style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:${hasPrev?'var(--text2)':'var(--text4)'};font-family:var(--mono);font-size:10px;cursor:${hasPrev?'pointer':'default'};letter-spacing:0.04em;">← anterior</button>
+      <button id="r2-nav-next" ${!hasNext?'disabled':''} style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:${hasNext?'var(--text2)':'var(--text4)'};font-family:var(--mono);font-size:10px;cursor:${hasNext?'pointer':'default'};letter-spacing:0.04em;">următor →</button>
+    </div>` : '';
+
+  const usedLabel = isUsed
+    ? `<span style="color:var(--green)">folosit</span>`
+    : `<span style="color:var(--rose)">nefolosit</span>`;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid var(--border2);border-radius:22px;padding:20px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto;';
+  modal.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;">
+      <div>
+        <div style="font-family:var(--serif);font-size:17px;font-style:italic;color:var(--accent2);line-height:1.3;word-break:break-all;">${fileName}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${usedLabel}</div>
+      </div>
+      <button id="r2-close-btn" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
+    </div>
+    <div style="margin-bottom:16px;">${previewHtml}</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.08em;margin-bottom:8px;word-break:break-all;line-height:1.6;padding:8px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border);">${key}</div>
+    ${navHtml}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <button id="r2-btn-direct" style="padding:11px 8px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📋 link direct</button>
+      <button id="r2-btn-ref" style="padding:11px 8px;background:rgba(160,122,200,0.1);border:1px solid rgba(160,122,200,0.3);border-radius:10px;color:var(--purple);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📎 r2: ref</button>
+      <button id="r2-btn-download" style="padding:11px 8px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:10px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">⬇️ descarcă</button>
+      <button id="r2-btn-day" style="padding:11px 8px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:10px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📅 → ziua</button>
+    </div>
+    <button id="r2-btn-delete" style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">🗑️ șterge fișierul</button>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  // Autoplay audio dacă e fișier audio
+  if (isAudio) {
+    setTimeout(() => {
+      // Oprește muzica zilei și muzica din notițe
+      dmAudio.pause();
+      entryAudio.pause();
+      syncDateMusicWaves();
+      const audio = modal.querySelector('#r2-preview-audio');
+      if (audio) audio.play().catch(() => {});
+    }, 150);
+  }
+
+
+
+
+  modal.querySelector('#r2-close-btn').addEventListener('click', closeOverlay);
+  modal.querySelector('#r2-btn-direct').addEventListener('click', () => copyR2Link(key, 'direct'));
+  modal.querySelector('#r2-btn-ref').addEventListener('click', () => copyR2Link(key, 'r2'));
+  modal.querySelector('#r2-btn-download').addEventListener('click', () => downloadR2File(key));
+  modal.querySelector('#r2-btn-day').addEventListener('click', async () => {
+    closeOverlay();
+    closeR2Gallery();
+    await goToR2FileDay(key);
+  });
+  modal.querySelector('#r2-btn-delete').addEventListener('click', async () => {
+    if (!confirm(`Ștergi ${fileName}?`)) return;
+    closeOverlay();
+    await deleteR2File(key);
+    const scrollPos = document.getElementById('r2GalleryModal').scrollTop;
+    await openR2Gallery();
+    setTimeout(() => {
+      const m = document.getElementById('r2GalleryModal');
+      if (m) m.scrollTop = scrollPos;
+    }, 300);
+  });
+
+  if (allFiles) {
+    const prevBtn = modal.querySelector('#r2-nav-prev');
+    const nextBtn = modal.querySelector('#r2-nav-next');
+    if (prevBtn && hasPrev) {
+      prevBtn.addEventListener('click', () => {
+        closeOverlay();
+        const prev = allFiles[currentIndex - 1];
+        openR2FileDetailFromGallery(prev.key, prev, allFiles, currentIndex - 1);
+      });
+    }
+    if (nextBtn && hasNext) {
+      nextBtn.addEventListener('click', () => {
+        closeOverlay();
+        const next = allFiles[currentIndex + 1];
+        openR2FileDetailFromGallery(next.key, next, allFiles, currentIndex + 1);
+      });
+    }
+  }
+}
+
+
+function openR2FileDetailFromGallery(key, fileObj, allFiles, currentIndex) {
+  // Recalculează usedKeys din starea curentă
+  const usedKeys = new Set();
+  entries.forEach(e => {
+    (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
+    if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+  });
+  Object.values(dateMusicMap).forEach(dm => {
+    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
+    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
+  });
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
+    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+  }
+  const isUsed = usedKeys.has(key);
+  openR2FileDetail(key, fileObj.size, isUsed, allFiles, currentIndex);
+}
+
+
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function copyR2Link(key, type) {
+  let text;
+  if (type === 'direct') {
+    text = `${R2_PUBLIC_URL}/${key}`;
+  } else {
+    text = `r2:${key}`;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(type === 'direct' ? 'link direct copiat' : 'referință r2: copiată');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('copiat');
+  });
+}
+
+function downloadR2File(key) {
+  const url = `${R2_PUBLIC_URL}/${key}`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = key.split('/').pop();
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function goToR2FileDay(key) {
+  // Găsește toate entry-urile care conțin acest fișier
+  const matches = [];
+  entries.forEach(e => {
+    const allUrls = [...(e.media_urls || []), e.cover_url || ''].filter(Boolean);
+    if (allUrls.some(u => u === `r2:${key}` || u === key)) {
+      matches.push(dateKey(e.posted_at));
+    }
+  });
+  Object.entries(dateMusicMap).forEach(([date, dm]) => {
+    if (dm.url === `r2:${key}` || dm.cover === `r2:${key}`) matches.push(date);
+  });
+  const uniqueDays = [...new Set(matches)];
+  if (!uniqueDays.length) { showToast('fișier negăsit în nicio notiță'); return; }
+  closeR2Gallery();
+  if (uniqueDays.length === 1) {
+    selectDate(uniqueDays[0]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    // Afișează picker
+    const chosen = await pickDayFromList(uniqueDays);
+    if (chosen) { selectDate(chosen); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  }
+}
+
+function pickDayFromList(days) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.85);backdrop-filter:blur(10px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:#181820;border:1px solid rgba(255,255,255,0.13);border-radius:18px;padding:20px;width:100%;max-width:300px;';
+    modal.innerHTML = `<div style="font-family:var(--serif);font-size:18px;font-style:italic;color:var(--accent2);margin-bottom:16px;">Alege ziua</div>` +
+      days.map(d => {
+        const label = new Date(d+'T12:00:00').toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'});
+        return `<button onclick="this.closest('.r2-day-picker').dataset.chosen='${d}'" style="width:100%;padding:12px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--sans);font-size:14px;cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">${label}</button>`;
+      }).join('') +
+      `<button onclick="this.closest('.r2-day-picker').dataset.chosen='cancel'" style="width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;margin-top:4px;">anulează</button>`;
+    modal.className = 'r2-day-picker';
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    const obs = new MutationObserver(() => {
+      const chosen = modal.dataset.chosen;
+      if (chosen) {
+        obs.disconnect();
+        document.body.removeChild(overlay);
+        resolve(chosen === 'cancel' ? null : chosen);
+      }
+    });
+    obs.observe(modal, { attributes: true });
+  });
+}
+
+
+async function deleteR2File(key) {
+  try {
+    const res = await fetch(R2_WORKER_URL, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+      body: JSON.stringify({ keys: [key] }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('fișier șters');
+  } catch(e) {
+    console.error(e);
+    showToast('eroare la ștergere: ' + e.message);
+  }
+}
+
+
+
+async function downloadR2Category(folder) {
+  showToast(`se pregătește descărcarea categoriei "${folder}"...`);
+  try {
+    const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+    const { files } = await res.json();
+    const catFiles = files.filter(f => {
+      if (folder === 'altele') return !f.key.includes('/') || !['photos','music','gifs','pdf','video'].includes(f.key.split('/')[0]);
+      return f.key.startsWith(folder + '/');
+    });
+    if (!catFiles.length) { showToast('niciun fișier în această categorie'); return; }
+
+    // Descarcă unul câte unul
+    let count = 0;
+    for (const f of catFiles) {
+      await new Promise(resolve => setTimeout(resolve, 300)); // mică pauză între descărcări
+      const a = document.createElement('a');
+      a.href = `${R2_PUBLIC_URL}/${f.key}`;
+      a.download = f.key.split('/').pop();
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      count++;
+    }
+    showToast(`${count} fișiere descărcate`);
+  } catch(e) {
+    showToast('eroare la descărcare');
+  }
+}
+
 
 
 // ═══════════════════════════════════════
@@ -5656,9 +6902,14 @@ function startTimeLockStars() {
     s.vy = (Math.random()*0.25+0.1)/canvas.height*500;
     s.maxLife = Math.random()*220+180;
   });
-  function frame() {
+function frame() {
+    if (!document.getElementById('timeLockOverlay').classList.contains('open')) {
+      canvas._raf = requestAnimationFrame(frame);
+      return;
+    }
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0,0,W,H);
+
     const now = Date.now();
     staticStars.forEach(s => {
       const op = 0.25 + Math.sin(now * s.speed + s.phase) * 0.22;
@@ -5692,7 +6943,7 @@ function startTimeLockStars() {
   }
   canvas._raf = requestAnimationFrame(frame);
 }
-startTimeLockStars();
+
 
 </script>
 </body>
