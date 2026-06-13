@@ -5961,13 +5961,15 @@ async function saveEdit() {
 function openDeleteFor(id) { if (isLocked) { showToast('deblochează mai întâi'); return; } document.getElementById('delete-id').value = id; openModal('delete'); }
 async function confirmDelete() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
+  if (!confirm('Sigur vrei să ștergi definitiv? Această acțiune nu poate fi anulată.')) return;
   const id = document.getElementById('delete-id').value;
   const entry = entries.find(e => String(e.id) === String(id));
-  if (entry) await deleteFromR2(entry); // ← adaugă asta
+  if (entry) await deleteFromR2(entry);
   const { error } = await sb.from('entries').delete().eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('șters'); closeModal('delete'); await reloadAndRender();
 }
+
 
 
 // ═══════════════════════════════════════
