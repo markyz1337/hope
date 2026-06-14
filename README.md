@@ -304,7 +304,8 @@ padding-bottom: env(safe-area-inset-bottom);
   border-radius: var(--r); overflow: hidden;
   animation: fadeUp 0.35s ease both; transition: border-color 0.2s;
 }
-.entry-card:hover { border-color: var(--border2); }
+@media (hover: hover) { .entry-card:hover { border-color: var(--border2); } }
+
 @keyframes fadeUp {
   from { opacity:0; transform:translateY(8px); }
   to   { opacity:1; transform:translateY(0); }
@@ -329,7 +330,11 @@ padding-bottom: env(safe-area-inset-bottom);
 .chip-music { color: var(--green);   border-color: rgba(122,200,149,0.25); background: rgba(122,200,149,0.07); }
 .chip-pdf   { color: var(--purple);  border-color: rgba(160,122,200,0.25); background: rgba(160,122,200,0.07); }
 .card-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; }
-.entry-card:hover .card-actions { opacity: 1; }
+@media (hover: none) { .card-actions { opacity: 1; } }
+
+
+@media (hover: hover) { .entry-card:hover .card-actions { opacity: 1; } }
+
 body.locked .card-actions { display: none !important; }
 .icon-btn {
   width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border);
@@ -364,7 +369,8 @@ body.locked .card-actions { display: none !important; }
   user-select: none;
   touch-action: manipulation;
 }
-.card-text a:hover { opacity: 0.8; border-color: var(--accent2); }
+@media (hover: hover) { .card-text a:hover { opacity: 0.8; border-color: var(--accent2); } }
+
 
 .blur-text-span {
   filter: blur(5px);
@@ -541,6 +547,20 @@ body.locked .card-actions { display: none !important; }
 }
 .private-img-icon svg { width: 13px; height: 13px; }
 
+
+.media-item:has(.private-img-overlay:not(.revealed)) .entry-image {
+  filter: brightness(0);
+}
+.media-item:has(.private-img-overlay.revealed) .entry-image {
+  filter: none;
+  transition: filter 0.4s ease;
+}
+.private-card-wrap:has(.private-overlay:not(.revealed)) .entry-image,
+.private-card-wrap:has(.private-overlay:not(.revealed)) video {
+  filter: brightness(0);
+}
+
+
 .private-img-label {
   font-family: var(--mono); font-size: 9px;
   letter-spacing: 0.1em; text-transform: uppercase;
@@ -623,7 +643,8 @@ body.locked .card-actions { display: none !important; }
   border-radius: var(--r2); padding: 12px 14px; cursor: pointer; margin-top: 10px;
   transition: all 0.2s; text-decoration: none;
 }
-.pdf-entry:hover { background: rgba(160,122,200,0.12); border-color: rgba(160,122,200,0.35); }
+@media (hover: hover) { .pdf-entry:hover { background: rgba(160,122,200,0.12); border-color: rgba(160,122,200,0.35); } }
+
 .pdf-icon-wrap {
   width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
   background: rgba(160,122,200,0.15); border: 1px solid rgba(160,122,200,0.3);
@@ -4299,7 +4320,7 @@ let touchStartX = 0;
 let touchDirectionLocked = false; // 'h' | 'v' | false
 
 function onTouchStart(e) {
-  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')||e.target.closest('.pdf-entry')||e.target.closest('a')) return;
   if (e.target.closest('.backdrop.open')) return;
   if (document.getElementById('lightbox').classList.contains('open')) return;
   if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
@@ -4318,7 +4339,7 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
-  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')||e.target.closest('.pdf-entry')||e.target.closest('a')) return;
   if (e.target.closest('.backdrop.open')) return;
   if (document.getElementById('lightbox').classList.contains('open')) return;
   if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
@@ -4370,7 +4391,7 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd(e) {
-  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')) return;
+  if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')||e.target.closest('.pdf-entry')||e.target.closest('a')) return;
   if (e.target.closest('.backdrop.open')) return;
   if (document.getElementById('lightbox').classList.contains('open')) return;
   if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
@@ -5940,13 +5961,15 @@ async function saveEdit() {
 function openDeleteFor(id) { if (isLocked) { showToast('deblochează mai întâi'); return; } document.getElementById('delete-id').value = id; openModal('delete'); }
 async function confirmDelete() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
+  if (!confirm('Sigur vrei să ștergi definitiv? Această acțiune nu poate fi anulată.')) return;
   const id = document.getElementById('delete-id').value;
   const entry = entries.find(e => String(e.id) === String(id));
-  if (entry) await deleteFromR2(entry); // ← adaugă asta
+  if (entry) await deleteFromR2(entry);
   const { error } = await sb.from('entries').delete().eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('șters'); closeModal('delete'); await reloadAndRender();
 }
+
 
 
 // ═══════════════════════════════════════
