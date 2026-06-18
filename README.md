@@ -383,7 +383,26 @@ body.locked .card-actions { display: none !important; }
 }
 .blur-text-span.revealed { filter: blur(0); user-select: text; }
 
+.music-text-span {
+  cursor: pointer;
+  border-bottom: 1.5px dashed rgba(122,200,149,0.5);
+  background: rgba(122,200,149,0.07);
+  border-radius: 4px;
+  padding: 0 2px;
+  transition: background 0.25s, border-color 0.25s;
+}
+.music-text-span:active { background: rgba(122,200,149,0.16); }
+.music-text-span.playing {
+  border-bottom-color: var(--green);
+  animation: musicTextPulse 1.6s ease-in-out infinite;
+}
+@keyframes musicTextPulse {
+  0%, 100% { background: rgba(122,200,149,0.14); }
+  50% { background: rgba(122,200,149,0.3); }
+}
+
 .search-highlight {
+
   background: rgba(200,169,126,0.32);
   color: var(--accent2);
   border-radius: 3px;
@@ -926,7 +945,16 @@ input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 .rte-link-ok { padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(200,169,126,0.3); background: rgba(200,169,126,0.1); color: var(--accent2); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.05em; white-space: nowrap; transition: all 0.15s; }
 .rte-link-ok:hover { background: rgba(200,169,126,0.2); }
 
+.rte-music-bar { display: none; flex-direction: column; gap: 7px; padding: 9px 8px 11px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.12); }
+.rte-music-bar.visible { display: flex; }
+.rte-music-upload-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color 0.15s; }
+.rte-music-upload-row:hover { border-color: var(--border2); }
+.rte-music-upload-row svg { width: 14px; height: 14px; color: var(--text3); flex-shrink: 0; }
+.rte-music-upload-lbl { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 0.05em; }
+.rte-music-upload-status { font-family: var(--mono); font-size: 9px; color: var(--accent); margin-left: auto; }
+
 .cap-rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s; }
+
 .cap-rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
 .cap-rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 5px 7px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); }
 .cap-rte-editor { min-height: 50px; padding: 9px 12px; color: var(--text); font-family: var(--serif); font-size: 13px; font-style: italic; line-height: 1.65; outline: none; word-wrap: break-word; color: var(--text3); }
@@ -1722,12 +1750,28 @@ audio[controls] { display: block; }
           <button class="rte-btn" id="rte-blur-btn" onclick="rteBlurSelected()" title="Blur text selectat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
           </button>
+          <div class="rte-sep"></div>
+          <button class="rte-btn" id="rte-music-btn" onclick="rteToggleMusicBar()" title="Adaugă muzică la text selectat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </button>
         </div>
         <div class="rte-link-bar" id="rte-link-bar">
           <input class="rte-link-input" id="rte-link-input" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink()">
           <button class="rte-link-ok" onclick="rteInsertLink()">adaugă</button>
         </div>
+        <div class="rte-music-bar" id="rte-music-bar">
+          <div class="rte-music-upload-row" onclick="document.getElementById('rte-music-file-input').click()">
+            <input type="file" id="rte-music-file-input" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadRteMusicFile(this.files[0], 1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <span class="rte-music-upload-lbl">alege fișier audio</span>
+            <span class="rte-music-upload-status" id="rte-music-upload-status"></span>
+          </div>
+          <input class="rte-link-input" id="rte-music-url-input" type="text" placeholder="sau link extern (mp3, ogg...)">
+          <input class="rte-link-input" id="rte-music-title-input" type="text" placeholder="titlu melodie (opțional)">
+          <button class="rte-link-ok" style="width:100%;text-align:center;" onclick="rteInsertMusic()">adaugă muzică la text selectat</button>
+        </div>
         <div class="rte-editor" id="rte-editor" contenteditable="true" data-placeholder="scrie ceva..." spellcheck="true" oninput="scheduleDraftSave()"></div>
+
       </div>
     </div>
     <!-- draft status -->
