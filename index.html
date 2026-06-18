@@ -6974,20 +6974,24 @@ function rteMusicUnwrap(editorId) {
   const sel = window.getSelection();
   if (!sel || sel.rangeCount === 0) { showToast('selectează un text cu muzică'); return; }
   const range = sel.getRangeAt(0);
-  const container = range.commonAncestorContainer;
-  const musicSpan = container.nodeType === Node.TEXT_NODE
-    ? container.parentElement?.closest('.music-text-span')
-    : container.closest?.('.music-text-span');
-  if (musicSpan && editor.contains(musicSpan)) {
-    const parent = musicSpan.parentNode;
-    while (musicSpan.firstChild) parent.insertBefore(musicSpan.firstChild, musicSpan);
-    parent.removeChild(musicSpan);
+
+  // Caută toate music-span-urile din selecție
+  const allSpans = [...editor.querySelectorAll('.music-text-span')];
+  const spansInSelection = allSpans.filter(span => range.intersectsNode(span));
+
+  if (spansInSelection.length > 0) {
+    spansInSelection.forEach(span => {
+      const parent = span.parentNode;
+      while (span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+    });
     sel.removeAllRanges();
-    showToast('muzică eliminată din text');
+    showToast(`${spansInSelection.length > 1 ? spansInSelection.length + ' referințe muzică eliminate' : 'muzică eliminată din text'}`);
   } else {
-    showToast('plasează cursorul pe textul cu muzică');
+    showToast('nicio muzică găsită în selecție');
   }
 }
+
 
 
 function _rteToggleBlur(editorId) {
