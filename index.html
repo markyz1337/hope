@@ -6614,7 +6614,9 @@ async function deleteAllOrphans() {
   entries.forEach(e => {
     (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
     if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+    extractR2KeysFromContent(e.content).forEach(k => usedKeys.add(k));
   });
+
   Object.values(dateMusicMap).forEach(dm => {
     if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
     if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
