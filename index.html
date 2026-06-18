@@ -1754,6 +1754,10 @@ audio[controls] { display: block; }
           <button class="rte-btn" id="rte-music-btn" onclick="rteToggleMusicBar()" title="Adaugă muzică la text selectat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
           </button>
+                    <button class="rte-btn" onclick="rteMusicUnwrap('rte-editor')" title="Elimină muzică din text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </button>
+
         </div>
         <div class="rte-link-bar" id="rte-link-bar">
           <input class="rte-link-input" id="rte-link-input" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink()">
@@ -2154,6 +2158,10 @@ audio[controls] { display: block; }
           <button class="rte-btn" id="rte-music-btn2" onclick="rteToggleMusicBar2()" title="Adaugă muzică la text selectat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
           </button>
+                    <button class="rte-btn" onclick="rteMusicUnwrap('rte-editor2')" title="Elimină muzică din text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/></svg>
+          </button>
+
         </div>
         <div class="rte-music-bar" id="rte-music-bar2">
           <div class="rte-music-upload-row" onclick="document.getElementById('rte-music-file-input2').click()">
@@ -6958,6 +6966,27 @@ function rteInsertLink2() {
 }
 function rteBlurSelected() { _rteToggleBlur('rte-editor'); }
 function rteBlurSelected2() { _rteToggleBlur('rte-editor2'); }
+function rteMusicUnwrap(editorId) {
+  const editor = document.getElementById(editorId);
+  editor.focus();
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) { showToast('selectează un text cu muzică'); return; }
+  const range = sel.getRangeAt(0);
+  const container = range.commonAncestorContainer;
+  const musicSpan = container.nodeType === Node.TEXT_NODE
+    ? container.parentElement?.closest('.music-text-span')
+    : container.closest?.('.music-text-span');
+  if (musicSpan && editor.contains(musicSpan)) {
+    const parent = musicSpan.parentNode;
+    while (musicSpan.firstChild) parent.insertBefore(musicSpan.firstChild, musicSpan);
+    parent.removeChild(musicSpan);
+    sel.removeAllRanges();
+    showToast('muzică eliminată din text');
+  } else {
+    showToast('plasează cursorul pe textul cu muzică');
+  }
+}
+
 
 function _rteToggleBlur(editorId) {
   const editor = document.getElementById(editorId);
