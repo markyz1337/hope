@@ -6369,15 +6369,31 @@ function handlePhotoDrop(e) {
 }
 
 
+function extractR2KeysFromContent(content) {
+  if (!content) return [];
+  const div = document.createElement('div');
+  div.innerHTML = content;
+  const keys = [];
+  div.querySelectorAll('.music-text-span[data-url]').forEach(span => {
+    const u = span.dataset.url;
+    if (u && u.startsWith('r2:')) keys.push(u.slice(3));
+  });
+  return keys;
+}
+
 async function deleteFromR2(entry) {
   const urls = entry.media_urls || [];
   const cover = entry.cover_url || '';
+  const contentKeys = extractR2KeysFromContent(entry.content);
   const candidates = [...urls, cover].filter(u => u && u.startsWith('r2:')).map(u => u.slice(3));
-  if (!candidates.length) return;
+  const allCandidates = [...new Set([...candidates, ...contentKeys])];
+  if (!allCandidates.length) return;
+
 
   // Verifică ce chei mai sunt folosite în alte notițe
   const keysToDelete = [];
-  for (const key of candidates) {
+  for (const key of allCandidates) {
+
     const usedElsewhere = entries.some(e => {
       if (String(e.id) === String(entry.id)) return false; // skip current entry
       const allUrls = [...(e.media_urls || []), e.cover_url || ''].filter(Boolean);
@@ -6475,7 +6491,11 @@ function renderR2Gallery(files) {
   entries.forEach(e => {
     (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
     if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+    extractR2KeysFromContent(e.content).forEach(k => usedKeys.add(k));
   });
+
+
+
   Object.values(dateMusicMap).forEach(dm => {
     if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
     if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
@@ -6754,7 +6774,9 @@ function openR2FileDetailFromGallery(key, fileObj, allFiles, currentIndex) {
   entries.forEach(e => {
     (e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
     if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
+    extractR2KeysFromContent(e.content).forEach(k => usedKeys.add(k));
   });
+
   Object.values(dateMusicMap).forEach(dm => {
     if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
     if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
