@@ -6566,22 +6566,23 @@ function renderR2Gallery(files) {
 
   html += `<div style="margin-bottom:16px;">
     <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button onclick="filterR2Category(null,this)" data-cat="all" style="padding:6px 12px;background:rgba(200,169,126,0.15);border:1px solid rgba(200,169,126,0.4);border-radius:20px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">toate</button>
       ${['photos','music','video','gifs','pdf'].map(cat => {
         const count = files.filter(f => f.key.startsWith(cat+'/')).length;
         const icons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
-        return `<button onclick="downloadR2Category('${cat}')" style="padding:11px 8px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;text-align:left;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;">
-          <span>${icons[cat]}</span><span>${cat} (${count})</span>
-        </button>`;
+        return `<button onclick="filterR2Category('${cat}',this)" data-cat="${cat}" style="padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">${icons[cat]} ${cat} (${count})</button>`;
       }).join('')}
     </div>
+
   </div>`;
 
   // Construiește ordinea vizuală pentru folderuri
   const visualOrder = [];
   for (const [folder, folderFiles] of Object.entries(groups)) {
-    html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
+    html += `<div data-folder-section="${folder}"><div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
     html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">`;
+
     folderFiles.forEach((f) => {
       const url = `${R2_PUBLIC_URL}/${f.key}`;
       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
@@ -6596,7 +6597,7 @@ function renderR2Gallery(files) {
         ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
       </div>`;
     });
-    html += `</div>`;
+html += `</div></div>`;
   }
 
   document.getElementById('r2GalleryBody').innerHTML = html;
@@ -6918,35 +6919,27 @@ async function deleteR2File(key) {
 
 
 
-async function downloadR2Category(folder) {
-  showToast(`se pregătește descărcarea categoriei "${folder}"...`);
-  try {
-    const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
-    const { files } = await res.json();
-    const catFiles = files.filter(f => {
-      if (folder === 'altele') return !f.key.includes('/') || !['photos','music','gifs','pdf','video'].includes(f.key.split('/')[0]);
-      return f.key.startsWith(folder + '/');
-    });
-    if (!catFiles.length) { showToast('niciun fișier în această categorie'); return; }
+function filterR2Category(cat, btn) {
+  // Update butoane active
+  btn.closest('div').querySelectorAll('button').forEach(b => {
+    b.style.background = 'var(--surface)';
+    b.style.borderColor = 'var(--border2)';
+    b.style.color = 'var(--text2)';
+  });
+  btn.style.background = 'rgba(200,169,126,0.15)';
+  btn.style.borderColor = 'rgba(200,169,126,0.4)';
+  btn.style.color = 'var(--accent2)';
 
-    // Descarcă unul câte unul
-    let count = 0;
-    for (const f of catFiles) {
-      await new Promise(resolve => setTimeout(resolve, 300)); // mică pauză între descărcări
-      const a = document.createElement('a');
-      a.href = `${R2_PUBLIC_URL}/${f.key}`;
-      a.download = f.key.split('/').pop();
-      a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      count++;
+  const body = document.getElementById('r2GalleryBody');
+  body.querySelectorAll('[data-folder-section]').forEach(section => {
+    if (!cat) {
+      section.style.display = '';
+    } else {
+      section.style.display = section.dataset.folderSection === cat ? '' : 'none';
     }
-    showToast(`${count} fișiere descărcate`);
-  } catch(e) {
-    showToast('eroare la descărcare');
-  }
+  });
 }
+
 
 
 
