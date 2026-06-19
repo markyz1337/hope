@@ -2349,6 +2349,15 @@ audio[controls] { display: block; }
       </button>
     </div>
 
+    <!-- 2b. Export Supabase -->
+    <div class="settings-section">
+      <div class="settings-section-title">export supabase</div>
+      <button class="settings-pin-btn" style="width:100%" onclick="openSupabaseExport()">
+        descarcă tabele ca CSV
+      </button>
+    </div>
+
+
     <!-- 3. Parole -->
     <div class="settings-section">
       <div class="settings-section-title">parole</div>
@@ -7166,6 +7175,129 @@ function showToast(msg) { const t=document.getElementById('toast'); t.textConten
 // START
 // ═══════════════════════════════════════
 init();
+
+
+// ═══════════════════════════════════════
+// SUPABASE EXPORT
+// ═══════════════════════════════════════
+const EXPORT_TABLES = ['entries', 'date_music', 'app_state', 'drafts'];
+
+async function openSupabaseExport() {
+  closeSettings();
+
+  const existing = document.getElementById('sb-export-overlay');
+  if (existing) document.body.removeChild(existing);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'sb-export-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:700;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeSbExport(); });
+
+  overlay.innerHTML = `
+    <div style="background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.13);border-radius:22px;padding:20px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--accent2);">export tabele</div>
+        <button onclick="closeSbExport()" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
+      </div>
+      <p style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.65;margin-bottom:18px;">Apasă pe un tabel pentru a descărca un CSV identic cu structura din Supabase.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="sb-export-table-list">
+        ${EXPORT_TABLES.map(t => `
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;">
+            <div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--text);letter-spacing:0.04em;">${t}</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--text4);margin-top:2px;" id="sb-count-${t}">se numără...</div>
+            </div>
+            <button onclick="exportTableCsv('${t}', this)" style="padding:7px 16px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:20px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;white-space:nowrap;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.background='rgba(200,169,126,0.2)'" onmouseout="this.style.background='rgba(200,169,126,0.1)'">↓ CSV</button>
+          </div>
+        `).join('')}
+      </div>
+      <button onclick="exportAllTablesCsv()" style="width:100%;margin-top:14px;padding:12px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:12px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;transition:all 0.15s;" onmouseover="this.style.background='rgba(122,162,200,0.18)'" onmouseout="this.style.background='rgba(122,162,200,0.1)'">↓ descarcă toate tabelele</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Încarcă numărul de rânduri per tabel
+  for (const t of EXPORT_TABLES) {
+    try {
+      const { count } = await sb.from(t).select('*', { count: 'exact', head: true });
+      const el = document.getElementById(`sb-count-${t}`);
+      if (el) el.textContent = `${count ?? '?'} rânduri`;
+    } catch(e) {
+      const el = document.getElementById(`sb-count-${t}`);
+      if (el) el.textContent = 'eroare';
+    }
+  }
+}
+
+function closeSbExport() {
+  const el = document.getElementById('sb-export-overlay');
+  if (el) document.body.removeChild(el);
+}
+
+function rowsToCsv(rows) {
+  if (!rows || !rows.length) return '';
+  const headers = Object.keys(rows[0]);
+  const escape = val => {
+    if (val === null || val === undefined) return '';
+    const str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+  const lines = [
+    headers.join(','),
+    ...rows.map(r => headers.map(h => escape(r[h])).join(','))
+  ];
+  return lines.join('\r\n');
+}
+
+function downloadCsv(content, filename) {
+  const bom = '\uFEFF'; // BOM pentru Excel UTF-8
+  const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportTableCsv(tableName, btn) {
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'se încarcă...'; btn.disabled = true; }
+  try {
+    const { data, error } = await sb.from(tableName).select('*').order(
+      tableName === 'entries' ? 'posted_at' :
+      tableName === 'date_music' ? 'date' : 'key',
+      { ascending: true }
+    );
+    if (error) throw error;
+    if (!data || !data.length) { showToast(`${tableName} e gol`); return; }
+    const csv = rowsToCsv(data);
+    const date = new Date().toISOString().slice(0,10);
+    downloadCsv(csv, `${tableName}_${date}.csv`);
+    showToast(`${tableName}.csv descărcat (${data.length} rânduri)`);
+  } catch(e) {
+    showToast('eroare: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.textContent = orig; btn.disabled = false; }
+  }
+}
+
+async function exportAllTablesCsv() {
+  showToast('se descarcă toate tabelele...');
+  for (const t of EXPORT_TABLES) {
+    await exportTableCsv(t, null);
+    await new Promise(r => setTimeout(r, 400));
+  }
+  showToast('toate tabelele descărcate!');
+}
+
+
 
 // Time lock stars canvas
 function startTimeLockStars() {
