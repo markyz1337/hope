@@ -4917,7 +4917,10 @@ function renderEntries() {
   }
   filtered.sort((a,b) => new Date(a.posted_at) - new Date(b.posted_at));
 
+  const visibleFiltered = filtered.filter(e => !e.hidden || !isLocked);
+  filtered = visibleFiltered;
   if (!filtered.length && !searchQuery) {
+
     let html = '';
     const dk = selectedDate ? dateKey(selectedDate) : null;
     if (dk && dateMusicMap[dk] && (!dateMusicMap[dk].hidden || !isLocked)) html += renderDateMusicBanner(dk);
