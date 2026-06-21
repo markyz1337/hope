@@ -2105,12 +2105,6 @@ audio[controls] { display: block; }
       <input type="url" class="form-input" id="dm-cover" placeholder="https://...">
     </div>
 
-    <div class="blur-toggle-row">
-      <label class="form-label">ascunde de vizitatori</label>
-      <div class="toggle-track" id="dm-hidden-toggle" onclick="toggleDmHidden()">
-        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
-      </div>
-    </div>
 
     <button class="btn-primary" onclick="saveDateMusic()">salvează</button>
     <button class="btn-secondary" onclick="closeModal('date-music')">anulează</button>
@@ -2572,7 +2566,6 @@ let videoAutoplayEnabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
 let editHiddenEnabled = false;
-let dmHiddenEnabled = false;
 let isLocked = true;
 let SETTING_TIMELOCK_MUSIC_URL = '';
 let SETTING_TITLE_RULES = []; // [{ date: "2026-06-15", text: "..." }]
@@ -2815,9 +2808,8 @@ async function continueInitAfterAuth() {
 
 const allDates = [
   ...entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)),
-  ...Object.keys(dateMusicMap).filter(d => !dateMusicMap[d].hidden || !isLocked)
+  ...Object.keys(dateMusicMap)
 ].sort();
-
 
 
   if (SETTING_NAV_MODE === 'today') {
@@ -2828,10 +2820,7 @@ const allDates = [
   const visibleDates = [...new Set(
     entries.filter(e => !e.hidden).map(e => dateKey(e.posted_at))
   )].sort();
-  const visibleMusicDates = Object.entries(dateMusicMap).filter(([,dm]) => !dm.hidden).map(([d]) => d);
-  const allVisibleDates = [...new Set([...visibleDates, ...visibleMusicDates])].sort();
-
-
+  const allVisibleDates = [...new Set([...visibleDates, ...Object.keys(dateMusicMap)])].sort();
   const lastDate = allVisibleDates[allVisibleDates.length - 1];
   if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
   else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
@@ -4007,10 +3996,9 @@ const savedKey = await loadLastDate();
 SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
 
 const allDates = [
-  ...entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)),
-  ...Object.keys(dateMusicMap).filter(d => !dateMusicMap[d].hidden || !isLocked)
+  ...entries.map(e => dateKey(e.posted_at)),
+  ...Object.keys(dateMusicMap)
 ].sort();
-
 
 if (SETTING_NAV_MODE === 'today') {
   const today = new Date(); today.setHours(0,0,0,0);
@@ -4020,9 +4008,7 @@ if (SETTING_NAV_MODE === 'today') {
   const visibleDates = [...new Set(
     entries.filter(e => !e.hidden).map(e => dateKey(e.posted_at))
   )].sort();
-  const visibleMusicDates = Object.entries(dateMusicMap).filter(([,dm]) => !dm.hidden).map(([d]) => d);
-  const allVisibleDates = [...new Set([...visibleDates, ...visibleMusicDates])].sort();
-
+  const allVisibleDates = [...new Set([...visibleDates, ...Object.keys(dateMusicMap)])].sort();
   const lastDate = allVisibleDates[allVisibleDates.length - 1];
   if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
   else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
@@ -4357,8 +4343,7 @@ function renderCalPopup() {
 
   for (let day = 1; day <= 31; day++) {
     const k = `${calPopupYear}-${String(calPopupMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    if (dateMusicMap[k] && (!dateMusicMap[k].hidden || !isLocked)) { if (!dayTypesMap[day]) dayTypesMap[day] = new Set(); dayTypesMap[day].add('music'); }
-
+    if (dateMusicMap[k]) { if (!dayTypesMap[day]) dayTypesMap[day] = new Set(); dayTypesMap[day].add('music'); }
   }
   const daysInMonth = new Date(calPopupYear, calPopupMonth+1, 0).getDate();
   let startWd = new Date(calPopupYear, calPopupMonth, 1).getDay() - 1;
@@ -4603,8 +4588,7 @@ function setDefaultDates() {
 async function loadDateMusicMap() {
   try {
     const { data, error } = await sb.from('date_music').select('*');
-if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'', hidden:!!r.hidden }; }); return; }
-
+    if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'' }; }); return; }
   } catch(e) {}
   try { const saved = localStorage.getItem('carnet_date_music'); if (saved) dateMusicMap = JSON.parse(saved); } catch(e) {}
 }
@@ -4616,12 +4600,10 @@ async function saveDateMusic() {
   const cover = document.getElementById('dm-cover').value.trim();
   if (!date||!url) { showToast('completează data și link-ul'); return; }
   // url și cover pot fi R2:video:publicId sau URL-uri externe
-  const row = { date, url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled };
-
+  const row = { date, url, title:title||'melodie', cover:cover||'' };
 
   try { const { error } = await sb.from('date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
-  dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled };
-
+  dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'' };
   document.getElementById('dm-url').value = ''; document.getElementById('dm-title').value = ''; document.getElementById('dm-cover').value = '';
   showToast('muzică salvată');
   closeModal('date-music');
@@ -4681,8 +4663,7 @@ function buildCarousel() {
     const types = dayTypesMap[k] ? [...dayTypesMap[k]] : [];
     const isToday = k === dateKey(today);
     const isSelected = selectedDate && dateKey(selectedDate) === k;
-    if (dateMusicMap[k] && (!dateMusicMap[k].hidden || !isLocked) && !types.includes('music')) types.push('music_dm');
-
+    if (dateMusicMap[k] && !types.includes('music')) types.push('music_dm');
     const dots = types.map(t => { const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t]||'var(--accent)'); return `<span class="pill-dot" style="background:${color}"></span>`; }).join('');
     html += `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
       <span class="pill-name">${isToday?'azi':dayNames[d.getDay()]}</span>
@@ -4739,8 +4720,7 @@ function jumpDate(dir) {
   if (!selectedDate) return;
   const entryDates = [...new Set(entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)))];
 
-  const musicDates = Object.keys(dateMusicMap).filter(d => !dateMusicMap[d].hidden || !isLocked);
-
+  const musicDates = Object.keys(dateMusicMap);
   const allDates = [...new Set([...entryDates, ...musicDates])].sort();
   if (!allDates.length) { showToast(dir===1?'nicio dată mai nouă':'nicio dată mai veche'); return; }
   const cur = dateKey(selectedDate); let target = null;
@@ -4776,7 +4756,7 @@ function updateDateMusicMediaSession(title, coverUrl) {
 // ═══════════════════════════════════════
 function playDateMusic(dk, autoplay) {
   const dm = dateMusicMap[dk];
-  if (dm && dm.url && (!dm.hidden || !isLocked)) {
+  if (dm && dm.url) {
     const resolvedDmUrl = resolveUrl(dm.url);
     if (dmAudio.src !== resolvedDmUrl) { dmAudio.src = resolvedDmUrl; dmAudioLoaded = true; }
 
@@ -4920,8 +4900,14 @@ function renderEntries() {
   if (!filtered.length && !searchQuery) {
     let html = '';
     const dk = selectedDate ? dateKey(selectedDate) : null;
-    if (dk && dateMusicMap[dk]) html += renderDateMusicBanner(dk);
-    html += `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
+    if (dk && dateMusicMap[dk] && (!dateMusicMap[dk].hidden || !isLocked)) html += renderDateMusicBanner(dk);
+    const hasVisibleContent = filtered.length > 0 || (dk && dateMusicMap[dk] && (!dateMusicMap[dk].hidden || !isLocked));
+    if (!hasVisibleContent) {
+      html += `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
+    }
+    container.innerHTML = html; syncDateMusicWaves(); return;
+  }
+
     container.innerHTML = html; syncDateMusicWaves(); return;
   }
   if (!filtered.length && searchQuery) {
@@ -4958,8 +4944,6 @@ if (searchQuery) {
 
 function renderDateMusicBanner(dk) {
   const dm = dateMusicMap[dk]; if (!dm) return '';
-  if (dm.hidden && isLocked) return '';
-
   const coverHtml = dm.cover
     ? `<div class="dm-banner-cover"><img src="${escHtml(resolveUrl(dm.cover))}" alt=""></div>`
 
@@ -6206,18 +6190,8 @@ if (name === 'note') {
   if (name === 'date-music' && selectedDate) {
     document.getElementById('dm-date').value = dateKey(selectedDate);
     document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
-    dmHiddenEnabled = false;
-    document.getElementById('dm-hidden-toggle').classList.remove('on-private');
-
     const dk = dateKey(selectedDate);
-    if (dateMusicMap[dk]) {
-      document.getElementById('dm-url').value=dateMusicMap[dk].url||'';
-      document.getElementById('dm-title').value=dateMusicMap[dk].title||'';
-      document.getElementById('dm-cover').value=dateMusicMap[dk].cover||'';
-      dmHiddenEnabled = !!dateMusicMap[dk].hidden;
-      document.getElementById('dm-hidden-toggle').classList.toggle('on-private', dmHiddenEnabled);
-    }
-
+    if (dateMusicMap[dk]) { document.getElementById('dm-url').value=dateMusicMap[dk].url||''; document.getElementById('dm-title').value=dateMusicMap[dk].title||''; document.getElementById('dm-cover').value=dateMusicMap[dk].cover||''; }
   }
   document.getElementById(`modal-${name}`).classList.add('open');
 }
@@ -6257,10 +6231,6 @@ function toggleEditHidden() {
   t.classList.toggle('on-private', editHiddenEnabled);
 }
 
-function toggleDmHidden() {
-  dmHiddenEnabled = !dmHiddenEnabled;
-  document.getElementById('dm-hidden-toggle').classList.toggle('on-private', dmHiddenEnabled);
-}
 
 
 let selectedNoteTheme = 'none';
