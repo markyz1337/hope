@@ -1350,6 +1350,26 @@ audio[controls] { display: block; }
 .header-title.unlocked-mode { cursor: pointer; }
 .header-title.unlocked-mode:hover { color: var(--accent); }
 
+.entry-card.is-hidden-entry {
+  opacity: 0.35;
+  border-color: rgba(160,122,200,0.3);
+  border-style: dashed;
+}
+.entry-card.is-hidden-entry::after {
+  content: 'ascuns';
+  position: absolute;
+  top: 8px; right: 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--purple);
+  background: rgba(160,122,200,0.12);
+  border: 1px solid rgba(160,122,200,0.3);
+  border-radius: 20px;
+  padding: 2px 8px;
+  pointer-events: none;
+}
+.entry-card { position: relative; }
 
 
 </style>
@@ -2244,6 +2264,15 @@ audio[controls] { display: block; }
         <div class="toggle-bg"></div><div class="toggle-thumb"></div>
       </div>
     </div>
+    
+        <div class="blur-toggle-row" id="edit-hidden-group">
+      <label class="form-label">ascunde de vizitatori</label>
+      <div class="toggle-track" id="edit-hidden-toggle" onclick="toggleEditHidden()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    
     <div class="blur-toggle-row" id="edit-18-group" style="display:none">
       <label class="form-label">conținut privat</label>
       <div class="toggle-track" id="edit-18-toggle" onclick="toggleEdit18()">
@@ -2536,6 +2565,7 @@ let video18Enabled = false;
 let videoAutoplayEnabled = false;
 let editBlurEnabled = false;
 let edit18Enabled   = false;
+let editHiddenEnabled = false;
 let isLocked = true;
 let SETTING_TIMELOCK_MUSIC_URL = '';
 let SETTING_TITLE_RULES = []; // [{ date: "2026-06-15", text: "..." }]
@@ -2776,19 +2806,26 @@ async function continueInitAfterAuth() {
   const _settings = await loadSettings();
   SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
 
-  const allDates = [
-    ...entries.map(e => dateKey(e.posted_at)),
-    ...Object.keys(dateMusicMap)
-  ].sort();
+const allDates = [
+  ...entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)),
+  ...Object.keys(dateMusicMap)
+].sort();
+
 
   if (SETTING_NAV_MODE === 'today') {
     const today = new Date(); today.setHours(0,0,0,0);
     selectedDate = today;
-  } else if (SETTING_NAV_MODE === 'last') {
-    const lastDate = allDates[allDates.length - 1];
-    if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-    else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-  } else if (SETTING_NAV_MODE === 'first') {
+} else if (SETTING_NAV_MODE === 'last') {
+  // Filtrează zilele care au cel puțin o notiță vizibilă (nevascunsă)
+  const visibleDates = [...new Set(
+    entries.filter(e => !e.hidden).map(e => dateKey(e.posted_at))
+  )].sort();
+  const allVisibleDates = [...new Set([...visibleDates, ...Object.keys(dateMusicMap)])].sort();
+  const lastDate = allVisibleDates[allVisibleDates.length - 1];
+  if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
+  else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
+}
+ else if (SETTING_NAV_MODE === 'first') {
     const firstDate = allDates[0];
     if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
     else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
@@ -2851,6 +2888,7 @@ function setUnlocked(unlocked) {
     document.getElementById('fabWrap').style.display = '';
     document.getElementById('headerTitle').classList.add('unlocked-mode');
     showToast('deblocat');
+        renderEntries();
   } else {
     document.body.classList.add('locked');
     document.getElementById('lockBadge').classList.remove('unlocked');
@@ -3643,10 +3681,9 @@ function syncSettingsUI() {
   document.getElementById('settings-time-start').value = SETTING_TIME_LOCK_HOUR;
   document.getElementById('settings-time-end').value   = SETTING_TIME_LOCK_END;
 
-  document.getElementById('settings-creator-pin-display').textContent = PIN_CODE;
-  document.getElementById('settings-private-pin-display').textContent = PIN_PRIVATE;
-  document.getElementById('settings-visitor-pin-display').textContent = PIN_VISITOR;
-
+  document.getElementById('settings-creator-pin-display').textContent = '••••';
+  document.getElementById('settings-private-pin-display').textContent = '••••';
+  document.getElementById('settings-visitor-pin-display').textContent = '••••';
 
 
 const tlmt = document.getElementById('settings-timelock-music-toggle');
@@ -3967,10 +4004,16 @@ if (SETTING_NAV_MODE === 'today') {
   const today = new Date(); today.setHours(0,0,0,0);
   selectedDate = today;
 } else if (SETTING_NAV_MODE === 'last') {
-  const lastDate = allDates[allDates.length - 1];
+  // Filtrează zilele care au cel puțin o notiță vizibilă (nevascunsă)
+  const visibleDates = [...new Set(
+    entries.filter(e => !e.hidden).map(e => dateKey(e.posted_at))
+  )].sort();
+  const allVisibleDates = [...new Set([...visibleDates, ...Object.keys(dateMusicMap)])].sort();
+  const lastDate = allVisibleDates[allVisibleDates.length - 1];
   if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
   else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-} else if (SETTING_NAV_MODE === 'first') {
+}
+ else if (SETTING_NAV_MODE === 'first') {
   const firstDate = allDates[0];
   if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
   else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
@@ -4267,7 +4310,7 @@ function renderCalPopup() {
   document.getElementById('calPopupActiveBadge').style.display = isViewingToday ? '' : 'none';
 
   // Buton prima zi
-  const allEntryDates = [...new Set(entries.map(e => dateKey(e.posted_at)))].sort();
+  const allEntryDates = [...new Set(entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)))].sort();
   const allMusicDates = Object.keys(dateMusicMap).sort();
   const allAvailDates = [...new Set([...allEntryDates, ...allMusicDates])].sort();
   const firstDay = allAvailDates[0] || null;
@@ -4289,6 +4332,7 @@ function renderCalPopup() {
 
   const dayTypesMap = {};
   entries.forEach(e => {
+    if (!!e.hidden && isLocked) return;
     const d = new Date(e.posted_at);
     if (d.getFullYear() === calPopupYear && d.getMonth() === calPopupMonth) {
       const day = d.getDate();
@@ -4296,6 +4340,7 @@ function renderCalPopup() {
       dayTypesMap[day].add(e.type);
     }
   });
+
   for (let day = 1; day <= 31; day++) {
     const k = `${calPopupYear}-${String(calPopupMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     if (dateMusicMap[k]) { if (!dayTypesMap[day]) dayTypesMap[day] = new Set(); dayTypesMap[day].add('music'); }
@@ -4600,7 +4645,11 @@ function buildCarousel() {
   const days = [];
   for (let i = -365; i <= 7; i++) { const d = new Date(today); d.setDate(today.getDate()+i); days.push(d); }
   const dayTypesMap = {};
-  entries.forEach(e => { const k = dateKey(e.posted_at); if (!dayTypesMap[k]) dayTypesMap[k] = new Set(); dayTypesMap[k].add(e.type); });
+  entries.forEach(e => {
+    if (!!e.hidden && isLocked) return;
+    const k = dateKey(e.posted_at); if (!dayTypesMap[k]) dayTypesMap[k] = new Set(); dayTypesMap[k].add(e.type);
+  });
+
   const dayNames = ['du','lu','ma','mi','jo','vi','sâ'];
   const monthNamesShort = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'];
   const typeColors = { note:'var(--accent)', photo:'var(--blue)', video:'var(--rose)', music:'var(--green)', pdf:'var(--purple)' };
@@ -4669,7 +4718,8 @@ function stopEntryMusicCompletely() {
 
 function jumpDate(dir) {
   if (!selectedDate) return;
-  const entryDates = [...new Set(entries.map(e => dateKey(e.posted_at)))];
+  const entryDates = [...new Set(entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)))];
+
   const musicDates = Object.keys(dateMusicMap);
   const allDates = [...new Set([...entryDates, ...musicDates])].sort();
   if (!allDates.length) { showToast(dir===1?'nicio dată mai nouă':'nicio dată mai veche'); return; }
@@ -4832,8 +4882,9 @@ function renderEntries() {
   if (searchQuery) {
     carouselWrap.style.display = 'none';
     typeFilter = getTypeFromQuery(searchQuery);
-    if (typeFilter) filtered = entries.filter(e => e.type === typeFilter);
+    if (typeFilter) filtered = entries.filter(e => e.type === typeFilter && (!e.hidden || !isLocked));
     else filtered = entries.filter(e => entryMatchesSearch(e, searchQuery));
+
     label.textContent = `${filtered.length} rezultat${filtered.length===1?'':'e'}`;
     label.classList.add('visible');
   } else {
@@ -4912,10 +4963,13 @@ function renderDateMusicBanner(dk) {
 }
 
 function entryMatchesSearch(e, q) {
+  if (!!e.hidden && isLocked) return false;
   const qn = normRo(q);
+  if (qn === 'ascuns') return !!e.hidden;
   const haystack = normRo([e.content||'', e.caption||'', e.type||''].join(' '));
   return haystack.includes(qn);
 }
+
 
 // ═══════════════════════════════════════
 // RENDER ENTRY -- private overlay redesign
@@ -5084,7 +5138,9 @@ const theme = (e.theme && e.theme !== 'none') ? e.theme : '';
   const themeCardClass = theme ? 'theme-card' : '';
   const canvasId = `tc-${e.id}`;
 
-return `<div class="entry-card ${themeCardClass}" data-id="${e.id}">
+const isHidden = !!e.hidden;
+if (isHidden && isLocked) return '';
+return `<div class="entry-card ${themeCardClass}${isHidden ? ' is-hidden-entry' : ''}" data-id="${e.id}">
     <div class="card-inner${theme ? ` note-theme-wrap theme-${theme}` : ''}" id="twrap-${e.id}">
       ${theme ? buildThemeExtras(theme, canvasId) : ''}
       <div class="card-meta" style="position:relative;z-index:1">
@@ -5877,6 +5933,9 @@ function openEditFor(id) {
   }
 
   document.getElementById('edit-date').value = toLocal(e.posted_at);
+    editHiddenEnabled = !!e.hidden;
+  document.getElementById('edit-hidden-toggle').classList.toggle('on-private', editHiddenEnabled);
+
   document.getElementById('edit-cover-group').style.display = (e.type==='music') ? 'block':'none';
   document.getElementById('edit-cover').value = e.cover_url || '';
 
@@ -6025,6 +6084,8 @@ async function saveEdit() {
   const update = { posted_at: dateVal ? new Date(dateVal).toISOString() : undefined, modified_at: new Date().toISOString() };
 
   update.theme = selectedEditTheme || 'none';
+  update.hidden = editHiddenEnabled;
+
 
   if (type === 'note') {
     update.content = getRteHtml('rte-editor2');
@@ -6158,6 +6219,13 @@ function togglePhotoBlur() {
   else { track.style.background='var(--surface2)'; track.style.borderColor='var(--border)'; thumb.style.background='var(--text3)'; thumb.style.transform='translateX(0)'; }
 }
 function toggleEditBlur() { editBlurEnabled=!editBlurEnabled; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
+function toggleEditHidden() {
+  editHiddenEnabled = !editHiddenEnabled;
+  const t = document.getElementById('edit-hidden-toggle');
+  t.classList.toggle('on-private', editHiddenEnabled);
+}
+
+
 
 let selectedNoteTheme = 'none';
 let selectedEditTheme = 'none';
