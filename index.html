@@ -5190,8 +5190,9 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
     const code = e.content || '';
     const encoded = code.replace(/"/g, '&quot;');
     mediaHtml = `<div style="border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;background:#fff;position:relative;">
-      <iframe srcdoc="${encoded}" style="width:100%;height:320px;border:none;display:block;" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+      <iframe srcdoc="${encoded}" style="width:100%;height:600px;border:none;display:block;" sandbox="allow-scripts allow-same-origin" loading="lazy" onload="(function(f){try{var h=f.contentDocument.documentElement.scrollHeight;if(h>50)f.style.height=h+'px';}catch(e){}})(this)"></iframe>
     </div>`;
+
   
 
 
@@ -6134,15 +6135,18 @@ document.getElementById('edit-cover-file-input').value = '';
     editCapTa.value = e.content||'';
 
     
-      } else if (e.type === 'html') {
+} else if (e.type === 'html') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-plain-group').style.display='block';
     document.getElementById('edit-content').value = e.content||'';
     document.getElementById('edit-content').placeholder='cod HTML...';
     document.getElementById('edit-content').style.fontFamily='var(--mono)';
     document.getElementById('edit-content').style.fontSize='12px';
+    document.getElementById('edit-content').style.display='none';
+    document.getElementById('edit-upload-section').style.display='none';
     document.getElementById('edit-caption-group').style.display='none';
   }
+
 
     
 else if (e.type === 'pdf') {
