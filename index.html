@@ -5223,9 +5223,10 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
   if (e.content && e.type === 'note') {
     const htmlContent = hlQuery ? highlightHtml(e.content, hlQuery) : e.content;
     textHtml = `<div class="card-text" onclick="handleBlurClick(event)">${htmlContent}</div>`;
-  } else if (e.content && e.type !== 'music' && e.type !== 'pdf') {
+  } else if (e.content && e.type !== 'music' && e.type !== 'pdf' && e.type !== 'html') {
     textHtml = `<div class="card-text">${hlQuery ? highlightText(e.content, hlQuery) : escHtml(e.content)}</div>`;
   }
+
 
   const contentInner = `${textHtml}${mediaHtml}`;
 const wrappedContent = isPrivate
