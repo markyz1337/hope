@@ -6104,10 +6104,7 @@ editThemeGroup.style.display = 'block';
 selectedEditTheme = e.theme || 'none';
 selectEditTheme(selectedEditTheme);
 
-  const htmlBtns = document.getElementById('html-edit-action-btns');
-  if (htmlBtns) htmlBtns.style.display = 'none';
-
-  if (type === 'note') {
+  if (e.type === 'note') {
     document.getElementById('edit-rte-group').style.display='block';
     document.getElementById('edit-plain-group').style.display='none';
     document.getElementById('edit-caption-group').style.display='none';
@@ -6163,34 +6160,17 @@ document.getElementById('edit-cover-file-input').value = '';
     editCapTa.value = e.content||'';
 
     
-} else if (type === 'html') {
+} else if (e.type === 'html') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-plain-group').style.display='block';
     document.getElementById('edit-content').value = e.content||'';
     document.getElementById('edit-content').placeholder='cod HTML...';
     document.getElementById('edit-content').style.fontFamily='var(--mono)';
     document.getElementById('edit-content').style.fontSize='12px';
-    document.getElementById('edit-content').style.display='block';
-    document.getElementById('edit-content').style.minHeight='260px';
+    document.getElementById('edit-content').style.display='none';
     document.getElementById('edit-upload-section').style.display='none';
     document.getElementById('edit-caption-group').style.display='none';
-    document.getElementById('edit-plain-lbl').textContent='cod HTML';
-    // Butoane clear/copy
-    let htmlEditBtns = document.getElementById('html-edit-action-btns');
-    if (!htmlEditBtns) {
-      htmlEditBtns = document.createElement('div');
-      htmlEditBtns.id = 'html-edit-action-btns';
-      htmlEditBtns.style.cssText = 'display:flex;gap:8px;margin-top:7px;';
-      htmlEditBtns.innerHTML = `
-        <button onclick="navigator.clipboard.writeText(document.getElementById('edit-content').value).then(()=>showToast('cod copiat'))" style="flex:1;padding:9px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;">📋 copiază tot</button>
-        <button onclick="if(confirm('Ștergi tot codul?'))document.getElementById('edit-content').value=''" style="flex:1;padding:9px;background:rgba(200,80,80,0.07);border:1px solid rgba(200,80,80,0.2);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;">✕ clear</button>
-      `;
-      document.getElementById('edit-content').parentNode.insertBefore(htmlEditBtns, document.getElementById('edit-content').nextSibling);
-    } else {
-      htmlEditBtns.style.display = 'flex';
-    }
   }
-
 
 
     
