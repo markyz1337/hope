@@ -1735,6 +1735,14 @@ audio[controls] { display: block; }
       </div>
       <button onclick="updateHtmlPreview()" style="margin-top:7px;width:100%;padding:9px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;">↺ actualizează previzualizarea</button>
     </div>
+    
+        <div class="blur-toggle-row">
+      <label class="form-label">ascunde de vizitatori</label>
+      <div class="toggle-track" id="html-hidden-toggle" onclick="toggleHtmlHidden()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+
     <div class="blur-toggle-row">
       <label class="form-label">conținut privat</label>
       <div class="toggle-track" id="html-18-toggle" onclick="toggleHtml18()">
@@ -2616,6 +2624,8 @@ let note18Enabled  = false;
 let video18Enabled = false;
 let videoAutoplayEnabled = false;
 let html18Enabled = false;
+let htmlHiddenEnabled = false;
+
 
 let editBlurEnabled = false;
 let edit18Enabled   = false;
@@ -2992,6 +3002,12 @@ function toggleHtml18() {
   const t = document.getElementById('html-18-toggle');
   t.classList.toggle('on-private', html18Enabled);
 }
+function toggleHtmlHidden() {
+  htmlHiddenEnabled = !htmlHiddenEnabled;
+  const t = document.getElementById('html-hidden-toggle');
+  t.classList.toggle('on-private', htmlHiddenEnabled);
+}
+
 function updateHtmlPreview() {
   const code = document.getElementById('html-code').value;
   document.getElementById('html-preview-frame').srcdoc = code;
@@ -5881,7 +5897,8 @@ async function submitEntry(type) {
     if (!code) { showToast('adaugă cod HTML'); return; }
     payload.content = code;
     payload.blur_18 = html18Enabled;
-    payload.hidden = editHiddenEnabled;
+    payload.hidden = htmlHiddenEnabled;
+
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
 
 
@@ -5950,6 +5967,8 @@ if (videoAutoplayEnabled) { videoAutoplayEnabled=false; document.getElementById(
     document.getElementById('html-code').value = '';
     document.getElementById('html-preview-frame').srcdoc = '';
     if (html18Enabled) { html18Enabled=false; document.getElementById('html-18-toggle').classList.remove('on-private'); }
+    htmlHiddenEnabled = false; document.getElementById('html-hidden-toggle').classList.remove('on-private');
+
 
 
   } else if (type === 'pdf') {
@@ -6341,9 +6360,10 @@ if (name === 'note') {
 
   }
   if (name === 'html') {
-    editHiddenEnabled = false;
-    document.getElementById('edit-hidden-toggle').classList.remove('on-private');
+    htmlHiddenEnabled = false;
+    document.getElementById('html-hidden-toggle').classList.remove('on-private');
   }
+
   document.getElementById(`modal-${name}`).classList.add('open');
 
 }
