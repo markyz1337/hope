@@ -336,6 +336,10 @@ padding-bottom: env(safe-area-inset-bottom);
 .chip-video { color: var(--rose);    border-color: rgba(200,122,138,0.25); background: rgba(200,122,138,0.07); }
 .chip-music { color: var(--green);   border-color: rgba(122,200,149,0.25); background: rgba(122,200,149,0.07); }
 .chip-pdf   { color: var(--purple);  border-color: rgba(160,122,200,0.25); background: rgba(160,122,200,0.07); }
+
+.chip-html  { color: #7ac8c8;        border-color: rgba(122,200,200,0.25); background: rgba(122,200,200,0.07); }
+
+
 .card-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; }
 @media (hover: none) { .card-actions { opacity: 1; } }
 
@@ -1528,8 +1532,17 @@ audio[controls] { display: block; }
         </button>
       </div>
       <div class="fab-row">
+        <span class="fab-lbl">html live</span>
+        <button class="fab-sm" onclick="openModal('html')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="fab-row">
         <span class="fab-lbl">notiță</span>
         <button class="fab-sm" onclick="openModal('note')">
+
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -1705,6 +1718,39 @@ audio[controls] { display: block; }
 </div>
 
 <!-- MODALS -->
+
+<!-- HTML Live -->
+<div class="backdrop" id="modal-html">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">html live</div>
+    <div class="form-group">
+      <label class="form-label">cod html (cu style, script etc)</label>
+      <textarea class="form-textarea" id="html-code" style="min-height:200px;font-family:var(--mono);font-size:12px;line-height:1.5;" placeholder="<!DOCTYPE html>&#10;<html>&#10;...&#10;</html>"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">previzualizare</label>
+      <div style="border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;background:#fff;height:220px;position:relative;">
+        <iframe id="html-preview-frame" style="width:100%;height:100%;border:none;display:block;" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <button onclick="updateHtmlPreview()" style="margin-top:7px;width:100%;padding:9px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;">↺ actualizează previzualizarea</button>
+    </div>
+    <div class="blur-toggle-row">
+      <label class="form-label">conținut privat</label>
+      <div class="toggle-track" id="html-18-toggle" onclick="toggleHtml18()">
+        <div class="toggle-bg"></div><div class="toggle-thumb"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">data postării</label>
+      <input type="datetime-local" class="form-input" id="html-date" step="1">
+    </div>
+    <button class="btn-primary" onclick="submitEntry('html')">salvează</button>
+    <button class="btn-secondary" onclick="closeModal('html')">anulează</button>
+  </div>
+</div>
+
+
 
 <!-- Note -->
 <div class="backdrop" id="modal-note">
@@ -2569,6 +2615,8 @@ let photo18Enabled = false;
 let note18Enabled  = false;
 let video18Enabled = false;
 let videoAutoplayEnabled = false;
+let html18Enabled = false;
+
 let editBlurEnabled = false;
 let edit18Enabled   = false;
 let editHiddenEnabled = false;
@@ -2936,6 +2984,17 @@ function toggleVideo18() {
   video18Enabled = !video18Enabled;
   const t = document.getElementById('video-18-toggle');
   t.classList.toggle('on-private', video18Enabled);
+}
+
+
+function toggleHtml18() {
+  html18Enabled = !html18Enabled;
+  const t = document.getElementById('html-18-toggle');
+  t.classList.toggle('on-private', html18Enabled);
+}
+function updateHtmlPreview() {
+  const code = document.getElementById('html-code').value;
+  document.getElementById('html-preview-frame').srcdoc = code;
 }
 
 
@@ -5007,8 +5066,9 @@ function renderEntry(e, hlQuery) {
   const posted = new Date(e.posted_at);
   const timeStr = formatTime(posted);
   const dateStr = posted.toLocaleDateString('ro-RO', { day:'numeric', month:'short', year:'numeric' });
-  const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică', pdf:'pdf' };
-  const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music', pdf:'chip-pdf' };
+const typeLabels = { note:'notiță', photo:'poze', video:'video', music:'muzică', pdf:'pdf', html:'html' };
+const chipClass  = { note:'chip-note', photo:'chip-photo', video:'chip-video', music:'chip-music', pdf:'chip-pdf', html:'chip-html' };
+
   let mediaHtml = '';
   const isPrivate = !!e.blur_18;
   const isRevealed = isPrivateUnlocked || revealedPrivateSet.has(String(e.id));
@@ -5125,6 +5185,16 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
         <div class="wave-bar"></div><div class="wave-bar"></div>
       </div>
     </div>${noteHtml}`;
+
+  } else if (e.type === 'html') {
+    const code = e.content || '';
+    const encoded = code.replace(/"/g, '&quot;');
+    mediaHtml = `<div style="border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;background:#fff;position:relative;">
+      <iframe srcdoc="${encoded}" style="width:100%;height:320px;border:none;display:block;" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+    </div>`;
+  
+
+
 
   } else if (e.type === 'pdf') {
     const pdfUrl = resolveUrl(e.media_urls?.[0] || '');
@@ -5801,7 +5871,16 @@ async function submitEntry(type) {
     payload.media_urls = [url]; payload.caption = title; payload.content = note; payload.cover_url = cover;
 
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-  } else if (type === 'pdf') {
+ 
+    } else if (type === 'html') {
+    const code = document.getElementById('html-code').value.trim();
+    const date = document.getElementById('html-date').value;
+    if (!code) { showToast('adaugă cod HTML'); return; }
+    payload.content = code;
+    payload.blur_18 = html18Enabled;
+    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+
+   } else if (type === 'pdf') {
     const url = document.getElementById('pdf-url').value.trim();
     const title = document.getElementById('pdf-title').value.trim();
     const note = document.getElementById('pdf-note').value.trim();
@@ -5858,6 +5937,12 @@ if (videoAutoplayEnabled) { videoAutoplayEnabled=false; document.getElementById(
     document.getElementById('music-cover-file-input').value = '';
     document.getElementById('music-cover-preview').style.display = 'none';
     document.getElementById('music-cover-preview-img').src = '';
+
+
+  } else if (type === 'html') {
+    document.getElementById('html-code').value = '';
+    document.getElementById('html-preview-frame').srcdoc = '';
+    if (html18Enabled) { html18Enabled=false; document.getElementById('html-18-toggle').classList.remove('on-private'); }
 
 
   } else if (type === 'pdf') {
@@ -6047,7 +6132,20 @@ document.getElementById('edit-cover-file-input').value = '';
     document.getElementById('edit-caption-lbl').textContent='descriere';
     editCapWrap.style.display='none'; editCapTa.style.display='block';
     editCapTa.value = e.content||'';
-  } else if (e.type === 'pdf') {
+
+    
+      } else if (e.type === 'html') {
+    document.getElementById('edit-rte-group').style.display='none';
+    document.getElementById('edit-plain-group').style.display='block';
+    document.getElementById('edit-content').value = e.content||'';
+    document.getElementById('edit-content').placeholder='cod HTML...';
+    document.getElementById('edit-content').style.fontFamily='var(--mono)';
+    document.getElementById('edit-content').style.fontSize='12px';
+    document.getElementById('edit-caption-group').style.display='none';
+  }
+
+    
+else if (e.type === 'pdf') {
     document.getElementById('edit-rte-group').style.display='none';
     document.getElementById('edit-plain-group').style.display='block';
     document.getElementById('edit-content').value = e.media_urls?.[0]||'';
@@ -6133,6 +6231,12 @@ async function saveEdit() {
     const capHtml = getCapHtml('edit-cap-editor');
     update.media_urls = [content]; update.caption = capHtml; update.blur_18 = edit18Enabled;
     update.video_autoplay = editVideoAutoplayEnabled;
+
+  } else if (type === 'html') {
+    update.content = document.getElementById('edit-content').value.trim();
+    update.blur_18 = edit18Enabled;
+  
+
 
   } else if (type === 'pdf') {
     const content = document.getElementById('edit-content').value.trim();
