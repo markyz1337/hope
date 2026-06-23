@@ -5189,9 +5189,10 @@ mediaHtml = `<div class="music-player" onclick="toggleEntryMusic('${escHtml(aurl
   } else if (e.type === 'html') {
     const code = e.content || '';
     const encoded = code.replace(/"/g, '&quot;');
-    mediaHtml = `<div style="border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;background:#fff;position:relative;">
-      <iframe srcdoc="${encoded}" style="width:100%;height:600px;border:none;display:block;" sandbox="allow-scripts allow-same-origin" loading="lazy" onload="(function(f){try{var h=f.contentDocument.documentElement.scrollHeight;if(h>50)f.style.height=h+'px';}catch(e){}})(this)"></iframe>
+    mediaHtml = `<div style="border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;background:transparent;position:relative;">
+      <iframe srcdoc="${encoded}" style="width:100%;height:600px;border:none;display:block;background:transparent;" sandbox="allow-scripts allow-same-origin" loading="lazy" onload="(function(f){try{var h=f.contentDocument.documentElement.scrollHeight;if(h>50)f.style.height=h+'px';}catch(e){}})(this)"></iframe>
     </div>`;
+
 
   
 
@@ -5880,7 +5881,9 @@ async function submitEntry(type) {
     if (!code) { showToast('adaugă cod HTML'); return; }
     payload.content = code;
     payload.blur_18 = html18Enabled;
+    payload.hidden = editHiddenEnabled;
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+
 
    } else if (type === 'pdf') {
     const url = document.getElementById('pdf-url').value.trim();
@@ -5892,7 +5895,9 @@ async function submitEntry(type) {
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   }
 payload.theme = selectedNoteTheme || 'none';
+  payload.hidden = false;
   payload.modified_at = payload.posted_at;
+
   const { data: inserted, error } = await sb.from('entries').insert([payload]).select().single();
   if (error) { showToast('eroare: ' + error.message); return; }
   showToast('salvat');
@@ -6335,7 +6340,12 @@ if (name === 'note') {
     }
 
   }
+  if (name === 'html') {
+    editHiddenEnabled = false;
+    document.getElementById('edit-hidden-toggle').classList.remove('on-private');
+  }
   document.getElementById(`modal-${name}`).classList.add('open');
+
 }
 
 function closeModal(name) { document.getElementById(`modal-${name}`).classList.remove('open'); }
