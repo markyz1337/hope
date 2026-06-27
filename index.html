@@ -112,15 +112,18 @@ body::before {
   position: fixed; 
   top: 0; left: 0; right: 0; bottom: 0;
   inset: 0;
-  background: linear-gradient(180deg, rgba(4,4,8,0.92) 0%, rgba(12,12,15,0.85) 50%, rgba(4,4,8,0.95) 100%);
-  backdrop-filter: blur(30px) saturate(140%);
-  -webkit-backdrop-filter: blur(30px) saturate(140%);
-  z-index: 1000; /* Ridicat ca să stea deasupra la absolut tot */
+  /* Eliminăm blur-ul și transparenta. Pus exact culoarea fundalului base */
+  background: #0c0c0f;
+  z-index: 1000;
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
   opacity: 0; pointer-events: none;
-  transition: opacity 0.4s ease;
-  /* Padding-ul de safe-area îl mutăm pe modal, nu pe overlay, ca fundalul să acopere tot */
+  transition: opacity 0.3s ease;
+}
+
+/* Ascundem temporarily scrollbar-ul pentru a evita flash-uri */
+body:has(.pin-overlay.open) {
+  overflow: hidden;
 }
 .pin-overlay.open { opacity: 1; pointer-events: all; }
 
@@ -162,7 +165,7 @@ body::before {
 
 /* PIN private mode styling -- dark, elegant */
 .pin-overlay.mode-private {
-  background: rgba(2,2,6,0.65);
+  background: #0c0c0f; /* Rămâne solid, la fel ca status bar-ul */
 }
 .pin-overlay.mode-private .pin-modal {
   border: 1px solid rgba(138,122,160,0.2);
@@ -1607,7 +1610,7 @@ audio[controls] { display: block; }
 
 
 <!-- TIME LOCK OVERLAY -->
-<div class="pin-overlay" id="timeLockOverlay" style="flex-direction:column;gap:16px;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;inset:0;background:linear-gradient(180deg, rgba(4,4,8,0.95) 0%, rgba(12,12,15,0.9) 100%); z-index:1000;">
+<div class="pin-overlay" id="timeLockOverlay" style="flex-direction:column;gap:16px;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;inset:0;background:#0c0c0f;z-index:1000;">
 
 
 
