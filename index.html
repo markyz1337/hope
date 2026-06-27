@@ -9,8 +9,7 @@
 <link rel="apple-touch-icon" href="https://github.com/markyz1337/hope/raw/refs/heads/main/icon.png">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Hope%22%2C%22short_name%22%3A%22Hope%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230c0c0f%22%2C%22theme_color%22%3A%22%230c0c0f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fgithub.com%2Fmarkyz1337%2Fhope%2Fraw%2Frefs%2Fheads%2Fmain%2Ficon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 <meta name="apple-mobile-web-app-title" content="hope">
-<meta name="theme-color" content="#0e1422" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1422" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0c0c0f">
 
 
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -897,13 +896,8 @@ body.locked .fab-wrap:not(.redirect-visible) { display: none !important; }
 }
 .cal-popup-overlay.open { opacity: 1; pointer-events: all; }
 .cal-popup-modal {
-  background: #0e1422; 
-  border: 1px solid rgba(255,255,255,0.11); 
-  border-radius: 22px;
-  width: 100%; max-width: 380px; 
-  height: 88vh; 
-  max-height: 88vh; 
-  overflow: hidden;
+  background: #0e1422; border: 1px solid rgba(255,255,255,0.11); border-radius: 22px;
+  width: 100%; max-width: 380px; max-height: 88vh; overflow: hidden;
   display: flex; flex-direction: column;
   box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.05) inset;
   transform: scale(0.92); transition: transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
@@ -4444,9 +4438,6 @@ function openCalPopup() {
   calPopupOpen = true;
   document.body.style.overflow = 'hidden';
 
-  // Forțează StatusBar/NavBar să devină #0e1422
-  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', '#0e1422'));
-
   const ref = selectedDate || new Date();
   calPopupYear = ref.getFullYear(); calPopupMonth = ref.getMonth();
   renderCalPopup();
@@ -4459,9 +4450,6 @@ function closeCalPopup() {
   document.body.style.overflow = '';
   document.getElementById('calPopupOverlay').classList.remove('open');
   document.getElementById('calFabBtn').classList.remove('is-active');
-
-  // Restaurează StatusBar/NavBar la culoarea inițială a aplicației
-  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', '#0c0c0f'));
 }
 
 function handleCalOverlayClick(e) { if (e.target === document.getElementById('calPopupOverlay')) closeCalPopup(); }
