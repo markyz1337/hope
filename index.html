@@ -7503,11 +7503,13 @@ function rowsToCsv(rows) {
   const escape = val => {
     if (val === null || val === undefined) return '';
     const str = typeof val === 'object' ? JSON.stringify(val) : String(val);
-    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
-      return `"${str.replace(/"/g, '""')}"`;
+    const needsQuote = str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r');
+    if (needsQuote) {
+      return `"${str.replace(/"/g, '""').replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ')}"`;
     }
     return str;
   };
+
   const lines = [
     headers.join(','),
     ...rows.map(r => headers.map(h => escape(r[h])).join(','))
