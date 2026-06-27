@@ -3769,9 +3769,10 @@ function syncSettingsUI() {
   document.getElementById('settings-time-start').value = SETTING_TIME_LOCK_HOUR;
   document.getElementById('settings-time-end').value   = SETTING_TIME_LOCK_END;
 
-  document.getElementById('settings-creator-pin-display').textContent = '••••';
-  document.getElementById('settings-private-pin-display').textContent = '••••';
-  document.getElementById('settings-visitor-pin-display').textContent = '••••';
+document.getElementById('settings-creator-pin-display').textContent = PIN_CODE;
+document.getElementById('settings-private-pin-display').textContent = PIN_PRIVATE;
+document.getElementById('settings-visitor-pin-display').textContent = PIN_VISITOR;
+
 
 
 const tlmt = document.getElementById('settings-timelock-music-toggle');
