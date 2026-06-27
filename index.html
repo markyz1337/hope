@@ -281,6 +281,9 @@ padding-bottom: env(safe-area-inset-bottom);
   padding: 8px 10px; border-radius: 50px; border: 1px solid var(--border);
   background: var(--surface); cursor: pointer; transition: all 0.2s; min-width: 48px;
 }
+
+.date-pill.future { opacity: 0.55; cursor: default; }
+
 .date-pill:hover { border-color: var(--border2); background: var(--surface2); }
 .date-pill.active { border-color: rgba(200,169,126,0.45); background: rgba(200,169,126,0.1); }
 .pill-name { font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em; color: var(--text3); text-transform: uppercase; }
@@ -2960,14 +2963,11 @@ function setUnlocked(unlocked) {
 document.getElementById('lockFabWrap').style.display = 'none';
 document.getElementById('fabWrap').classList.remove('redirect-visible');
 updateFabMainMode();
-
-
-
-
-
     document.getElementById('headerTitle').classList.add('unlocked-mode');
     showToast('deblocat');
+        buildCarousel();
         renderEntries();
+
   } else {
     document.body.classList.add('locked');
     document.getElementById('lockBadge').classList.remove('unlocked');
@@ -4440,7 +4440,8 @@ function renderCalPopup() {
   const curYear = now.getFullYear();
   const curMonth = now.getMonth();
   const nextBtn = document.getElementById('calPopupNextMonthBtn');
-  nextBtn.disabled = (calPopupYear === curYear && calPopupMonth === curMonth);
+nextBtn.disabled = !isLocked ? false : (calPopupYear === curYear && calPopupMonth === curMonth);
+
   const monthNames = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
   document.getElementById('calPopupMonthLbl').textContent = `${monthNames[calPopupMonth]} ${calPopupYear}`;
   const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
@@ -4510,8 +4511,10 @@ function renderCalPopup() {
     const dotMap = { note:'cal-dot-note', photo:'cal-dot-photo', video:'cal-dot-video', music:'cal-dot-music', pdf:'cal-dot-pdf' };
     const dots = dotOrder.filter(t => types.includes(t)).map(t => `<span class="cal-popup-dot ${dotMap[t]}"></span>`).join('');
     const dotsHtml = dots ? `<div class="cal-popup-dots">${dots}</div>` : '';
-    const clickHandler = isFuture ? '' : `onclick="calPopupSelectDay('${k}')"`;
-    html += `<div class="${cls}" ${clickHandler}>${day}${dotsHtml}</div>`;
+const clickHandler = (isFuture && isLocked) ? '' : `onclick="calPopupSelectDay('${k}')"`;
+if (isFuture && !isLocked) cls = cls.replace(' future', '') + ' no-data';
+html += `<div class="${cls}" ${clickHandler}>${day}${dotsHtml}</div>`;
+
   }
   document.getElementById('calPopupGrid').innerHTML = html;
 }
@@ -4810,7 +4813,11 @@ function buildCarousel() {
     if (dateMusicMap[k] && (!dateMusicMap[k].hidden || !isLocked) && !types.includes('music')) types.push('music_dm');
 
     const dots = types.map(t => { const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t]||'var(--accent)'); return `<span class="pill-dot" style="background:${color}"></span>`; }).join('');
-    html += `<div class="date-pill${isSelected?' active':''}" data-key="${k}" onclick="selectDate('${k}')">
+const isFuturePill = k > dateKey(today);
+const pillClick = (isFuturePill && isLocked) ? '' : `onclick="selectDate('${k}')"`;
+html += `<div class="date-pill${isSelected?' active':''}" data-key="${k}" style="${(isFuturePill && isLocked) ? 'opacity:0.35;pointer-events:none;cursor:default;' : ''}" ${pillClick}>
+
+
       <span class="pill-name">${isToday?'azi':dayNames[d.getDay()]}</span>
       <span class="pill-num">${d.getDate()}</span>
       <div class="pill-dots">${dots}</div>
