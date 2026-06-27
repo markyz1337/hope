@@ -845,6 +845,11 @@ body.locked .dm-delete-btn { display: none !important; }
 /* ── FAB ── */
 body.locked .fab-wrap:not(.redirect-visible) { display: none !important; }
 
+/* Ascunde vizual tot continutul cand sunt deschise setarile sau calendarul */
+body.hide-app-content > *:not(.cal-popup-overlay):not(.settings-overlay):not(.pin-overlay):not(.toast):not(.lightbox) {
+  opacity: 0 !important;
+  transition: opacity 0.15s ease;
+}
 
 .fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
 .fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
@@ -3809,11 +3814,13 @@ function openSettings() {
   syncSettingsUI();
   document.getElementById('settingsOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.body.classList.add('hide-app-content'); // Ascunde continutul din spate
 }
 
 function closeSettings() {
   document.getElementById('settingsOverlay').classList.remove('open');
   document.body.style.overflow = '';
+  document.body.classList.remove('hide-app-content'); // Aduce continutul inapoi
 }
 
 function handleSettingsOverlayClick(e) {
@@ -4437,6 +4444,7 @@ function toggleCalPopup() { if (calPopupOpen) { closeCalPopup(); return; } openC
 function openCalPopup() {
   calPopupOpen = true;
   document.body.style.overflow = 'hidden';
+  document.body.classList.add('hide-app-content'); // Ascunde continutul din spate
 
   const ref = selectedDate || new Date();
   calPopupYear = ref.getFullYear(); calPopupMonth = ref.getMonth();
@@ -4448,6 +4456,8 @@ function openCalPopup() {
 function closeCalPopup() {
   calPopupOpen = false;
   document.body.style.overflow = '';
+  document.body.classList.remove('hide-app-content'); // Aduce continutul inapoi
+
   document.getElementById('calPopupOverlay').classList.remove('open');
   document.getElementById('calFabBtn').classList.remove('is-active');
 }
