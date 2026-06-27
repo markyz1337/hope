@@ -6391,13 +6391,10 @@ document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('clic
 // ═══════════════════════════════════════
 function handleFabMainClick() {
   if (isLocked && isRedirectMode()) {
-    if (SETTING_REDIRECT_URL) {
-      let url = SETTING_REDIRECT_URL;
-      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-      window.open(url, '_blank');
-    }
+    if (SETTING_REDIRECT_URL) showRedirectModal(SETTING_REDIRECT_URL);
     return;
   }
+
 
 
   if (isLocked) {
@@ -7501,6 +7498,57 @@ function toggleMusicTextSpan(span) {
 // TOAST
 // ═══════════════════════════════════════
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+function showRedirectModal(targetUrl) {
+  const existing = document.getElementById('redirect-modal-overlay');
+  if (existing) document.body.removeChild(existing);
+
+  let url = targetUrl;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const displayUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'redirect-modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.25s;';
+
+  overlay.innerHTML = `
+    <div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">
+
+      <!-- Iconița inimă -->
+      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,rgba(200,80,120,0.25),rgba(230,100,140,0.12));border:1px solid rgba(220,80,120,0.35);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#f0a0b8" stroke-width="1.6" style="width:22px;height:22px;">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Titlu -->
+      <div style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--accent2);font-weight:400;margin-bottom:6px;text-align:center;">te așteaptă</div>
+
+      <!-- Subtitlu -->
+      <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text2);letter-spacing:0.02em;text-align:center;line-height:1.6;margin-bottom:24px;">vei fi redirecționată către<br><span style="font-size:20px;color:var(--accent2);font-weight:500;letter-spacing:0.04em;">abouthope</span></div>
+
+      <!-- Parola -->
+      <div style="width:100%;background:rgba(200,169,126,0.06);border:1px solid rgba(200,169,126,0.2);border-radius:12px;padding:12px 16px;margin-bottom:24px;text-align:center;">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">parola de acces</div>
+        <div style="font-family:var(--serif);font-size:28px;color:var(--accent2);letter-spacing:0.18em;font-weight:500;">0000</div>
+      </div>
+
+      <!-- Buton deschide -->
+      <button onclick="(function(){let u='${url.replace(/'/g,"\\'")}';document.body.removeChild(document.getElementById('redirect-modal-overlay'));window.open(u,'_blank');})()" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;cursor:pointer;margin-bottom:8px;transition:all 0.2s;">deschide ♥</button>
+
+      <!-- Buton anulează -->
+      <button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'))" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;transition:all 0.2s;">anulează</button>
+    </div>
+  `;
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) document.body.removeChild(overlay);
+  });
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+}
+
 
 // ═══════════════════════════════════════
 // START
