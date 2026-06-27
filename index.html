@@ -2788,6 +2788,7 @@ if (pinBuffer === PIN_CODE) {
 if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
     timeLockBypassed = true;
     userHasInteracted = true; // ← adaugă asta
+	updateFabMainMode();
     continueInitAfterAuth();
   }
 
@@ -2820,7 +2821,7 @@ if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
 
   // ── PIN vizitatori ──
   if (pinMode === 'visitor') {
-    if (pinBuffer === PIN_VISITOR) {
+if (pinBuffer === PIN_VISITOR) {
 document.getElementById('pinOverlay').classList.remove('open');
 pinBuffer = '';
 updatePinDots();
@@ -2833,8 +2834,12 @@ if (pendingDateMusicKey && pendingDateMusicAutoplay) {
   dmAudio.play().catch(() => {});
   syncDateMusicWaves();
 }
-      userHasInteracted = true; // ← ADAUGĂ ASTA
+      userHasInteracted = true;
+	updateFabMainMode();
+  renderEntries();
+  buildCarousel();
     } else {
+
       pinError();
     }
     return;
@@ -6425,6 +6430,16 @@ function updateFabMainMode() {
   const btn = document.getElementById('fabMain');
   const icon = document.getElementById('fabMainIcon');
   if (!btn || !icon) return;
+
+  if (isLocked) {
+    if (isRedirectMode()) {
+      document.getElementById('lockFabWrap').style.display = 'none';
+      document.getElementById('fabWrap').classList.add('redirect-visible');
+    } else {
+      document.getElementById('lockFabWrap').style.display = '';
+      document.getElementById('fabWrap').classList.remove('redirect-visible');
+    }
+  }
 
   if (!isLocked) {
     icon.innerHTML = `<path d="M12 5v14M5 12h14" stroke-linecap="round"/>`;
