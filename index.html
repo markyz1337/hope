@@ -5899,11 +5899,10 @@ async function submitEntry(type) {
     const code = document.getElementById('html-code').value.trim();
     const date = document.getElementById('html-date').value;
     if (!code) { showToast('adaugă cod HTML'); return; }
-    payload.content = code;
-    payload.blur_18 = html18Enabled;
-    payload.hidden = htmlHiddenEnabled;
+payload.content = code;
+payload.blur_18 = html18Enabled;
+payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
 
-    payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
 
 
    } else if (type === 'pdf') {
@@ -5916,8 +5915,11 @@ async function submitEntry(type) {
     payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
   }
 payload.theme = selectedNoteTheme || 'none';
-  payload.hidden = false;
-  payload.modified_at = payload.posted_at;
+if (type !== 'html') payload.hidden = false;
+else payload.hidden = document.getElementById('html-hidden-toggle').classList.contains('on-private');
+payload.modified_at = payload.posted_at;
+
+
 
   const { data: inserted, error } = await sb.from('entries').insert([payload]).select().single();
   if (error) { showToast('eroare: ' + error.message); return; }
