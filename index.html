@@ -439,8 +439,6 @@ body.locked .card-actions { display: none !important; }
   background: rgba(0,0,0,0.2);
 }
 
-/* DUPĂ */
-/* ÎNAINTE */
 .img-blur-overlay {
   position: absolute; inset: 0;
   backdrop-filter: blur(16px);
@@ -795,7 +793,9 @@ body.locked .dm-delete-btn { display: none !important; }
 .bottom-nav-btn:active { transform: scale(0.91); background: rgba(30,30,40,1); }
 
 /* ── FAB ── */
-body.locked .fab-wrap { display: none !important; }
+body.locked .fab-wrap:not(.redirect-visible) { display: none !important; }
+
+
 .fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
 .fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
 .fab-menu.open { max-height: 500px; opacity: 1; }
@@ -1444,7 +1444,6 @@ audio[controls] { display: block; }
   </div>
 
   <div class="bottom-nav-btns">
-<!-- CU ASTA -->
 <div class="nav-btn-outer" id="prevWrap">
   <svg class="nav-ring-svg" id="prevRingSvg" viewBox="0 0 66 66">
     <circle cx="33" cy="33" r="28" fill="none" stroke="rgba(200,169,126,0.15)" stroke-width="2.5"/>
@@ -1482,14 +1481,6 @@ audio[controls] { display: block; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <path d="M3 18v-6a9 9 0 0118 0v6"/>
             <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-      <div class="fab-row">
-        <span class="fab-lbl">import text</span>
-        <button class="fab-sm" onclick="openModal('import')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-            <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
@@ -1549,11 +1540,12 @@ audio[controls] { display: block; }
         </button>
       </div>
     </div>
-    <button class="fab-main" id="fabMain" onclick="toggleFab()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+    <button class="fab-main" id="fabMain" onclick="handleFabMainClick()">
+      <svg id="fabMainIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
         <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
       </svg>
     </button>
+
   </div>
 
   <div class="lock-fab-wrap" id="lockFabWrap">
@@ -2171,26 +2163,6 @@ audio[controls] { display: block; }
   </div>
 </div>
 
-<!-- Import -->
-<div class="backdrop" id="modal-import">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">import text</div>
-    <div class="form-group">
-      <label class="form-label">lipește textul cu format ᏂᎧᎮᏋ</label>
-      <textarea class="form-textarea" id="import-text" style="min-height:140px"
-        placeholder="ᏂᎧᎮᏋ 💛, [15 feb., 2026 la 11:27]&#10;Am scris ceva frumos..."
-        oninput="previewImport()"></textarea>
-    </div>
-    <div id="import-preview" style="display:none">
-      <div class="form-label" style="margin-bottom:4px">preview</div>
-      <div class="parse-preview" id="import-preview-text"></div>
-    </div>
-    <button class="btn-primary" onclick="importEntries()">importă</button>
-    <button class="btn-secondary" onclick="closeModal('import')">anulează</button>
-  </div>
-</div>
-
 <!-- Edit -->
 <div class="backdrop" id="modal-edit">
   <div class="sheet">
@@ -2545,7 +2517,26 @@ audio[controls] { display: block; }
 </div>
 
 
+    <!-- Redirect FAB -->
+    <div class="settings-section">
+      <div class="settings-section-title">buton redirecționare</div>
+      <p style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;margin-bottom:12px;">
+        Când e activ, butonul + devine ♥ și redirecționează vizitatorii pe linkul de mai jos.
+      </p>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label class="form-label">link redirecționare</label>
+        <input type="url" class="settings-pin-input" id="settings-redirect-url" placeholder="https://..." style="-webkit-text-security:none;font-size:12px;letter-spacing:0;width:100%;">
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label class="form-label">activ începând cu data (opțional)</label>
+        <input type="date" id="settings-redirect-from" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;">
+      </div>
+      <button class="settings-pin-btn" style="width:100%" onclick="saveRedirectSettings()">salvează</button>
+      <button class="settings-pin-btn" style="width:100%;margin-top:8px;background:rgba(200,80,80,0.08);border-color:rgba(200,80,80,0.25);color:#e07070;" onclick="clearRedirectSettings()">dezactivează</button>
+    </div>
+
     <!-- 6. Melodie ecran așteptare -->
+
     <div class="settings-section">
       <div class="settings-section-title">melodie ecran așteptare</div>
       <div class="settings-row">
@@ -2635,7 +2626,10 @@ let editHiddenEnabled = false;
 let dmHiddenEnabled = false;
 let isLocked = true;
 let SETTING_TIMELOCK_MUSIC_URL = '';
-let SETTING_TITLE_RULES = []; // [{ date: "2026-06-15", text: "..." }]
+let SETTING_TITLE_RULES = [];
+let SETTING_REDIRECT_URL = '';
+let SETTING_REDIRECT_FROM = '';
+
 let SETTING_TIMELOCK_MUSIC_ON  = false;
 let timeLockAudio = null;
 let timeLockBypassed = false;
@@ -2915,6 +2909,9 @@ const allDates = [
   setupNavButtons();
   setupOverscroll();
   setupCardTextLinks();
+  updateFabMainMode();
+
+
   
   if (selectedDate) {
     const dk = dateKey(selectedDate);
@@ -2955,8 +2952,14 @@ function setUnlocked(unlocked) {
     document.getElementById('lockBadge').classList.add('unlocked');
     document.getElementById('lockLabel').textContent = 'deblocat';
     document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 019.9-1" stroke-linecap="round"/>`;
-    document.getElementById('lockFabWrap').style.display = 'none';
-    document.getElementById('fabWrap').style.display = '';
+document.getElementById('lockFabWrap').style.display = 'none';
+document.getElementById('fabWrap').classList.remove('redirect-visible');
+updateFabMainMode();
+
+
+
+
+
     document.getElementById('headerTitle').classList.add('unlocked-mode');
     showToast('deblocat');
         renderEntries();
@@ -2965,11 +2968,27 @@ function setUnlocked(unlocked) {
     document.getElementById('lockBadge').classList.remove('unlocked');
     document.getElementById('lockLabel').textContent = 'blocat';
     document.getElementById('lockIcon').innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>`;
-    document.getElementById('lockFabWrap').style.display = '';
-    document.getElementById('fabWrap').style.display = 'none';
+if (isRedirectMode()) {
+  document.getElementById('lockFabWrap').style.display = 'none';
+  document.getElementById('fabWrap').classList.add('redirect-visible');
+} else {
+  document.getElementById('lockFabWrap').style.display = '';
+  document.getElementById('fabWrap').classList.remove('redirect-visible');
+}
+
+
+
+
+
+
+
+    updateFabMainMode();
+
     document.getElementById('headerTitle').classList.remove('unlocked-mode');
-    closeFab();
-    document.querySelectorAll('.backdrop.open').forEach(m => m.classList.remove('open'));
+closeFab();
+document.querySelectorAll('.backdrop.open').forEach(m => m.classList.remove('open'));
+updateFabMainMode();
+
   }
 }
 
@@ -3779,7 +3798,10 @@ const tlmt = document.getElementById('settings-timelock-music-toggle');
 tlmt.classList.toggle('on', SETTING_TIMELOCK_MUSIC_ON);
 document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
 document.getElementById('settings-timelock-music-url').value = SETTING_TIMELOCK_MUSIC_URL;
-renderTitleRulesList();
+  renderTitleRulesList();
+  document.getElementById('settings-redirect-url').value = SETTING_REDIRECT_URL;
+  document.getElementById('settings-redirect-from').value = SETTING_REDIRECT_FROM;
+
 
 
 }
@@ -4059,6 +4081,9 @@ SETTING_TIME_LOCK_END  = _settings.timeLockEnd  || '03:00';  // ← adaugi asta
 SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
 SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
 SETTING_TITLE_RULES = _settings.titleRules || [];
+SETTING_REDIRECT_URL = _settings.redirectUrl || '';
+SETTING_REDIRECT_FROM = _settings.redirectFrom || '';
+
 
 
 
@@ -4145,6 +4170,7 @@ if (selectedDate) {
   setupNavButtons();
   setupOverscroll();
   setupCardTextLinks();
+  updateFabMainMode();
 }
 
 function setupInteractionCapture() {
@@ -4232,6 +4258,23 @@ function removeTitleRule(date) {
   showToast('regulă ștearsă');
 }
 
+function saveRedirectSettings() {
+  SETTING_REDIRECT_URL = document.getElementById('settings-redirect-url').value.trim();
+  SETTING_REDIRECT_FROM = document.getElementById('settings-redirect-from').value;
+  saveSettings({ redirectUrl: SETTING_REDIRECT_URL, redirectFrom: SETTING_REDIRECT_FROM });
+  updateFabMainMode();
+  showToast('setări redirecționare salvate');
+}
+
+function clearRedirectSettings() {
+  SETTING_REDIRECT_URL = '';
+  SETTING_REDIRECT_FROM = '';
+  document.getElementById('settings-redirect-url').value = '';
+  document.getElementById('settings-redirect-from').value = '';
+  saveSettings({ redirectUrl: '', redirectFrom: '' });
+  updateFabMainMode();
+  showToast('redirecționare dezactivată');
+}
 
 
 function setupCardTextLinks() {
@@ -4795,7 +4838,9 @@ scrollCarouselToSelected();
   setDefaultDates();
   resetRing('next');
   updateCalFabState();
-  updateDynamicTitle(); // ← adaugă asta
+  updateDynamicTitle();
+  updateFabMainMode();
+
 }
 
 
@@ -5782,7 +5827,6 @@ document.getElementById('lightbox').addEventListener('click', e => {
 
 
 function revealBlurredImg(overlay, entryId, idx) {
-  // Deblurează toate imaginile din aceeași notiță
   const card = overlay.closest('.entry-card');
   if (card) {
     card.querySelectorAll('.img-blur-overlay').forEach((ov, i) => {
@@ -5794,12 +5838,15 @@ function revealBlurredImg(overlay, entryId, idx) {
         item.onclick = () => openLightboxForEntry(entryId, capturedIdx);
       }
     });
-    // Setează onclick corect per index
     card.querySelectorAll('.media-item').forEach((item, i) => {
       item.onclick = () => openLightboxForEntry(entryId, i);
     });
   }
 }
+
+
+
+
 
 
 // ═══════════════════════════════════════
@@ -6001,46 +6048,6 @@ async function reloadAndRender(scrollToId) {
   }
 }
 
-
-// ═══════════════════════════════════════
-// IMPORT
-// ═══════════════════════════════════════
-function parseImportText(raw) {
-  const results = [];
-  const parts = raw.split(/\s*ᏂᎧᎮᏋ[^\[]+/u).filter(p => p.trim());
-  parts.forEach(part => {
-    const m = part.match(/^\[(\d{1,2})\s+(\w+)\.?,?\s+(\d{4})\s+la\s+(\d{1,2}):(\d{2})\]/u);
-    if (!m) return;
-    const [, day, monthStr, year, hour, min] = m;
-    const monthMap = { ian:0,feb:1,mar:2,apr:3,mai:4,iun:5,iul:6,aug:7,sep:8,oct:9,noi:10,dec:11 };
-    const month = monthMap[monthStr.toLowerCase().substring(0,3)];
-    if (month === undefined) return;
-    const date = new Date(+year, month, +day, +hour, +min);
-    const text = part.replace(/^\[\d{1,2}\s+\w+\.?,?\s+\d{4}\s+la\s+\d{1,2}:\d{2}\]\s*/u,'').trim();
-    if (text) results.push({ date, text });
-  });
-  return results;
-}
-function previewImport() {
-  const raw = document.getElementById('import-text').value;
-  const preview = document.getElementById('import-preview'); const previewText = document.getElementById('import-preview-text');
-  const parsed = parseImportText(raw);
-  if (parsed.length) { preview.style.display='block'; previewText.textContent=parsed.map(p=>`[${p.date.toLocaleString('ro-RO')}]\n${p.text}`).join('\n\n'); }
-  else preview.style.display='none';
-}
-async function importEntries() {
-  if (isLocked) { showToast('deblochează mai întâi'); return; }
-  const raw = document.getElementById('import-text').value;
-  const parsed = parseImportText(raw);
-  if (!parsed.length) { showToast('nu am găsit nimic de importat'); return; }
-  const rows = parsed.map((p,i) => { const date = new Date(p.date.getTime()+i*1000); return { type:'note', content:p.text, posted_at:date.toISOString(), modified_at:date.toISOString() }; });
-  const { error } = await sb.from('entries').insert(rows);
-  if (error) { showToast('eroare la import'); return; }
-  showToast(`${rows.length} notițe importate`);
-  closeModal('import');
-  document.getElementById('import-text').value = ''; document.getElementById('import-preview').style.display='none';
-  await reloadAndRender();
-}
 
 // ═══════════════════════════════════════
 // EDIT
@@ -6382,13 +6389,70 @@ document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('clic
 // ═══════════════════════════════════════
 // FAB
 // ═══════════════════════════════════════
+function handleFabMainClick() {
+  if (isLocked && isRedirectMode()) {
+    if (SETTING_REDIRECT_URL) window.open(SETTING_REDIRECT_URL, '_blank');
+    return;
+  }
+
+  if (isLocked) {
+    openPinOverlay('main');
+    return;
+  }
+  toggleFab();
+}
+
+
+
 function toggleFab() {
-  if (isLocked) { openPinOverlay('main'); return; }
   fabOpen = !fabOpen;
   document.getElementById('fabMenu').classList.toggle('open', fabOpen);
   document.getElementById('fabMain').classList.toggle('open', fabOpen);
   if (fabOpen) closeCalPopup();
 }
+
+function isRedirectMode() {
+  if (!SETTING_REDIRECT_URL) return false;
+  if (!SETTING_REDIRECT_FROM) return true;
+  const refKey = selectedDate ? dateKey(selectedDate) : todayKey();
+  return refKey >= SETTING_REDIRECT_FROM;
+}
+
+
+function updateFabMainMode() {
+  const btn = document.getElementById('fabMain');
+  const icon = document.getElementById('fabMainIcon');
+  if (!btn || !icon) return;
+
+  if (!isLocked) {
+    icon.innerHTML = `<path d="M12 5v14M5 12h14" stroke-linecap="round"/>`;
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    btn.style.boxShadow = '';
+    btn.title = '';
+    return;
+  }
+
+  if (isRedirectMode()) {
+    icon.innerHTML = `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>`;
+    btn.title = 'deschide link';
+    btn.style.background = 'linear-gradient(135deg, rgba(200,80,120,0.65), rgba(230,100,140,0.35))';
+    btn.style.borderColor = 'rgba(220,80,120,0.55)';
+    btn.style.color = '#f0a0b8';
+    btn.style.boxShadow = '0 0 30px rgba(220,80,120,0.25), var(--shadow2)';
+  } else {
+    icon.innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>`;
+    btn.style.background = 'rgba(255,255,255,0.04)';
+    btn.style.borderColor = 'var(--border2)';
+    btn.style.color = 'var(--text3)';
+    btn.style.boxShadow = 'var(--shadow)';
+  }
+
+
+
+}
+
 function closeFab() {
   fabOpen = false;
   const fm = document.getElementById('fabMenu'); const fb = document.getElementById('fabMain');
