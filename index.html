@@ -2726,7 +2726,7 @@ let _pendingPrivateEntryId = null;
 // ── SETTINGS STORAGE ──
 async function loadSettings() {
   try {
-    const { data, error } = await sb.from('app_state').select('value').eq('key', 'carnet_settings').single();
+    const { data, error } = await sb.from('hope_app_state').select('value').eq('key', 'carnet_settings').single();
     if (!error && data) return JSON.parse(data.value);
   } catch(e) {}
   // fallback localStorage
@@ -2738,7 +2738,7 @@ async function saveSettings(obj) {
   const merged = { ...current, ...obj };
   const json = JSON.stringify(merged);
   try {
-    await sb.from('app_state').upsert([{ key: 'carnet_settings', value: json }], { onConflict: 'key' });
+    await sb.from('hope_app_state').upsert([{ key: 'carnet_settings', value: json }], { onConflict: 'key' });
   } catch(e) {}
   // fallback localStorage
   try { localStorage.setItem('carnet_settings', json); } catch(e) {}
@@ -3744,7 +3744,7 @@ async function saveDraft() {
   setDraftStatus('saving');
   const now = new Date().toISOString();
   try {
-    const { error } = await sb.from('drafts').upsert(
+    const { error } = await sb.from('hope_drafts').upsert(
       [{ id: 'note', content: html, saved_at: now }],
       { onConflict: 'id' }
     );
@@ -3757,7 +3757,7 @@ async function saveDraft() {
 
 async function loadDraft() {
   try {
-    const { data, error } = await sb.from('drafts').select('*').eq('id', 'note').single();
+    const { data, error } = await sb.from('hope_drafts').select('*').eq('id', 'note').single();
     if (error || !data || !data.content) { setDraftStatus('empty'); return; }
     const editor = document.getElementById('rte-editor');
     if (editor && (!editor.innerHTML.trim())) {
@@ -3774,7 +3774,7 @@ async function discardDraft() {
   clearTimeout(draftSaveTimer);
   document.getElementById('rte-editor').innerHTML = '';
   setDraftStatus('empty');
-  try { await sb.from('drafts').delete().eq('id', 'note'); } catch(e) {}
+  try { await sb.from('hope_drafts').delete().eq('id', 'note'); } catch(e) {}
   showToast('draft șters');
 }
 
@@ -4769,11 +4769,11 @@ function onTouchEnd(e) {
 // LAST DATE
 // ═══════════════════════════════════════
 async function loadLastDate() {
-  try { const { data, error } = await sb.from('app_state').select('value').eq('key','last_date').single(); if (!error && data) return data.value; } catch(e) {}
+  try { const { data, error } = await sb.from('hope_app_state').select('value').eq('key','last_date').single(); if (!error && data) return data.value; } catch(e) {}
   return null;
 }
 async function saveLastDate(key) {
-  try { await sb.from('app_state').upsert([{ key:'last_date', value:key }], { onConflict:'key' }); } catch(e) {}
+  try { await sb.from('hope_app_state').upsert([{ key:'last_date', value:key }], { onConflict:'key' }); } catch(e) {}
 }
 
 // ═══════════════════════════════════════
@@ -4795,7 +4795,7 @@ function setDefaultDates() {
 // ═══════════════════════════════════════
 async function loadDateMusicMap() {
   try {
-    const { data, error } = await sb.from('date_music').select('*');
+    const { data, error } = await sb.from('hope_date_music').select('*');
 if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'', hidden:!!r.hidden }; }); return; }
 
   } catch(e) {}
@@ -4812,7 +4812,7 @@ async function saveDateMusic() {
   const row = { date, url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled };
 
 
-  try { const { error } = await sb.from('date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
+  try { const { error } = await sb.from('hope_date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
   dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled };
 
   document.getElementById('dm-url').value = ''; document.getElementById('dm-title').value = ''; document.getElementById('dm-cover').value = '';
@@ -4842,7 +4842,7 @@ async function confirmDeleteDateMusic() {
     }
   }
   delete dateMusicMap[date];
-  try { await sb.from('date_music').delete().eq('date', date); } catch(e) {}
+  try { await sb.from('hope_date_music').delete().eq('date', date); } catch(e) {}
   showToast('muzică ștearsă'); closeModal('delete-dm'); buildCarousel(); renderEntries();
 }
 
@@ -5014,7 +5014,7 @@ function toggleDateMusicBanner() {
 // LOAD
 // ═══════════════════════════════════════
 async function loadEntries() {
-  const { data, error } = await sb.from('entries').select('*').order('posted_at', { ascending:true });
+  const { data, error } = await sb.from('hope_entries').select('*').order('posted_at', { ascending:true });
   if (error) { showToast('eroare la încărcare'); return; }
   entries = data || [];
 }
@@ -6047,7 +6047,7 @@ payload.modified_at = payload.posted_at;
 
 
 
-  const { data: inserted, error } = await sb.from('entries').insert([payload]).select().single();
+  const { data: inserted, error } = await sb.from('hope_entries').insert([payload]).select().single();
   if (error) { showToast('eroare: ' + error.message); return; }
   showToast('salvat');
   closeModal(type);
@@ -6065,7 +6065,7 @@ function clearForm(type) {
     selectNoteTheme('none')
     clearTimeout(draftSaveTimer);
     setDraftStatus('empty');
-    sb.from('drafts').delete().eq('id', 'note').then(() => {});
+    sb.from('hope_drafts').delete().eq('id', 'note').then(() => {});
   } else if (type === 'photo') {
     document.getElementById('photo-urls').value = '';
     document.getElementById('photo-cap-editor').innerHTML = '';
@@ -6371,7 +6371,7 @@ async function saveEdit() {
     update.media_urls = [content]; update.caption = caption;
   }
 
-  const { error } = await sb.from('entries').update(update).eq('id', id);
+  const { error } = await sb.from('hope_entries').update(update).eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('modificat'); closeModal('edit'); await reloadAndRender(id);
 
@@ -6388,7 +6388,7 @@ async function confirmDelete() {
   const id = document.getElementById('delete-id').value;
   const entry = entries.find(e => String(e.id) === String(id));
   if (entry) await deleteFromR2(entry);
-  const { error } = await sb.from('entries').delete().eq('id', id);
+  const { error } = await sb.from('hope_entries').delete().eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('șters'); closeModal('delete'); await reloadAndRender();
 }
@@ -6414,7 +6414,7 @@ async function saveDebug() {
   const update = {};
   if (posted) update.posted_at = new Date(posted).toISOString();
   if (modified) update.modified_at = new Date(modified).toISOString();
-  const { error } = await sb.from('entries').update(update).eq('id', id);
+  const { error } = await sb.from('hope_entries').update(update).eq('id', id);
   if (error) { showToast('eroare'); return; }
   showToast('date modificate'); closeModal('debug'); await reloadAndRender();
 }
@@ -7658,7 +7658,7 @@ init();
 // ═══════════════════════════════════════
 // SUPABASE EXPORT
 // ═══════════════════════════════════════
-const EXPORT_TABLES = ['entries', 'date_music', 'app_state', 'drafts'];
+const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts'];
 
 async function openSupabaseExport() {
   closeSettings();
@@ -7750,11 +7750,11 @@ async function exportTableCsv(tableName, btn) {
   const orig = btn ? btn.textContent : '';
   if (btn) { btn.textContent = 'se încarcă...'; btn.disabled = true; }
   try {
-    const { data, error } = await sb.from(tableName).select('*').order(
-      tableName === 'entries' ? 'posted_at' :
-      tableName === 'date_music' ? 'date' : 'key',
-      { ascending: true }
-    );
+const { data, error } = await sb.from(tableName).select('*').order(
+  tableName === 'hope_entries' ? 'posted_at' :
+  tableName === 'hope_date_music' ? 'date' : 'key',
+  { ascending: true }
+);
     if (error) throw error;
     if (!data || !data.length) { showToast(`${tableName} e gol`); return; }
     const csv = rowsToCsv(data);
