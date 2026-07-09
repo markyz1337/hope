@@ -4807,11 +4807,12 @@ function setDefaultDates() {
   const now = new Date();
   base.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), 0);
   const local = toLocal(base);
-  ['note-date','photo-date','video-date','music-date','pdf-date'].forEach(id => {
+  ['note-date','photo-date','video-date','music-date','pdf-date','html-date'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = local;
   });
   if (selectedDate) { const dmDate = document.getElementById('dm-date'); if (dmDate) dmDate.value = dateKey(selectedDate); }
 }
+
 
 // ═══════════════════════════════════════
 // DATE MUSIC
