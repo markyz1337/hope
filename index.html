@@ -2662,8 +2662,31 @@ const sb = createClient(
 );
 
 // ═══════════════════════════════════════
+// SUPABASE KEEP-ALIVE (previne conexiune "rece" după inactivitate)
+// ═══════════════════════════════════════
+let supabaseKeepAliveInterval = null;
+
+async function supabaseHeartbeat() {
+  if (document.hidden) return;
+  try {
+    await sb.from('hope_app_state').select('key').limit(1);
+  } catch (e) {
+    console.warn('Heartbeat Supabase eșuat:', e);
+  }
+}
+
+function startSupabaseKeepAlive() {
+  if (supabaseKeepAliveInterval) return;
+  supabaseKeepAliveInterval = setInterval(supabaseHeartbeat, 8000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) supabaseHeartbeat();
+  });
+}
+
+// ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
+
 let entries = [];
 let dateMusicMap = {};
 let selectedDate = null;
@@ -7652,12 +7675,14 @@ window.addEventListener('message', function(e) {
 });
 
 init();
+startSupabaseKeepAlive();
 
 
 
 // ═══════════════════════════════════════
 // SUPABASE EXPORT
 // ═══════════════════════════════════════
+
 const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts'];
 
 async function openSupabaseExport() {
