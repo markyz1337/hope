@@ -6922,21 +6922,94 @@ async function openR2Gallery() {
   }
 }
 
+function buildScriptableScript(links) {
+  const urlsArrayCode = links.map(u => `  "${u}",`).join('\n');
+  return `// ============================================================
+// ADAUGĂ/MODIFICĂ URL-URI AICI
+// ============================================================
+const URLS = [
+${urlsArrayCode}
+];
+// ============================================================
+// FOLDER RĂDĂCINĂ — se salvează pe dispozitiv (nu iCloud)
+// ============================================================
+const fm = FileManager.iCloud();
+const BASE_FOLDER = fm.documentsDirectory() + "/Descarcari";
+
+
+// ============================================================
+// LOGICĂ AUTOMATĂ — nu modifica mai jos
+// ============================================================
+
+// Determină subfolder după segmentul din URL
+function getSubfolder(url) {
+  if (url.includes("/gifs/"))   return "gifs";
+  if (url.includes("/music/"))  return "music";
+  if (url.includes("/photos/")) return "photos";
+  if (url.includes("/video/"))  return "video";
+  return "altele";
+}
+
+// Creează folderele necesare
+const subfolders = ["gifs", "music", "photos", "video", "altele"];
+for (const sf of subfolders) {
+  const p = BASE_FOLDER + "/" + sf;
+  if (!fm.fileExists(p)) fm.createDirectory(p, true);
+}
+
+let ok = 0, skip = 0, fail = 0;
+
+for (const url of URLS) {
+  const filename = decodeURIComponent(url.split("/").pop().split("?")[0]);
+  const dest = BASE_FOLDER + "/" + getSubfolder(url) + "/" + filename;
+
+  if (fm.fileExists(dest)) {
+    console.log("⏭ skip: " + filename);
+    skip++;
+    continue;
+  }
+
+  try {
+    const req = new Request(url);
+    const data = await req.load();
+    fm.write(dest, data);
+    console.log("✓ " + filename);
+    ok++;
+  } catch (e) {
+    console.log("✗ " + filename + " — " + e.message);
+    fail++;
+  }
+}
+
+const msg = \`Gata!\\n✓ Descărcate: \${ok}\\n⏭ Sărite: \${skip}\\n✗ Erori: \${fail}\`;
+console.log(msg);
+
+const alert = new Alert();
+alert.title = "Descărcare completă";
+alert.message = msg;
+alert.addAction("OK");
+await alert.present();
+
+Script.complete();
+`;
+}
+
 
 function copyAllR2Links() {
   const btn = document.getElementById('copyAllR2Btn');
   const links = JSON.parse(btn.dataset.links);
-  const text = links.join('\n');
+  const text = buildScriptableScript(links);
   navigator.clipboard.writeText(text).then(() => {
-    showToast(`${links.length} link-uri copiate`);
+    showToast(`script Scriptable copiat (${links.length} fișiere)`);
   }).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = text; document.body.appendChild(ta);
     ta.select(); document.execCommand('copy');
     document.body.removeChild(ta);
-    showToast(`${links.length} link-uri copiate`);
+    showToast(`script Scriptable copiat (${links.length} fișiere)`);
   });
 }
+
 
 
 function renderR2Gallery(files) {
@@ -6989,7 +7062,7 @@ function renderR2Gallery(files) {
     </div>`;
 
   const allDirectLinks = files.map(f => `${R2_PUBLIC_URL}/${f.key}`);
-  html += `<button onclick="copyAllR2Links()" data-links='${JSON.stringify(allDirectLinks)}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază toate link-urile directe (${files.length})</button>`;
+  html += `<button onclick="copyAllR2Links()" data-links='${JSON.stringify(allDirectLinks)}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază scriptul Scriptable (${files.length} fișiere)</button>`;
 
   if (sortedOrphans.length > 0) {
     html += `<div style="margin-bottom:16px;">
