@@ -6957,36 +6957,79 @@ for (const sf of subfolders) {
   if (!fm.fileExists(p)) fm.createDirectory(p, true);
 }
 
-let ok = 0, skip = 0, fail = 0;
+// ============================================================
+// DESCARCARE IN PARALEL — NU MODIFICA FUNCTIILE DE MAI SUS
+// ============================================================
 
-for (const url of URLS) {
+const CONCURRENCY = 15; // cate descarcari simultane (8-15 e sigur; mai mult poate da erori de retea)
+
+async function downloadOne(url, index, total, counters) {
   const filename = decodeURIComponent(url.split("/").pop().split("?")[0]);
-  const dest = BASE_FOLDER + "/" + getSubfolder(url) + "/" + filename;
+  const subfolder = getSubfolder(url);
+  const dest = BASE_FOLDER + "/" + subfolder + "/" + filename;
+  const tag = "[" + String(index).padStart(3, "0") + "/" + total + "]";
 
   if (fm.fileExists(dest)) {
-    console.log("⏭ skip: " + filename);
-    skip++;
-    continue;
+    counters.skip++;
+    console.log(tag + " . SKIP  " + filename);
+    return;
   }
 
   try {
     const req = new Request(url);
     const data = await req.load();
     fm.write(dest, data);
-    console.log("✓ " + filename);
-    ok++;
+    counters.ok++;
+    const kb = (data.length / 1024).toFixed(0);
+    console.log(tag + " OK     " + filename + "  (" + kb + " KB)");
   } catch (e) {
-    console.log("✗ " + filename + " — " + e.message);
-    fail++;
+    counters.fail++;
+    console.log(tag + " FAIL   " + filename + "  -> " + e.message);
   }
 }
 
-const msg = \`Gata!\\n✓ Descărcate: \${ok}\\n⏭ Sărite: \${skip}\\n✗ Erori: \${fail}\`;
-console.log(msg);
+async function runPool(urls, concurrency) {
+  const total = urls.length;
+  const counters = { ok: 0, skip: 0, fail: 0 };
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < total) {
+      const current = nextIndex;
+      nextIndex++;
+      await downloadOne(urls[current], current + 1, total, counters);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, total);
+  const workers = [];
+  for (let i = 0; i < workerCount; i++) {
+    workers.push(worker());
+  }
+  await Promise.all(workers);
+  return counters;
+}
+
+console.log("========================================");
+console.log("Start: " + URLS.length + " fisiere | " + CONCURRENCY + " simultane");
+console.log("========================================\n");
+
+const startTime = Date.now();
+const counters = await runPool(URLS, CONCURRENCY);
+const seconds = ((Date.now() - startTime) / 1000).toFixed(1);
+
+console.log("\n========================================");
+console.log("OK: " + counters.ok + "   Sarite: " + counters.skip + "   Erori: " + counters.fail);
+console.log("Timp total: " + seconds + "s");
+console.log("========================================");
 
 const alert = new Alert();
-alert.title = "Descărcare completă";
-alert.message = msg;
+alert.title = "Descarcare completa";
+alert.message =
+  "Gata in " + seconds + "s\n" +
+  "OK: " + counters.ok + "\n" +
+  "Sarite: " + counters.skip + "\n" +
+  "Erori: " + counters.fail;
 alert.addAction("OK");
 await alert.present();
 
