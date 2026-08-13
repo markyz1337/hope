@@ -6941,7 +6941,6 @@ const BASE_FOLDER = fm.documentsDirectory() + "/Descarcari";
 // LOGICĂ AUTOMATĂ — nu modifica mai jos
 // ============================================================
 
-// Determină subfolder după segmentul din URL
 function getSubfolder(url) {
   if (url.includes("/gifs/"))   return "gifs";
   if (url.includes("/music/"))  return "music";
@@ -6950,18 +6949,13 @@ function getSubfolder(url) {
   return "altele";
 }
 
-// Creează folderele necesare
 const subfolders = ["gifs", "music", "photos", "video", "altele"];
 for (const sf of subfolders) {
   const p = BASE_FOLDER + "/" + sf;
   if (!fm.fileExists(p)) fm.createDirectory(p, true);
 }
 
-// ============================================================
-// DESCARCARE IN PARALEL — NU MODIFICA FUNCTIILE DE MAI SUS
-// ============================================================
-
-const CONCURRENCY = 15; // cate descarcari simultane (8-15 e sigur; mai mult poate da erori de retea)
+const CONCURRENCY = 15;
 
 async function downloadOne(url, index, total, counters) {
   const filename = decodeURIComponent(url.split("/").pop().split("?")[0]);
@@ -7012,13 +7006,13 @@ async function runPool(urls, concurrency) {
 
 console.log("========================================");
 console.log("Start: " + URLS.length + " fisiere | " + CONCURRENCY + " simultane");
-console.log("========================================\n");
+console.log("========================================\\n");
 
 const startTime = Date.now();
 const counters = await runPool(URLS, CONCURRENCY);
 const seconds = ((Date.now() - startTime) / 1000).toFixed(1);
 
-console.log("\n========================================");
+console.log("\\n========================================");
 console.log("OK: " + counters.ok + "   Sarite: " + counters.skip + "   Erori: " + counters.fail);
 console.log("Timp total: " + seconds + "s");
 console.log("========================================");
@@ -7026,9 +7020,9 @@ console.log("========================================");
 const alert = new Alert();
 alert.title = "Descarcare completa";
 alert.message =
-  "Gata in " + seconds + "s\n" +
-  "OK: " + counters.ok + "\n" +
-  "Sarite: " + counters.skip + "\n" +
+  "Gata in " + seconds + "s\\n" +
+  "OK: " + counters.ok + "\\n" +
+  "Sarite: " + counters.skip + "\\n" +
   "Erori: " + counters.fail;
 alert.addAction("OK");
 await alert.present();
@@ -7036,6 +7030,7 @@ await alert.present();
 Script.complete();
 `;
 }
+
 
 
 function copyAllR2Links() {
