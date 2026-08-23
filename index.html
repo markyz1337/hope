@@ -10223,17 +10223,16 @@ function renderClips(sourceClipsOverride, startAtId) {
   const sourceClips = sourceClipsOverride || clips;
   if (!sourceClips.length) { feed.innerHTML = `<div class="tiktok-empty">niciun clip momentan</div>`; return; }
 
-  tiktokFeedScope = null;
-  tiktokFeedOrder = buildFeedOrder(sourceClips);
+  // aceeași logică ca la colecții -- toate clipurile, ordonate după data adăugării, fără shuffle
+  let ordered = [...sourceClips];
   if (startAtId) {
-    tiktokFeedOrder = tiktokFeedOrder.filter(id => id !== startAtId);
-    tiktokFeedOrder.unshift(startAtId);
+    ordered = ordered.filter(c => String(c.id) !== String(startAtId));
+    const first = sourceClips.find(c => String(c.id) === String(startAtId));
+    if (first) ordered.unshift(first);
   }
-  const byId = Object.fromEntries(sourceClips.map(c => [String(c.id), c]));
-  const initialIds = tiktokFeedOrder.slice(0, TIKTOK_INITIAL_BATCH);
-  feed.innerHTML = initialIds.map(id => byId[id] ? clipSlideHtml(byId[id]) : '').join('');
-  setupTiktokObserver(sourceClips);
+  renderClipsFixed(ordered);
 }
+
 
 
 function renderClipsFixed(fixedClipsList) {
