@@ -9973,6 +9973,7 @@ function renderClips() {
       <audio class="tiktok-audio" src="${escHtml(url)}" loop preload="auto" ${tiktokGloballyMuted ? 'muted' : ''}></audio>
       <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${tiktokGloballyMuted ? '🔇' : '🔊'}</div>
 
+
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
       ${c.caption ? `<div class="tiktok-caption">${escHtml(c.caption)}</div>` : ''}
     </div>`;
@@ -9998,8 +9999,10 @@ function setupTiktokObserver() {
       const slide = v.closest('.tiktok-slide');
       const audio = slide ? slide.querySelector('.tiktok-audio') : null;
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+        v.currentTime = 0;
+        if (audio) audio.currentTime = 0;
         v.play().catch(() => {});
-        if (audio) { audio.currentTime = v.currentTime; audio.play().catch(() => {}); }
+        if (audio) audio.play().catch(() => {});
       } else {
         v.pause();
         if (audio) audio.pause();
@@ -10007,17 +10010,8 @@ function setupTiktokObserver() {
     });
   }, { threshold: [0, 0.6, 1] });
   videos.forEach(v => tiktokIO.observe(v));
-
-  clearInterval(tiktokSyncInterval);
-  tiktokSyncInterval = setInterval(() => {
-    document.querySelectorAll('.tiktok-slide').forEach(slide => {
-      const v = slide.querySelector('.tiktok-video');
-      const a = slide.querySelector('.tiktok-audio');
-      if (!v || !a || v.paused || a.paused) return;
-      if (Math.abs(v.currentTime - a.currentTime) > 0.25) a.currentTime = v.currentTime;
-    });
-  }, 700);
 }
+
 
 
 
@@ -10029,6 +10023,7 @@ function toggleClipMute(btn) {
   });
   document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.textContent = tiktokGloballyMuted ? '🔇' : '🔊'; });
 }
+
 
 
 
@@ -10047,8 +10042,8 @@ function closeTiktokFeed() {
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
   document.querySelectorAll('.tiktok-audio').forEach(a => a.pause());
   if (tiktokIO) { tiktokIO.disconnect(); tiktokIO = null; }
-  clearInterval(tiktokSyncInterval);
 }
+
 
 
 async function uploadClipToR2(file) {
