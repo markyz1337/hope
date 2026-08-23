@@ -10286,19 +10286,15 @@ function bindAudioToVideo(v) {
   v._audioBound = true;
   const audio = v.closest('.tiktok-slide')?.querySelector('.tiktok-audio-track');
   if (!audio) return;
-  audio.muted = tiktokGloballyMuted;
 
   v.addEventListener('play', () => {
-    audio.play().catch(() => {
-      // sunet blocat -- continuă mut până la un gest al utilizatorului
-      audio.muted = true;
-      tiktokGloballyMuted = true;
-      document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.innerHTML = speakerIconSvg(true); });
-      audio.play().catch(() => {});
-    });
+    audio.currentTime = 0;
+    audio.muted = tiktokGloballyMuted;
+    audio.play().catch(() => {});
   });
   v.addEventListener('pause', () => { audio.pause(); audio.currentTime = 0; });
 }
+
 
 
 function setupTiktokObserver(sourceClips) {
