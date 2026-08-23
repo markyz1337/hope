@@ -10581,8 +10581,12 @@ async function openTiktokFeed() {
   closeFab(); closeCalPopup();
   document.getElementById('tiktokOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  const _tkFeedEl = document.getElementById('tiktokFeed');
+  _tkFeedEl.addEventListener('touchstart', retryPendingTiktokAudio, { passive: true, capture: true });
+  _tkFeedEl.addEventListener('touchmove', retryPendingTiktokAudio, { passive: true, capture: true });
+  _tkFeedEl.addEventListener('scroll', retryPendingTiktokAudio, { passive: true });
   document.getElementById('tiktokOverlay').addEventListener('click', retryPendingTiktokAudio);
-  document.getElementById('tiktokOverlay').addEventListener('touchend', retryPendingTiktokAudio, { passive: true });
+
   await loadClips();
   await loadCollections();
   tiktokActiveTab = 'feed';
