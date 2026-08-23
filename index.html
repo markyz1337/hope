@@ -10240,9 +10240,11 @@ function renderClipsFixed(fixedClipsList) {
   const feed = document.getElementById('tiktokFeed');
   if (!fixedClipsList.length) { feed.innerHTML = `<div class="tiktok-empty">nicio filmare aici</div>`; return; }
   tiktokFeedOrder = fixedClipsList.map(c => c.id);
-  feed.innerHTML = fixedClipsList.map(clipSlideHtml).join('');
+  const initialBatch = fixedClipsList.slice(0, TIKTOK_INITIAL_BATCH);
+  feed.innerHTML = initialBatch.map(clipSlideHtml).join('');
   setupTiktokObserver(fixedClipsList);
 }
+
 
 function feed_lastSlide() {
   const slides = document.querySelectorAll('#tiktokFeed .tiktok-slide');
@@ -10336,8 +10338,8 @@ function setupTiktokObserver(sourceClips) {
           v.currentTime = 0;
           v.play().catch(() => {});
         }
-        if (tiktokFeedScope !== 'fixed' && slide === feed_lastSlide()) {
-          extendFeedOrderIfNeeded(sourceClips);
+        if (slide === feed_prefetchTriggerSlide()) {
+          if (tiktokFeedScope !== 'fixed') extendFeedOrderIfNeeded(sourceClips);
           appendMoreFeedSlides(sourceClips);
         }
 
@@ -10350,6 +10352,7 @@ function setupTiktokObserver(sourceClips) {
 
   videos.forEach(v => tiktokIO.observe(v));
 }
+
 
 
 
