@@ -2298,6 +2298,8 @@
 		<div class="toast" id="toast"></div>
 		<audio id="dateMusicAudio" loop></audio>
 		<audio id="entryAudio"></audio>
+		<audio id="tiktokClipAudio" loop></audio>
+
 
 		<!-- LIGHTBOX -->
 		<div class="lightbox" id="lightbox">
@@ -5082,6 +5084,8 @@
 
 			const dmAudio = document.getElementById('dateMusicAudio');
 			const entryAudio = document.getElementById('entryAudio');
+			const tiktokAudio = document.getElementById('tiktokClipAudio');
+
 			let currentEntryAudioUrl = null;
 			let currentMusicTextSpan = null;
 			let savedRteMusicRange = null;
@@ -10115,6 +10119,8 @@ let collections = [];
 let clipUploadedUrl = '';
 let tiktokIO = null;
 let tiktokGloballyMuted = false;
+let tiktokAudioActiveVideo = null;
+
 let tiktokActiveTab = 'feed'; // 'feed' | 'collections'
 let tiktokFeedOrder = [];
 let tiktokFeedScope = null;   // null = feed random infinit; 'fixed' = clipuri dintr-o colecție
@@ -10188,8 +10194,8 @@ function clipSlideHtml(c) {
   const dateStr = formatClipDate(c.posted_at);
   return `<div class="tiktok-slide" data-id="${c.id}">
       <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="metadata"></video>
-      <audio class="tiktok-audio-track" src="${escHtml(url)}" loop preload="none" muted></audio>
       <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${speakerIconSvg(tiktokGloballyMuted)}</div>
+
 
 
 
@@ -10281,37 +10287,25 @@ function appendMoreFeedSlides(sourceClips) {
 }
 
 
-let tiktokPendingAudio = null; // { video, audio } -- audio blocat de browser, de reîncercat la următorul gest
-
 function bindAudioToVideo(v) {
   if (v._audioBound) return;
   v._audioBound = true;
-  const audio = v.closest('.tiktok-slide')?.querySelector('.tiktok-audio-track');
-  if (!audio) return;
 
   v.addEventListener('play', () => {
-    audio.currentTime = 0;
-    audio.muted = tiktokGloballyMuted;
-    audio.play().catch(() => {
-      // sunet blocat -- reține-l, se reîncearcă la următorul tap din feed
-      tiktokPendingAudio = { video: v, audio };
-    });
+    tiktokAudioActiveVideo = v;
+    tiktokAudio.src = v.currentSrc || v.src;
+    tiktokAudio.currentTime = 0;
+    tiktokAudio.muted = tiktokGloballyMuted;
+    tiktokAudio.play().catch(() => {});
   });
   v.addEventListener('pause', () => {
-    audio.pause();
-    audio.currentTime = 0;
-    if (tiktokPendingAudio && tiktokPendingAudio.audio === audio) tiktokPendingAudio = null;
+    if (tiktokAudioActiveVideo === v) {
+      tiktokAudio.pause();
+      tiktokAudioActiveVideo = null;
+    }
   });
 }
 
-function retryPendingTiktokAudio() {
-  if (!tiktokPendingAudio) return;
-  const { video, audio } = tiktokPendingAudio;
-  tiktokPendingAudio = null;
-  if (video.paused) return; // clipul nu mai e activ
-  audio.currentTime = video.currentTime;
-  audio.play().catch(() => {});
-}
 
 
 
@@ -10352,15 +10346,14 @@ function setupTiktokObserver(sourceClips) {
 
 function toggleClipMute(btn) {
   tiktokGloballyMuted = !tiktokGloballyMuted;
-  document.querySelectorAll('.tiktok-audio-track').forEach(a => {
-    a.muted = tiktokGloballyMuted;
-    if (!tiktokGloballyMuted) {
-      const v = a.closest('.tiktok-slide')?.querySelector('.tiktok-video');
-      if (v && !v.paused) { a.currentTime = v.currentTime; a.play().catch(()=>{}); }
-    }
-  });
+  tiktokAudio.muted = tiktokGloballyMuted;
+  if (!tiktokGloballyMuted && tiktokAudioActiveVideo && !tiktokAudioActiveVideo.paused) {
+    tiktokAudio.currentTime = tiktokAudioActiveVideo.currentTime;
+    tiktokAudio.play().catch(()=>{});
+  }
   document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.innerHTML = speakerIconSvg(tiktokGloballyMuted); });
 }
+
 
 
 
@@ -10370,7 +10363,9 @@ async function switchTiktokTab(tab) {
   tiktokActiveTab = tab;
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
-  document.querySelectorAll('.tiktok-audio-track').forEach(a => a.pause());
+  tiktokAudio.pause();
+  tiktokAudioActiveVideo = null;
+
 
 
   const feedEl = document.getElementById('tiktokFeed');
@@ -10579,15 +10574,13 @@ async function assignClipToCollection(clipId, collId) {
 
 async function openTiktokFeed() {
   closeFab(); closeCalPopup();
+  // deblochează elementul audio global pentru clipuri, folosind gestul curent (tap)
+  tiktokAudio.muted = false;
+  tiktokAudio.play().then(() => tiktokAudio.pause()).catch(() => {});
   document.getElementById('tiktokOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  const _tkFeedEl = document.getElementById('tiktokFeed');
-  _tkFeedEl.addEventListener('touchstart', retryPendingTiktokAudio, { passive: true, capture: true });
-  _tkFeedEl.addEventListener('touchmove', retryPendingTiktokAudio, { passive: true, capture: true });
-  _tkFeedEl.addEventListener('scroll', retryPendingTiktokAudio, { passive: true });
-  document.getElementById('tiktokOverlay').addEventListener('click', retryPendingTiktokAudio);
-
   await loadClips();
+
   await loadCollections();
   tiktokActiveTab = 'feed';
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
@@ -10602,9 +10595,11 @@ function closeTiktokFeed() {
   document.getElementById('tiktokOverlay').classList.remove('open');
   document.body.style.overflow = '';
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
-  document.querySelectorAll('.tiktok-audio-track').forEach(a => a.pause());
+  tiktokAudio.pause();
+  tiktokAudioActiveVideo = null;
   if (tiktokIO) { tiktokIO.disconnect(); tiktokIO = null; }
 }
+
 
 
 async function uploadClipToR2(file) {
