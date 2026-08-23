@@ -10193,7 +10193,8 @@ function clipSlideHtml(c) {
   const url = resolveUrl(c.url);
   const dateStr = formatClipDate(c.posted_at);
   return `<div class="tiktok-slide" data-id="${c.id}">
-      <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="metadata"></video>
+      <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="auto"></video>
+
       <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${speakerIconSvg(tiktokGloballyMuted)}</div>
 
 
@@ -10248,6 +10249,13 @@ function feed_lastSlide() {
   const slides = document.querySelectorAll('#tiktokFeed .tiktok-slide');
   return slides[slides.length - 1];
 }
+
+function feed_prefetchTriggerSlide() {
+  const slides = document.querySelectorAll('#tiktokFeed .tiktok-slide');
+  const idx = Math.max(0, slides.length - 3); // declanșează cu 2 slide-uri înainte de ultimul
+  return slides[idx];
+}
+
 
 function appendMoreFeedSlides(sourceClips) {
   const feed = document.getElementById('tiktokFeed');
@@ -10333,6 +10341,8 @@ function setupTiktokObserver(sourceClips) {
           extendFeedOrderIfNeeded(sourceClips);
           appendMoreFeedSlides(sourceClips);
         }
+
+
       } else {
         if (!v.paused) v.pause();
       }
