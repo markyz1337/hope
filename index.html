@@ -10116,8 +10116,11 @@ function filterR2Category(cat, btn) {
 // ═══════════════════════════════════════
 let clips = [];
 let collections = [];
+let tiktokFeedClipsById = {};
 let clipUploadedUrl = '';
 let tiktokIO = null;
+let tiktokPreloadIO = null;
+
 let tiktokGloballyMuted = false;
 let tiktokAudioActiveVideo = null;
 
@@ -10192,8 +10195,9 @@ function formatClipDate(postedAt) {
 function clipSlideHtml(c) {
   const url = resolveUrl(c.url);
   const dateStr = formatClipDate(c.posted_at);
-  return `<div class="tiktok-slide" data-id="${c.id}">
-      <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="auto"></video>
+return `<div class="tiktok-slide" data-id="${c.id}">
+    <video class="tiktok-video" data-src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
+
 
       <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${speakerIconSvg(tiktokGloballyMuted)}</div>
 
@@ -10240,9 +10244,19 @@ function renderClipsFixed(fixedClipsList) {
   const feed = document.getElementById('tiktokFeed');
   if (!fixedClipsList.length) { feed.innerHTML = `<div class="tiktok-empty">nicio filmare aici</div>`; return; }
   tiktokFeedOrder = fixedClipsList.map(c => c.id);
-  feed.innerHTML = fixedClipsList.map(clipSlideHtml).join('');
+  tiktokFeedClipsById = Object.fromEntries(fixedClipsList.map(c => [String(c.id), c]));
+
+  // randăm doar primul lot -- restul se adaugă pe măsură ce scrollezi
+  const initialIds = tiktokFeedOrder.slice(0, TIKTOK_INITIAL_BATCH);
+  feed.innerHTML = initialIds.map(id => clipSlideHtml(tiktokFeedClipsById[id])).join('');
+
+  // primul clip își începe încărcarea imediat, fără să aștepte observer-ul
+  const firstVideo = feed.querySelector('.tiktok-video');
+  if (firstVideo && firstVideo.dataset.src) firstVideo.src = firstVideo.dataset.src;
+
   setupTiktokObserver(fixedClipsList);
 }
+
 
 function feed_lastSlide() {
   const slides = document.querySelectorAll('#tiktokFeed .tiktok-slide');
@@ -10260,7 +10274,9 @@ function appendMoreFeedSlides(sourceClips) {
   const feed = document.getElementById('tiktokFeed');
   const slidesNow = [...feed.querySelectorAll('.tiktok-slide')];
   const renderedIds = new Set(slidesNow.map(s => s.dataset.id));
-  const byId = Object.fromEntries(sourceClips.map(c => [String(c.id), c]));
+  const byId = tiktokFeedScope === 'fixed'
+    ? tiktokFeedClipsById
+    : Object.fromEntries(sourceClips.map(c => [String(c.id), c]));
   const toAppend = tiktokFeedOrder.filter(id => !renderedIds.has(String(id))).slice(0, TIKTOK_APPEND_BATCH);
   if (!toAppend.length) return;
 
@@ -10275,6 +10291,7 @@ function appendMoreFeedSlides(sourceClips) {
       v.muted = true;
       bindAudioToVideo(v);
       if (tiktokIO) tiktokIO.observe(v);
+      if (tiktokPreloadIO) tiktokPreloadIO.observe(v);
     }
   });
 
@@ -10288,10 +10305,12 @@ function appendMoreFeedSlides(sourceClips) {
       const v = s.querySelector('.tiktok-video');
       if (v && !v.paused) continue; // nu șterge slide-ul curent redat, de siguranță
       if (tiktokIO && v) tiktokIO.unobserve(v);
+      if (tiktokPreloadIO && v) tiktokPreloadIO.unobserve(v);
       s.remove();
     }
   }
 }
+
 
 
 function bindAudioToVideo(v) {
@@ -10319,6 +10338,8 @@ function bindAudioToVideo(v) {
 
 function setupTiktokObserver(sourceClips) {
   if (tiktokIO) tiktokIO.disconnect();
+  if (tiktokPreloadIO) tiktokPreloadIO.disconnect();
+
   const videos = document.querySelectorAll('.tiktok-video');
   videos.forEach(v => {
     v.playsInline = true;
@@ -10327,20 +10348,32 @@ function setupTiktokObserver(sourceClips) {
     bindAudioToVideo(v);
   });
 
+  // Observer separat, doar pentru pre-încărcarea sursei -- nu atinge logica de redare
+  tiktokPreloadIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const v = entry.target;
+      if (entry.isIntersecting && v.dataset.src && !v.src) {
+        v.src = v.dataset.src;
+      }
+    });
+  }, { threshold: 0, rootMargin: '150% 0px' });
+  videos.forEach(v => tiktokPreloadIO.observe(v));
+
+  // Observer de redare/pauză -- logica neschimbată
   tiktokIO = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const v = entry.target;
       const slide = v.closest('.tiktok-slide');
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+        if (v.dataset.src && !v.src) v.src = v.dataset.src; // fallback, dacă preload n-a apucat
         if (v.paused) {
           v.currentTime = 0;
           v.play().catch(() => {});
         }
-        if (tiktokFeedScope !== 'fixed' && slide === feed_lastSlide()) {
-          extendFeedOrderIfNeeded(sourceClips);
+        if (slide === feed_lastSlide()) {
+          if (tiktokFeedScope !== 'fixed') extendFeedOrderIfNeeded(sourceClips);
           appendMoreFeedSlides(sourceClips);
         }
-
 
       } else {
         if (!v.paused) v.pause();
@@ -10350,6 +10383,7 @@ function setupTiktokObserver(sourceClips) {
 
   videos.forEach(v => tiktokIO.observe(v));
 }
+
 
 
 
@@ -10392,8 +10426,9 @@ async function switchTiktokTab(tab) {
     document.getElementById('tiktokUploadFab').style.display = 'none';
     collView.classList.add('open');
     document.getElementById('tiktokCollNewBtn').style.display = isLocked ? 'none' : '';
-    await loadCollections();
-    renderCollectionsGrid();
+    renderCollectionsGrid(); // instant, din cache
+    loadCollections().then(renderCollectionsGrid); // reactualizare silențioasă în fundal
+
   }
 }
 
@@ -10588,9 +10623,8 @@ async function openTiktokFeed() {
   tiktokAudio.play().then(() => tiktokAudio.pause()).catch(() => {});
   document.getElementById('tiktokOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  await loadClips();
+  await Promise.all([loadClips(), loadCollections()]);
 
-  await loadCollections();
   tiktokActiveTab = 'feed';
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
   document.getElementById('tiktokCollectionsView').classList.remove('open');
@@ -10607,7 +10641,9 @@ function closeTiktokFeed() {
   tiktokAudio.pause();
   tiktokAudioActiveVideo = null;
   if (tiktokIO) { tiktokIO.disconnect(); tiktokIO = null; }
+  if (tiktokPreloadIO) { tiktokPreloadIO.disconnect(); tiktokPreloadIO = null; }
 }
+
 
 
 
