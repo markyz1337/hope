@@ -9266,8 +9266,10 @@ function updateFabMainMode() {
 			    const res = await fetch(R2_WORKER_URL, {
 			      headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET }
 			    });
-			    const { files } = await res.json();
-			    renderR2Gallery(files);
+    const { files } = await res.json();
+    await loadClips();
+    renderR2Gallery(files);
+
 			  } catch(e) {
 			    document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">eroare la încărcare</div></div>';
 			  }
@@ -9424,15 +9426,25 @@ function updateFabMainMode() {
 
 
 
-			  Object.values(dateMusicMap).forEach(dm => {
-			    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
-			    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
-			  });
-			  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
-			    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
-			  }
+  Object.values(dateMusicMap).forEach(dm => {
+    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
+    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
+  });
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
+    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+  }
 
-			  const totalSize = files.reduce((a, f) => a + f.size, 0);
+  const tiktokKeys = new Set();
+  clips.forEach(c => {
+    if (c.url?.startsWith('r2:')) {
+      const k = c.url.slice(3);
+      tiktokKeys.add(k);
+      usedKeys.add(k);
+    }
+  });
+
+  const totalSize = files.reduce((a, f) => a + f.size, 0);
+
 			  const orphans = files.filter(f => !usedKeys.has(f.key));
 			  const sortedOrphans = [...orphans].sort((a, b) => b.key.localeCompare(a.key));
 
@@ -9478,14 +9490,16 @@ function updateFabMainMode() {
 			    <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
 			    <div style="display:flex;gap:6px;flex-wrap:wrap;">
 			      <button onclick="filterR2Category(null,this)" data-cat="all" style="padding:6px 12px;background:rgba(200,169,126,0.15);border:1px solid rgba(200,169,126,0.4);border-radius:20px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">toate</button>
-			      ${['photos','music','video','gifs','pdf'].map(cat => {
-			        const count = files.filter(f => f.key.startsWith(cat+'/')).length;
-			        const icons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
-			        return `<button onclick="filterR2Category('${cat}',this)" data-cat="${cat}" style="padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">${icons[cat]} ${cat} (${count})</button>`;
-			      }).join('')}
-			    </div>
+      ${['photos','music','video','gifs','pdf'].map(cat => {
+        const count = files.filter(f => f.key.startsWith(cat+'/')).length;
+        const icons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
+        return `<button onclick="filterR2Category('${cat}',this)" data-cat="${cat}" style="padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">${icons[cat]} ${cat} (${count})</button>`;
+      }).join('')}
+      <button onclick="filterR2Category('tiktok',this)" data-cat="tiktok" style="padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">🎞️ tiktok (${files.filter(f => tiktokKeys.has(f.key)).length})</button>
+    </div>
 
-			  </div>`;
+  </div>`;
+
 
 			  // Construiește ordinea vizuală pentru folderuri
 			  const visualOrder = [];
@@ -9493,20 +9507,23 @@ function updateFabMainMode() {
 			    html += `<div data-folder-section="${folder}"><div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
 			    html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">`;
 
-			    folderFiles.forEach((f) => {
-			      const url = `${R2_PUBLIC_URL}/${f.key}`;
-			      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
-			      const isUsed = usedKeys.has(f.key);
-			      const visualIdx = visualOrder.length;
-			      visualOrder.push(f);
-			      const thumb = isImage
-			        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
-			        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
-			      html += `<div data-r2key="${f.key}" data-idx="${visualIdx}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
-			        ${thumb}
-			        ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
-			      </div>`;
-			    });
+    folderFiles.forEach((f) => {
+      const url = `${R2_PUBLIC_URL}/${f.key}`;
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
+      const isUsed = usedKeys.has(f.key);
+      const isTiktok = tiktokKeys.has(f.key);
+      const visualIdx = visualOrder.length;
+      visualOrder.push(f);
+      const thumb = isImage
+        ? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
+      html += `<div data-r2key="${f.key}" data-idx="${visualIdx}" data-tiktok="${isTiktok ? '1' : '0'}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
+        ${thumb}
+        ${isTiktok ? '<div style="position:absolute;top:5px;left:5px;font-size:11px;background:rgba(0,0,0,0.55);border-radius:6px;padding:1px 4px;">🎞️</div>' : ''}
+        ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
+      </div>`;
+    });
+
 			html += `</div></div>`;
 			  }
 
@@ -9542,9 +9559,13 @@ function updateFabMainMode() {
 			    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
 			    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
 			  });
-			  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
 
-			  const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+  await loadClips();
+  clips.forEach(c => { if (c.url?.startsWith('r2:')) usedKeys.add(c.url.slice(3)); });
+
+  const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+
 			  const { files } = await res.json();
 			  const orphanKeys = files.filter(f => !f.key.endsWith('/') && !usedKeys.has(f.key)).map(f => f.key);
 			  if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
@@ -9712,10 +9733,12 @@ function updateFabMainMode() {
 			    if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
 			    if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
 			  });
-			  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
-			    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
-			  }
-			  const isUsed = usedKeys.has(key);
+  if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
+    usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+  }
+  clips.forEach(c => { if (c.url?.startsWith('r2:')) usedKeys.add(c.url.slice(3)); });
+  const isUsed = usedKeys.has(key);
+
 			  openR2FileDetail(key, fileObj.size, isUsed, allFiles, currentIndex);
 			}
 
@@ -9829,26 +9852,41 @@ function updateFabMainMode() {
 
 
 
-			function filterR2Category(cat, btn) {
-			  // Update butoane active
-			  btn.closest('div').querySelectorAll('button').forEach(b => {
-			    b.style.background = 'var(--surface)';
-			    b.style.borderColor = 'var(--border2)';
-			    b.style.color = 'var(--text2)';
-			  });
-			  btn.style.background = 'rgba(200,169,126,0.15)';
-			  btn.style.borderColor = 'rgba(200,169,126,0.4)';
-			  btn.style.color = 'var(--accent2)';
+function filterR2Category(cat, btn) {
+  // Update butoane active
+  btn.closest('div').querySelectorAll('button').forEach(b => {
+    b.style.background = 'var(--surface)';
+    b.style.borderColor = 'var(--border2)';
+    b.style.color = 'var(--text2)';
+  });
+  btn.style.background = 'rgba(200,169,126,0.15)';
+  btn.style.borderColor = 'rgba(200,169,126,0.4)';
+  btn.style.color = 'var(--accent2)';
 
-			  const body = document.getElementById('r2GalleryBody');
-			  body.querySelectorAll('[data-folder-section]').forEach(section => {
-			    if (!cat) {
-			      section.style.display = '';
-			    } else {
-			      section.style.display = section.dataset.folderSection === cat ? '' : 'none';
-			    }
-			  });
-			}
+  const body = document.getElementById('r2GalleryBody');
+
+  if (cat === 'tiktok') {
+    body.querySelectorAll('[data-r2key]').forEach(el => {
+      el.style.display = el.dataset.tiktok === '1' ? '' : 'none';
+    });
+    body.querySelectorAll('[data-folder-section]').forEach(section => {
+      section.style.display = '';
+      const anyVisible = [...section.querySelectorAll('[data-r2key]')].some(el => el.style.display !== 'none');
+      section.style.display = anyVisible ? '' : 'none';
+    });
+    return;
+  }
+
+  body.querySelectorAll('[data-r2key]').forEach(el => { el.style.display = ''; });
+  body.querySelectorAll('[data-folder-section]').forEach(section => {
+    if (!cat) {
+      section.style.display = '';
+    } else {
+      section.style.display = section.dataset.folderSection === cat ? '' : 'none';
+    }
+  });
+}
+
 
 
 
