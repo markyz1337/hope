@@ -6930,7 +6930,9 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  if (document.getElementById('lightbox').classList.contains('open')) return;
 			  if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
 			  if (document.getElementById('settingsOverlay').classList.contains('open')) return;
-			  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+  if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+  if (document.getElementById('tiktokOverlay').classList.contains('open')) return;
+
 
 
 			  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -9946,6 +9948,8 @@ function updateFabMainMode() {
 let clips = [];
 let clipUploadedUrl = '';
 let tiktokIO = null;
+let tiktokSyncInterval = null;
+
 
 async function loadClips() {
   const { data, error } = await sb.from('hope_clips').select('*').order('posted_at', { ascending: false });
@@ -9953,7 +9957,8 @@ async function loadClips() {
   clips = data || [];
 }
 
-let tiktokGloballyMuted = true;
+let tiktokGloballyMuted = false;
+
 
 function renderClips() {
   const feed = document.getElementById('tiktokFeed');
@@ -9964,8 +9969,10 @@ function renderClips() {
   feed.innerHTML = clips.map(c => {
     const url = resolveUrl(c.url);
     return `<div class="tiktok-slide" data-id="${c.id}">
-      <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" ${tiktokGloballyMuted ? 'muted' : ''} preload="metadata"></video>
+      <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="metadata"></video>
+      <audio class="tiktok-audio" src="${escHtml(url)}" loop preload="auto" ${tiktokGloballyMuted ? 'muted' : ''}></audio>
       <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${tiktokGloballyMuted ? '🔇' : '🔊'}</div>
+
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
       ${c.caption ? `<div class="tiktok-caption">${escHtml(c.caption)}</div>` : ''}
     </div>`;
@@ -9981,24 +9988,48 @@ function setupTiktokObserver() {
   videos.forEach(v => {
     v.playsInline = true;
     v.setAttribute('playsinline', '');
-    v.muted = tiktokGloballyMuted;
+    v.muted = true; // video rămâne mereu mut -- sunetul vine din <audio>
   });
+  document.querySelectorAll('.tiktok-audio').forEach(a => { a.muted = tiktokGloballyMuted; });
+
   tiktokIO = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const v = entry.target;
-      if (entry.isIntersecting && entry.intersectionRatio > 0.6) v.play().catch(() => {});
-      else v.pause();
+      const slide = v.closest('.tiktok-slide');
+      const audio = slide ? slide.querySelector('.tiktok-audio') : null;
+      if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+        v.play().catch(() => {});
+        if (audio) { audio.currentTime = v.currentTime; audio.play().catch(() => {}); }
+      } else {
+        v.pause();
+        if (audio) audio.pause();
+      }
     });
   }, { threshold: [0, 0.6, 1] });
   videos.forEach(v => tiktokIO.observe(v));
+
+  clearInterval(tiktokSyncInterval);
+  tiktokSyncInterval = setInterval(() => {
+    document.querySelectorAll('.tiktok-slide').forEach(slide => {
+      const v = slide.querySelector('.tiktok-video');
+      const a = slide.querySelector('.tiktok-audio');
+      if (!v || !a || v.paused || a.paused) return;
+      if (Math.abs(v.currentTime - a.currentTime) > 0.25) a.currentTime = v.currentTime;
+    });
+  }, 700);
 }
+
 
 
 function toggleClipMute(btn) {
   tiktokGloballyMuted = !tiktokGloballyMuted;
-  document.querySelectorAll('.tiktok-video').forEach(v => { v.muted = tiktokGloballyMuted; });
+  document.querySelectorAll('.tiktok-audio').forEach(a => {
+    a.muted = tiktokGloballyMuted;
+    if (!tiktokGloballyMuted) a.play().catch(() => {});
+  });
   document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.textContent = tiktokGloballyMuted ? '🔇' : '🔊'; });
 }
+
 
 
 async function openTiktokFeed() {
@@ -10014,8 +10045,11 @@ function closeTiktokFeed() {
   document.getElementById('tiktokOverlay').classList.remove('open');
   document.body.style.overflow = '';
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
+  document.querySelectorAll('.tiktok-audio').forEach(a => a.pause());
   if (tiktokIO) { tiktokIO.disconnect(); tiktokIO = null; }
+  clearInterval(tiktokSyncInterval);
 }
+
 
 async function uploadClipToR2(file) {
   if (!file) return;
