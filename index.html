@@ -9999,16 +9999,19 @@ function setupTiktokObserver() {
       const slide = v.closest('.tiktok-slide');
       const audio = slide ? slide.querySelector('.tiktok-audio') : null;
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-        v.currentTime = 0;
-        if (audio) audio.currentTime = 0;
-        v.play().catch(() => {});
-        if (audio) audio.play().catch(() => {});
+        if (v.paused) {
+          v.currentTime = 0;
+          if (audio) audio.currentTime = 0;
+          v.play().catch(() => {});
+          if (audio) audio.play().catch(() => {});
+        }
       } else {
-        v.pause();
-        if (audio) audio.pause();
+        if (!v.paused) v.pause();
+        if (audio && !audio.paused) audio.pause();
       }
     });
   }, { threshold: [0, 0.6, 1] });
+
   videos.forEach(v => tiktokIO.observe(v));
 }
 
