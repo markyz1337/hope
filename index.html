@@ -10284,8 +10284,18 @@ function renderCollectionsGrid() {
     wrap.innerHTML = `<div class="tiktok-empty" style="position:static;padding:40px 0;">nicio colecție încă</div>`;
     return;
   }
-  wrap.innerHTML = collections.map(col => {
-    const inColl = clips.filter(c => c.collection_id === col.id);
+
+  // Sortează colecțiile după data celui mai recent clip din fiecare
+  const sortedCollections = [...collections].sort((a, b) => {
+    const aClips = clips.filter(c => c.collection_id === a.id);
+    const bClips = clips.filter(c => c.collection_id === b.id);
+    const aLatest = aClips.length ? Math.max(...aClips.map(c => new Date(c.posted_at).getTime())) : 0;
+    const bLatest = bClips.length ? Math.max(...bClips.map(c => new Date(c.posted_at).getTime())) : 0;
+    return bLatest - aLatest; // cele mai recente primele; colecțiile goale (0) cad la coadă
+  });
+
+  wrap.innerHTML = sortedCollections.map(col => {
+    const inColl = clips.filter(c => c.collection_id === col.id).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
     const thumbClip = inColl[0];
     const thumb = thumbClip
       ? `<video src="${escHtml(resolveUrl(thumbClip.url))}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15"></video>`
