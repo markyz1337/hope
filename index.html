@@ -1184,11 +1184,15 @@
 			}
 			.tiktok-close svg { width: 15px; height: 15px; }
 			.tiktok-mute-btn {
-			  position: absolute; bottom: calc(90px + env(safe-area-inset-bottom)); right: 16px;
-			  width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45);
+			  position: absolute; top: calc(16px + env(safe-area-inset-top)); left: 16px;
+			  width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.45);
 			  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
-			  font-size: 18px; cursor: pointer; z-index: 5; backdrop-filter: blur(10px);
+			  cursor: pointer; z-index: 6; backdrop-filter: blur(10px); color: #fff;
+			  transition: background 0.15s, border-color 0.15s;
 			}
+			.tiktok-mute-btn:active { background: rgba(0,0,0,0.65); }
+			.tiktok-mute-btn svg { width: 17px; height: 17px; }
+
 			.tiktok-delete-btn {
 			  position: absolute; bottom: calc(150px + env(safe-area-inset-bottom)); right: 16px;
 			  width: 40px; height: 40px; border-radius: 50%; background: rgba(200,80,80,0.25);
@@ -10118,7 +10122,23 @@ function extendFeedOrderIfNeeded(sourceClips) {
   }
 }
 
+function speakerIconSvg(muted) {
+  if (muted) {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"/>
+      <line x1="16" y1="9" x2="22" y2="15"/>
+      <line x1="22" y1="9" x2="16" y2="15"/>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"/>
+    <path d="M15.5 8.5a5 5 0 010 7"/>
+    <path d="M18.5 5.5a9 9 0 010 13"/>
+  </svg>`;
+}
+
 function formatClipDate(postedAt) {
+
   if (!postedAt) return '';
   const d = new Date(postedAt);
   const months = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'];
@@ -10132,7 +10152,8 @@ function clipSlideHtml(c) {
 
       <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="metadata"></video>
       <audio class="tiktok-audio" src="${escHtml(url)}" loop preload="auto" ${tiktokGloballyMuted ? 'muted' : ''}></audio>
-      <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${tiktokGloballyMuted ? '🔇' : '🔊'}</div>
+      <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${speakerIconSvg(tiktokGloballyMuted)}</div>
+
       ${!isLocked ? `<div class="tiktok-clip-add-btn" onclick="openClipCollectionPicker('${c.id}')" title="adaugă la colecție">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
       </div>` : ''}
@@ -10221,9 +10242,13 @@ function setupTiktokObserver(sourceClips) {
 
 function toggleClipMute(btn) {
   tiktokGloballyMuted = !tiktokGloballyMuted;
-  document.querySelectorAll('.tiktok-audio').forEach(a => { a.muted = tiktokGloballyMuted; if (!tiktokGloballyMuted) a.play().catch(()=>{}); });
-  document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.textContent = tiktokGloballyMuted ? '🔇' : '🔊'; });
+  // Doar schimbăm proprietatea .muted -- NU pornim redare pe elemente audio oprite.
+  // Cele oprite (clipuri din afara ecranului) rămân paused; doar clipul vizibil,
+  // care oricum redă deja, devine audibil/silențios instant.
+  document.querySelectorAll('.tiktok-audio').forEach(a => { a.muted = tiktokGloballyMuted; });
+  document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.innerHTML = speakerIconSvg(tiktokGloballyMuted); });
 }
+
 
 // ── TABURI FEED / COLECȚII ──
 async function switchTiktokTab(tab) {
