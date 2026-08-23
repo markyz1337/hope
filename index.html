@@ -1249,6 +1249,47 @@
 			}
 			.tiktok-coll-card-name { font-family: var(--serif); font-size: 14px; font-style: italic; color: #fff; }
 			.tiktok-coll-card-count { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,0.6); margin-top:2px; letter-spacing:0.04em; }
+			.tiktok-coll-card-actions { position: absolute; top: 6px; right: 6px; z-index: 3; display: flex; gap: 5px; }
+			.tiktok-coll-card-action-btn {
+			  width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.55);
+			  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+			  color: #fff; cursor: pointer; backdrop-filter: blur(4px);
+			}
+			.tiktok-coll-card-action-btn.danger { border-color: rgba(220,80,120,0.4); color: #f0a0b8; }
+			.tiktok-coll-card-action-btn svg { width: 11px; height: 11px; }
+
+			.tiktok-coll-play-icon {
+			  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+			  width: 34px; height: 34px; border-radius: 50%;
+			  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.35);
+			  display: flex; align-items: center; justify-content: center;
+			  pointer-events: none; backdrop-filter: blur(2px);
+			}
+			.tiktok-coll-play-icon svg { width: 13px; height: 13px; margin-left: 2px; }
+			.tiktok-coll-card { background: #0a0a0d; }
+			.tiktok-coll-date-badge {
+			  position: absolute; top: 6px; left: 6px; z-index: 2;
+			  font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em;
+			  color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.5);
+			  border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
+			  padding: 2px 7px; backdrop-filter: blur(4px);
+			}
+			.tiktok-feed-date {
+			  position: absolute; left: 16px; bottom: calc(66px + env(safe-area-inset-bottom));
+			  font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
+			  color: rgba(255,255,255,0.55); z-index: 5;
+			  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+			}
+			.tiktok-caption-edit-btn {
+			  position: absolute; bottom: calc(270px + env(safe-area-inset-bottom)); right: 16px;
+			  width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45);
+			  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+			  cursor: pointer; z-index: 5; backdrop-filter: blur(10px); color: #fff;
+			}
+			.tiktok-caption-edit-btn svg { width: 16px; height: 16px; }
+
+
+
 			.tiktok-coll-back {
 			  display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer;
 			  font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.7); letter-spacing: 0.06em;
@@ -2319,9 +2360,10 @@
 			<div class="tiktok-feed" id="tiktokFeed"></div>
 
 			<div class="tiktok-collections-view" id="tiktokCollectionsView">
-				<button class="tiktok-coll-new-btn" onclick="createCollection()">+ colecție nouă</button>
+				<button class="tiktok-coll-new-btn" id="tiktokCollNewBtn" onclick="createCollection()">+ colecție nouă</button>
 				<div class="tiktok-coll-grid" id="tiktokCollectionsGrid"></div>
 			</div>
+
 
 			<div class="tiktok-collection-detail-view" id="tiktokCollectionDetailView">
 				<div class="tiktok-coll-back" onclick="backToCollectionsList()">
@@ -10076,19 +10118,34 @@ function extendFeedOrderIfNeeded(sourceClips) {
   }
 }
 
+function formatClipDate(postedAt) {
+  if (!postedAt) return '';
+  const d = new Date(postedAt);
+  const months = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 function clipSlideHtml(c) {
   const url = resolveUrl(c.url);
+  const dateStr = formatClipDate(c.posted_at);
   return `<div class="tiktok-slide" data-id="${c.id}">
+
       <video class="tiktok-video" src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="metadata"></video>
       <audio class="tiktok-audio" src="${escHtml(url)}" loop preload="auto" ${tiktokGloballyMuted ? 'muted' : ''}></audio>
       <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${tiktokGloballyMuted ? '🔇' : '🔊'}</div>
       ${!isLocked ? `<div class="tiktok-clip-add-btn" onclick="openClipCollectionPicker('${c.id}')" title="adaugă la colecție">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
       </div>` : ''}
+      ${!isLocked ? `<div class="tiktok-caption-edit-btn" onclick="editClipCaption('${c.id}')" title="editează descrierea">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>` : ''}
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
+
+      ${dateStr ? `<div class="tiktok-feed-date">${escHtml(dateStr)}</div>` : ''}
       ${c.caption ? `<div class="tiktok-caption">${escHtml(c.caption)}</div>` : ''}
     </div>`;
 }
+
 
 function renderClips(sourceClipsOverride, startAtId) {
   const feed = document.getElementById('tiktokFeed');
@@ -10189,10 +10246,12 @@ async function switchTiktokTab(tab) {
     feedEl.style.display = 'none';
     document.getElementById('tiktokUploadFab').style.display = 'none';
     collView.classList.add('open');
+    document.getElementById('tiktokCollNewBtn').style.display = isLocked ? 'none' : '';
     await loadCollections();
     renderCollectionsGrid();
   }
 }
+
 
 function renderCollectionsGrid() {
   const wrap = document.getElementById('tiktokCollectionsGrid');
@@ -10203,18 +10262,32 @@ function renderCollectionsGrid() {
   wrap.innerHTML = collections.map(col => {
     const inColl = clips.filter(c => c.collection_id === col.id);
     const thumbClip = inColl[0];
-    const thumb = thumbClip ? `<video src="${escHtml(resolveUrl(thumbClip.url))}" muted preload="metadata"></video>` : '';
+    const thumb = thumbClip
+      ? `<video src="${escHtml(resolveUrl(thumbClip.url))}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15"></video>`
+      : '';
+    const playIcon = thumbClip ? `<div class="tiktok-coll-play-icon"><svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21"/></svg></div>` : '';
+    const actionsHtml = !isLocked ? `<div class="tiktok-coll-card-actions">
+      <div class="tiktok-coll-card-action-btn" onclick="event.stopPropagation();renameCollection('${col.id}')" title="redenumește">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="tiktok-coll-card-action-btn danger" onclick="event.stopPropagation();deleteCollection('${col.id}')" title="șterge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/></svg>
+      </div>
+    </div>` : '';
     return `<div class="tiktok-coll-card" onclick="openCollectionDetail('${col.id}')">
-      ${thumb}
+      ${thumb}${playIcon}${actionsHtml}
       <div class="tiktok-coll-card-overlay">
         <div class="tiktok-coll-card-name">${escHtml(col.name)}</div>
         <div class="tiktok-coll-card-count">${inColl.length} clip${inColl.length===1?'':'uri'}</div>
       </div>
     </div>`;
+
   }).join('');
 }
 
+
 async function createCollection() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const name = prompt('Numele colecției:');
   if (!name || !name.trim()) return;
   const { error } = await sb.from('hope_clip_collections').insert([{ name: name.trim() }]);
@@ -10223,6 +10296,33 @@ async function createCollection() {
   await loadCollections();
   renderCollectionsGrid();
 }
+
+async function renameCollection(collId) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const col = collections.find(c => String(c.id) === String(collId));
+  if (!col) return;
+  const name = prompt('Nume nou:', col.name);
+  if (!name || !name.trim() || name.trim() === col.name) return;
+  const { error } = await sb.from('hope_clip_collections').update({ name: name.trim() }).eq('id', collId);
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast('colecție redenumită');
+  await loadCollections();
+  renderCollectionsGrid();
+}
+
+async function deleteCollection(collId) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const col = collections.find(c => String(c.id) === String(collId));
+  if (!col) return;
+  if (!confirm(`Ștergi colecția "${col.name}"? Clipurile nu se șterg, doar ies din colecție.`)) return;
+  const { error } = await sb.from('hope_clip_collections').delete().eq('id', collId);
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast('colecție ștearsă');
+  await loadCollections();
+  await loadClips();
+  renderCollectionsGrid();
+}
+
 
 async function openCollectionDetail(collId) {
   const col = collections.find(c => String(c.id) === String(collId));
@@ -10237,8 +10337,12 @@ async function openCollectionDetail(collId) {
     return;
   }
   grid.innerHTML = inColl.map((c, i) => `<div class="tiktok-coll-card" style="aspect-ratio:1;" onclick="openClipFromCollection('${collId}', ${i})">
-    <video src="${escHtml(resolveUrl(c.url))}" muted preload="metadata"></video>
+    <video src="${escHtml(resolveUrl(c.url))}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15"></video>
+    <div class="tiktok-coll-play-icon"><svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21"/></svg></div>
+    <div class="tiktok-coll-date-badge">${escHtml(formatClipDate(c.posted_at))}</div>
   </div>`).join('');
+
+
 }
 
 function backToCollectionsList() {
@@ -10257,7 +10361,9 @@ function openClipFromCollection(collId, index) {
 
 // ── ADAUGĂ CLIP EXISTENT LA O COLECȚIE (din feed) ──
 function openClipCollectionPicker(clipId) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   if (!collections.length) {
+
     if (confirm('Nu ai nicio colecție încă. Creezi una acum?')) createCollectionThenAssign(clipId);
     return;
   }
@@ -10277,7 +10383,9 @@ function openClipCollectionPicker(clipId) {
 }
 
 async function createCollectionThenAssign(clipId) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
   const name = prompt('Numele colecției:');
+
   if (!name || !name.trim()) return;
   const { data, error } = await sb.from('hope_clip_collections').insert([{ name: name.trim() }]).select().single();
   if (error) { showToast('eroare: ' + error.message); return; }
@@ -10373,6 +10481,43 @@ async function deleteClip(id) {
   await loadClips();
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
+
+function editClipCaption(clipId) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const clip = clips.find(c => String(c.id) === String(clipId));
+  if (!clip) return;
+
+  const existing = document.getElementById('caption-edit-overlay');
+  if (existing) document.body.removeChild(existing);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'caption-edit-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.85);backdrop-filter:blur(14px);z-index:950;display:flex;align-items:flex-end;justify-content:center;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
+
+  overlay.innerHTML = `<div style="width:100%;max-width:440px;background:linear-gradient(180deg,#181820,#111115);border:1px solid var(--border2);border-radius:22px 22px 0 0;padding:18px;padding-bottom:calc(24px + env(safe-area-inset-bottom));">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">descriere clip</div>
+    <textarea id="caption-edit-textarea" class="form-textarea" style="min-height:80px;" placeholder="o descriere...">${escHtml(clip.caption || '')}</textarea>
+    <button class="btn-primary" onclick="saveClipCaption('${clipId}')">salvează</button>
+    <button class="btn-secondary" onclick="document.body.removeChild(document.getElementById('caption-edit-overlay'))">anulează</button>
+  </div>`;
+
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('caption-edit-textarea')?.focus(), 100);
+}
+
+async function saveClipCaption(clipId) {
+  const val = document.getElementById('caption-edit-textarea').value.trim();
+  const { error } = await sb.from('hope_clips').update({ caption: val }).eq('id', clipId);
+  const overlay = document.getElementById('caption-edit-overlay');
+  if (overlay) document.body.removeChild(overlay);
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast('descriere salvată');
+  await loadClips();
+  if (tiktokActiveTab === 'feed') renderClips(clips);
+}
+
 
 
 function showAccessChoiceModal() {
