@@ -10289,7 +10289,6 @@ function bindAudioToVideo(v) {
   audio.muted = tiktokGloballyMuted;
 
   v.addEventListener('play', () => {
-    try { audio.currentTime = v.currentTime; } catch(e) {}
     audio.play().catch(() => {
       // sunet blocat -- continuă mut până la un gest al utilizatorului
       audio.muted = true;
@@ -10298,14 +10297,9 @@ function bindAudioToVideo(v) {
       audio.play().catch(() => {});
     });
   });
-  v.addEventListener('pause', () => { audio.pause(); });
-  v.addEventListener('seeked', () => { try { audio.currentTime = v.currentTime; } catch(e) {} });
-  v.addEventListener('timeupdate', () => {
-    if (Math.abs(audio.currentTime - v.currentTime) > 0.35) {
-      try { audio.currentTime = v.currentTime; } catch(e) {}
-    }
-  });
+  v.addEventListener('pause', () => { audio.pause(); audio.currentTime = 0; });
 }
+
 
 function setupTiktokObserver(sourceClips) {
   if (tiktokIO) tiktokIO.disconnect();
