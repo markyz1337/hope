@@ -10174,8 +10174,12 @@ let tiktokFeedOrder = [];
 let tiktokFeedScope = null;   // null = feed random infinit; 'fixed' = clipuri dintr-o colecție
 
 
-let tiktokAutoscroll = false;
-try { tiktokAutoscroll = localStorage.getItem('hope_tiktok_autoscroll') === '1'; } catch(e) {}
+let tiktokAutoscroll = true;
+try {
+  const saved = localStorage.getItem('hope_tiktok_autoscroll');
+  if (saved !== null) tiktokAutoscroll = saved === '1';
+} catch(e) {}
+
 
 function toggleTiktokAutoscroll() {
   tiktokAutoscroll = !tiktokAutoscroll;
