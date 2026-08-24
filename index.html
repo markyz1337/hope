@@ -10817,8 +10817,13 @@ async function assignClipToCollection(clipId, collId) {
 
 async function openTiktokFeed() {
   closeFab(); closeCalPopup();
+  // oprește muzica zilei și muzica din notițe înainte de a intra în feed
+  if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
+  if (!entryAudio.paused) { entryAudio.pause(); }
+  stopEntryMusicCompletely();
   // deblochează elementul audio global pentru clipuri, folosind gestul curent (tap)
   tiktokAudio.muted = false;
+
   tiktokAudio.play().then(() => tiktokAudio.pause()).catch(() => {});
   document.getElementById('tiktokOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
