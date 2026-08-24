@@ -10312,8 +10312,8 @@ function renderClips(sourceClipsOverride, startAtId) {
   const sourceClips = sourceClipsOverride || clips;
   if (!sourceClips.length) { feed.innerHTML = `<div class="tiktok-empty">niciun clip momentan</div>`; return; }
 
-  // aceeași logică ca la colecții -- toate clipurile, ordonate după data adăugării, fără shuffle
-  let ordered = [...sourceClips];
+  // amestecă o dată la fiecare deschidere a feedului, apoi ordinea rămâne fixă până la capăt
+  let ordered = shuffleArray(sourceClips);
   if (startAtId) {
     ordered = ordered.filter(c => String(c.id) !== String(startAtId));
     const first = sourceClips.find(c => String(c.id) === String(startAtId));
@@ -10321,6 +10321,7 @@ function renderClips(sourceClipsOverride, startAtId) {
   }
   renderClipsFixed(ordered);
 }
+
 
 
 
