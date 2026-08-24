@@ -10118,6 +10118,8 @@ let clips = [];
 let collections = [];
 let tiktokCurrentDetailCollId = null;
 let tiktokCurrentDetailClips = [];
+const thumbFrameCache = {}; // clipId -> dataURL cu frame-ul capturat
+
 
 let tiktokFeedClipsById = {};
 let clipUploadedUrl = '';
@@ -10453,12 +10455,43 @@ async function switchTiktokTab(tab) {
 }
 
 
-function setupThumbLazyLoad(containerId) {
+function renderThumbEl(clip) {
+  if (!clip) return '';
+  const cached = thumbFrameCache[clip.id];
+  if (cached) {
+    return `<img src="${cached}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+  }
+  return `<video data-src="${escHtml(resolveUrl(clip.url))}" data-clip-id="${clip.id}" muted playsinline crossorigin="anonymous" preload="metadata" onloadedmetadata="this.currentTime=0.15" onseeked="captureClipThumb(this)"></video>`;
+}
+
+function captureClipThumb(video) {
+  const clipId = video.dataset.clipId;
+  if (!clipId || thumbFrameCache[clipId]) return;
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 200;
+    canvas.height = video.videoHeight || 200;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+    thumbFrameCache[clipId] = dataUrl;
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.loading = 'lazy';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    video.replaceWith(img);
+  } catch(e) { /* dacă R2 nu trimite CORS, doar lăsăm video-ul cum era */ }
+}
+
+
+function setupThumbLazyLoad(containerId, priorityCount = 6) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const videos = container.querySelectorAll('video[data-src]');
+  const allVideos = [...container.querySelectorAll('video[data-src]')];
+  allVideos.slice(0, priorityCount).forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
+  const rest = container.querySelectorAll('video[data-src]');
+  if (!rest.length) return;
   if (!('IntersectionObserver' in window)) {
-    videos.forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
+    rest.forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
     return;
   }
   const io = new IntersectionObserver((entries) => {
@@ -10470,8 +10503,9 @@ function setupThumbLazyLoad(containerId) {
       }
     });
   }, { root: container, rootMargin: '150px 0px' });
-  videos.forEach(v => io.observe(v));
+  rest.forEach(v => io.observe(v));
 }
+
 
 function renderCollectionsGrid() {
   const wrap = document.getElementById('tiktokCollectionsGrid');
@@ -10493,9 +10527,8 @@ function renderCollectionsGrid() {
 
   function cardHtml(id, name, inColl, deletable) {
     const thumbClip = inColl[0];
-    const thumb = thumbClip
-      ? `<video data-src="${escHtml(resolveUrl(thumbClip.url))}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15"></video>`
-      : '';
+    const thumb = renderThumbEl(thumbClip);
+
     const playIcon = thumbClip ? `<div class="tiktok-coll-play-icon"><svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21"/></svg></div>` : '';
     const actionsHtml = (!isLocked && deletable) ? `<div class="tiktok-coll-card-actions">
       <div class="tiktok-coll-card-action-btn" onclick="event.stopPropagation();renameCollection('${id}')" title="redenumește">
@@ -10522,7 +10555,8 @@ function renderCollectionsGrid() {
   }).join('');
 
   wrap.innerHTML = html;
-  setupThumbLazyLoad('tiktokCollectionsGrid');
+setupThumbLazyLoad('tiktokCollectionsGrid', 4);
+
 }
 
 
@@ -10592,7 +10626,8 @@ function renderCollectionDetailGrid() {
   }
   grid.innerHTML = tiktokCurrentDetailClips.map((c, i) => `<div class="tiktok-coll-card" style="aspect-ratio:1;">
     <div onclick="openClipFromCollectionDetail(${i})" style="position:absolute;inset:0;cursor:pointer;">
-      <video data-src="${escHtml(resolveUrl(c.url))}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15"></video>
+      ${renderThumbEl(c)}
+
       <div class="tiktok-coll-play-icon"><svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21"/></svg></div>
       <div class="tiktok-coll-date-badge">${escHtml(formatClipDate(c.posted_at))}</div>
     </div>
@@ -10602,7 +10637,7 @@ function renderCollectionDetailGrid() {
       </div>
     </div>` : ''}
   </div>`).join('');
-  setupThumbLazyLoad('tiktokCollDetailGrid');
+setupThumbLazyLoad('tiktokCollDetailGrid', 9);
 }
 
 function openClipFromCollectionDetail(index) {
