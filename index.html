@@ -10313,22 +10313,11 @@ function appendMoreFeedSlides(sourceClips) {
       if (tiktokPreloadIO) tiktokPreloadIO.observe(v);
     }
   });
-
-
-  // curăță slide-urile vechi, deja trecute, ca DOM-ul să nu crească la nesfârșit
-  const allSlides = [...feed.querySelectorAll('.tiktok-slide')];
-  if (allSlides.length > TIKTOK_MAX_RENDERED) {
-    const excess = allSlides.length - TIKTOK_MAX_RENDERED;
-    for (let i = 0; i < excess; i++) {
-      const s = allSlides[i];
-      const v = s.querySelector('.tiktok-video');
-      if (v && !v.paused) continue; // nu șterge slide-ul curent redat, de siguranță
-      if (tiktokIO && v) tiktokIO.unobserve(v);
-      if (tiktokPreloadIO && v) tiktokPreloadIO.unobserve(v);
-      s.remove();
-    }
-  }
+  // notă: nu mai ștergem slide-uri vechi din DOM -- ștergerea deasupra
+  // poziției curente de scroll strica scroll-snap-ul (de-aia apărea ecranul negru).
+  // Resursele video sunt oricum eliberate separat prin releaseDistantVideos().
 }
+
 
 
 
