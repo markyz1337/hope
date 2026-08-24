@@ -1184,14 +1184,35 @@
 			}
 			.tiktok-close svg { width: 15px; height: 15px; }
 			.tiktok-mute-btn {
-			  position: absolute; top: calc(16px + env(safe-area-inset-top)); left: 16px;
+			  position: fixed; top: calc(16px + env(safe-area-inset-top)); left: 16px;
 			  width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.45);
 			  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
-			  cursor: pointer; z-index: 6; backdrop-filter: blur(10px); color: #fff;
+			  cursor: pointer; z-index: 810; backdrop-filter: blur(10px); color: #fff;
 			  transition: background 0.15s, border-color 0.15s;
 			}
 			.tiktok-mute-btn:active { background: rgba(0,0,0,0.65); }
 			.tiktok-mute-btn svg { width: 17px; height: 17px; }
+
+.tiktok-progress-track {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: rgba(255,255,255,0.15); z-index: 6; pointer-events: none;
+}
+.tiktok-progress-fill {
+  height: 100%; width: 0%; background: rgba(255,255,255,0.85);
+}
+
+.tiktok-autoscroll-btn {
+  position: fixed; top: calc(64px + env(safe-area-inset-top)); left: 16px;
+  width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 810; backdrop-filter: blur(10px); color: rgba(255,255,255,0.5);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.tiktok-autoscroll-btn.active {
+  background: rgba(200,169,126,0.35); border-color: rgba(200,169,126,0.6); color: var(--accent2);
+}
+.tiktok-autoscroll-btn svg { width: 16px; height: 16px; }
+
 
 			.tiktok-delete-btn {
 			  position: absolute; bottom: calc(150px + env(safe-area-inset-bottom)); right: 16px;
@@ -1203,7 +1224,17 @@
 			  position: absolute; left: 16px; right: 76px; bottom: calc(90px + env(safe-area-inset-bottom));
 			  color: #fff; font-family: var(--serif); font-size: 14px; font-style: italic; line-height: 1.5;
 			  text-shadow: 0 1px 6px rgba(0,0,0,0.6); z-index: 5;
+					cursor:pointer;
 			}
+			
+			.tiktok-caption.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+			
 			.tiktok-upload-fab {
 			  position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); right: 16px; z-index: 810;
 			  width: 50px; height: 50px; border-radius: 50%;
@@ -1278,12 +1309,13 @@
 			  border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
 			  padding: 2px 7px; backdrop-filter: blur(4px);
 			}
-			.tiktok-feed-date {
-			  position: absolute; left: 16px; bottom: calc(66px + env(safe-area-inset-bottom));
-			  font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
-			  color: rgba(255,255,255,0.55); z-index: 5;
-			  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
-			}
+.tiktok-feed-date {
+  position: absolute; top: calc(58px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.55); z-index: 5;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+}
+
 			.tiktok-caption-edit-btn {
 			  position: absolute; bottom: calc(270px + env(safe-area-inset-bottom)); right: 16px;
 			  width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45);
@@ -2363,7 +2395,15 @@
 				<button class="tiktok-tab-btn active" data-tab="feed" onclick="switchTiktokTab('feed')">feed</button>
 				<button class="tiktok-tab-btn" data-tab="collections" onclick="switchTiktokTab('collections')">colecții</button>
 			</div>
+			<div class="tiktok-mute-btn" id="tiktokMuteBtnGlobal" onclick="toggleClipMute()">${'{'}speakerIconSvg(false){'}'}</div>
+			<div class="tiktok-autoscroll-btn" id="tiktokAutoscrollBtn" onclick="toggleTiktokAutoscroll()" title="autoscroll">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="6 9 12 15 18 9"/>
+					<polyline points="6 3 12 9 18 3" opacity="0.5"/>
+				</svg>
+			</div>
 			<div class="tiktok-feed" id="tiktokFeed"></div>
+
 
 			<div class="tiktok-collections-view" id="tiktokCollectionsView">
 				<button class="tiktok-coll-new-btn" id="tiktokCollNewBtn" onclick="createCollection()">+ colecție nouă</button>
@@ -10133,6 +10173,40 @@ let tiktokActiveTab = 'feed'; // 'feed' | 'collections'
 let tiktokFeedOrder = [];
 let tiktokFeedScope = null;   // null = feed random infinit; 'fixed' = clipuri dintr-o colecție
 
+
+let tiktokAutoscroll = false;
+try { tiktokAutoscroll = localStorage.getItem('hope_tiktok_autoscroll') === '1'; } catch(e) {}
+
+function toggleTiktokAutoscroll() {
+  tiktokAutoscroll = !tiktokAutoscroll;
+  try { localStorage.setItem('hope_tiktok_autoscroll', tiktokAutoscroll ? '1' : '0'); } catch(e) {}
+  const btn = document.getElementById('tiktokAutoscrollBtn');
+  if (btn) btn.classList.toggle('active', tiktokAutoscroll);
+}
+
+function scrollToNextTiktokSlide(v) {
+  const slide = v.closest('.tiktok-slide');
+  if (!slide) return;
+  const next = slide.nextElementSibling;
+  if (next && next.classList.contains('tiktok-slide')) {
+    next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function bindEndedToVideo(v) {
+  if (v._endedBound) return;
+  v._endedBound = true;
+  v.addEventListener('ended', () => {
+    if (tiktokAutoscroll) {
+      scrollToNextTiktokSlide(v);
+    } else {
+      v.currentTime = 0;
+      v.play().catch(()=>{});
+    }
+  });
+}
+
+
 async function loadClips() {
   const { data, error } = await sb.from('hope_clips').select('*').order('posted_at', { ascending: false });
   if (error) { showToast('eroare la încărcarea clipurilor'); clips = []; return; }
@@ -10201,10 +10275,11 @@ function clipSlideHtml(c) {
   const url = resolveUrl(c.url);
   const dateStr = formatClipDate(c.posted_at);
 return `<div class="tiktok-slide" data-id="${c.id}">
-    <video class="tiktok-video" data-src="${escHtml(url)}" loop playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
+    <video class="tiktok-video" data-src="${escHtml(url)}" playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
+
+      <div class="tiktok-progress-track"><div class="tiktok-progress-fill"></div></div>
 
 
-      <div class="tiktok-mute-btn" onclick="toggleClipMute(this)">${speakerIconSvg(tiktokGloballyMuted)}</div>
 
 
 
@@ -10218,7 +10293,8 @@ return `<div class="tiktok-slide" data-id="${c.id}">
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
 
       ${dateStr ? `<div class="tiktok-feed-date">${escHtml(dateStr)}</div>` : ''}
-      ${c.caption ? `<div class="tiktok-caption">${escHtml(c.caption)}</div>` : ''}
+${c.caption ? `<div class="tiktok-caption collapsed" onclick="toggleClipCaption(this)">${escHtml(c.caption)}</div>` : ''}
+
     </div>`;
 }
 
@@ -10319,15 +10395,30 @@ function appendMoreFeedSlides(sourceClips) {
       v.setAttribute('playsinline', '');
       v.muted = true;
       bindAudioToVideo(v);
+      bindProgressToVideo(v);
+      bindEndedToVideo(v);
       if (tiktokIO) tiktokIO.observe(v);
       if (tiktokPreloadIO) tiktokPreloadIO.observe(v);
     }
+
   });
   // notă: nu mai ștergem slide-uri vechi din DOM -- ștergerea deasupra
   // poziției curente de scroll strica scroll-snap-ul (de-aia apărea ecranul negru).
   // Resursele video sunt oricum eliberate separat prin releaseDistantVideos().
 }
 
+
+function bindProgressToVideo(v) {
+  if (v._progressBound) return;
+  v._progressBound = true;
+  const slide = v.closest('.tiktok-slide');
+  const fill = slide ? slide.querySelector('.tiktok-progress-fill') : null;
+  if (!fill) return;
+  v.addEventListener('timeupdate', () => {
+    if (v.duration) fill.style.width = (v.currentTime / v.duration * 100) + '%';
+  });
+  v.addEventListener('loadedmetadata', () => { fill.style.width = '0%'; });
+}
 
 
 
@@ -10364,7 +10455,10 @@ function setupTiktokObserver(sourceClips) {
     v.setAttribute('playsinline', '');
     v.muted = true; // video-ul rămâne mereu mut -- sunetul vine din elementul audio separat
     bindAudioToVideo(v);
+    bindProgressToVideo(v);
+    bindEndedToVideo(v);
   });
+
 
   // Observer separat, doar pentru pre-încărcarea sursei -- nu atinge logica de redare
   tiktokPreloadIO = new IntersectionObserver((entries) => {
@@ -10409,15 +10503,17 @@ function setupTiktokObserver(sourceClips) {
 
 
 
-function toggleClipMute(btn) {
+function toggleClipMute() {
   tiktokGloballyMuted = !tiktokGloballyMuted;
   tiktokAudio.muted = tiktokGloballyMuted;
   if (!tiktokGloballyMuted && tiktokAudioActiveVideo && !tiktokAudioActiveVideo.paused) {
     tiktokAudio.currentTime = tiktokAudioActiveVideo.currentTime;
     tiktokAudio.play().catch(()=>{});
   }
-  document.querySelectorAll('.tiktok-mute-btn').forEach(b => { b.innerHTML = speakerIconSvg(tiktokGloballyMuted); });
+  const btn = document.getElementById('tiktokMuteBtnGlobal');
+  if (btn) btn.innerHTML = speakerIconSvg(tiktokGloballyMuted);
 }
+
 
 
 
@@ -10726,7 +10822,10 @@ async function openTiktokFeed() {
   tiktokAudio.play().then(() => tiktokAudio.pause()).catch(() => {});
   document.getElementById('tiktokOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
+  document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   await Promise.all([loadClips(), loadCollections()]);
+
 
   tiktokActiveTab = 'feed';
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
@@ -10843,6 +10942,9 @@ async function saveClipCaption(clipId) {
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
 
+function toggleClipCaption(el) {
+  el.classList.toggle('collapsed');
+}
 
 
 function showAccessChoiceModal() {
