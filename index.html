@@ -10270,6 +10270,25 @@ function feed_prefetchTriggerSlide() {
 }
 
 
+function releaseVideoSrc(v) {
+  if (!v || !v.src) return;
+  try { v.pause(); } catch(e) {}
+  v.removeAttribute('src');
+  v.load(); // forțează eliberarea bufferului pe iOS/Safari
+}
+
+function releaseDistantVideos(activeSlide) {
+  const allSlides = [...document.querySelectorAll('#tiktokFeed .tiktok-slide')];
+  const idx = allSlides.indexOf(activeSlide);
+  if (idx === -1) return;
+  allSlides.forEach((s, i) => {
+    if (Math.abs(i - idx) <= 1) return; // păstrăm activul + vecinii direcți
+    const v = s.querySelector('.tiktok-video');
+    if (v) releaseVideoSrc(v);
+  });
+}
+
+
 function appendMoreFeedSlides(sourceClips) {
   const feed = document.getElementById('tiktokFeed');
   const slidesNow = [...feed.querySelectorAll('.tiktok-slide')];
@@ -10356,10 +10375,10 @@ function setupTiktokObserver(sourceClips) {
         v.src = v.dataset.src;
       }
     });
-  }, { threshold: 0, rootMargin: '150% 0px' });
+  }, { threshold: 0, rootMargin: '100% 0px' });
   videos.forEach(v => tiktokPreloadIO.observe(v));
 
-  // Observer de redare/pauză -- logica neschimbată
+  // Observer de redare/pauză -- logica de autoplay/mute neschimbată
   tiktokIO = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const v = entry.target;
@@ -10370,6 +10389,10 @@ function setupTiktokObserver(sourceClips) {
           v.currentTime = 0;
           v.play().catch(() => {});
         }
+
+        // eliberează video-urile îndepărtate ca să nu depășim limita de decodoare a browserului
+        releaseDistantVideos(slide);
+
         if (slide === feed_lastSlide()) {
           if (tiktokFeedScope !== 'fixed') extendFeedOrderIfNeeded(sourceClips);
           appendMoreFeedSlides(sourceClips);
