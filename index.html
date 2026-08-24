@@ -10750,9 +10750,14 @@ function openClipFromCollectionDetail(index) {
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
   document.getElementById('tiktokCollectionsView').classList.remove('open');
   document.getElementById('tiktokFeed').style.display = '';
+  document.getElementById('tiktokMuteBtnGlobal').style.display = '';
+  document.getElementById('tiktokAutoscrollBtn').style.display = '';
+  document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
+  document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   const reordered = [...tiktokCurrentDetailClips.slice(index), ...tiktokCurrentDetailClips.slice(0, index)];
   renderClipsFixed(reordered);
 }
+
 
 function backToCollectionsList() {
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
