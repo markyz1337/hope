@@ -10842,6 +10842,8 @@ async function openTiktokFeed() {
 
   tiktokActiveTab = 'feed';
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
+  document.getElementById('tiktokMuteBtnGlobal').style.display = '';
+  document.getElementById('tiktokAutoscrollBtn').style.display = '';
   document.getElementById('tiktokCollectionsView').classList.remove('open');
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
   document.getElementById('tiktokFeed').style.display = '';
