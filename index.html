@@ -10538,6 +10538,9 @@ async function switchTiktokTab(tab) {
   const detailView = document.getElementById('tiktokCollectionDetailView');
   detailView.classList.remove('open');
 
+  document.getElementById('tiktokMuteBtnGlobal').style.display = tab === 'feed' ? '' : 'none';
+  document.getElementById('tiktokAutoscrollBtn').style.display = tab === 'feed' ? '' : 'none';
+
   if (tab === 'feed') {
     collView.classList.remove('open');
     feedEl.style.display = '';
@@ -10553,6 +10556,7 @@ async function switchTiktokTab(tab) {
 
   }
 }
+
 
 
 function renderThumbEl(clip) {
