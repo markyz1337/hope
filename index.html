@@ -10250,12 +10250,17 @@ function renderClipsFixed(fixedClipsList) {
   const initialIds = tiktokFeedOrder.slice(0, TIKTOK_INITIAL_BATCH);
   feed.innerHTML = initialIds.map(id => clipSlideHtml(tiktokFeedClipsById[id])).join('');
 
+  // resetăm scroll-ul containerului -- altfel, dacă rămâsese scrollat dintr-o
+  // vizionare anterioară, browserul consideră "vizibil" un alt slide decât primul
+  feed.scrollTop = 0;
+
   // primul clip își începe încărcarea imediat, fără să aștepte observer-ul
   const firstVideo = feed.querySelector('.tiktok-video');
   if (firstVideo && firstVideo.dataset.src) firstVideo.src = firstVideo.dataset.src;
 
   setupTiktokObserver(fixedClipsList);
 }
+
 
 
 function feed_lastSlide() {
