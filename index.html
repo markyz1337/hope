@@ -10461,7 +10461,9 @@ function renderThumbEl(clip) {
   if (cached) {
     return `<img src="${cached}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">`;
   }
-  return `<video data-src="${escHtml(resolveUrl(clip.url))}" data-clip-id="${clip.id}" muted playsinline crossorigin="anonymous" preload="metadata" onloadedmetadata="this.currentTime=0.15" onseeked="captureClipThumb(this)"></video>`;
+// DUPĂ
+return `<video data-src="${escHtml(resolveUrl(clip.url))}" data-clip-id="${clip.id}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15" onseeked="captureClipThumb(this)"></video>`;
+
 }
 
 function captureClipThumb(video) {
