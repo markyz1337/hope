@@ -10792,7 +10792,8 @@ function openClipCollectionPicker(clipId) {
     ${noneBtn}
     <button onclick="createCollectionThenAssign('${clipId}')" style="width:100%;padding:12px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;cursor:pointer;">+ colecție nouă</button>
   </div>`;
-  document.body.appendChild(overlay);
+document.getElementById('tiktokOverlay').appendChild(overlay);
+
 }
 
 
@@ -10809,8 +10810,9 @@ async function createCollectionThenAssign(clipId) {
 
 async function assignClipToCollection(clipId, collId) {
   const { error } = await sb.from('hope_clips').update({ collection_id: collId }).eq('id', clipId);
-  const pick = document.getElementById('clip-coll-pick-overlay');
-  if (pick) document.body.removeChild(pick);
+const pick = document.getElementById('clip-coll-pick-overlay');
+if (pick) pick.remove();
+
   if (error) { showToast('eroare: ' + error.message); return; }
   showToast(collId ? 'mutat în colecție' : 'scos din colecție');
   await loadClips();
@@ -10963,18 +10965,21 @@ function editClipCaption(clipId) {
     <div class="sheet-title">descriere clip</div>
     <textarea id="caption-edit-textarea" class="form-textarea" style="min-height:80px;" placeholder="o descriere...">${escHtml(clip.caption || '')}</textarea>
     <button class="btn-primary" onclick="saveClipCaption('${clipId}')">salvează</button>
-    <button class="btn-secondary" onclick="document.body.removeChild(document.getElementById('caption-edit-overlay'))">anulează</button>
+<button class="btn-secondary" onclick="document.getElementById('caption-edit-overlay').remove()">anulează</button>
+
   </div>`;
 
-  document.body.appendChild(overlay);
-  setTimeout(() => document.getElementById('caption-edit-textarea')?.focus(), 100);
+document.getElementById('tiktokOverlay').appendChild(overlay);
+setTimeout(() => document.getElementById('caption-edit-textarea')?.focus(), 100);
+
 }
 
 async function saveClipCaption(clipId) {
   const val = document.getElementById('caption-edit-textarea').value.trim();
   const { error } = await sb.from('hope_clips').update({ caption: val }).eq('id', clipId);
-  const overlay = document.getElementById('caption-edit-overlay');
-  if (overlay) document.body.removeChild(overlay);
+const overlay = document.getElementById('caption-edit-overlay');
+if (overlay) overlay.remove();
+
   if (error) { showToast('eroare: ' + error.message); return; }
   showToast('descriere salvată');
   await loadClips();
