@@ -344,7 +344,6 @@
 			  background: var(--surface); cursor: pointer; transition: all 0.2s; min-width: 48px;
 			}
 
-			.date-pill.future { opacity: 0.55; cursor: default; }
 
 			.date-pill:hover { border-color: var(--border2); background: var(--surface2); }
 			.date-pill.active { border-color: rgba(200,169,126,0.45); background: rgba(200,169,126,0.1); }
@@ -5202,22 +5201,6 @@
 
 
 
-			const NOTE_THEMES = {
-			  none:   { label: 'implicit',   icon: '✏️',  bg: '#17171d' },
-			  stars:  { label: 'stele',      icon: '🌠',  bg: 'linear-gradient(160deg,#0a0a1a,#0d0820)' },
-			  aurora: { label: 'aurora',     icon: '🌌',  bg: 'linear-gradient(135deg,#020b14,#0a1628)' },
-			  glow:   { label: 'glow',       icon: '💜',  bg: '#08060f' },
-			  hearts: { label: 'inimi',      icon: '🌸',  bg: 'linear-gradient(145deg,#1a0812,#220d18)' },
-			  rain:   { label: 'ploaie',     icon: '🌧️',  bg: 'linear-gradient(180deg,#070b0f,#0a0f14)' },
-			  fire:   { label: 'foc',        icon: '🔥',  bg: 'linear-gradient(180deg,#0f0500,#1a0800)' },
-			  ocean:  { label: 'ocean',      icon: '🌊',  bg: 'linear-gradient(180deg,#020c14,#041828)' },
-			  nebula: { label: 'nebulă',     icon: '🔮',  bg: 'radial-gradient(ellipse,#0e0618,#060410)' },
-			  matrix: { label: 'matrix',     icon: '💚',  bg: '#000800' },
-			  gold:   { label: 'aur',        icon: '✨',  bg: 'linear-gradient(135deg,#0f0900,#1a1000)' },
-			};
-
-
-
 
 			// pin mode: 'main' | 'private' | 'visitor' | 'time'
 			function openPinOverlay(mode) {
@@ -9239,13 +9222,6 @@ function updateFabMainMode() {
 			  btn.closest('div').remove();
 			  const field = document.getElementById('photo-urls');
 			  field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
-			}
-
-			function handlePhotoDrop(e) {
-			  e.preventDefault();
-			  document.getElementById('photo-upload-area').style.borderColor = 'var(--border2)';
-			  const files = e.dataTransfer.files;
-			  if (files.length) uploadPhotosToR2(files);
 			}
 
 
