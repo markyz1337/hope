@@ -1153,6 +1153,15 @@
 
 
 			/* ── TIKTOK FEED ── */
+			
+			.tiktok-black-backdrop {
+  position: fixed; inset: 0; background: #000;
+  z-index: 799; display: none;
+}
+.tiktok-black-backdrop.open { display: block; }
+
+			
+			
 			.tiktok-overlay {
 			  position: fixed; inset: 0; background: #000; z-index: 800;
 			  opacity: 0; pointer-events: none; transition: opacity 0.25s;
@@ -2402,7 +2411,9 @@
 		</div>
 
 		<!-- TIKTOK FEED -->
+		<div class="tiktok-black-backdrop" id="tiktokBlackBackdrop"></div>
 		<div class="tiktok-overlay" id="tiktokOverlay">
+
 			<div class="tiktok-tabs">
 				<button class="tiktok-tab-btn active" data-tab="feed" onclick="switchTiktokTab('feed')">feed</button>
 				<button class="tiktok-tab-btn" data-tab="collections" onclick="switchTiktokTab('collections')">colecții</button>
@@ -10859,6 +10870,7 @@ async function assignClipToCollection(clipId, collId) {
 
 async function openTiktokFeed() {
   closeFab(); closeCalPopup();
+  document.getElementById('tiktokBlackBackdrop').classList.add('open');
   // oprește muzica zilei și muzica din notițe înainte de a intra în feed
   if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
   if (!entryAudio.paused) { entryAudio.pause(); }
@@ -10887,6 +10899,7 @@ async function openTiktokFeed() {
 
 function closeTiktokFeed() {
   document.getElementById('tiktokOverlay').classList.remove('open');
+  document.getElementById('tiktokBlackBackdrop').classList.remove('open');
   document.body.style.overflow = '';
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
   tiktokAudio.pause();
@@ -10894,6 +10907,7 @@ function closeTiktokFeed() {
   if (tiktokIO) { tiktokIO.disconnect(); tiktokIO = null; }
   if (tiktokPreloadIO) { tiktokPreloadIO.disconnect(); tiktokPreloadIO = null; }
 }
+
 
 
 
