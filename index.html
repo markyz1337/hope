@@ -10871,6 +10871,8 @@ async function assignClipToCollection(clipId, collId) {
 async function openTiktokFeed() {
   closeFab(); closeCalPopup();
   document.getElementById('tiktokBlackBackdrop').classList.add('open');
+  setStatusBarBlack(true);
+
   // oprește muzica zilei și muzica din notițe înainte de a intra în feed
   if (!dmAudio.paused) { dmAudio.pause(); syncDateMusicWaves(); }
   if (!entryAudio.paused) { entryAudio.pause(); }
@@ -10900,6 +10902,8 @@ async function openTiktokFeed() {
 function closeTiktokFeed() {
   document.getElementById('tiktokOverlay').classList.remove('open');
   document.getElementById('tiktokBlackBackdrop').classList.remove('open');
+  setStatusBarBlack(false);
+
   document.body.style.overflow = '';
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
   tiktokAudio.pause();
@@ -11037,6 +11041,13 @@ function showAccessChoiceModal() {
 			// TOAST
 			// ═══════════════════════════════════════
 			function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+function setStatusBarBlack(active) {
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', active ? '#000000' : '#0c0c0f');
+}
+
+
 
 			function showRedirectModal(targetUrl) {
 			  const existing = document.getElementById('redirect-modal-overlay');
