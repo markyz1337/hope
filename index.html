@@ -1309,6 +1309,18 @@
 			  border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
 			  padding: 2px 7px; backdrop-filter: blur(4px);
 			}
+			
+			.tiktok-clip-coll-badge {
+  position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px;
+  z-index: 5; display: flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 20px;
+  padding: 4px 10px 4px 7px; backdrop-filter: blur(6px);
+}
+.tiktok-clip-coll-badge svg { width: 11px; height: 11px; flex-shrink: 0; opacity: 0.85; }
+
+			
 .tiktok-feed-date {
   position: absolute; top: calc(58px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
@@ -10267,6 +10279,15 @@ function speakerIconSvg(muted) {
   </svg>`;
 }
 
+
+function getClipCollectionName(collId) {
+  if (!collId) return null;
+  const col = collections.find(c => String(c.id) === String(collId));
+  return col ? col.name : null;
+}
+
+
+
 function formatClipDate(postedAt) {
 
   if (!postedAt) return '';
@@ -10278,7 +10299,9 @@ function formatClipDate(postedAt) {
 function clipSlideHtml(c) {
   const url = resolveUrl(c.url);
   const dateStr = formatClipDate(c.posted_at);
+  const collName = getClipCollectionName(c.collection_id);
 return `<div class="tiktok-slide" data-id="${c.id}">
+
     <video class="tiktok-video" data-src="${escHtml(url)}" playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
 
       <div class="tiktok-progress-track"><div class="tiktok-progress-fill"></div></div>
@@ -10296,8 +10319,13 @@ return `<div class="tiktok-slide" data-id="${c.id}">
       </div>` : ''}
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
 
+      ${collName ? `<div class="tiktok-clip-coll-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>${escHtml(collName)}</span>
+      </div>` : ''}
       ${dateStr ? `<div class="tiktok-feed-date">${escHtml(dateStr)}</div>` : ''}
 ${c.caption ? `<div class="tiktok-caption collapsed" onclick="toggleClipCaption(this)">${escHtml(c.caption)}</div>` : ''}
+
 
     </div>`;
 }
