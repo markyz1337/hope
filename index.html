@@ -8158,7 +8158,6 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			let lbTouchStartX = 0, lbTouchStartY = 0;
 			let lbPinchStart = 0, lbScaleBase = 1, lbPanStartX = 0, lbPanStartY = 0, lbPanBaseX = 0, lbPanBaseY = 0;
 			let lbIsPanning = false, lbIsPinching = false;
-			let lbLastTap = 0;
 
 			function openLightboxForEntry(entryId, idx) {
 			  const entry = entries.find(e => String(e.id) === String(entryId));
@@ -8291,8 +8290,6 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			    e.stopPropagation();
 			    closeLightbox();
 			  }
-
-			lbLastTap = 0;
 
 			  lbIsPanning = false;
 			}, { passive: false });
