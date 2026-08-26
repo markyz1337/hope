@@ -10586,13 +10586,13 @@ function captureClipThumb(video) {
   const clipId = video.dataset.clipId;
   if (!clipId || thumbFrameCache[clipId]) return;
   try {
-    const MAX_W = 240;
+    const MAX_W = 120;
     const scale = Math.min(1, MAX_W / (video.videoWidth || MAX_W));
     const canvas = document.createElement('canvas');
     canvas.width = Math.round((video.videoWidth || MAX_W) * scale);
     canvas.height = Math.round((video.videoHeight || MAX_W) * scale);
     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.55);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.35);
     thumbFrameCache[clipId] = dataUrl;
     const img = document.createElement('img');
     img.src = dataUrl;
@@ -10601,6 +10601,7 @@ function captureClipThumb(video) {
     video.replaceWith(img);
   } catch(e) { /* dacă R2 nu trimite CORS, doar lăsăm video-ul cum era */ }
 }
+
 
 
 function setupThumbLazyLoad(containerId, priorityCount = 6) {
