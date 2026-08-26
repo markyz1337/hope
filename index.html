@@ -3129,13 +3129,15 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 						style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
 						onclick="document.getElementById('clip-file-input').click()"
 					>
-						<input
-							type="file"
-							id="clip-file-input"
-							accept="video/*"
-							style="display:none"
-							onchange="uploadClipToR2(this.files[0])"
-						/>
+<input
+    type="file"
+    id="clip-file-input"
+    accept="video/*"
+    multiple
+    style="display:none"
+    onchange="uploadClipToR2(this.files)"
+/>
+
 						<svg
 							viewBox="0 0 24 24"
 							fill="none"
@@ -10154,9 +10156,11 @@ const thumbFrameCache = {}; // clipId -> dataURL cu frame-ul capturat
 
 
 let tiktokFeedClipsById = {};
-let clipUploadedUrl = '';
+let clipUploadedUrls = [];
+let tiktokUploadPresetCollId = null;
 let tiktokIO = null;
 let tiktokPreloadIO = null;
+
 
 let tiktokGloballyMuted = false;
 let tiktokAudioActiveVideo = null;
@@ -10554,11 +10558,13 @@ async function switchTiktokTab(tab) {
   document.getElementById('tiktokAutoscrollBtn').style.display = tab === 'feed' ? '' : 'none';
 
   if (tab === 'feed') {
+    tiktokUploadPresetCollId = null;
     collView.classList.remove('open');
     feedEl.style.display = '';
     document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
     renderClips(clips);
   } else {
+
     feedEl.style.display = 'none';
     document.getElementById('tiktokUploadFab').style.display = 'none';
     collView.classList.add('open');
@@ -10723,8 +10729,11 @@ async function deleteCollection(collId) {
 
 async function openCollectionDetail(collId) {
   tiktokCurrentDetailCollId = collId;
+  tiktokUploadPresetCollId = (collId === '__none__') ? null : collId;
   document.getElementById('tiktokCollectionsView').classList.remove('open');
   document.getElementById('tiktokCollectionDetailView').classList.add('open');
+  document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
+
 
   let title;
   if (collId === '__none__') {
@@ -10770,16 +10779,21 @@ function openClipFromCollectionDetail(index) {
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
+  document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   const reordered = [...tiktokCurrentDetailClips.slice(index), ...tiktokCurrentDetailClips.slice(0, index)];
   renderClipsFixed(reordered);
 }
+
 
 
 function backToCollectionsList() {
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
   document.getElementById('tiktokCollectionsView').classList.add('open');
   tiktokCurrentDetailCollId = null;
+  tiktokUploadPresetCollId = null;
+  document.getElementById('tiktokUploadFab').style.display = 'none';
 }
+
 
 
 // ── ADAUGĂ CLIP EXISTENT LA O COLECȚIE (din feed) ──
@@ -10880,9 +10894,11 @@ async function openTiktokFeed() {
 
 
   tiktokActiveTab = 'feed';
+  tiktokUploadPresetCollId = null;
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
+
   document.getElementById('tiktokCollectionsView').classList.remove('open');
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
   document.getElementById('tiktokFeed').style.display = '';
@@ -10907,42 +10923,58 @@ function closeTiktokFeed() {
 
 
 
-async function uploadClipToR2(file) {
-  if (!file) return;
+async function uploadClipToR2(files) {
+  if (!files || !files.length) return;
   const status = document.getElementById('clip-upload-status');
-  status.textContent = 'se încarcă...';
-  try {
-    const result = await uploadToR2(file, 'video');
-    clipUploadedUrl = `r2:${result.publicId}`;
-    status.textContent = '✓ încărcat';
-  } catch(e) {
-    status.textContent = 'eroare la upload';
+  clipUploadedUrls = [];
+  for (let i = 0; i < files.length; i++) {
+    status.textContent = `se încarcă ${i+1}/${files.length}...`;
+    try {
+      const result = await uploadToR2(files[i], 'video');
+      clipUploadedUrls.push(`r2:${result.publicId}`);
+    } catch(e) {
+      status.textContent = `eroare la fișierul ${i+1}`;
+      return;
+    }
   }
+  status.textContent = `✓ ${clipUploadedUrls.length} clip(uri) încărcate`;
 }
+
 
 function populateClipCollectionSelect() {
   const sel = document.getElementById('clip-collection-select');
   if (!sel) return;
   sel.innerHTML = `<option value="">fără colecție</option>` + collections.map(c => `<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+  if (tiktokUploadPresetCollId) sel.value = tiktokUploadPresetCollId;
 }
+
 
 async function saveClip() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
-  if (!clipUploadedUrl) { showToast('încarcă un video mai întâi'); return; }
+  if (!clipUploadedUrls.length) { showToast('încarcă cel puțin un video mai întâi'); return; }
   const caption = document.getElementById('clip-caption').value.trim();
   const collId = document.getElementById('clip-collection-select').value || null;
-  const { error } = await sb.from('hope_clips').insert([{ url: clipUploadedUrl, caption, collection_id: collId, posted_at: new Date().toISOString() }]);
+  const now = new Date().toISOString();
+  const rows = clipUploadedUrls.map(url => ({ url, caption, collection_id: collId, posted_at: now }));
+  const { error } = await sb.from('hope_clips').insert(rows);
   if (error) { showToast('eroare: ' + error.message); return; }
-  showToast('clip adăugat');
+  showToast(`${rows.length} clip${rows.length===1?'':'uri'} adăugat${rows.length===1?'':'e'}`);
   closeModal('clip');
   document.getElementById('clip-file-input').value = '';
   document.getElementById('clip-caption').value = '';
   document.getElementById('clip-upload-status').textContent = '';
   document.getElementById('clip-collection-select').value = '';
-  clipUploadedUrl = '';
+  clipUploadedUrls = [];
   await loadClips();
   if (tiktokActiveTab === 'feed') renderClips(clips);
+  if (document.getElementById('tiktokCollectionDetailView').classList.contains('open') && tiktokCurrentDetailCollId !== null) {
+    tiktokCurrentDetailClips = tiktokCurrentDetailCollId === '__none__'
+      ? clips.filter(c => !c.collection_id)
+      : clips.filter(c => c.collection_id === tiktokCurrentDetailCollId);
+    renderCollectionDetailGrid();
+  }
 }
+
 
 async function deleteClip(id) {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
