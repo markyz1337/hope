@@ -10496,19 +10496,23 @@ function bindAudioToVideo(v) {
   v._audioBound = true;
 
   v.addEventListener('play', () => {
-    tiktokAudioActiveVideo = v;
-    tiktokAudio.src = v.currentSrc || v.src;
-    tiktokAudio.currentTime = 0;
+    const src = v.currentSrc || v.src;
+    const isSameVideo = tiktokAudioActiveVideo === v && tiktokAudio.src === src;
+    if (!isSameVideo) {
+      tiktokAudioActiveVideo = v;
+      tiktokAudio.src = src;
+    }
+    tiktokAudio.currentTime = v.currentTime;
     tiktokAudio.muted = tiktokGloballyMuted;
     tiktokAudio.play().catch(() => {});
   });
   v.addEventListener('pause', () => {
     if (tiktokAudioActiveVideo === v) {
       tiktokAudio.pause();
-      tiktokAudioActiveVideo = null;
     }
   });
 }
+
 
 
 
