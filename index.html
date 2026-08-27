@@ -10650,13 +10650,20 @@ function captureClipThumb(video) {
     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.22);
     thumbFrameCache[clipId] = dataUrl;
+    const skeleton = video.previousElementSibling;
+    if (skeleton && skeleton.classList.contains('thumb-skeleton')) skeleton.remove();
     const img = document.createElement('img');
     img.src = dataUrl;
     img.loading = 'lazy';
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
     video.replaceWith(img);
-  } catch(e) { /* dacă R2 nu trimite CORS, doar lăsăm video-ul cum era */ }
+  } catch(e) {
+    const skeleton = video.previousElementSibling;
+    if (skeleton && skeleton.classList.contains('thumb-skeleton')) skeleton.remove();
+    video.style.opacity = '1';
+  }
 }
+
 
 
 
