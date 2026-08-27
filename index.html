@@ -1172,6 +1172,18 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 }
 
 .tiktok-video::-webkit-media-controls { display: none !important; }
+.tiktok-video.tap-paused { opacity: 0.6; }
+.tiktok-swipe-hint {
+  position: fixed; bottom: calc(140px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  z-index: 820; display:flex; flex-direction:column; align-items:center; gap:6px;
+  color: rgba(255,255,255,0.85); font-family: var(--mono); font-size:10px; letter-spacing:0.06em;
+  opacity: 0; transition: opacity 0.4s ease; pointer-events:none; text-align:center;
+}
+.tiktok-swipe-hint.show { opacity: 1; }
+.tiktok-swipe-hint svg { width:20px; height:20px; animation: swipeHintBounce 1.4s ease-in-out infinite; }
+@keyframes swipeHintBounce { 0%,100% { transform: translateY(0); opacity:0.6; } 50% { transform: translateY(-8px); opacity:1; } }
+
+
 .tiktok-video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
 .tiktok-video::-webkit-media-controls-panel { display: none !important; }
 .tiktok-video::-webkit-media-controls-play-button { display: none !important; }
@@ -1231,12 +1243,15 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 					cursor:pointer;
 			}
 			
-			.tiktok-caption.collapsed {
+.tiktok-caption.collapsed {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 65%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 65%, transparent 100%);
 }
+
 
 			
 			.tiktok-upload-fab {
@@ -1305,7 +1320,15 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			  pointer-events: none; backdrop-filter: blur(2px);
 			}
 			.tiktok-coll-play-icon svg { width: 13px; height: 13px; margin-left: 2px; }
-			.tiktok-coll-card { background: #0a0a0d; }
+.tiktok-coll-card { background: #0a0a0d; }
+.thumb-skeleton {
+  position:absolute; inset:0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: thumbShimmer 1.4s ease-in-out infinite;
+}
+@keyframes thumbShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
 			.tiktok-coll-date-badge {
 			  position: absolute; top: 6px; left: 6px; z-index: 2;
 			  font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em;
@@ -2420,7 +2443,12 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 					<polyline points="6 3 12 9 18 3" opacity="0.5"/>
 				</svg>
 			</div>
+			<div class="tiktok-swipe-hint" id="tiktokSwipeHint">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+				<span>glisează în sus pentru următorul clip</span>
+			</div>
 			<div class="tiktok-feed" id="tiktokFeed"></div>
+
 
 
 			<div class="tiktok-collections-view" id="tiktokCollectionsView">
@@ -10307,8 +10335,9 @@ return `<div class="tiktok-slide" data-id="${c.id}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>${escHtml(collName)}</span>
       </div>` : ''}
-      ${dateStr ? `<div class="tiktok-feed-date">${escHtml(dateStr)}</div>` : ''}
+      ${dateStr ? `<div class="tiktok-feed-date"${!isLocked ? ` onclick="editClipDate('${c.id}')" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;"` : ''}>${escHtml(dateStr)}</div>` : ''}
 ${c.caption ? `<div class="tiktok-caption collapsed" onclick="toggleClipCaption(this)">${escHtml(c.caption)}</div>` : ''}
+
 
 
     </div>`;
@@ -10317,7 +10346,7 @@ ${c.caption ? `<div class="tiktok-caption collapsed" onclick="toggleClipCaption(
 
 const TIKTOK_INITIAL_BATCH = 3;
 const TIKTOK_APPEND_BATCH = 3;
-const TIKTOK_MAX_RENDERED = 12; // curăță slide-urile foarte vechi din feed pentru scroll infinit
+const TIKTOK_MAX_RENDERED = 5; // curăță slide-urile foarte vechi din feed pentru scroll infinit
 
 function renderClips(sourceClipsOverride, startAtId) {
   const feed = document.getElementById('tiktokFeed');
@@ -10392,6 +10421,22 @@ function releaseDistantVideos(activeSlide) {
 }
 
 
+function tiktokEndSlideHtml() {
+  return `<div class="tiktok-slide tiktok-end-slide">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;color:rgba(255,255,255,0.55);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:32px;height:32px;opacity:0.5;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2" stroke-linecap="round"/></svg>
+      <div style="font-family:var(--serif);font-size:16px;font-style:italic;">asta a fost tot</div>
+      <button onclick="restartTiktokFeed()" style="padding:9px 20px;border-radius:20px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:0.06em;cursor:pointer;">de la început</button>
+    </div>
+  </div>`;
+}
+
+function restartTiktokFeed() {
+  const feed = document.getElementById('tiktokFeed');
+  feed.scrollTop = 0;
+  renderClipsFixed(Object.values(tiktokFeedClipsById));
+}
+
 function appendMoreFeedSlides(sourceClips) {
   const feed = document.getElementById('tiktokFeed');
   const slidesNow = [...feed.querySelectorAll('.tiktok-slide')];
@@ -10400,7 +10445,13 @@ function appendMoreFeedSlides(sourceClips) {
     ? tiktokFeedClipsById
     : Object.fromEntries(sourceClips.map(c => [String(c.id), c]));
   const toAppend = tiktokFeedOrder.filter(id => !renderedIds.has(String(id))).slice(0, TIKTOK_APPEND_BATCH);
-  if (!toAppend.length) return;
+  if (!toAppend.length) {
+    if (tiktokFeedScope === 'fixed' && !feed.querySelector('.tiktok-end-slide')) {
+      feed.insertAdjacentHTML('beforeend', tiktokEndSlideHtml());
+    }
+    return;
+  }
+
 
   const frag = document.createElement('div');
   frag.innerHTML = toAppend.map(id => byId[id] ? clipSlideHtml(byId[id]) : '').join('');
@@ -10583,10 +10634,9 @@ function renderThumbEl(clip) {
   if (cached) {
     return `<img src="${cached}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">`;
   }
-// DUPĂ
-return `<video data-src="${escHtml(resolveUrl(clip.url))}" data-clip-id="${clip.id}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15" onseeked="captureClipThumb(this)"></video>`;
-
+  return `<div class="thumb-skeleton"></div><video data-src="${escHtml(resolveUrl(clip.url))}" data-clip-id="${clip.id}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15" onseeked="captureClipThumb(this)" style="opacity:0;"></video>`;
 }
+
 
 function captureClipThumb(video) {
   const clipId = video.dataset.clipId;
@@ -10871,8 +10921,25 @@ function exitTiktokBlackout() {
   if (meta) meta.setAttribute('content', '#0c0c0f');
 }
 
+let _tiktokTapDelegated = false;
+function setupTiktokTapToggle() {
+  if (_tiktokTapDelegated) return;
+  _tiktokTapDelegated = true;
+  document.getElementById('tiktokFeed').addEventListener('click', (e) => {
+    if (e.target.closest('.tiktok-caption, .tiktok-clip-add-btn, .tiktok-caption-edit-btn, .tiktok-delete-btn, .tiktok-clip-coll-badge, .tiktok-feed-date, a, button')) return;
+    const slide = e.target.closest('.tiktok-slide');
+    if (!slide) return;
+    const v = slide.querySelector('.tiktok-video');
+    if (!v) return;
+    if (v.paused) { v.play().catch(()=>{}); v.classList.remove('tap-paused'); }
+    else { v.pause(); v.classList.add('tap-paused'); }
+  });
+}
+
 async function openTiktokFeed() {
   closeFab(); closeCalPopup();
+  setupTiktokTapToggle();
+
 
 
 
@@ -10904,7 +10971,22 @@ async function openTiktokFeed() {
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   renderClips(clips);
+  maybeShowTiktokSwipeHint();
 }
+
+function maybeShowTiktokSwipeHint() {
+  let seen = false;
+  try { seen = localStorage.getItem('hope_tiktok_hint_seen') === '1'; } catch(e) {}
+  if (seen) return;
+  const hint = document.getElementById('tiktokSwipeHint');
+  if (!hint) return;
+  setTimeout(() => hint.classList.add('show'), 400);
+  setTimeout(() => {
+    hint.classList.remove('show');
+    try { localStorage.setItem('hope_tiktok_hint_seen', '1'); } catch(e) {}
+  }, 3200);
+}
+
 
 function closeTiktokFeed() {
   document.getElementById('tiktokOverlay').classList.remove('open');
@@ -11038,6 +11120,50 @@ if (overlay) overlay.remove();
 function toggleClipCaption(el) {
   el.classList.toggle('collapsed');
 }
+
+function editClipDate(clipId) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const clip = clips.find(c => String(c.id) === String(clipId));
+  if (!clip) return;
+
+  const existing = document.getElementById('date-edit-overlay');
+  if (existing) document.body.removeChild(existing);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'date-edit-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.85);backdrop-filter:blur(14px);z-index:950;display:flex;align-items:flex-end;justify-content:center;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
+
+  overlay.innerHTML = `<div style="width:100%;max-width:440px;background:linear-gradient(180deg,#181820,#111115);border:1px solid var(--border2);border-radius:22px 22px 0 0;padding:18px;padding-bottom:calc(24px + env(safe-area-inset-bottom));">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">data postării</div>
+    <input type="datetime-local" id="clip-date-edit-input" class="form-input" step="1" value="${toLocal(clip.posted_at)}">
+    <button class="btn-primary" onclick="saveClipDate('${clipId}')">salvează</button>
+    <button class="btn-secondary" onclick="document.getElementById('date-edit-overlay').remove()">anulează</button>
+  </div>`;
+
+  document.getElementById('tiktokOverlay').appendChild(overlay);
+}
+
+async function saveClipDate(clipId) {
+  const val = document.getElementById('clip-date-edit-input').value;
+  if (!val) { showToast('alege o dată'); return; }
+  const iso = new Date(val).toISOString();
+  const { error } = await sb.from('hope_clips').update({ posted_at: iso }).eq('id', clipId);
+  const overlay = document.getElementById('date-edit-overlay');
+  if (overlay) overlay.remove();
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast('dată actualizată');
+  await loadClips();
+  if (tiktokActiveTab === 'feed') renderClips(clips);
+  if (document.getElementById('tiktokCollectionDetailView').classList.contains('open') && tiktokCurrentDetailCollId !== null) {
+    tiktokCurrentDetailClips = tiktokCurrentDetailCollId === '__none__'
+      ? clips.filter(c => !c.collection_id)
+      : clips.filter(c => c.collection_id === tiktokCurrentDetailCollId);
+    renderCollectionDetailGrid();
+  }
+}
+
 
 
 function showAccessChoiceModal() {
