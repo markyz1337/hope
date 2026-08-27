@@ -10228,8 +10228,7 @@ function bindEndedToVideo(v) {
     if (tiktokAutoscroll) {
       scrollToNextTiktokSlide(v);
     } else {
-      v.currentTime = 0;
-      v.play().catch(()=>{});
+      playClipVideo(v, true);
     }
   });
 }
@@ -10489,29 +10488,32 @@ function bindProgressToVideo(v) {
 }
 
 
+function playClipVideo(v, resetTime) {
+  if (resetTime) v.currentTime = 0;
+  const src = v.currentSrc || v.src;
+  if (tiktokAudioActiveVideo !== v || tiktokAudio.src !== src) {
+    tiktokAudioActiveVideo = v;
+    tiktokAudio.src = src;
+  }
+  tiktokAudio.currentTime = v.currentTime;
+  tiktokAudio.muted = tiktokGloballyMuted;
+  Promise.all([v.play().catch(()=>{}), tiktokAudio.play().catch(()=>{})]);
+}
+
+function pauseClipVideo(v) {
+  v.pause();
+  if (tiktokAudioActiveVideo === v) tiktokAudio.pause();
+}
+
 
 
 function bindAudioToVideo(v) {
   if (v._audioBound) return;
   v._audioBound = true;
-
-  v.addEventListener('play', () => {
-    const src = v.currentSrc || v.src;
-    const isSameVideo = tiktokAudioActiveVideo === v && tiktokAudio.src === src;
-    if (!isSameVideo) {
-      tiktokAudioActiveVideo = v;
-      tiktokAudio.src = src;
-    }
-    tiktokAudio.currentTime = v.currentTime;
-    tiktokAudio.muted = tiktokGloballyMuted;
-    tiktokAudio.play().catch(() => {});
-  });
-  v.addEventListener('pause', () => {
-    if (tiktokAudioActiveVideo === v) {
-      tiktokAudio.pause();
-    }
-  });
+  // sincronizarea audio/video se face acum explicit prin playClipVideo/pauseClipVideo,
+  // nu mai reacționăm la evenimentele native play/pause (asta introducea întârzierea)
 }
+
 
 
 
@@ -10553,9 +10555,9 @@ function setupTiktokObserver(sourceClips) {
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
         if (v.dataset.src && !v.src) v.src = v.dataset.src; // fallback, dacă preload n-a apucat
         if (v.paused) {
-          v.currentTime = 0;
-          v.play().catch(() => {});
+          playClipVideo(v, true);
         }
+
 
         // eliberează video-urile îndepărtate ca să nu depășim limita de decodoare a browserului
         releaseDistantVideos(slide);
@@ -10566,8 +10568,9 @@ function setupTiktokObserver(sourceClips) {
         }
 
       } else {
-        if (!v.paused) v.pause();
+        if (!v.paused) pauseClipVideo(v);
       }
+
     });
   }, { threshold: 0.6 });
 
@@ -10942,8 +10945,9 @@ function setupTiktokTapToggle() {
     if (!slide) return;
     const v = slide.querySelector('.tiktok-video');
     if (!v) return;
-    if (v.paused) { v.play().catch(()=>{}); v.classList.remove('tap-paused'); }
-    else { v.pause(); v.classList.add('tap-paused'); }
+    if (v.paused) { playClipVideo(v, false); v.classList.remove('tap-paused'); }
+    else { pauseClipVideo(v); v.classList.add('tap-paused'); }
+
   });
 }
 
