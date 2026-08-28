@@ -1176,9 +1176,12 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-swipe-hint {
   position: fixed; bottom: calc(140px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
   z-index: 820; display:flex; flex-direction:column; align-items:center; gap:6px;
-  color: rgba(255,255,255,0.85); font-family: var(--mono); font-size:10px; letter-spacing:0.06em;
+  color: #fff; font-family: var(--mono); font-size:10px; letter-spacing:0.06em;
   opacity: 0; transition: opacity 0.4s ease; pointer-events:none; text-align:center;
+  background: rgba(0,0,0,0.6); padding: 8px 14px; border-radius: 20px; backdrop-filter: blur(6px);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
+
 .tiktok-swipe-hint.show { opacity: 1; }
 .tiktok-swipe-hint svg { width:20px; height:20px; animation: swipeHintBounce 1.4s ease-in-out infinite; }
 @keyframes swipeHintBounce { 0%,100% { transform: translateY(0); opacity:0.6; } 50% { transform: translateY(-8px); opacity:1; } }
@@ -1190,12 +1193,12 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-video::-webkit-media-controls-fullscreen-button { display: none !important; }
 
 
-			.tiktok-close {
-			  position: fixed; top: calc(16px + env(safe-area-inset-top)); right: 16px; z-index: 810;
-			  width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
-			  background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center;
-			  cursor: pointer; backdrop-filter: blur(10px);
-			}
+.tiktok-close {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; backdrop-filter: blur(10px); flex-shrink: 0;
+}
+
 			.tiktok-close svg { width: 15px; height: 15px; }
 			.tiktok-mute-btn {
 			  position: fixed; top: calc(16px + env(safe-area-inset-top)); left: 16px;
@@ -1207,6 +1210,39 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			.tiktok-mute-btn:active { background: rgba(0,0,0,0.65); }
 			.tiktok-mute-btn svg { width: 17px; height: 17px; }
 
+
+
+.tiktok-top-row {
+  position: fixed; top: calc(16px + env(safe-area-inset-top)); left: 16px; right: 16px;
+  z-index: 810; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.tiktok-top-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.tikhope-logo {
+  position: relative; display: flex; align-items: baseline;
+  font-family: var(--serif); font-size:28px; font-style: italic; font-weight: 500;
+  letter-spacing: 0.01em; text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  user-select: none; pointer-events: none;
+}
+.tikhope-tik { color: #ffffff; }
+.tikhope-hope { color: var(--accent2); }
+.tikhope-heart {
+  position: absolute; bottom: 2px; font-size: 8px; color: rgba(200,169,126,0.8);
+  opacity: 0; animation: tikhopeFloat 6.5s ease-in infinite;
+  text-shadow: 0 0 6px rgba(200,169,126,0.5);
+}
+.tikhope-heart.h1 { left: 4px;  animation-delay: 0s; }
+.tikhope-heart.h2 { left: 40px; animation-delay: 2.2s; font-size: 6px; }
+.tikhope-heart.h3 { left: 22px; animation-delay: 4.4s; font-size: 7px; }
+@keyframes tikhopeFloat {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.7); }
+  15%  { opacity: 0.85; }
+  80%  { opacity: 0.35; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.1); }
+}
+
+
+
 .tiktok-progress-track {
   position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
   background: rgba(255,255,255,0.15); z-index: 6; pointer-events: none;
@@ -1215,6 +1251,9 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
   height: 100%; width: 100%; background: rgba(255,255,255,0.85);
   transform: scaleX(0); transform-origin: left; will-change: transform;
 }
+
+.tiktok-mute-btn { display: none !important; }
+.tiktok-autoscroll-btn { display: none !important; }
 
 
 .tiktok-autoscroll-btn {
@@ -1268,11 +1307,11 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			  color: rgba(255,255,255,0.4); font-family: var(--serif); font-style: italic; font-size: 15px;
 			}
 
-			.tiktok-tabs {
-			  position: fixed; top: calc(16px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
-			  z-index: 810; display: flex; gap: 2px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
-			  border-radius: 50px; padding: 3px; backdrop-filter: blur(10px);
-			}
+.tiktok-tabs {
+  display: flex; gap: 2px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50px; padding: 3px; backdrop-filter: blur(10px);
+}
+
 			.tiktok-tab-btn {
 			  padding: 6px 16px; border-radius: 50px; border: none; background: none; cursor: pointer;
 			  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: rgba(255,255,255,0.55);
@@ -1349,11 +1388,12 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 
 			
 .tiktok-feed-date {
-  position: absolute; top: calc(58px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  position: absolute; top: calc(64px + env(safe-area-inset-top)); left: 16px;
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
   color: rgba(255,255,255,0.55); z-index: 5;
   text-shadow: 0 1px 6px rgba(0,0,0,0.6);
 }
+
 
 			.tiktok-caption-edit-btn {
 			  position: absolute; bottom: calc(270px + env(safe-area-inset-bottom)); right: 16px;
@@ -2432,17 +2472,33 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 		<div class="tiktok-overlay" id="tiktokOverlay">
 
 
-			<div class="tiktok-tabs">
-				<button class="tiktok-tab-btn active" data-tab="feed" onclick="switchTiktokTab('feed')">feed</button>
-				<button class="tiktok-tab-btn" data-tab="collections" onclick="switchTiktokTab('collections')">colecții</button>
-			</div>
-			<div class="tiktok-mute-btn" id="tiktokMuteBtnGlobal" onclick="toggleClipMute()">${'{'}speakerIconSvg(false){'}'}</div>
-			<div class="tiktok-autoscroll-btn" id="tiktokAutoscrollBtn" onclick="toggleTiktokAutoscroll()" title="autoscroll">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-					<polyline points="6 9 12 15 18 9"/>
-					<polyline points="6 3 12 9 18 3" opacity="0.5"/>
-				</svg>
-			</div>
+<div class="tiktok-top-row">
+    <div class="tikhope-logo">
+        <span class="tikhope-tik">Tik</span><span class="tikhope-hope">Hope</span>
+        <span class="tikhope-heart h1">♥</span>
+        <span class="tikhope-heart h2">♥</span>
+        <span class="tikhope-heart h3">♥</span>
+    </div>
+    <div class="tiktok-top-right">
+        <div class="tiktok-tabs">
+            <button class="tiktok-tab-btn active" data-tab="feed" onclick="switchTiktokTab('feed')">feed</button>
+            <button class="tiktok-tab-btn" data-tab="collections" onclick="switchTiktokTab('collections')">colecții</button>
+        </div>
+        <button class="tiktok-close" onclick="closeTiktokFeed()">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+</div>
+<div class="tiktok-mute-btn" id="tiktokMuteBtnGlobal" onclick="toggleClipMute()"></div>
+<div class="tiktok-autoscroll-btn" id="tiktokAutoscrollBtn" onclick="toggleTiktokAutoscroll()" title="autoscroll">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+        <polyline points="6 3 12 9 18 3" opacity="0.5"/>
+    </svg>
+</div>
+
 			<div class="tiktok-swipe-hint" id="tiktokSwipeHint">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
 				<span>glisează în sus pentru următorul clip</span>
@@ -2466,16 +2522,7 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 				<div class="tiktok-coll-grid" id="tiktokCollDetailGrid"></div>
 			</div>
 
-			<button class="tiktok-close" onclick="closeTiktokFeed()">
-				<svg
-					viewBox="0 0 16 16"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-				>
-					<path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-				</svg>
-			</button>
+
 			<button
 				class="tiktok-upload-fab"
 				id="tiktokUploadFab"
