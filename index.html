@@ -10679,24 +10679,64 @@ function setupThumbLazyLoad(containerId, priorityCount = 6) {
   const container = document.getElementById(containerId);
   if (!container) return;
   const allVideos = [...container.querySelectorAll('video[data-src]')];
-  allVideos.slice(0, priorityCount).forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
-  const rest = container.querySelectorAll('video[data-src]');
+  if (!allVideos.length) return;
+
+  const CONCURRENCY = 2; // câte thumb-uri se încarcă simultan
+  let active = 0;
+  const queue = [];
+
+  function startNext() {
+    while (active < CONCURRENCY && queue.length) {
+      const v = queue.shift();
+      if (!v.dataset.src) continue; // deja pornit
+      active++;
+      const src = v.dataset.src;
+      v.removeAttribute('data-src');
+      v.src = src;
+
+      let finished = false;
+      const done = () => {
+        if (finished) return;
+        finished = true;
+        active--;
+        v.removeEventListener('seeked', done);
+        v.removeEventListener('error', done);
+        startNext();
+      };
+      v.addEventListener('seeked', done, { once: true });
+      v.addEventListener('error', done, { once: true });
+      setTimeout(done, 6000); // siguranță dacă un video e stricat/lent
+    }
+  }
+
+  function enqueue(v) {
+    if (!v.dataset.src || queue.includes(v)) return;
+    queue.push(v);
+    startNext();
+  }
+
+  // primele (cele din capul grilei) intră imediat, în ordine
+  allVideos.slice(0, priorityCount).forEach(enqueue);
+
+  const rest = allVideos.slice(priorityCount);
   if (!rest.length) return;
+
   if (!('IntersectionObserver' in window)) {
-    rest.forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
+    rest.forEach(enqueue);
     return;
   }
+
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        const v = entry.target;
-        if (v.dataset.src) { v.src = v.dataset.src; v.removeAttribute('data-src'); }
-        io.unobserve(v);
+        enqueue(entry.target);
+        io.unobserve(entry.target);
       }
     });
   }, { root: container, rootMargin: '150px 0px' });
   rest.forEach(v => io.observe(v));
 }
+
 
 
 function renderCollectionsGrid() {
