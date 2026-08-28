@@ -10340,6 +10340,9 @@ let tiktokPreloadIO = null;
 
 let tiktokGloballyMuted = false;
 let tiktokAudioActiveVideo = null;
+let tiktokDailyMsgBlocking = false;
+let tiktokCurrentVisibleVideo = null;
+
 
 let tiktokActiveTab = 'feed'; // 'feed' | 'collections'
 let tiktokFeedOrder = [];
@@ -10653,8 +10656,10 @@ v.addEventListener('timeupdate', () => {
 
 
 function playClipVideo(v, resetTime) {
+  if (tiktokDailyMsgBlocking) return;
   if (resetTime) v.currentTime = 0;
   const src = v.currentSrc || v.src;
+
   if (tiktokAudioActiveVideo !== v || tiktokAudio.src !== src) {
     tiktokAudioActiveVideo = v;
     tiktokAudio.src = src;
@@ -10717,10 +10722,12 @@ function setupTiktokObserver(sourceClips) {
       const v = entry.target;
       const slide = v.closest('.tiktok-slide');
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+        tiktokCurrentVisibleVideo = v;
         if (v.dataset.src && !v.src) v.src = v.dataset.src; // fallback, dacă preload n-a apucat
         if (v.paused) {
           playClipVideo(v, true);
         }
+
 
 
         // eliberează video-urile îndepărtate ca să nu depășim limita de decodoare a browserului
@@ -11227,8 +11234,14 @@ function maybeShowTiktokDailyMessage() {
   const existing = document.getElementById('tiktok-daily-msg-overlay');
   if (existing) existing.remove();
 
+  // pune clipul curent pe pauză cât timp mesajul e afișat
+  tiktokDailyMsgBlocking = true;
+  document.querySelectorAll('.tiktok-video').forEach(v => { if (!v.paused) v.pause(); });
+  if (!tiktokAudio.paused) tiktokAudio.pause();
+
   const overlay = document.createElement('div');
   overlay.id = 'tiktok-daily-msg-overlay';
+
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:950;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.3s;';
 
   overlay.innerHTML = `
@@ -11241,8 +11254,11 @@ function maybeShowTiktokDailyMessage() {
 
   function dismissDailyMsg() {
     overlay.remove();
+    tiktokDailyMsgBlocking = false;
+    if (tiktokCurrentVisibleVideo) playClipVideo(tiktokCurrentVisibleVideo, false);
     maybeShowTiktokSwipeHint();
   }
+
   overlay.querySelector('#tiktok-daily-msg-close-btn').onclick = dismissDailyMsg;
   overlay.addEventListener('click', e => { if (e.target === overlay) dismissDailyMsg(); });
   document.getElementById('tiktokOverlay').appendChild(overlay);
