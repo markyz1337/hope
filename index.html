@@ -10921,6 +10921,10 @@ function renderCollectionsGrid() {
   }
 
   let html = '';
+  if (!isLocked) {
+    const watchedClips = clips.filter(c => watchedClipIds.has(String(c.id))).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+    html += cardHtml('__watched__', `vizionate (debug)`, watchedClips, false);
+  }
   if (unassigned.length) html += cardHtml('__none__', 'fără colecție', unassigned, false);
   html += sortedCollections.map(col => {
     const inColl = clips.filter(c => c.collection_id === col.id).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
@@ -10929,6 +10933,7 @@ function renderCollectionsGrid() {
 
   wrap.innerHTML = html;
 setupThumbLazyLoad('tiktokCollectionsGrid');
+
 
 
 }
@@ -10982,7 +10987,10 @@ async function openCollectionDetail(collId) {
 
 
   let title;
-  if (collId === '__none__') {
+  if (collId === '__watched__') {
+    tiktokCurrentDetailClips = clips.filter(c => watchedClipIds.has(String(c.id))).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+    title = `vizionate -- ${tiktokCurrentDetailClips.length} clip${tiktokCurrentDetailClips.length===1?'':'uri'} excluse din feed`;
+  } else if (collId === '__none__') {
     tiktokCurrentDetailClips = clips.filter(c => !c.collection_id);
     title = 'fără colecție';
   } else {
@@ -10993,6 +11001,7 @@ async function openCollectionDetail(collId) {
   }
   document.getElementById('tiktokCollDetailTitle').textContent = title;
   renderCollectionDetailGrid();
+
 }
 
 function renderCollectionDetailGrid() {
