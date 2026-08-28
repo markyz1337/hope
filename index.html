@@ -1278,6 +1278,17 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 }
 .tiktok-autoscroll-btn svg { width: 16px; height: 16px; }
 
+.tiktok-reset-watched-btn {
+  position: fixed; bottom: calc(86px + env(safe-area-inset-bottom)); right: 16px;
+  width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 810; backdrop-filter: blur(10px); color: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+.tiktok-reset-watched-btn:active { background: rgba(0,0,0,0.65); }
+.tiktok-reset-watched-btn svg { width: 17px; height: 17px; }
+
+
 
 			.tiktok-delete-btn {
 			  position: absolute; bottom: calc(150px + env(safe-area-inset-bottom)); right: 16px;
@@ -2535,12 +2546,20 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			</div>
 
 
+			<button class="tiktok-reset-watched-btn" id="tiktokResetWatchedBtn" onclick="resetWatchedClips()" title="revezi toate clipurile">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="1 4 1 10 7 10"/>
+					<path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+				</svg>
+			</button>
+
 			<button
 				class="tiktok-upload-fab"
 				id="tiktokUploadFab"
 				onclick="openModal('clip')"
 				style="display:none;"
 			>
+
 				<svg
 					viewBox="0 0 24 24"
 					fill="none"
@@ -10237,7 +10256,25 @@ function filterR2Category(cat, btn) {
 // ═══════════════════════════════════════
 let clips = [];
 let collections = [];
+let watchedClipIds = new Set();
+try { watchedClipIds = new Set(JSON.parse(localStorage.getItem('hope_tiktok_watched') || '[]')); } catch(e) {}
+let tiktokIsMainFeed = false;
+function saveWatchedClips() {
+  try { localStorage.setItem('hope_tiktok_watched', JSON.stringify([...watchedClipIds])); } catch(e) {}
+}
+function markClipWatched(id) {
+  const key = String(id);
+  if (!watchedClipIds.has(key)) { watchedClipIds.add(key); saveWatchedClips(); }
+}
+function resetWatchedClips() {
+  if (!watchedClipIds.size) { showToast('nimic de resetat'); return; }
+  watchedClipIds.clear();
+  saveWatchedClips();
+  showToast('clipuri resetate -- pornim de la zero');
+  if (tiktokActiveTab === 'feed') renderClips(clips);
+}
 let tiktokCurrentDetailCollId = null;
+
 let tiktokCurrentDetailClips = [];
 let thumbFrameCache = {};
 try { thumbFrameCache = JSON.parse(localStorage.getItem('hope_thumb_cache') || '{}'); } catch(e) {}
@@ -10299,6 +10336,11 @@ function bindEndedToVideo(v) {
   if (v._endedBound) return;
   v._endedBound = true;
   v.addEventListener('ended', () => {
+    if (tiktokIsMainFeed) {
+      const slide = v.closest('.tiktok-slide');
+      const id = slide?.dataset?.id;
+      if (id) markClipWatched(id);
+    }
     if (tiktokAutoscroll) {
       scrollToNextTiktokSlide(v);
     } else {
@@ -10306,6 +10348,7 @@ function bindEndedToVideo(v) {
     }
   });
 }
+
 
 
 async function loadClips() {
@@ -10423,19 +10466,27 @@ const TIKTOK_APPEND_BATCH = 3;
 const TIKTOK_MAX_RENDERED = 5; // curăță slide-urile foarte vechi din feed pentru scroll infinit
 
 function renderClips(sourceClipsOverride, startAtId) {
+  tiktokIsMainFeed = true;
   const feed = document.getElementById('tiktokFeed');
   const sourceClips = sourceClipsOverride || clips;
   if (!sourceClips.length) { feed.innerHTML = `<div class="tiktok-empty">niciun clip momentan</div>`; return; }
 
+  const unwatched = sourceClips.filter(c => !watchedClipIds.has(String(c.id)));
+  if (!unwatched.length) {
+    feed.innerHTML = `<div class="tiktok-empty">ai văzut tot -- apasă ↺ jos dreapta ca să le revezi</div>`;
+    return;
+  }
+
   // amestecă o dată la fiecare deschidere a feedului, apoi ordinea rămâne fixă până la capăt
-  let ordered = shuffleArray(sourceClips);
+  let ordered = shuffleArray(unwatched);
   if (startAtId) {
     ordered = ordered.filter(c => String(c.id) !== String(startAtId));
-    const first = sourceClips.find(c => String(c.id) === String(startAtId));
+    const first = unwatched.find(c => String(c.id) === String(startAtId));
     if (first) ordered.unshift(first);
   }
   renderClipsFixed(ordered);
 }
+
 
 
 
@@ -10702,6 +10753,8 @@ async function switchTiktokTab(tab) {
 
   document.getElementById('tiktokMuteBtnGlobal').style.display = tab === 'feed' ? '' : 'none';
   document.getElementById('tiktokAutoscrollBtn').style.display = tab === 'feed' ? '' : 'none';
+  document.getElementById('tiktokResetWatchedBtn').style.display = tab === 'feed' ? '' : 'none';
+
 
   if (tab === 'feed') {
     tiktokUploadPresetCollId = null;
@@ -10949,17 +11002,20 @@ setupThumbLazyLoad('tiktokCollDetailGrid');
 }
 
 function openClipFromCollectionDetail(index) {
+  tiktokIsMainFeed = false;
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
   document.getElementById('tiktokCollectionsView').classList.remove('open');
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
+  document.getElementById('tiktokResetWatchedBtn').style.display = 'none';
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   const reordered = [...tiktokCurrentDetailClips.slice(index), ...tiktokCurrentDetailClips.slice(0, index)];
   renderClipsFixed(reordered);
 }
+
 
 
 
@@ -11093,8 +11149,10 @@ async function openTiktokFeed() {
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
+  document.getElementById('tiktokResetWatchedBtn').style.display = '';
 
   document.getElementById('tiktokCollectionsView').classList.remove('open');
+
   document.getElementById('tiktokCollectionDetailView').classList.remove('open');
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
