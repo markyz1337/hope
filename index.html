@@ -1227,13 +1227,14 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tikhope-tik { color: #ffffff; }
 .tikhope-hope { color: var(--accent2); }
 .tikhope-heart {
-  position: absolute; bottom: 2px; font-size: 8px; color: rgba(200,169,126,0.8);
+  position: absolute; bottom: 4px; font-size: 8px; color: rgba(200,169,126,0.8);
   opacity: 0; animation: tikhopeFloat 6.5s ease-in infinite;
   text-shadow: 0 0 6px rgba(200,169,126,0.5);
 }
-.tikhope-heart.h1 { left: 4px;  animation-delay: 0s; }
-.tikhope-heart.h2 { left: 40px; animation-delay: 2.2s; font-size: 6px; }
-.tikhope-heart.h3 { left: 22px; animation-delay: 4.4s; font-size: 7px; }
+.tikhope-heart.h1 { left: 8px;  animation-delay: 0s; }
+.tikhope-heart.h2 { left: 72px; animation-delay: 2.2s; font-size: 12px; }
+.tikhope-heart.h3 { left: 40px; animation-delay: 4.4s; font-size: 13px; }
+
 @keyframes tikhopeFloat {
   0%   { opacity: 0; transform: translateY(4px) scale(0.7); }
   15%  { opacity: 0.85; }
@@ -1248,9 +1249,18 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
   background: rgba(255,255,255,0.15); z-index: 6; pointer-events: none;
 }
 .tiktok-progress-fill {
-  height: 100%; width: 100%; background: rgba(255,255,255,0.85);
-  transform: scaleX(0); transform-origin: left; will-change: transform;
+  height: 100%; width: 0%;
+  background: linear-gradient(to right, rgba(255,255,255,0.45), rgba(255,255,255,0.95));
+  transition: width 0.2s linear;
+  position: relative;
 }
+.tiktok-progress-fill::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0; right: 0; width: 16px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,1));
+  filter: blur(2px);
+}
+
 
 .tiktok-mute-btn { display: none !important; }
 .tiktok-autoscroll-btn { display: none !important; }
@@ -1376,14 +1386,16 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			  padding: 2px 7px; backdrop-filter: blur(4px);
 			}
 			
-			.tiktok-clip-coll-badge {
+.tiktok-clip-coll-badge {
   position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px;
   z-index: 5; display: flex; align-items: center; gap: 5px;
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.05em;
   color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.5);
   border: 1px solid rgba(255,255,255,0.18); border-radius: 20px;
   padding: 4px 10px 4px 7px; backdrop-filter: blur(6px);
+  cursor: pointer;
 }
+
 .tiktok-clip-coll-badge svg { width: 11px; height: 11px; flex-shrink: 0; opacity: 0.85; }
 
 			
@@ -10392,10 +10404,11 @@ return `<div class="tiktok-slide" data-id="${c.id}">
       </div>` : ''}
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
 
-      ${collName ? `<div class="tiktok-clip-coll-badge">
+${collName ? `<div class="tiktok-clip-coll-badge" onclick="openCollectionFromBadge('${c.collection_id}')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>${escHtml(collName)}</span>
       </div>` : ''}
+
       ${dateStr ? `<div class="tiktok-feed-date"${!isLocked ? ` onclick="editClipDate('${c.id}')" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;"` : ''}>${escHtml(dateStr)}</div>` : ''}
 ${c.caption ? `<div class="tiktok-caption collapsed" onclick="toggleClipCaption(this)">${escHtml(c.caption)}</div>` : ''}
 
@@ -10543,10 +10556,11 @@ function bindProgressToVideo(v) {
   const slide = v.closest('.tiktok-slide');
   const fill = slide ? slide.querySelector('.tiktok-progress-fill') : null;
   if (!fill) return;
-  v.addEventListener('timeupdate', () => {
-    if (v.duration) fill.style.transform = `scaleX(${v.currentTime / v.duration})`;
+v.addEventListener('timeupdate', () => {
+    if (v.duration) fill.style.width = `${(v.currentTime / v.duration) * 100}%`;
   });
-  v.addEventListener('loadedmetadata', () => { fill.style.transform = 'scaleX(0)'; });
+  v.addEventListener('loadedmetadata', () => { fill.style.width = '0%'; });
+
 }
 
 
@@ -10656,6 +10670,18 @@ function toggleClipMute() {
 
 
 
+function openCollectionFromBadge(collId) {
+  if (!collId) return;
+  document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
+  tiktokAudio.pause();
+  tiktokAudioActiveVideo = null;
+  tiktokActiveTab = 'collections';
+  document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'collections'));
+  document.getElementById('tiktokFeed').style.display = 'none';
+  document.getElementById('tiktokMuteBtnGlobal').style.display = 'none';
+  document.getElementById('tiktokAutoscrollBtn').style.display = 'none';
+  openCollectionDetail(collId);
+}
 
 
 
