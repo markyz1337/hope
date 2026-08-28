@@ -11026,15 +11026,16 @@ async function openTiktokFeed() {
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   renderClips(clips);
-  maybeShowTiktokDailyMessage();
-  maybeShowTiktokSwipeHint();
+  const _dailyMsgShown = maybeShowTiktokDailyMessage();
+  if (!_dailyMsgShown) maybeShowTiktokSwipeHint();
 }
+
 
 function maybeShowTiktokDailyMessage() {
   const todayStr = todayKey();
   let lastShown = null;
   try { lastShown = localStorage.getItem('hope_tiktok_daily_msg_date'); } catch(e) {}
-  if (lastShown === todayStr) return;
+  if (lastShown === todayStr) return false;
   try { localStorage.setItem('hope_tiktok_daily_msg_date', todayStr); } catch(e) {}
 
   const existing = document.getElementById('tiktok-daily-msg-overlay');
@@ -11049,13 +11050,20 @@ function maybeShowTiktokDailyMessage() {
       <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text);line-height:1.75;">
         houp, știu că probabil ai apăsat din curiozitate pe acest buton de te-a adus aici, o să înțelegi ce se află aici, e modul meu de a vorbi cu tine — înainte să ne fi cunoscut, eu nu știu peste câți ani te-am întâlnit, dar mă bucur că ești aici, inima mea e fericită dacă într-adevăr s-a ajuns la asta, mulțumesc de existența ta
       </div>
-      <button onclick="document.getElementById('tiktok-daily-msg-overlay').remove()" style="width:100%;margin-top:22px;padding:12px;background:linear-gradient(135deg, rgba(160,120,70,0.65), rgba(200,169,126,0.35));border:1px solid rgba(200,169,126,0.4);border-radius:12px;color:var(--accent2);font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;">♥</button>
+      <button id="tiktok-daily-msg-close-btn" style="width:100%;margin-top:22px;padding:12px;background:linear-gradient(135deg, rgba(160,120,70,0.65), rgba(200,169,126,0.35));border:1px solid rgba(200,169,126,0.4);border-radius:12px;color:var(--accent2);font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;">♥</button>
     </div>`;
 
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  function dismissDailyMsg() {
+    overlay.remove();
+    maybeShowTiktokSwipeHint();
+  }
+  overlay.querySelector('#tiktok-daily-msg-close-btn').onclick = dismissDailyMsg;
+  overlay.addEventListener('click', e => { if (e.target === overlay) dismissDailyMsg(); });
   document.getElementById('tiktokOverlay').appendChild(overlay);
   requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+  return true;
 }
+
 
 
 function maybeShowTiktokSwipeHint() {
