@@ -10180,7 +10180,22 @@ let clips = [];
 let collections = [];
 let tiktokCurrentDetailCollId = null;
 let tiktokCurrentDetailClips = [];
-const thumbFrameCache = {}; // clipId -> dataURL cu frame-ul capturat
+let thumbFrameCache = {};
+try { thumbFrameCache = JSON.parse(localStorage.getItem('hope_thumb_cache') || '{}'); } catch(e) {}
+
+function saveThumbCache() {
+  try {
+    // limităm la ultimele 300 ca să nu umplem localStorage
+    const keys = Object.keys(thumbFrameCache);
+    if (keys.length > 300) {
+      const trimmed = {};
+      keys.slice(-300).forEach(k => trimmed[k] = thumbFrameCache[k]);
+      thumbFrameCache = trimmed;
+    }
+    localStorage.setItem('hope_thumb_cache', JSON.stringify(thumbFrameCache));
+  } catch(e) { /* localStorage plin, ignorăm */ }
+}
+
 
 
 let tiktokFeedClipsById = {};
@@ -10655,9 +10670,10 @@ const canvas = document.createElement('canvas');
 canvas.width = Math.round((video.videoWidth || MAX_W) * scale);
 canvas.height = Math.round((video.videoHeight || MAX_W) * scale);
 canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-const dataUrl = canvas.toDataURL('image/jpeg', 0.15);
-
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.22);
     thumbFrameCache[clipId] = dataUrl;
+    saveThumbCache();
+
     const skeleton = video.previousElementSibling;
     if (skeleton && skeleton.classList.contains('thumb-skeleton')) skeleton.remove();
     const img = document.createElement('img');
@@ -10685,20 +10701,38 @@ function setupThumbLazyLoad(containerId) {
     videos.forEach(v => { if (!v.src) v.src = v.dataset.src; });
     return;
   }
+  const THUMB_CONCURRENCY = 2;
+  let thumbActive = 0;
+  const thumbQueue = [];
+
+  function processThumbQueue() {
+    while (thumbActive < THUMB_CONCURRENCY && thumbQueue.length) {
+      const v = thumbQueue.shift();
+      if (!v.isConnected) continue;
+      thumbActive++;
+      v.src = v.dataset.src;
+      v.addEventListener('seeked', () => { thumbActive--; processThumbQueue(); }, { once: true });
+      v.addEventListener('error', () => { thumbActive--; processThumbQueue(); }, { once: true });
+    }
+  }
+
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const v = entry.target;
       if (entry.isIntersecting) {
-        if (!v.src) v.src = v.dataset.src;
-      } else if (v.src && !thumbFrameCache[v.dataset.clipId]) {
-        // a ieșit din ecran înainte să apuce să captureze cadrul -- oprește descărcarea
-        v.pause();
-        v.removeAttribute('src');
-        v.load();
+        if (!v.src && !thumbQueue.includes(v)) thumbQueue.push(v);
+      } else {
+        const idx = thumbQueue.indexOf(v);
+        if (idx !== -1) thumbQueue.splice(idx, 1);
+        if (v.src && !thumbFrameCache[v.dataset.clipId]) {
+          v.pause(); v.removeAttribute('src'); v.load();
+        }
       }
     });
+    processThumbQueue();
   }, { root: container, rootMargin: '0px', threshold: 0.01 });
   videos.forEach(v => io.observe(v));
+
 }
 
 
