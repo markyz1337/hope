@@ -10696,10 +10696,15 @@ function setupTiktokObserver(sourceClips) {
 
       } else {
         if (!v.paused) pauseClipVideo(v);
+        if (tiktokIsMainFeed && v.currentTime > 0) {
+          const id = slide?.dataset?.id;
+          if (id) markClipWatched(id);
+        }
       }
 
     });
   }, { threshold: 0.6 });
+
 
 
   videos.forEach(v => tiktokIO.observe(v));
