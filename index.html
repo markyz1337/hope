@@ -10649,13 +10649,14 @@ function captureClipThumb(video) {
   const clipId = video.dataset.clipId;
   if (!clipId || thumbFrameCache[clipId]) return;
   try {
-    const MAX_W = 80;
-    const scale = Math.min(1, MAX_W / (video.videoWidth || MAX_W));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.round((video.videoWidth || MAX_W) * scale);
-    canvas.height = Math.round((video.videoHeight || MAX_W) * scale);
-    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.22);
+const MAX_W = 56;
+const scale = Math.min(1, MAX_W / (video.videoWidth || MAX_W));
+const canvas = document.createElement('canvas');
+canvas.width = Math.round((video.videoWidth || MAX_W) * scale);
+canvas.height = Math.round((video.videoHeight || MAX_W) * scale);
+canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+const dataUrl = canvas.toDataURL('image/jpeg', 0.15);
+
     thumbFrameCache[clipId] = dataUrl;
     const skeleton = video.previousElementSibling;
     if (skeleton && skeleton.classList.contains('thumb-skeleton')) skeleton.remove();
@@ -10675,28 +10676,31 @@ function captureClipThumb(video) {
 
 
 
-function setupThumbLazyLoad(containerId, priorityCount = 6) {
+function setupThumbLazyLoad(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const allVideos = [...container.querySelectorAll('video[data-src]')];
-  allVideos.slice(0, priorityCount).forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
-  const rest = container.querySelectorAll('video[data-src]');
-  if (!rest.length) return;
+  const videos = container.querySelectorAll('video[data-src]');
+  if (!videos.length) return;
   if (!('IntersectionObserver' in window)) {
-    rest.forEach(v => { v.src = v.dataset.src; v.removeAttribute('data-src'); });
+    videos.forEach(v => { if (!v.src) v.src = v.dataset.src; });
     return;
   }
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
+      const v = entry.target;
       if (entry.isIntersecting) {
-        const v = entry.target;
-        if (v.dataset.src) { v.src = v.dataset.src; v.removeAttribute('data-src'); }
-        io.unobserve(v);
+        if (!v.src) v.src = v.dataset.src;
+      } else if (v.src && !thumbFrameCache[v.dataset.clipId]) {
+        // a ieșit din ecran înainte să apuce să captureze cadrul -- oprește descărcarea
+        v.pause();
+        v.removeAttribute('src');
+        v.load();
       }
     });
-  }, { root: container, rootMargin: '150px 0px' });
-  rest.forEach(v => io.observe(v));
+  }, { root: container, rootMargin: '0px', threshold: 0.01 });
+  videos.forEach(v => io.observe(v));
 }
+
 
 
 function renderCollectionsGrid() {
@@ -10747,7 +10751,8 @@ function renderCollectionsGrid() {
   }).join('');
 
   wrap.innerHTML = html;
-setupThumbLazyLoad('tiktokCollectionsGrid', 4);
+setupThumbLazyLoad('tiktokCollectionsGrid');
+
 
 }
 
@@ -10832,7 +10837,8 @@ function renderCollectionDetailGrid() {
       </div>
     </div>` : ''}
   </div>`).join('');
-setupThumbLazyLoad('tiktokCollDetailGrid', 9);
+setupThumbLazyLoad('tiktokCollDetailGrid');
+
 }
 
 function openClipFromCollectionDetail(index) {
