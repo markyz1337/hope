@@ -11511,9 +11511,11 @@ function scheduleClipManagerRender() {
 
 function loadAllClipDurations() {
   const pending = clips.filter(c => clipDurationCache[c.id] == null);
+  if (!pending.length) return;
   let idx = 0;
   const CONCURRENCY = 3;
   let active = 0;
+  let completed = 0;
 
   function next() {
     while (active < CONCURRENCY && idx < pending.length) {
@@ -11523,13 +11525,21 @@ function loadAllClipDurations() {
       v.preload = 'metadata';
       v.muted = true;
       v.src = resolveUrl(c.url);
-      const done = () => { active--; scheduleClipManagerRender(); next(); };
+      const done = () => {
+        active--;
+        completed++;
+        if (completed === pending.length && document.getElementById('clip-manager-overlay')) {
+          renderClipManagerList();
+        }
+        next();
+      };
       v.addEventListener('loadedmetadata', () => { clipDurationCache[c.id] = v.duration; saveClipDurationCache(); done(); }, { once:true });
       v.addEventListener('error', () => { clipDurationCache[c.id] = -1; saveClipDurationCache(); done(); }, { once:true });
     }
   }
   next();
 }
+
 
 async function openClipManager() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
@@ -11633,10 +11643,14 @@ function renderClipManagerList() {
       <button onclick="viewClipFromManager('${c.id}')" title="vizualizează" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(122,162,200,0.3);background:rgba(122,162,200,0.08);color:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><polygon points="5 3 19 12 5 21" fill="currentColor" stroke="none"/></svg>
       </button>
+      <button onclick="downloadClipFromManager('${c.id}')" title="descarcă" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(122,200,149,0.3);background:rgba(122,200,149,0.08);color:var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <button onclick="deleteClipFromManager('${c.id}')" title="șterge" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(200,80,80,0.3);background:rgba(200,80,80,0.08);color:#e07070;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>`;
+
   }).join('') + (remaining > 0 ? `
     <button onclick="clipManagerVisibleCount += CLIP_MANAGER_PAGE_SIZE; renderClipManagerList();" style="width:100%;padding:12px;background:rgba(200,169,126,0.08);border:1px solid rgba(200,169,126,0.25);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;cursor:pointer;">arată încă ${Math.min(remaining, CLIP_MANAGER_PAGE_SIZE)} (${remaining} rămase)</button>
   ` : '');
@@ -11644,6 +11658,22 @@ function renderClipManagerList() {
   setupThumbLazyLoad('clip-manager-list');
 }
 
+
+function downloadClipFromManager(clipId) {
+  const clip = clips.find(c => String(c.id) === String(clipId));
+  if (!clip) return;
+  const url = resolveUrl(clip.url);
+  const filename = clip.url && clip.url.startsWith('r2:')
+    ? clip.url.slice(3).split('/').pop()
+    : (url.split('/').pop().split('?')[0] || 'clip.mp4');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
 function viewClipFromManager(clipId) {
   const idx = clips.findIndex(c => String(c.id) === String(clipId));
