@@ -10500,7 +10500,11 @@ return `<div class="tiktok-slide" data-id="${c.id}">
       ${!isLocked ? `<div class="tiktok-caption-edit-btn" onclick="editClipCaption('${c.id}')" title="editează descrierea">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>` : ''}
+      ${!isLocked ? `<div class="tiktok-caption-edit-btn" style="bottom:calc(330px + env(safe-area-inset-bottom));" onclick="copyClipLinkFromFeed('${c.id}')" title="copiază link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
+      </div>` : ''}
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
+
 
 ${collName ? `<div class="tiktok-clip-coll-badge" onclick="openCollectionFromBadge('${c.collection_id}')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -11658,22 +11662,41 @@ function renderClipManagerList() {
   setupThumbLazyLoad('clip-manager-list');
 }
 
+function copyClipLinkFromFeed(clipId) {
+  const clip = clips.find(c => String(c.id) === String(clipId)) || tiktokFeedClipsById[String(clipId)];
+  if (!clip) return;
+  const url = resolveUrl(clip.url);
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('link copiat');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('link copiat');
+  });
+}
+
 
 function downloadClipFromManager(clipId) {
   const clip = clips.find(c => String(c.id) === String(clipId));
   if (!clip) return;
   const url = resolveUrl(clip.url);
-  const filename = clip.url && clip.url.startsWith('r2:')
-    ? clip.url.slice(3).split('/').pop()
-    : (url.split('/').pop().split('?')[0] || 'clip.mp4');
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.target = '_blank';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('link copiat');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('link copiat');
+  });
 }
+
 
 function viewClipFromManager(clipId) {
   const idx = clips.findIndex(c => String(c.id) === String(clipId));
