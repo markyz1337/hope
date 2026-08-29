@@ -10469,6 +10469,15 @@ function getClipCollectionName(collId) {
   return col ? col.name : null;
 }
 
+function updateFeedSizeBadges() {
+  document.querySelectorAll('[id^="clip-size-"]').forEach(el => {
+    const clipId = el.id.replace('clip-size-', '');
+    const clip = clips.find(c => String(c.id) === String(clipId)) || tiktokFeedClipsById[String(clipId)];
+    if (!clip) return;
+    const size = getClipSize(clip);
+    el.textContent = size != null ? formatBytes(size) : '—';
+  });
+}
 
 
 function formatClipDate(postedAt) {
@@ -10512,6 +10521,8 @@ ${collName ? `<div class="tiktok-clip-coll-badge" onclick="openCollectionFromBad
       </div>` : ''}
 
       ${dateStr ? `<div class="tiktok-feed-date"${!isLocked ? ` onclick="editClipDate('${c.id}')" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;"` : ''}>${escHtml(dateStr)}</div>` : ''}
+      ${!isLocked ? `<div class="tiktok-feed-date" id="clip-size-${c.id}" style="top:calc(88px + env(safe-area-inset-top));">${getClipSize(c) != null ? formatBytes(getClipSize(c)) : '...'}</div>` : ''}
+
 ${c.caption ? `<div class="tiktok-caption collapsed" onclick="toggleClipCaption(this)">${escHtml(c.caption)}</div>` : ''}
 
 
@@ -10654,6 +10665,8 @@ function appendMoreFeedSlides(sourceClips) {
     }
 
   });
+  if (!isLocked) updateFeedSizeBadges();
+
   // notă: nu mai ștergem slide-uri vechi din DOM -- ștergerea deasupra
   // poziției curente de scroll strica scroll-snap-ul (de-aia apărea ecranul negru).
   // Resursele video sunt oricum eliberate separat prin releaseDistantVideos().
@@ -11240,9 +11253,11 @@ async function openTiktokFeed() {
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   renderClips(clips);
+  if (!isLocked) loadClipManagerSizes().then(updateFeedSizeBadges);
   const _dailyMsgShown = maybeShowTiktokDailyMessage();
   if (!_dailyMsgShown) maybeShowTiktokSwipeHint();
 }
+
 
 
 function maybeShowTiktokDailyMessage() {
