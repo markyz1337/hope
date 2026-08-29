@@ -2532,7 +2532,12 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 
 
 			<div class="tiktok-collections-view" id="tiktokCollectionsView">
-				<button class="tiktok-coll-new-btn" id="tiktokCollNewBtn" onclick="createCollection()">+ colecție nouă</button>
+				<div style="display:flex;gap:8px;margin-bottom:14px;">
+					<button class="tiktok-coll-new-btn" id="tiktokCollNewBtn" onclick="createCollection()" style="margin-bottom:0;flex:1;">+ colecție nouă</button>
+					<button id="tiktokClipManagerBtn" onclick="openClipManager()" title="gestionează clipurile" style="width:44px;height:44px;flex-shrink:0;border-radius:14px;background:rgba(122,162,200,0.12);border:1px solid rgba(122,162,200,0.3);color:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</button>
+				</div>
 				<div class="tiktok-coll-grid" id="tiktokCollectionsGrid"></div>
 			</div>
 
@@ -10316,6 +10321,16 @@ let tiktokCurrentDetailClips = [];
 let thumbFrameCache = {};
 try { thumbFrameCache = JSON.parse(localStorage.getItem('hope_thumb_cache') || '{}'); } catch(e) {}
 
+let clipManagerSizeMap = {};
+let clipDurationCache = {};
+try { clipDurationCache = JSON.parse(localStorage.getItem('hope_clip_duration_cache') || '{}'); } catch(e) {}
+let clipManagerSort = 'date_desc';
+let clipManagerRenderTimer = null;
+const CLIP_MANAGER_PAGE_SIZE = 30;
+let clipManagerVisibleCount = CLIP_MANAGER_PAGE_SIZE;
+
+
+
 function saveThumbCache() {
   try {
     // limităm la ultimele 300 ca să nu umplem localStorage
@@ -10819,6 +10834,8 @@ async function switchTiktokTab(tab) {
     document.getElementById('tiktokUploadFab').style.display = 'none';
     collView.classList.add('open');
     document.getElementById('tiktokCollNewBtn').style.display = isLocked ? 'none' : '';
+    const cmBtn = document.getElementById('tiktokClipManagerBtn');
+    if (cmBtn) cmBtn.style.display = isLocked ? 'none' : '';
     renderCollectionsGrid(); // instant, din cache
     loadCollections().then(renderCollectionsGrid); // reactualizare silențioasă în fundal
 
@@ -11454,6 +11471,221 @@ async function saveClipDate(clipId) {
 }
 
 
+
+function saveClipDurationCache() {
+  try { localStorage.setItem('hope_clip_duration_cache', JSON.stringify(clipDurationCache)); } catch(e) {}
+}
+
+function formatClipDuration(sec) {
+  if (sec == null || sec < 0 || isNaN(sec)) return '—';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function getClipSize(clip) {
+  if (clip.url && clip.url.startsWith('r2:')) {
+    const v = clipManagerSizeMap[clip.url.slice(3)];
+    return v == null ? null : v;
+  }
+  return null;
+}
+
+async function loadClipManagerSizes() {
+  try {
+    const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+    const { files } = await res.json();
+    clipManagerSizeMap = {};
+    files.forEach(f => { clipManagerSizeMap[f.key] = f.size; });
+  } catch(e) {
+    clipManagerSizeMap = {};
+  }
+}
+
+function scheduleClipManagerRender() {
+  clearTimeout(clipManagerRenderTimer);
+  clipManagerRenderTimer = setTimeout(() => {
+    if (document.getElementById('clip-manager-overlay')) renderClipManagerList();
+  }, 400);
+}
+
+function loadAllClipDurations() {
+  const pending = clips.filter(c => clipDurationCache[c.id] == null);
+  let idx = 0;
+  const CONCURRENCY = 3;
+  let active = 0;
+
+  function next() {
+    while (active < CONCURRENCY && idx < pending.length) {
+      const c = pending[idx++];
+      active++;
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.muted = true;
+      v.src = resolveUrl(c.url);
+      const done = () => { active--; scheduleClipManagerRender(); next(); };
+      v.addEventListener('loadedmetadata', () => { clipDurationCache[c.id] = v.duration; saveClipDurationCache(); done(); }, { once:true });
+      v.addEventListener('error', () => { clipDurationCache[c.id] = -1; saveClipDurationCache(); done(); }, { once:true });
+    }
+  }
+  next();
+}
+
+async function openClipManager() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const existing = document.getElementById('clip-manager-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'clip-manager-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:950;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.innerHTML = `
+    <div style="background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.13);border-radius:22px;padding:20px;width:100%;max-width:400px;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-shrink:0;">
+        <div style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--accent2);">gestionează clipuri</div>
+        <button onclick="document.getElementById('clip-manager-overlay').remove()" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">✕</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;flex-shrink:0;" id="clip-manager-sort-row">
+        <button data-sort="date_desc" class="cm-sort-btn">cele mai noi</button>
+        <button data-sort="date_asc" class="cm-sort-btn">cele mai vechi</button>
+        <button data-sort="size_desc" class="cm-sort-btn">mărime ↓</button>
+        <button data-sort="size_asc" class="cm-sort-btn">mărime ↑</button>
+        <button data-sort="dur_desc" class="cm-sort-btn">durată ↓</button>
+        <button data-sort="dur_asc" class="cm-sort-btn">durată ↑</button>
+      </div>
+      <div id="clip-manager-summary" style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.06em;margin-bottom:10px;flex-shrink:0;">se încarcă...</div>
+      <div id="clip-manager-list" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="loading-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('tiktokOverlay').appendChild(overlay);
+
+  if (!document.getElementById('clip-manager-style')) {
+
+    const style = document.createElement('style');
+    style.id = 'clip-manager-style';
+    style.textContent = `
+      .cm-sort-btn { padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-family:var(--mono);font-size:9px;letter-spacing:0.04em;cursor:pointer;white-space:nowrap; }
+      .cm-sort-btn.active { background:rgba(200,169,126,0.15);border-color:rgba(200,169,126,0.4);color:var(--accent2); }
+    `;
+    document.head.appendChild(style);
+  }
+
+  overlay.querySelectorAll('.cm-sort-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sort === clipManagerSort);
+    btn.onclick = () => {
+      clipManagerSort = btn.dataset.sort;
+      clipManagerVisibleCount = CLIP_MANAGER_PAGE_SIZE;
+      overlay.querySelectorAll('.cm-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+      renderClipManagerList();
+    };
+  });
+
+  clipManagerVisibleCount = CLIP_MANAGER_PAGE_SIZE;
+  await loadClipManagerSizes();
+  renderClipManagerList();
+  loadAllClipDurations();
+}
+
+
+function renderClipManagerList() {
+  const container = document.getElementById('clip-manager-list');
+  const summary = document.getElementById('clip-manager-summary');
+  if (!container) return;
+
+  let list = [...clips];
+  list.forEach(c => { c._size = getClipSize(c); c._dur = clipDurationCache[c.id]; });
+
+  const cmp = {
+    date_desc: (a,b) => new Date(b.posted_at) - new Date(a.posted_at),
+    date_asc:  (a,b) => new Date(a.posted_at) - new Date(b.posted_at),
+    size_desc: (a,b) => (b._size ?? -1) - (a._size ?? -1),
+    size_asc:  (a,b) => (a._size ?? Infinity) - (b._size ?? Infinity),
+    dur_desc:  (a,b) => (b._dur ?? -1) - (a._dur ?? -1),
+    dur_asc:   (a,b) => (a._dur ?? Infinity) - (b._dur ?? Infinity),
+  };
+  list.sort(cmp[clipManagerSort] || cmp.date_desc);
+
+  const totalSize = list.reduce((a,c) => a + (c._size || 0), 0);
+  const visibleList = list.slice(0, clipManagerVisibleCount);
+  const remaining = list.length - visibleList.length;
+  summary.textContent = `${visibleList.length} din ${list.length} clipuri · ${formatBytes(totalSize)} total`;
+
+  container.innerHTML = visibleList.map(c => {
+
+    const sizeStr = c._size != null ? formatBytes(c._size) : '—';
+    const durVal = c._dur;
+    const durStr = durVal === -1 ? 'eroare' : (durVal != null ? formatClipDuration(durVal) : '...');
+    const collName = getClipCollectionName(c.collection_id);
+    const bigSize = c._size != null && c._size > 30*1024*1024;
+    return `<div style="display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:8px;">
+      <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;flex-shrink:0;position:relative;background:#0a0a0d;cursor:pointer;" onclick="viewClipFromManager('${c.id}')">
+        ${renderThumbEl(c)}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(formatClipDate(c.posted_at))}${collName ? ' · '+escHtml(collName) : ''}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:${bigSize?'var(--rose)':'var(--text3)'};margin-top:2px;">${sizeStr} · ${durStr}</div>
+      </div>
+      <button onclick="viewClipFromManager('${c.id}')" title="vizualizează" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(122,162,200,0.3);background:rgba(122,162,200,0.08);color:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><polygon points="5 3 19 12 5 21" fill="currentColor" stroke="none"/></svg>
+      </button>
+      <button onclick="deleteClipFromManager('${c.id}')" title="șterge" style="width:30px;height:30px;border-radius:50%;border:1px solid rgba(200,80,80,0.3);background:rgba(200,80,80,0.08);color:#e07070;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>`;
+  }).join('') + (remaining > 0 ? `
+    <button onclick="clipManagerVisibleCount += CLIP_MANAGER_PAGE_SIZE; renderClipManagerList();" style="width:100%;padding:12px;background:rgba(200,169,126,0.08);border:1px solid rgba(200,169,126,0.25);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;cursor:pointer;">arată încă ${Math.min(remaining, CLIP_MANAGER_PAGE_SIZE)} (${remaining} rămase)</button>
+  ` : '');
+
+  setupThumbLazyLoad('clip-manager-list');
+}
+
+
+function viewClipFromManager(clipId) {
+  const idx = clips.findIndex(c => String(c.id) === String(clipId));
+  if (idx === -1) return;
+  const overlay = document.getElementById('clip-manager-overlay');
+  if (overlay) overlay.remove();
+  tiktokIsMainFeed = false;
+  document.getElementById('tiktokCollectionDetailView').classList.remove('open');
+  document.getElementById('tiktokCollectionsView').classList.remove('open');
+  document.getElementById('tiktokFeed').style.display = '';
+  document.getElementById('tiktokMuteBtnGlobal').style.display = '';
+  document.getElementById('tiktokAutoscrollBtn').style.display = '';
+  document.getElementById('tiktokResetWatchedBtn').style.display = 'none';
+  document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
+  document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
+  document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
+  const reordered = [...clips.slice(idx), ...clips.slice(0, idx)];
+  renderClipsFixed(reordered);
+}
+
+async function deleteClipFromManager(clipId) {
+  if (!confirm('Ștergi acest clip definitiv?')) return;
+  const clip = clips.find(c => String(c.id) === String(clipId));
+  if (clip && clip.url && clip.url.startsWith('r2:')) {
+    try {
+      await fetch(R2_WORKER_URL, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+        body: JSON.stringify({ keys: [clip.url.slice(3)] }),
+      });
+    } catch(e) {}
+  }
+  const { error } = await sb.from('hope_clips').delete().eq('id', clipId);
+  if (error) { showToast('eroare la ștergere'); return; }
+  showToast('clip șters');
+  delete clipDurationCache[clipId];
+  saveClipDurationCache();
+  await loadClips();
+  renderClipManagerList();
+  renderCollectionsGrid();
+  if (tiktokActiveTab === 'feed') renderClips(clips);
+}
 
 function showAccessChoiceModal() {
   const existing = document.getElementById('access-choice-overlay');
