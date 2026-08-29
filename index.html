@@ -1212,11 +1212,27 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 
 
 
+.tiktok-top-shade {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: calc(110px + env(safe-area-inset-top));
+  background: #000;
+  z-index: 6;
+  pointer-events: none;
+}
+.tiktok-bottom-shade {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(130px + env(safe-area-inset-bottom));
+  background: #000;
+  z-index: 6;
+  pointer-events: none;
+}
+
 .tiktok-top-row {
   position: fixed; top: calc(16px + env(safe-area-inset-top)); left: 16px; right: 16px;
   z-index: 810; display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
 .tiktok-top-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
 
 .tikhope-logo {
   position: relative; display: flex; align-items: baseline;
@@ -2494,9 +2510,11 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 
 		<!-- TIKTOK FEED -->
 		<div class="tiktok-overlay" id="tiktokOverlay">
-
+<div class="tiktok-top-shade"></div>
+<div class="tiktok-bottom-shade"></div>
 
 <div class="tiktok-top-row">
+
     <div class="tikhope-logo">
         <span class="tikhope-tik">Tik</span><span class="tikhope-hope">Hope</span>
         <span class="tikhope-heart h1">♥</span>
