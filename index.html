@@ -1221,7 +1221,7 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 }
 .tiktok-slide .tiktok-bottom-shade {
   position: absolute; bottom: 0; left: 0; right: 0;
-  height: calc(130px + env(safe-area-inset-bottom));
+  height: calc(80px + env(safe-area-inset-bottom));
   background: #000;
   z-index: 1;
   pointer-events: none;
@@ -1297,12 +1297,13 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-autoscroll-btn svg { width: 16px; height: 16px; }
 
 .tiktok-reset-watched-btn {
-  position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); right: 16px;
+  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
   width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
   cursor: pointer; z-index: 810; backdrop-filter: blur(10px); color: #fff;
   transition: background 0.15s, border-color 0.15s, bottom 0.2s;
 }
+
 
 .tiktok-reset-watched-btn:active { background: rgba(0,0,0,0.65); }
 .tiktok-reset-watched-btn svg { width: 17px; height: 17px; }
@@ -10331,9 +10332,10 @@ function updateResetBtnPosition() {
   if (!btn) return;
   // când e vizibil și butonul de upload (creator deblocat), urcăm ca să nu se suprapună
   btn.style.bottom = !isLocked
-    ? 'calc(86px + env(safe-area-inset-bottom))'
-    : 'calc(24px + env(safe-area-inset-bottom))';
+    ? 'calc(78px + env(safe-area-inset-bottom))'
+    : 'calc(16px + env(safe-area-inset-bottom))';
 }
+
 
 let tiktokCurrentDetailCollId = null;
 
