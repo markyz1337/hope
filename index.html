@@ -1297,7 +1297,7 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-autoscroll-btn svg { width: 16px; height: 16px; }
 
 .tiktok-reset-watched-btn {
-  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
+  position: fixed; bottom: calc(11px + env(safe-area-inset-bottom)); right: 16px;
   width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
   cursor: pointer; z-index: 810; backdrop-filter: blur(10px); color: #fff;
@@ -10333,7 +10333,7 @@ function updateResetBtnPosition() {
   // când e vizibil și butonul de upload (creator deblocat), urcăm ca să nu se suprapună
   btn.style.bottom = !isLocked
     ? 'calc(78px + env(safe-area-inset-bottom))'
-    : 'calc(16px + env(safe-area-inset-bottom))';
+    : 'calc(11px + env(safe-area-inset-bottom))';
 }
 
 
