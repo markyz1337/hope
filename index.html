@@ -1212,20 +1212,21 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 
 
 
-.tiktok-top-shade {
-  position: fixed; top: 0; left: 0; right: 0;
+.tiktok-slide .tiktok-top-shade {
+  position: absolute; top: 0; left: 0; right: 0;
   height: calc(110px + env(safe-area-inset-top));
   background: #000;
-  z-index: 3;
+  z-index: 1;
   pointer-events: none;
 }
-.tiktok-bottom-shade {
-  position: fixed; bottom: 0; left: 0; right: 0;
+.tiktok-slide .tiktok-bottom-shade {
+  position: absolute; bottom: 0; left: 0; right: 0;
   height: calc(130px + env(safe-area-inset-bottom));
   background: #000;
-  z-index: 3;
+  z-index: 1;
   pointer-events: none;
 }
+
 
 
 .tiktok-top-row {
@@ -2511,10 +2512,10 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 
 		<!-- TIKTOK FEED -->
 		<div class="tiktok-overlay" id="tiktokOverlay">
-<div class="tiktok-top-shade"></div>
-<div class="tiktok-bottom-shade"></div>
+
 
 <div class="tiktok-top-row">
+
 
     <div class="tikhope-logo">
         <span class="tikhope-tik">Tik</span><span class="tikhope-hope">Hope</span>
@@ -10514,8 +10515,11 @@ function clipSlideHtml(c) {
 return `<div class="tiktok-slide" data-id="${c.id}">
 
     <video class="tiktok-video" data-src="${escHtml(url)}" playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
+    <div class="tiktok-top-shade"></div>
+    <div class="tiktok-bottom-shade"></div>
 
       <div class="tiktok-progress-track"><div class="tiktok-progress-fill"></div></div>
+
 
 
 
