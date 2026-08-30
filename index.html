@@ -11152,15 +11152,8 @@ async function openCollectionDetail(collId) {
 
 }
 
-function renderCollectionDetailGrid() {
-  const grid = document.getElementById('tiktokCollDetailGrid');
-  if (!tiktokCurrentDetailClips.length) {
-    grid.innerHTML = `<div class="tiktok-empty" style="position:static;padding:40px 0;">nimic aici încă</div>`;
-    return;
-  }
-  const visible = tiktokCurrentDetailClips.slice(0, tiktokDetailVisibleCount);
-  const remaining = tiktokCurrentDetailClips.length - visible.length;
-  grid.innerHTML = visible.map((c, i) => `<div class="tiktok-coll-card" style="aspect-ratio:1;">
+function detailCardHtml(c, i) {
+  return `<div class="tiktok-coll-card" style="aspect-ratio:1;">
     <div onclick="openClipFromCollectionDetail(${i})" style="position:absolute;inset:0;cursor:pointer;">
       ${renderThumbEl(c)}
 
@@ -11172,18 +11165,46 @@ function renderCollectionDetailGrid() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 17L17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
     </div>` : ''}
-  </div>`).join('') + (remaining > 0 ? `<button onclick="loadMoreDetailClips()" style="grid-column:1/-1;width:100%;padding:12px;background:rgba(200,169,126,0.08);border:1px solid rgba(200,169,126,0.25);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;cursor:pointer;">arată încă ${Math.min(remaining, TIKTOK_DETAIL_PAGE_SIZE)} (${remaining} rămase)</button>` : '');
-setupThumbLazyLoad('tiktokCollDetailGrid');
+  </div>`;
+}
 
+function detailLoadMoreBtnHtml() {
+  const remaining = tiktokCurrentDetailClips.length - tiktokDetailVisibleCount;
+  if (remaining <= 0) return '';
+  return `<button id="tiktokDetailLoadMoreBtn" onclick="loadMoreDetailClips()" style="grid-column:1/-1;width:100%;padding:12px;background:rgba(200,169,126,0.08);border:1px solid rgba(200,169,126,0.25);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;cursor:pointer;">arată încă ${Math.min(remaining, TIKTOK_DETAIL_PAGE_SIZE)} (${remaining} rămase)</button>`;
+}
+
+function renderCollectionDetailGrid() {
+  const grid = document.getElementById('tiktokCollDetailGrid');
+  if (!tiktokCurrentDetailClips.length) {
+    grid.innerHTML = `<div class="tiktok-empty" style="position:static;padding:40px 0;">nimic aici încă</div>`;
+    return;
+  }
+  const visible = tiktokCurrentDetailClips.slice(0, tiktokDetailVisibleCount);
+  grid.innerHTML = visible.map((c, i) => detailCardHtml(c, i)).join('') + detailLoadMoreBtnHtml();
+  setupThumbLazyLoad('tiktokCollDetailGrid');
 }
 
 function loadMoreDetailClips() {
-  const view = document.getElementById('tiktokCollectionDetailView');
-  const prevScroll = view ? view.scrollTop : 0;
+  const grid = document.getElementById('tiktokCollDetailGrid');
+  const oldBtn = document.getElementById('tiktokDetailLoadMoreBtn');
+  const startIdx = tiktokDetailVisibleCount;
+  const nextBatch = tiktokCurrentDetailClips.slice(startIdx, startIdx + TIKTOK_DETAIL_PAGE_SIZE);
   tiktokDetailVisibleCount += TIKTOK_DETAIL_PAGE_SIZE;
-  renderCollectionDetailGrid();
-  if (view) view.scrollTop = prevScroll;
+
+  const newCardsHtml = nextBatch.map((c, j) => detailCardHtml(c, startIdx + j)).join('');
+  if (oldBtn) {
+    oldBtn.insertAdjacentHTML('beforebegin', newCardsHtml);
+    const newBtnHtml = detailLoadMoreBtnHtml();
+    if (newBtnHtml) oldBtn.outerHTML = newBtnHtml;
+    else oldBtn.remove();
+  } else {
+    grid.insertAdjacentHTML('beforeend', newCardsHtml + detailLoadMoreBtnHtml());
+  }
+  // rulează lazy-load doar peste elementele noi (cele deja convertite în <img> nu mai sunt afectate)
+  setupThumbLazyLoad('tiktokCollDetailGrid');
 }
+
 
 
 function openClipFromCollectionDetail(index) {
