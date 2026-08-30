@@ -2591,9 +2591,10 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			<div class="tiktok-collections-view" id="tiktokCollectionsView">
 				<div style="display:flex;gap:8px;margin-bottom:14px;">
 					<button class="tiktok-coll-new-btn" id="tiktokCollNewBtn" onclick="createCollection()" style="margin-bottom:0;flex:1;">+ colecție nouă</button>
-					<button id="tiktokClipManagerBtn" onclick="openClipManager()" title="gestionează clipurile" style="width:44px;height:44px;flex-shrink:0;border-radius:14px;background:rgba(122,162,200,0.12);border:1px solid rgba(122,162,200,0.3);color:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-					</button>
+<button id="tiktokClipManagerBtn" onclick="openClipManager()" title="gestionează clipurile" style="width:44px;height:44px;flex-shrink:0;border-radius:14px;background:rgba(122,162,200,0.12);border:1px solid rgba(122,162,200,0.3);color:var(--blue);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="17" x2="13" y2="17"/></svg>
+</button>
+
 				</div>
 				<div class="tiktok-coll-grid" id="tiktokCollectionsGrid"></div>
 			</div>
@@ -10331,6 +10332,13 @@ function markClipWatched(id) {
   if (!watchedClipIds.has(key)) { watchedClipIds.add(key); saveWatchedClips(); }
 }
 
+function getWatchedClipsOrdered() {
+  // watchedClipIds e un Set care păstrează ordinea inserării -- ultimul adăugat e cel mai recent vizionat
+  const orderedIds = [...watchedClipIds].reverse();
+  return orderedIds.map(id => clips.find(c => String(c.id) === id)).filter(Boolean);
+}
+
+
 
 
 function showResetWatchedExplainer() {
@@ -10376,6 +10384,9 @@ function updateResetBtnPosition() {
 let tiktokCurrentDetailCollId = null;
 
 let tiktokCurrentDetailClips = [];
+let tiktokDetailVisibleCount = 20;
+const TIKTOK_DETAIL_PAGE_SIZE = 20;
+
 let thumbFrameCache = {};
 try { thumbFrameCache = JSON.parse(localStorage.getItem('hope_thumb_cache') || '{}'); } catch(e) {}
 
@@ -11056,10 +11067,9 @@ function renderCollectionsGrid() {
   }
 
   let html = '';
-  if (!isLocked) {
-    const watchedClips = clips.filter(c => watchedClipIds.has(String(c.id))).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
-    html += cardHtml('__watched__', `vizionate (debug)`, watchedClips, false);
-  }
+  const watchedClips = getWatchedClipsOrdered();
+  html += cardHtml('__watched__', `vizionate`, watchedClips, false);
+
   if (unassigned.length) html += cardHtml('__none__', 'fără colecție', unassigned, false);
   html += sortedCollections.map(col => {
     const inColl = clips.filter(c => c.collection_id === col.id).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
@@ -11115,7 +11125,9 @@ async function deleteCollection(collId) {
 
 async function openCollectionDetail(collId) {
   tiktokCurrentDetailCollId = collId;
+  tiktokDetailVisibleCount = TIKTOK_DETAIL_PAGE_SIZE;
   tiktokUploadPresetCollId = (collId === '__none__') ? null : collId;
+
   document.getElementById('tiktokCollectionsView').classList.remove('open');
   document.getElementById('tiktokCollectionDetailView').classList.add('open');
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
@@ -11123,9 +11135,10 @@ async function openCollectionDetail(collId) {
 
   let title;
   if (collId === '__watched__') {
-    tiktokCurrentDetailClips = clips.filter(c => watchedClipIds.has(String(c.id))).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+    tiktokCurrentDetailClips = getWatchedClipsOrdered();
     title = `vizionate -- ${tiktokCurrentDetailClips.length} clip${tiktokCurrentDetailClips.length===1?'':'uri'} excluse din feed`;
   } else if (collId === '__none__') {
+
     tiktokCurrentDetailClips = clips.filter(c => !c.collection_id);
     title = 'fără colecție';
   } else {
@@ -11145,7 +11158,9 @@ function renderCollectionDetailGrid() {
     grid.innerHTML = `<div class="tiktok-empty" style="position:static;padding:40px 0;">nimic aici încă</div>`;
     return;
   }
-  grid.innerHTML = tiktokCurrentDetailClips.map((c, i) => `<div class="tiktok-coll-card" style="aspect-ratio:1;">
+  const visible = tiktokCurrentDetailClips.slice(0, tiktokDetailVisibleCount);
+  const remaining = tiktokCurrentDetailClips.length - visible.length;
+  grid.innerHTML = visible.map((c, i) => `<div class="tiktok-coll-card" style="aspect-ratio:1;">
     <div onclick="openClipFromCollectionDetail(${i})" style="position:absolute;inset:0;cursor:pointer;">
       ${renderThumbEl(c)}
 
@@ -11157,10 +11172,19 @@ function renderCollectionDetailGrid() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 17L17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
     </div>` : ''}
-  </div>`).join('');
+  </div>`).join('') + (remaining > 0 ? `<button onclick="loadMoreDetailClips()" style="grid-column:1/-1;width:100%;padding:12px;background:rgba(200,169,126,0.08);border:1px solid rgba(200,169,126,0.25);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;cursor:pointer;">arată încă ${Math.min(remaining, TIKTOK_DETAIL_PAGE_SIZE)} (${remaining} rămase)</button>` : '');
 setupThumbLazyLoad('tiktokCollDetailGrid');
 
 }
+
+function loadMoreDetailClips() {
+  const view = document.getElementById('tiktokCollectionDetailView');
+  const prevScroll = view ? view.scrollTop : 0;
+  tiktokDetailVisibleCount += TIKTOK_DETAIL_PAGE_SIZE;
+  renderCollectionDetailGrid();
+  if (view) view.scrollTop = prevScroll;
+}
+
 
 function openClipFromCollectionDetail(index) {
   tiktokIsMainFeed = false;
@@ -11173,9 +11197,10 @@ function openClipFromCollectionDetail(index) {
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
-  const reordered = [...tiktokCurrentDetailClips.slice(index), ...tiktokCurrentDetailClips.slice(0, index)];
+  const reordered = tiktokCurrentDetailClips.slice(index);
   renderClipsFixed(reordered);
 }
+
 
 
 
