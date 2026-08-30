@@ -10639,27 +10639,37 @@ function renderClips(sourceClipsOverride, startAtId) {
 
 
 
-function renderClipsFixed(fixedClipsList) {
+function renderClipsFixed(fixedClipsList, startIndex) {
   tiktokFeedScope = 'fixed';
   const feed = document.getElementById('tiktokFeed');
   if (!fixedClipsList.length) { feed.innerHTML = `<div class="tiktok-empty">nicio filmare aici</div>`; return; }
   tiktokFeedOrder = fixedClipsList.map(c => c.id);
   tiktokFeedClipsById = Object.fromEntries(fixedClipsList.map(c => [String(c.id), c]));
 
-  // randăm doar primul lot -- restul se adaugă pe măsură ce scrollezi
-  const initialIds = tiktokFeedOrder.slice(0, TIKTOK_INITIAL_BATCH);
+  const idx = Math.max(0, Math.min(fixedClipsList.length - 1, startIndex || 0));
+
+  // randăm tot ce e înainte de clipul selectat (ca să poți derula și înapoi),
+  // plus lotul inițial de după el -- restul se adaugă pe măsură ce scrollezi
+  const initialIds = tiktokFeedOrder.slice(0, idx + TIKTOK_INITIAL_BATCH);
   feed.innerHTML = initialIds.map(id => clipSlideHtml(tiktokFeedClipsById[id])).join('');
 
-  // resetăm scroll-ul containerului -- altfel, dacă rămâsese scrollat dintr-o
-  // vizionare anterioară, browserul consideră "vizibil" un alt slide decât primul
-  feed.scrollTop = 0;
+  const slides = feed.querySelectorAll('.tiktok-slide');
+  const targetSlide = slides[idx];
 
-  // primul clip își începe încărcarea imediat, fără să aștepte observer-ul
-  const firstVideo = feed.querySelector('.tiktok-video');
-  if (firstVideo && firstVideo.dataset.src) firstVideo.src = firstVideo.dataset.src;
+  if (targetSlide) {
+    // sărim direct la clipul selectat, fără animație (fără să vezi tranziția)
+    targetSlide.scrollIntoView({ behavior: 'instant', block: 'start' });
+    const v = targetSlide.querySelector('.tiktok-video');
+    if (v && v.dataset.src) v.src = v.dataset.src;
+  } else {
+    feed.scrollTop = 0;
+    const firstVideo = feed.querySelector('.tiktok-video');
+    if (firstVideo && firstVideo.dataset.src) firstVideo.src = firstVideo.dataset.src;
+  }
 
   setupTiktokObserver(fixedClipsList);
 }
+
 
 
 
@@ -11127,10 +11137,12 @@ async function openCollectionDetail(collId) {
   tiktokCurrentDetailCollId = collId;
   tiktokDetailVisibleCount = TIKTOK_DETAIL_PAGE_SIZE;
   tiktokUploadPresetCollId = (collId === '__none__') ? null : collId;
-
   document.getElementById('tiktokCollectionsView').classList.remove('open');
-  document.getElementById('tiktokCollectionDetailView').classList.add('open');
+  const detailView = document.getElementById('tiktokCollectionDetailView');
+  detailView.classList.add('open');
+  detailView.scrollTop = 0;
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
+
 
 
   let title;
@@ -11218,9 +11230,9 @@ function openClipFromCollectionDetail(index) {
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
-  const reordered = tiktokCurrentDetailClips.slice(index);
-  renderClipsFixed(reordered);
+  renderClipsFixed(tiktokCurrentDetailClips, index);
 }
+
 
 
 
