@@ -1333,9 +1333,10 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-autoscroll-btn svg { width: 16px; height: 16px; }
 
 .tiktok-reset-watched-wrap {
-  position: fixed; bottom: calc(11px + env(safe-area-inset-bottom)); right: 16px;
+  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
   width: 36px; height: 36px; z-index: 810; transition: bottom 0.2s;
 }
+
 .tiktok-reset-ring-svg {
   position: absolute; inset: -4px; width: 44px; height: 44px; pointer-events: none;
   transform: rotate(-90deg);
@@ -10403,13 +10404,14 @@ function resetWatchedClips() {
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
 
-function updateResetBtnPosition() {
+ffunction updateResetBtnPosition() {
   const wrap = document.getElementById('tiktokResetWatchedWrap');
   if (!wrap) return;
   wrap.style.bottom = !isLocked
-    ? 'calc(78px + env(safe-area-inset-bottom))'
-    : 'calc(11px + env(safe-area-inset-bottom))';
+    ? 'calc(83px + env(safe-area-inset-bottom))'
+    : 'calc(16px + env(safe-area-inset-bottom))';
 }
+
 
 
 
