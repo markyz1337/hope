@@ -1148,7 +1148,7 @@
 body.tiktok-active {
   background: #000 !important;
 }
-body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
+body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
   display: none !important;
 }
 
@@ -1354,9 +1354,10 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-reset-watched-btn svg { width: 17px; height: 17px; }
 
 .tiktok-reaction-wrap {
-  position: fixed; bottom: calc(63px + env(safe-area-inset-bottom)); right: 16px;
-  width: 44px; height: 44px; z-index: 810; transition: bottom 0.2s;
+  position: fixed; top: 50%; right: 16px; transform: translateY(-50%);
+  width: 44px; height: 44px; z-index: 810;
 }
+
 .tiktok-reaction-btn {
   width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
@@ -10499,36 +10500,41 @@ function openReactionPicker() {
     <button onclick="saveClipReaction('${clipId}','${em}')" style="font-size:21px;background:${currentReaction===em?'rgba(200,169,126,0.25)':'transparent'};border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform 0.12s;">${em}</button>
   `).join('');
 
-  overlay.innerHTML = `
-    <div id="reaction-bubble" style="position:absolute;bottom:calc(118px + env(safe-area-inset-bottom));right:16px;max-width:calc(100% - 32px);background:rgba(22,22,28,0.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:5px 6px;display:flex;align-items:center;gap:1px;box-shadow:0 8px 28px rgba(0,0,0,0.45);animation:reactionPopIn 0.16s cubic-bezier(0.34,1.5,0.64,1);overflow-x:auto;">
-      ${emojiButtons}
-      <div style="width:1px;height:20px;background:rgba(255,255,255,0.12);margin:0 4px;flex-shrink:0;"></div>
-      <button onclick="toggleReactionCustomInput()" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.65);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">+</button>
-      ${currentReaction ? `<button onclick="saveClipReaction('${clipId}','')" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(200,80,80,0.14);color:var(--rose);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-left:2px;">✕</button>` : ''}
-    </div>
-    <div id="reaction-custom-row" style="display:none;position:absolute;bottom:calc(166px + env(safe-area-inset-bottom));right:16px;background:rgba(22,22,28,0.94);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);border-radius:20px;padding:5px 5px 5px 12px;display:flex;align-items:center;gap:6px;box-shadow:0 8px 28px rgba(0,0,0,0.45);">
-      <input id="reaction-custom-input" type="text" maxlength="4" placeholder="emoji..." style="width:64px;background:none;border:none;color:#fff;font-size:15px;outline:none;">
-      <button onclick="saveClipReactionFromInput('${clipId}')" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(200,169,126,0.22);color:var(--accent2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✓</button>
+overlay.innerHTML = `
+    <div style="position:absolute;top:50%;right:68px;transform:translateY(-50%);max-width:calc(100% - 32px);display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div id="reaction-bubble" style="background:rgba(22,22,28,0.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:5px 6px;display:flex;align-items:center;gap:1px;box-shadow:0 8px 28px rgba(0,0,0,0.45);animation:reactionPopIn 0.16s cubic-bezier(0.34,1.5,0.64,1);overflow-x:auto;">
+        ${emojiButtons}
+        <div style="width:1px;height:20px;background:rgba(255,255,255,0.12);margin:0 4px;flex-shrink:0;"></div>
+        ${currentReaction
+          ? `<button onclick="saveClipReaction('${clipId}','')" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(200,80,80,0.14);color:var(--rose);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✕</button>`
+          : `<input id="reaction-custom-input" type="text" maxlength="4" placeholder="+" oninput="saveClipReactionFromInput('${clipId}')" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.06);color:#fff;font-size:15px;text-align:center;outline:none;flex-shrink:0;padding:0;">`
+        }
+      </div>
+      ${!currentReaction ? `<div id="reaction-hint-toast" style="background:rgba(22,22,28,0.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:6px 12px;font-family:var(--mono);font-size:9px;letter-spacing:0.04em;color:var(--text2);white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,0.35);animation:reactionPopIn 0.16s cubic-bezier(0.34,1.5,0.64,1);">apasă + pentru alt emoji din tastatură</div>` : ''}
     </div>
   `;
+
+
+
+
+
 
   document.getElementById('tiktokOverlay').appendChild(overlay);
 }
 
-function toggleReactionCustomInput() {
-  const row = document.getElementById('reaction-custom-row');
-  if (!row) return;
-  const isVis = row.style.display !== 'none';
-  row.style.display = isVis ? 'none' : 'flex';
-  if (!isVis) setTimeout(() => document.getElementById('reaction-custom-input')?.focus(), 50);
-}
-
 
 function saveClipReactionFromInput(clipId) {
-  const val = document.getElementById('reaction-custom-input').value.trim();
-  if (!val) { showToast('scrie un emoji mai întâi'); return; }
-  saveClipReaction(clipId, val);
+  const input = document.getElementById('reaction-custom-input');
+  const raw = input.value;
+  // păstrează doar caractere emoji (inclusiv variante compuse: ZWJ, skin tone, variation selector)
+  const emojiRegex = /(\p{Extended_Pictographic}(\u200d\p{Extended_Pictographic}|\p{Emoji_Modifier}|\ufe0f)*)/gu;
+  const matches = raw.match(emojiRegex);
+  const cleaned = matches ? matches.join('') : '';
+  if (cleaned !== raw) input.value = cleaned;
+  if (!cleaned) return;
+  saveClipReaction(clipId, cleaned);
 }
+
 
 async function saveClipReaction(clipId, emoji) {
   const { error } = await sb.from('hope_clips').update({ reaction: emoji || null }).eq('id', clipId);
@@ -10555,18 +10561,13 @@ async function saveClipReaction(clipId, emoji) {
 
 function updateResetBtnPosition() {
   const wrap = document.getElementById('tiktokResetWatchedWrap');
-  const reactionWrap = document.getElementById('tiktokReactionWrap');
   if (wrap) {
     wrap.style.bottom = !isLocked
       ? 'calc(78px + env(safe-area-inset-bottom))'
       : 'calc(11px + env(safe-area-inset-bottom))';
   }
-  if (reactionWrap) {
-    reactionWrap.style.bottom = !isLocked
-      ? 'calc(130px + env(safe-area-inset-bottom))'
-      : 'calc(63px + env(safe-area-inset-bottom))';
-  }
 }
+
 
 
 
