@@ -1353,6 +1353,36 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 .tiktok-reset-watched-btn:active { background: rgba(0,0,0,0.65); }
 .tiktok-reset-watched-btn svg { width: 17px; height: 17px; }
 
+.tiktok-reaction-wrap {
+  position: fixed; bottom: calc(63px + env(safe-area-inset-bottom)); right: 16px;
+  width: 44px; height: 44px; z-index: 810; transition: bottom 0.2s;
+}
+.tiktok-reaction-btn {
+  width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; backdrop-filter: blur(10px); color: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+.tiktok-reaction-btn:active { background: rgba(0,0,0,0.65); }
+.tiktok-reaction-btn svg { width: 18px; height: 18px; }
+
+@keyframes reactionPopIn {
+  0%   { opacity: 0; transform: scale(0.85) translateY(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+
+.tiktok-coll-reaction-badge {
+  position: absolute; bottom: 6px; right: 6px; z-index: 3;
+  font-size: 16px; line-height: 1;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%; width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+
+
 
 
 
@@ -2622,7 +2652,24 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip) {
 			</div>
 
 
+<div class="tiktok-reaction-wrap" id="tiktokReactionWrap">
+    <button class="tiktok-reaction-btn" id="tiktokReactionBtn" onclick="openReactionPicker()" title="alege o reacție">
+        <span id="tiktokReactionBtnIcon" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.5 21a9.5 9.5 0 118.98-12.68" />
+            <path d="M8.5 10.5h.01M13.5 9.2h.01" stroke-width="2.6"/>
+            <path d="M8 13.2c.9 1.5 2.3 2.3 4 2.3" stroke-linecap="round"/>
+            <circle cx="18.5" cy="17.5" r="4.3" fill="currentColor" stroke="none" opacity="0.16"/>
+            <circle cx="18.5" cy="17.5" r="4.3"/>
+            <path d="M18.5 15.6v3.8M16.6 17.5h3.8" stroke-width="1.8"/>
+        </svg>
+        </span>
+    </button>
+
+</div>
+
 			<div class="tiktok-reset-watched-wrap" id="tiktokResetWatchedWrap">
+
 				<svg class="tiktok-reset-ring-svg" viewBox="0 0 52 52">
 					<circle cx="26" cy="26" r="22" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2.5"/>
 					<circle id="tiktokResetRingProgress" cx="26" cy="26" r="22" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
@@ -10407,13 +10454,120 @@ function resetWatchedClips() {
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
 
+const REACTION_EMOJIS = ['🥹','🥰','🥺','🤨','😳','🤤','😭'];
+
+function reactionDefaultIconHtml() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.5 21a9.5 9.5 0 118.98-12.68" />
+    <path d="M8.5 10.5h.01M13.5 9.2h.01" stroke-width="2.6"/>
+    <path d="M8 13.2c.9 1.5 2.3 2.3 4 2.3" stroke-linecap="round"/>
+    <circle cx="18.5" cy="17.5" r="4.3" fill="currentColor" stroke="none" opacity="0.16"/>
+    <circle cx="18.5" cy="17.5" r="4.3"/>
+    <path d="M18.5 15.6v3.8M16.6 17.5h3.8" stroke-width="1.8"/>
+  </svg>`;
+}
+
+
+function updateReactionBtnDisplay() {
+  const icon = document.getElementById('tiktokReactionBtnIcon');
+  if (!icon) return;
+  const slide = tiktokCurrentVisibleVideo ? tiktokCurrentVisibleVideo.closest('.tiktok-slide') : null;
+  const clipId = slide?.dataset?.id;
+  const clip = clipId ? (clips.find(c => String(c.id) === String(clipId)) || tiktokFeedClipsById[String(clipId)]) : null;
+  const reaction = clip?.reaction;
+  icon.innerHTML = reaction
+    ? `<span style="font-size:19px;line-height:1;">${reaction}</span>`
+    : reactionDefaultIconHtml();
+}
+
+function openReactionPicker() {
+  const slide = tiktokCurrentVisibleVideo ? tiktokCurrentVisibleVideo.closest('.tiktok-slide') : document.querySelector('#tiktokFeed .tiktok-slide');
+  const clipId = slide?.dataset?.id;
+  if (!clipId) { showToast('niciun clip vizibil'); return; }
+  const clip = clips.find(c => String(c.id) === String(clipId)) || tiktokFeedClipsById[String(clipId)];
+  const currentReaction = clip?.reaction || '';
+
+  const existing = document.getElementById('reaction-picker-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'reaction-picker-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:950;background:transparent;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  const emojiButtons = REACTION_EMOJIS.map(em => `
+    <button onclick="saveClipReaction('${clipId}','${em}')" style="font-size:21px;background:${currentReaction===em?'rgba(200,169,126,0.25)':'transparent'};border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform 0.12s;">${em}</button>
+  `).join('');
+
+  overlay.innerHTML = `
+    <div id="reaction-bubble" style="position:absolute;bottom:calc(118px + env(safe-area-inset-bottom));right:16px;max-width:calc(100% - 32px);background:rgba(22,22,28,0.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);border-radius:26px;padding:5px 6px;display:flex;align-items:center;gap:1px;box-shadow:0 8px 28px rgba(0,0,0,0.45);animation:reactionPopIn 0.16s cubic-bezier(0.34,1.5,0.64,1);overflow-x:auto;">
+      ${emojiButtons}
+      <div style="width:1px;height:20px;background:rgba(255,255,255,0.12);margin:0 4px;flex-shrink:0;"></div>
+      <button onclick="toggleReactionCustomInput()" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.65);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">+</button>
+      ${currentReaction ? `<button onclick="saveClipReaction('${clipId}','')" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(200,80,80,0.14);color:var(--rose);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-left:2px;">✕</button>` : ''}
+    </div>
+    <div id="reaction-custom-row" style="display:none;position:absolute;bottom:calc(166px + env(safe-area-inset-bottom));right:16px;background:rgba(22,22,28,0.94);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);border-radius:20px;padding:5px 5px 5px 12px;display:flex;align-items:center;gap:6px;box-shadow:0 8px 28px rgba(0,0,0,0.45);">
+      <input id="reaction-custom-input" type="text" maxlength="4" placeholder="emoji..." style="width:64px;background:none;border:none;color:#fff;font-size:15px;outline:none;">
+      <button onclick="saveClipReactionFromInput('${clipId}')" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(200,169,126,0.22);color:var(--accent2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✓</button>
+    </div>
+  `;
+
+  document.getElementById('tiktokOverlay').appendChild(overlay);
+}
+
+function toggleReactionCustomInput() {
+  const row = document.getElementById('reaction-custom-row');
+  if (!row) return;
+  const isVis = row.style.display !== 'none';
+  row.style.display = isVis ? 'none' : 'flex';
+  if (!isVis) setTimeout(() => document.getElementById('reaction-custom-input')?.focus(), 50);
+}
+
+
+function saveClipReactionFromInput(clipId) {
+  const val = document.getElementById('reaction-custom-input').value.trim();
+  if (!val) { showToast('scrie un emoji mai întâi'); return; }
+  saveClipReaction(clipId, val);
+}
+
+async function saveClipReaction(clipId, emoji) {
+  const { error } = await sb.from('hope_clips').update({ reaction: emoji || null }).eq('id', clipId);
+  const overlay = document.getElementById('reaction-picker-overlay');
+  if (overlay) overlay.remove();
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast(emoji ? 'reacție salvată' : 'reacție ștearsă');
+
+  // update local, fără re-render de feed (evita schimbarea clipului)
+  const clip = clips.find(c => String(c.id) === String(clipId));
+  if (clip) clip.reaction = emoji || null;
+  if (tiktokFeedClipsById[String(clipId)]) tiktokFeedClipsById[String(clipId)].reaction = emoji || null;
+  const detailClip = tiktokCurrentDetailClips.find(c => String(c.id) === String(clipId));
+  if (detailClip) detailClip.reaction = emoji || null;
+
+  updateReactionBtnDisplay();
+
+  if (document.getElementById('tiktokCollectionDetailView').classList.contains('open') && tiktokCurrentDetailCollId !== null) {
+    renderCollectionDetailGrid();
+  }
+}
+
+
+
 function updateResetBtnPosition() {
   const wrap = document.getElementById('tiktokResetWatchedWrap');
-  if (!wrap) return;
-  wrap.style.bottom = !isLocked
-    ? 'calc(78px + env(safe-area-inset-bottom))'
-    : 'calc(11px + env(safe-area-inset-bottom))';
+  const reactionWrap = document.getElementById('tiktokReactionWrap');
+  if (wrap) {
+    wrap.style.bottom = !isLocked
+      ? 'calc(78px + env(safe-area-inset-bottom))'
+      : 'calc(11px + env(safe-area-inset-bottom))';
+  }
+  if (reactionWrap) {
+    reactionWrap.style.bottom = !isLocked
+      ? 'calc(130px + env(safe-area-inset-bottom))'
+      : 'calc(63px + env(safe-area-inset-bottom))';
+  }
 }
+
 
 
 
@@ -10883,7 +11037,9 @@ function setupTiktokObserver(sourceClips) {
       const slide = v.closest('.tiktok-slide');
       if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
         tiktokCurrentVisibleVideo = v;
+        updateReactionBtnDisplay();
         if (v.dataset.src && !v.src) v.src = v.dataset.src; // fallback, dacă preload n-a apucat
+
         if (v.paused) {
           playClipVideo(v, true);
         }
@@ -10962,7 +11118,9 @@ async function switchTiktokTab(tab) {
 
   document.getElementById('tiktokMuteBtnGlobal').style.display = tab === 'feed' ? '' : 'none';
   document.getElementById('tiktokAutoscrollBtn').style.display = tab === 'feed' ? '' : 'none';
-  document.getElementById('tiktokResetWatchedWrap').style.display = tab === 'feed' ? '' : 'none';
+document.getElementById('tiktokResetWatchedWrap').style.display = tab === 'feed' ? '' : 'none';
+document.getElementById('tiktokReactionWrap').style.display = tab === 'feed' ? '' : 'none';
+
 
   if (tab === 'feed') updateResetBtnPosition();
 
@@ -11212,7 +11370,9 @@ function detailCardHtml(c, i) {
 
       <div class="tiktok-coll-play-icon"><svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21"/></svg></div>
       <div class="tiktok-coll-date-badge">${escHtml(formatClipDate(c.posted_at))}</div>
+      ${c.reaction ? `<div class="tiktok-coll-reaction-badge">${escHtml(c.reaction)}</div>` : ''}
     </div>
+
     ${!isLocked ? `<div class="tiktok-coll-card-actions" style="top:auto;bottom:6px;">
       <div class="tiktok-coll-card-action-btn" onclick="event.stopPropagation();openClipCollectionPicker('${c.id}')" title="mută în altă colecție">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 17L17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -11267,7 +11427,8 @@ function openClipFromCollectionDetail(index) {
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
-  document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
+document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
+document.getElementById('tiktokReactionWrap').style.display = 'none';
 
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
@@ -11422,7 +11583,9 @@ async function openTiktokFeed() {
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
-  document.getElementById('tiktokResetWatchedWrap').style.display = '';
+document.getElementById('tiktokResetWatchedWrap').style.display = '';
+document.getElementById('tiktokReactionWrap').style.display = '';
+
   updateResetBtnPosition();
 
 
@@ -11936,7 +12099,9 @@ function viewClipFromManager(clipId) {
   document.getElementById('tiktokFeed').style.display = '';
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
-  document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
+document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
+document.getElementById('tiktokReactionWrap').style.display = 'none';
+
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
