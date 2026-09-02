@@ -1404,7 +1404,8 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 
 
 			.tiktok-delete-btn {
-			  position: absolute; bottom: calc(150px + env(safe-area-inset-bottom)); right: 16px;
+			  position: absolute; bottom: calc(156px + env(safe-area-inset-bottom)); right: 16px;
+
 			  width: 40px; height: 40px; border-radius: 50%; background: rgba(200,80,80,0.25);
 			  border: 1px solid rgba(200,80,80,0.4); color: #f0a0a0; display: flex; align-items: center; justify-content: center;
 			  font-size: 16px; cursor: pointer; z-index: 5; backdrop-filter: blur(10px);
@@ -1531,8 +1532,9 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 }
 
 
-			.tiktok-caption-edit-btn {
-			  position: absolute; bottom: calc(270px + env(safe-area-inset-bottom)); right: 16px;
+.tiktok-caption-edit-btn {
+  position: absolute; bottom: calc(288px + env(safe-area-inset-bottom)); right: 16px;
+
 			  width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45);
 			  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
 			  cursor: pointer; z-index: 5; backdrop-filter: blur(10px); color: #fff;
@@ -1547,8 +1549,9 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			}
 			.tiktok-coll-back svg { width: 13px; height: 13px; }
 			.tiktok-coll-title { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--accent2); margin-bottom: 14px; }
-			.tiktok-clip-add-btn {
-			  position: absolute; bottom: calc(210px + env(safe-area-inset-bottom)); right: 16px;
+.tiktok-clip-add-btn {
+  position: absolute; bottom: calc(222px + env(safe-area-inset-bottom)); right: 16px;
+
 			  width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45);
 			  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
 			  cursor: pointer; z-index: 5; backdrop-filter: blur(10px); color: #fff;
@@ -10592,7 +10595,7 @@ function updateResetBtnPosition() {
   const wrap = document.getElementById('tiktokResetWatchedWrap');
   if (wrap) {
     wrap.style.bottom = !isLocked
-      ? 'calc(78px + env(safe-area-inset-bottom))'
+      ? 'calc(92px + env(safe-area-inset-bottom))'
       : 'calc(11px + env(safe-area-inset-bottom))';
   }
 }
@@ -10818,7 +10821,8 @@ return `<div class="tiktok-slide" data-id="${c.id}">
       ${!isLocked ? `<div class="tiktok-caption-edit-btn" onclick="editClipCaption('${c.id}')" title="editează descrierea">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>` : ''}
-      ${!isLocked ? `<div class="tiktok-caption-edit-btn" style="bottom:calc(330px + env(safe-area-inset-bottom));" onclick="copyClipLinkFromFeed('${c.id}')" title="copiază link">
+      ${!isLocked ? `<div class="tiktok-caption-edit-btn" style="bottom:calc(354px + env(safe-area-inset-bottom));" onclick="copyClipLinkFromFeed('${c.id}')" title="copiază link">
+
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/></svg>
       </div>` : ''}
       ${!isLocked ? `<button class="tiktok-delete-btn" onclick="deleteClip('${c.id}')">🗑️</button>` : ''}
@@ -11158,7 +11162,8 @@ async function switchTiktokTab(tab) {
   document.getElementById('tiktokMuteBtnGlobal').style.display = tab === 'feed' ? '' : 'none';
   document.getElementById('tiktokAutoscrollBtn').style.display = tab === 'feed' ? '' : 'none';
 document.getElementById('tiktokResetWatchedWrap').style.display = tab === 'feed' ? '' : 'none';
-document.getElementById('tiktokReactionWrap').style.display = tab === 'feed' ? '' : 'none';
+document.getElementById('tiktokReactionWrap').style.display = (tab === 'feed' && isLocked) ? '' : 'none';
+
 
 
   if (tab === 'feed') updateResetBtnPosition();
@@ -11467,12 +11472,13 @@ function openClipFromCollectionDetail(index) {
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
 document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
-document.getElementById('tiktokReactionWrap').style.display = 'none';
+document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'none';
 
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   renderClipsFixed(tiktokCurrentDetailClips, index);
+
 }
 
 
@@ -11623,9 +11629,10 @@ async function openTiktokFeed() {
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
 document.getElementById('tiktokResetWatchedWrap').style.display = '';
-document.getElementById('tiktokReactionWrap').style.display = '';
+document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'none';
 
   updateResetBtnPosition();
+
 
 
   document.getElementById('tiktokCollectionsView').classList.remove('open');
@@ -11966,7 +11973,9 @@ async function openClipManager() {
         <button data-sort="dur_desc" class="cm-sort-btn">durată ↓</button>
         <button data-sort="dur_asc" class="cm-sort-btn">durată ↑</button>
       </div>
+      <button onclick="deleteAllClipReactions()" style="width:100%;padding:10px;margin-bottom:12px;background:rgba(200,80,80,0.08);border:1px solid rgba(200,80,80,0.25);border-radius:12px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;flex-shrink:0;">🗑️ șterge toate reacțiile</button>
       <div id="clip-manager-summary" style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.06em;margin-bottom:10px;flex-shrink:0;">se încarcă...</div>
+
       <div id="clip-manager-list" style="display:flex;flex-direction:column;gap:8px;">
         <div class="loading-wrap"><div class="spinner"></div></div>
       </div>
@@ -12000,6 +12009,19 @@ async function openClipManager() {
   await loadClipManagerSizes();
   renderClipManagerList();
   loadAllClipDurations();
+}
+
+async function deleteAllClipReactions() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const withReactions = clips.filter(c => c.reaction);
+  if (!withReactions.length) { showToast('nicio reacție de șters'); return; }
+  if (!confirm(`Ștergi toate cele ${withReactions.length} reacții?`)) return;
+  const { error } = await sb.from('hope_clips').update({ reaction: null }).in('id', withReactions.map(c => c.id));
+  if (error) { showToast('eroare: ' + error.message); return; }
+  showToast('reacții șterse');
+  await loadClips();
+  renderClipManagerList();
+  if (tiktokActiveTab === 'feed') renderClips(clips);
 }
 
 
@@ -12139,12 +12161,13 @@ function viewClipFromManager(clipId) {
   document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
 document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
-document.getElementById('tiktokReactionWrap').style.display = 'none';
+document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'none';
 
   document.getElementById('tiktokMuteBtnGlobal').innerHTML = speakerIconSvg(tiktokGloballyMuted);
   document.getElementById('tiktokAutoscrollBtn').classList.toggle('active', tiktokAutoscroll);
   document.getElementById('tiktokUploadFab').style.display = isLocked ? 'none' : 'flex';
   const reordered = [...clips.slice(idx), ...clips.slice(0, idx)];
+
 
   renderClipsFixed(reordered);
 }
