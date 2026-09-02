@@ -11139,8 +11139,12 @@ function openCollectionFromBadge(collId) {
   document.getElementById('tiktokFeed').style.display = 'none';
   document.getElementById('tiktokMuteBtnGlobal').style.display = 'none';
   document.getElementById('tiktokAutoscrollBtn').style.display = 'none';
+  document.getElementById('tiktokResetWatchedWrap').style.display = 'none';
+  document.getElementById('tiktokReactionWrap').style.display = 'none';
   openCollectionDetail(collId);
+  document.getElementById('tiktokUploadFab').style.display = 'none';
 }
+
 
 
 
@@ -11323,7 +11327,11 @@ function renderCollectionsGrid() {
   const watchedClips = getWatchedClipsOrdered();
   html += cardHtml('__watched__', `vizionate`, watchedClips, false);
 
+  const reactedClips = clips.filter(c => c.reaction).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+  html += cardHtml('__reactions__', 'reacții', reactedClips, false);
+
   if (unassigned.length) html += cardHtml('__none__', 'fără colecție', unassigned, false);
+
   html += sortedCollections.map(col => {
     const inColl = clips.filter(c => c.collection_id === col.id).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
     return cardHtml(col.id, col.name, inColl, true);
@@ -11392,10 +11400,14 @@ async function openCollectionDetail(collId) {
   if (collId === '__watched__') {
     tiktokCurrentDetailClips = getWatchedClipsOrdered();
     title = `vizionate -- ${tiktokCurrentDetailClips.length} clip${tiktokCurrentDetailClips.length===1?'':'uri'} excluse din feed`;
+  } else if (collId === '__reactions__') {
+    tiktokCurrentDetailClips = clips.filter(c => c.reaction).sort((a, b) => new Date(b.posted_at) - new Date(a.posted_at));
+    title = `reacții -- ${tiktokCurrentDetailClips.length} clip${tiktokCurrentDetailClips.length===1?'':'uri'}`;
   } else if (collId === '__none__') {
 
     tiktokCurrentDetailClips = clips.filter(c => !c.collection_id);
     title = 'fără colecție';
+
   } else {
     const col = collections.find(c => String(c.id) === String(collId));
     if (!col) return;
@@ -11503,11 +11515,12 @@ function openClipCollectionPicker(clipId) {
   const currentCollId = clip ? clip.collection_id : null;
 
   const existing = document.getElementById('clip-coll-pick-overlay');
-  if (existing) document.body.removeChild(existing);
+  if (existing) existing.remove();
   const overlay = document.createElement('div');
   overlay.id = 'clip-coll-pick-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.85);backdrop-filter:blur(14px);z-index:950;display:flex;align-items:flex-end;justify-content:center;';
-  overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
 
   const collButtons = collections.map(col => {
     const isCurrent = String(col.id) === String(currentCollId);
