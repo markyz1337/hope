@@ -1378,7 +1378,8 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
   transition: background 0.15s, border-color 0.15s;
 }
 .tiktok-reaction-btn:active { background: rgba(0,0,0,0.65); }
-.tiktok-reaction-btn svg { width: 18px; height: 18px; }
+.tiktok-reaction-btn svg { width: 22px; height: 22px; }
+
 
 @keyframes reactionPopIn {
   0%   { opacity: 0; transform: scale(0.85) translateY(6px); }
@@ -10504,10 +10505,14 @@ function openReactionPicker() {
   const existing = document.getElementById('reaction-picker-overlay');
   if (existing) existing.remove();
 
+  tiktokReactionPickerOpen = true;
+  tiktokReactionVideoEndedWhilePicking = false;
+
   const overlay = document.createElement('div');
   overlay.id = 'reaction-picker-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:950;background:transparent;';
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeReactionPicker(); });
+
 
   const emojiButtons = REACTION_EMOJIS.map(em => `
     <button onclick="saveClipReaction('${clipId}','${em}')" style="font-size:21px;background:${currentReaction===em?'rgba(200,169,126,0.25)':'transparent'};border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform 0.12s;">${em}</button>
@@ -10535,6 +10540,16 @@ overlay.innerHTML = `
   document.getElementById('tiktokOverlay').appendChild(overlay);
 }
 
+function closeReactionPicker() {
+  const overlay = document.getElementById('reaction-picker-overlay');
+  if (overlay) overlay.remove();
+  tiktokReactionPickerOpen = false;
+  if (tiktokReactionVideoEndedWhilePicking && tiktokAutoscroll && tiktokCurrentVisibleVideo) {
+    tiktokReactionVideoEndedWhilePicking = false;
+    scrollToNextTiktokSlide(tiktokCurrentVisibleVideo);
+  }
+}
+
 
 function saveClipReactionFromInput(clipId) {
   const input = document.getElementById('reaction-custom-input');
@@ -10551,9 +10566,9 @@ function saveClipReactionFromInput(clipId) {
 
 async function saveClipReaction(clipId, emoji) {
   const { error } = await sb.from('hope_clips').update({ reaction: emoji || null }).eq('id', clipId);
-  const overlay = document.getElementById('reaction-picker-overlay');
-  if (overlay) overlay.remove();
+  closeReactionPicker();
   if (error) { showToast('eroare: ' + error.message); return; }
+
   showReactionToast(emoji ? 'reacție salvată' : 'reacție ștearsă');
 
 
@@ -10633,6 +10648,9 @@ let tiktokGloballyMuted = false;
 let tiktokAudioActiveVideo = null;
 let tiktokDailyMsgBlocking = false;
 let tiktokCurrentVisibleVideo = null;
+let tiktokReactionPickerOpen = false;
+let tiktokReactionVideoEndedWhilePicking = false;
+
 
 
 let tiktokActiveTab = 'feed'; // 'feed' | 'collections'
@@ -10672,6 +10690,11 @@ function bindEndedToVideo(v) {
       const id = slide?.dataset?.id;
       if (id) markClipWatched(id);
     }
+    if (tiktokReactionPickerOpen) {
+      tiktokReactionVideoEndedWhilePicking = true;
+      playClipVideo(v, true);
+      return;
+    }
     if (tiktokAutoscroll) {
       scrollToNextTiktokSlide(v);
     } else {
@@ -10679,6 +10702,7 @@ function bindEndedToVideo(v) {
     }
   });
 }
+
 
 
 
