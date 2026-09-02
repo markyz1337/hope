@@ -1358,6 +1358,19 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
   width: 44px; height: 44px; z-index: 810;
 }
 
+
+.tiktok-reaction-toast {
+  position: fixed; top: 50%; right: 68px; transform: translateY(-50%) translateX(8px);
+  background: rgba(14,14,20,0.92); border: 1px solid var(--border2);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 50px; padding: 8px 16px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; color: var(--text2);
+  z-index: 999; opacity: 0; pointer-events: none; white-space: nowrap;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.tiktok-reaction-toast.show { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+
 .tiktok-reaction-btn {
   width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
@@ -2653,8 +2666,11 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			</div>
 
 
+<div class="tiktok-reaction-toast" id="tiktokReactionToast"></div>
+
 <div class="tiktok-reaction-wrap" id="tiktokReactionWrap">
     <button class="tiktok-reaction-btn" id="tiktokReactionBtn" onclick="openReactionPicker()" title="alege o reacție">
+
         <span id="tiktokReactionBtnIcon" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.5 21a9.5 9.5 0 118.98-12.68" />
@@ -10455,18 +10471,14 @@ function resetWatchedClips() {
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
 
-const REACTION_EMOJIS = ['🥹','🥰','🥺','🤨','😳','🤤','😭'];
+const REACTION_EMOJIS = ['💛','🥹','🥰','🤤','🤨','🥺','😭'];
 
 function reactionDefaultIconHtml() {
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M10.5 21a9.5 9.5 0 118.98-12.68" />
-    <path d="M8.5 10.5h.01M13.5 9.2h.01" stroke-width="2.6"/>
-    <path d="M8 13.2c.9 1.5 2.3 2.3 4 2.3" stroke-linecap="round"/>
-    <circle cx="18.5" cy="17.5" r="4.3" fill="currentColor" stroke="none" opacity="0.16"/>
-    <circle cx="18.5" cy="17.5" r="4.3"/>
-    <path d="M18.5 15.6v3.8M16.6 17.5h3.8" stroke-width="1.8"/>
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>`;
 }
+
 
 
 function updateReactionBtnDisplay() {
@@ -10477,8 +10489,9 @@ function updateReactionBtnDisplay() {
   const clip = clipId ? (clips.find(c => String(c.id) === String(clipId)) || tiktokFeedClipsById[String(clipId)]) : null;
   const reaction = clip?.reaction;
   icon.innerHTML = reaction
-    ? `<span style="font-size:19px;line-height:1;">${reaction}</span>`
+    ? `<span style="font-size:27px;line-height:1;">${reaction}</span>`
     : reactionDefaultIconHtml();
+
 }
 
 function openReactionPicker() {
@@ -10541,7 +10554,8 @@ async function saveClipReaction(clipId, emoji) {
   const overlay = document.getElementById('reaction-picker-overlay');
   if (overlay) overlay.remove();
   if (error) { showToast('eroare: ' + error.message); return; }
-  showToast(emoji ? 'reacție salvată' : 'reacție ștearsă');
+  showReactionToast(emoji ? 'reacție salvată' : 'reacție ștearsă');
+
 
   // update local, fără re-render de feed (evita schimbarea clipului)
   const clip = clips.find(c => String(c.id) === String(clipId));
@@ -12163,6 +12177,14 @@ function showAccessChoiceModal() {
 			function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 
+function showReactionToast(msg) {
+  const t = document.getElementById('tiktokReactionToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
 
 
 
