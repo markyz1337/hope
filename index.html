@@ -5574,6 +5574,9 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			function is2FAVerifiedToday() {
 			  try { return localStorage.getItem(get2FAStorageKey()) === todayKey(); } catch(e) { return false; }
 			}
+			function mark2FAVerifiedToday() {
+			  try { localStorage.setItem(get2FAStorageKey(), todayKey()); } catch(e) {}
+			}
 			function finishVisitorUnlock() {
 			  document.getElementById('pinOverlay').classList.remove('open');
 			  pinBuffer = '';
