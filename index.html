@@ -2346,6 +2346,27 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			</div>
 		</div>
 
+		<!-- 2FA PASSWORD OVERLAY -->
+		<div class="pin-overlay" id="password2faOverlay">
+			<div class="pin-modal" style="align-items:center;gap:14px;">
+				<div class="pin-title">verificare 2FA</div>
+				<div class="pin-subtitle">introdu parola de verificare</div>
+				<input
+					type="password"
+					id="password2faInput"
+					class="form-input"
+					style="text-align:center;font-family:var(--mono);letter-spacing:0.1em;font-size:16px;"
+					placeholder="parolă"
+					autocomplete="off"
+					onkeydown="if(event.key==='Enter')checkPassword2FA()"
+				/>
+				<div class="pin-error-text" id="password2faErrorText">parolă incorectă</div>
+				<button class="btn-primary" style="margin-top:2px;" onclick="checkPassword2FA()">
+					confirmă
+				</button>
+			</div>
+		</div>
+
 		<!-- Calendar popup -->
 		<div
 			class="cal-popup-overlay"
@@ -5045,7 +5066,55 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 							</button>
 						</div>
 					</div>
+					<div class="settings-row" style="margin-top:14px;">
+						<div>
+							<div class="settings-row-label">
+								Activează 2FA (al doilea PIN)
+							</div>
+							<div class="settings-row-sub">
+								cerut o dată pe zi, după PIN-ul vizitatorilor
+							</div>
+						</div>
+						<div
+							class="toggle-track"
+							id="settings-2fa-toggle"
+							onclick="toggleSetting2FA()"
+						>
+							<div class="toggle-bg"></div>
+							<div class="toggle-thumb"></div>
+						</div>
+					</div>
+					<div
+						id="settings-2fa-pin-group"
+						style="display:none;margin-top:8px;"
+					>
+						<div class="settings-row" style="margin-bottom:6px;">
+							<div class="settings-row-label">
+								Parolă 2FA (curentă:
+								<span id="settings-2fa-pin-display"
+									>••••</span
+								>)
+							</div>
+						</div>
+						<div class="settings-pin-group">
+							<input
+								class="settings-pin-input"
+								id="settings-new-2fa-pin"
+								type="text"
+								placeholder="parolă nouă"
+								style="-webkit-text-security:none;letter-spacing:0.02em;"
+							/>
+							<button
+								class="settings-pin-btn"
+								onclick="changePassword2FA()"
+							>
+								schimbă
+							</button>
+						</div>
+					</div>
+
 				</div>
+
 
 				<!-- 5. Restricție orar -->
 				<div class="settings-section">
@@ -5452,7 +5521,10 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			let PIN_CODE             = '2727';
 			let PIN_PRIVATE          = '6969';
 			let PIN_VISITOR          = '0000';
+			let PASSWORD_2FA         = 'schimba-ma';
+			let SETTING_2FA_ENABLED  = false;
 			let SETTING_NAV_MODE     = 'today'; // 'today' | 'last' | 'saved' | 'first'
+
 			let SETTING_GOTO_TODAY   = true; // păstrat pentru compatibilitate
 			let SETTING_VISITOR_LOCK = false;
 			let SETTING_TIME_LOCK    = false;
@@ -5477,6 +5549,9 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			  } else if (pinMode === 'visitor') {
 			    document.getElementById('pinTitle').textContent = 'hope';
 			    document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
+			  } else if (pinMode === 'visitor2fa') {
+			    document.getElementById('pinTitle').textContent = 'hope';
+			    document.getElementById('pinSubtitle').textContent = 'verificare 2FA';
 			  } else {
 
 			    document.getElementById('pinTitle').textContent = 'hope';
@@ -5488,11 +5563,57 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			function closePinOverlay() {
 			  if (pinMode === 'visitor') return;
 
+
 			  document.getElementById('pinOverlay').classList.remove('open');
 			  document.getElementById('pinOverlay').classList.remove('mode-private');
 			  pinBuffer = '';
 			  updatePinDots();
 			}
+
+			function get2FAStorageKey() { return 'hope_2fa_verified_date'; }
+			function is2FAVerifiedToday() {
+			  try { return localStorage.getItem(get2FAStorageKey()) === todayKey(); } catch(e) { return false; }
+			}
+			function finishVisitorUnlock() {
+			  document.getElementById('pinOverlay').classList.remove('open');
+			  pinBuffer = '';
+			  updatePinDots();
+			  userHasInteracted = true;
+			  if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+			    const dk = pendingDateMusicKey;
+			    pendingDateMusicKey = null;
+			    pendingDateMusicAutoplay = false;
+			    dmAudio.volume = 0.28;
+			    dmAudio.play().catch(() => {});
+			    syncDateMusicWaves();
+			  }
+			  updateFabMainMode();
+			  renderEntries();
+			  buildCarousel();
+			}
+
+			function openPassword2FAOverlay() {
+			  document.getElementById('password2faInput').value = '';
+			  document.getElementById('password2faErrorText').classList.remove('visible');
+			  document.getElementById('password2faOverlay').classList.add('open');
+			  setTimeout(() => document.getElementById('password2faInput').focus(), 200);
+			}
+
+			function checkPassword2FA() {
+			  const val = document.getElementById('password2faInput').value;
+			  if (val && val === PASSWORD_2FA) {
+			    mark2FAVerifiedToday();
+			    document.getElementById('password2faOverlay').classList.remove('open');
+			    document.getElementById('password2faInput').value = '';
+			    finishVisitorUnlock();
+			  } else {
+			    document.getElementById('password2faErrorText').classList.add('visible');
+			    document.getElementById('password2faInput').value = '';
+			    document.getElementById('password2faInput').focus();
+			  }
+			}
+
+
 
 
 			function pinPress(digit) {
@@ -5562,29 +5683,22 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 
 			  // ── PIN vizitatori ──
 			  if (pinMode === 'visitor') {
-			if (pinBuffer === PIN_VISITOR) {
-			document.getElementById('pinOverlay').classList.remove('open');
-			pinBuffer = '';
-			updatePinDots();
-			userHasInteracted = true;
-			if (pendingDateMusicKey && pendingDateMusicAutoplay) {
-			  const dk = pendingDateMusicKey;
-			  pendingDateMusicKey = null;
-			  pendingDateMusicAutoplay = false;
-			  dmAudio.volume = 0.28;
-			  dmAudio.play().catch(() => {});
-			  syncDateMusicWaves();
-			}
-			      userHasInteracted = true;
-				updateFabMainMode();
-			  renderEntries();
-			  buildCarousel();
+			    if (pinBuffer === PIN_VISITOR) {
+			      pinBuffer = '';
+			      updatePinDots();
+			      if (SETTING_2FA_ENABLED && !is2FAVerifiedToday()) {
+			        document.getElementById('pinOverlay').classList.remove('open');
+			        openPassword2FAOverlay();
+			        return;
+			      }
+			      finishVisitorUnlock();
 			    } else {
-
 			      pinError();
 			    }
 			    return;
 			  }
+
+
 
 
 			  // ── PIN main (butonul lacăt normal) ──
@@ -6529,6 +6643,14 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  vlt.classList.toggle('on', SETTING_VISITOR_LOCK);
 			  document.getElementById('settings-visitor-pin-group').style.display = SETTING_VISITOR_LOCK ? 'block' : 'none';
 
+			  // 2FA
+			  const tfat = document.getElementById('settings-2fa-toggle');
+			  tfat.classList.toggle('on', SETTING_2FA_ENABLED);
+			  document.getElementById('settings-2fa-pin-group').style.display = SETTING_2FA_ENABLED ? 'block' : 'none';
+			document.getElementById('settings-2fa-pin-display').textContent = PASSWORD_2FA;
+
+
+
 			  // Time lock
 			  const tlt = document.getElementById('settings-time-lock-toggle');
 			  tlt.classList.toggle('on', SETTING_TIME_LOCK);
@@ -6622,6 +6744,26 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  inp.value = '';
 			  showToast('parolă vizitatori schimbată');
 			}
+
+			function toggleSetting2FA() {
+			  SETTING_2FA_ENABLED = !SETTING_2FA_ENABLED;
+			  saveSettings({ twoFaEnabled: SETTING_2FA_ENABLED });
+			  document.getElementById('settings-2fa-toggle').classList.toggle('on', SETTING_2FA_ENABLED);
+			  document.getElementById('settings-2fa-pin-group').style.display = SETTING_2FA_ENABLED ? 'block' : 'none';
+			  showToast(SETTING_2FA_ENABLED ? '2FA activat' : '2FA dezactivat');
+			}
+
+			function changePassword2FA() {
+			  const inp = document.getElementById('settings-new-2fa-pin');
+			  const val = inp.value.trim();
+			  if (val.length < 1) { showToast('introdu o parolă'); return; }
+			  PASSWORD_2FA = val;
+			  saveSettings({ pin2fa: val });
+			  inp.value = '';
+			  showToast('parolă 2FA schimbată');
+			}
+
+
 
 			function toggleTimelockMusic() {
 			  SETTING_TIMELOCK_MUSIC_ON = !SETTING_TIMELOCK_MUSIC_ON;
@@ -6823,7 +6965,10 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			PIN_CODE             = _settings.creatorPin    || '2727';
 			PIN_PRIVATE          = _settings.privatePin    || '6969';
 			PIN_VISITOR          = _settings.visitorPin    || '0000';
+			PASSWORD_2FA         = _settings.pin2fa        || 'schimba-ma';
+			SETTING_2FA_ENABLED  = _settings.twoFaEnabled  !== undefined ? _settings.twoFaEnabled : false;
 			SETTING_GOTO_TODAY   = _settings.gotoToday   !== undefined ? _settings.gotoToday   : true;
+
 			SETTING_VISITOR_LOCK = _settings.visitorLock !== undefined ? _settings.visitorLock : false;
 			SETTING_TIME_LOCK    = _settings.timeLock    !== undefined ? _settings.timeLock    : false;
 			SETTING_TIME_LOCK_HOUR = _settings.timeLockHour || '20:00';
