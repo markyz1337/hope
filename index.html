@@ -11644,6 +11644,8 @@ function setupTiktokTapToggle() {
 async function openTiktokFeed() {
   closeFab(); closeCalPopup();
   setupTiktokTapToggle();
+  document.getElementById('tiktokReactionWrap').style.display = 'none';
+
 
 
 
@@ -11671,9 +11673,9 @@ async function openTiktokFeed() {
 document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
 document.getElementById('tiktokResetWatchedWrap').style.display = '';
-document.getElementById('tiktokReactionWrap').style.display = 'none';
 
   updateResetBtnPosition();
+
 
 
 
