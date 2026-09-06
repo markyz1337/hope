@@ -5287,6 +5287,24 @@ body.redirect-active {
 							style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;"
 						/>
 					</div>
+					<div class="settings-row" style="margin-bottom:10px;">
+						<div>
+							<div class="settings-row-label">
+								Activează redirecționarea
+							</div>
+							<div class="settings-row-sub">
+								butonul + devine ♥ și deschide site-ul
+							</div>
+						</div>
+						<div
+							class="toggle-track"
+							id="settings-redirect-enabled-toggle"
+							onclick="toggleRedirectEnabled()"
+						>
+							<div class="toggle-bg"></div>
+							<div class="toggle-thumb"></div>
+						</div>
+					</div>
 					<button
 						class="settings-pin-btn"
 						style="width:100%"
@@ -5294,14 +5312,8 @@ body.redirect-active {
 					>
 						salvează
 					</button>
-					<button
-						class="settings-pin-btn"
-						style="width:100%;margin-top:8px;background:rgba(200,80,80,0.08);border-color:rgba(200,80,80,0.25);color:#e07070;"
-						onclick="clearRedirectSettings()"
-					>
-						dezactivează
-					</button>
 				</div>
+
 
 				<!-- 6. Melodie ecran așteptare -->
 
@@ -5487,9 +5499,11 @@ body.redirect-active {
 			let isLocked = true;
 			let SETTING_TIMELOCK_MUSIC_URL = '';
 			let SETTING_TITLE_RULES = [];
-			let SETTING_REDIRECT_HTML = '';
+let SETTING_REDIRECT_HTML = '';
 
-			let SETTING_REDIRECT_FROM = '';
+let SETTING_REDIRECT_FROM = '';
+let SETTING_REDIRECT_ENABLED = false;
+
 
 			let SETTING_TIMELOCK_MUSIC_ON  = false;
 			let timeLockAudio = null;
@@ -6744,9 +6758,12 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
 			document.getElementById('settings-timelock-music-url').value = SETTING_TIMELOCK_MUSIC_URL;
 			  renderTitleRulesList();
-			  document.getElementById('settings-redirect-html').value = '';
-			  updateRedirectHtmlStatus();
-			  document.getElementById('settings-redirect-from').value = SETTING_REDIRECT_FROM;
+  document.getElementById('settings-redirect-html').value = '';
+  updateRedirectHtmlStatus();
+  document.getElementById('settings-redirect-from').value = SETTING_REDIRECT_FROM;
+  const ret = document.getElementById('settings-redirect-enabled-toggle');
+  if (ret) ret.classList.toggle('on', SETTING_REDIRECT_ENABLED);
+
 
 
 
@@ -7055,9 +7072,11 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
 			SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
 			SETTING_TITLE_RULES = _settings.titleRules || [];
-			SETTING_REDIRECT_HTML = _settings.redirectHtml || '';
+SETTING_REDIRECT_HTML = _settings.redirectHtml || '';
 
-			SETTING_REDIRECT_FROM = _settings.redirectFrom || '';
+SETTING_REDIRECT_FROM = _settings.redirectFrom || '';
+SETTING_REDIRECT_ENABLED = _settings.redirectEnabled || false;
+
 
 
 
@@ -7233,7 +7252,16 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  showToast('regulă ștearsă');
 			}
 
-			function saveRedirectSettings() {
+function toggleRedirectEnabled() {
+  SETTING_REDIRECT_ENABLED = !SETTING_REDIRECT_ENABLED;
+  saveSettings({ redirectEnabled: SETTING_REDIRECT_ENABLED });
+  const t = document.getElementById('settings-redirect-enabled-toggle');
+  if (t) t.classList.toggle('on', SETTING_REDIRECT_ENABLED);
+  updateFabMainMode();
+  showToast(SETTING_REDIRECT_ENABLED ? 'redirecționare activată' : 'redirecționare dezactivată');
+}
+
+function saveRedirectSettings() {
 			  const newHtml = document.getElementById('settings-redirect-html').value;
 			  if (newHtml.trim()) {
 			    SETTING_REDIRECT_HTML = newHtml;
@@ -9448,13 +9476,15 @@ if (isLocked && ['note','photo','video','music','pdf','date-music','import','edi
 			  if (fabOpen) closeCalPopup();
 			}
 
-			function isRedirectMode() {
-			  if (!SETTING_REDIRECT_HTML) return false;
+function isRedirectMode() {
+  if (!SETTING_REDIRECT_ENABLED) return false;
+  if (!SETTING_REDIRECT_HTML) return false;
 
-			  if (!SETTING_REDIRECT_FROM) return true;
-			  const refKey = selectedDate ? dateKey(selectedDate) : todayKey();
-			  return refKey >= SETTING_REDIRECT_FROM;
-			}
+  if (!SETTING_REDIRECT_FROM) return true;
+  const refKey = selectedDate ? dateKey(selectedDate) : todayKey();
+  return refKey >= SETTING_REDIRECT_FROM;
+}
+
 
 
 function updateFabMainMode() {
