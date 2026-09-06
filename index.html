@@ -5603,19 +5603,27 @@ function openPassword2FAOverlay() {
   document.getElementById('password2faInput').value = '';
   document.getElementById('password2faErrorText').classList.remove('visible');
   document.getElementById('password2faOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
   const input = document.getElementById('password2faInput');
   input.focus();
   requestAnimationFrame(() => input.focus());
 }
 
 
-			function checkPassword2FA() {
-			  const val = document.getElementById('password2faInput').value;
-			  if (val && val === PASSWORD_2FA) {
-			    mark2FAVerifiedToday();
-			    document.getElementById('password2faOverlay').classList.remove('open');
-			    document.getElementById('password2faInput').value = '';
-			    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+function checkPassword2FA() {
+  const val = document.getElementById('password2faInput').value;
+  if (val && val === PASSWORD_2FA) {
+    mark2FAVerifiedToday();
+    document.getElementById('password2faOverlay').classList.remove('open');
+    document.getElementById('password2faInput').value = '';
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
 			    if (pending2FAAction === 'creator') {
 			      pending2FAAction = null;
 			      finishCreatorUnlock();
