@@ -5491,8 +5491,10 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			// PIN mode: 'main' = app unlock, 'private' = conținut privat
 			let pinBuffer = '';
 			let pinMode = 'main';
+			let pending2FAAction = null; // 'creator' | 'visitor'
 
 			let _pendingPrivateEntryId = null;
+
 
 			// ═══════════════════════════════════════
 			// PIN SYSTEM
@@ -5608,13 +5610,22 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			    mark2FAVerifiedToday();
 			    document.getElementById('password2faOverlay').classList.remove('open');
 			    document.getElementById('password2faInput').value = '';
-			    finishVisitorUnlock();
+			    window.scrollTo({ top: 0, behavior: 'smooth' });
+			    if (pending2FAAction === 'creator') {
+			      pending2FAAction = null;
+			      finishCreatorUnlock();
+			    } else {
+			      pending2FAAction = null;
+			      finishVisitorUnlock();
+			    }
 			  } else {
 			    document.getElementById('password2faErrorText').classList.add('visible');
 			    document.getElementById('password2faInput').value = '';
 			    document.getElementById('password2faInput').focus();
 			  }
 			}
+
+
 
 
 
@@ -5632,9 +5643,7 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 
 
 
-			function checkPin() {
-			  // ── Creator PIN funcționează ORIUNDE, indiferent de mod ──
-			if (pinBuffer === PIN_CODE) {
+			function finishCreatorUnlock() {
 			  _pinModeOverride = null;
 			  document.getElementById('pinOverlay').classList.remove('open');
 			  document.getElementById('timeLockOverlay')?.classList.remove('open');
@@ -5649,16 +5658,31 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			  updatePinDots();
 			  setUnlocked(true);
 
-
-			if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
+			  if (timeLockBypassed === false && SETTING_TIME_LOCK && checkTimeLock()) {
 			    timeLockBypassed = true;
-			    userHasInteracted = true; // ← adaugă asta
+			    userHasInteracted = true;
 				updateFabMainMode();
 			    continueInitAfterAuth();
 			  }
+			}
 
+			function checkPin() {
+			  // ── Creator PIN funcționează ORIUNDE, indiferent de mod ──
+			if (pinBuffer === PIN_CODE) {
+			  pinBuffer = '';
+			  updatePinDots();
+
+			  if (SETTING_2FA_ENABLED && !is2FAVerifiedToday()) {
+			    document.getElementById('pinOverlay').classList.remove('open');
+			    pending2FAAction = 'creator';
+			    openPassword2FAOverlay();
+			    return;
+			  }
+
+			  finishCreatorUnlock();
 			  return;
 			}
+
 
 
 			  // ── Dacă era forțat la creator PIN (triple tap din time lock) ──
@@ -5691,6 +5715,7 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			      updatePinDots();
 			      if (SETTING_2FA_ENABLED && !is2FAVerifiedToday()) {
 			        document.getElementById('pinOverlay').classList.remove('open');
+			        pending2FAAction = 'visitor';
 			        openPassword2FAOverlay();
 			        return;
 			      }
@@ -5700,6 +5725,7 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			    }
 			    return;
 			  }
+
 
 
 
