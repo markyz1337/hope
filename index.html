@@ -6939,7 +6939,9 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			function waitForVisitorPin() {
 			  return new Promise(resolve => {
 			    function checkPin() {
-			      if (!document.getElementById('pinOverlay').classList.contains('open')) {
+			      const pinOpen = document.getElementById('pinOverlay').classList.contains('open');
+			      const pw2faOpen = document.getElementById('password2faOverlay').classList.contains('open');
+			      if (!pinOpen && !pw2faOpen) {
 			        resolve();
 			      } else {
 			        setTimeout(checkPin, 300);
@@ -6948,6 +6950,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			    setTimeout(checkPin, 300);
 			  });
 			}
+
 
 
 
