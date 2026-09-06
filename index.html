@@ -11458,19 +11458,27 @@ function renderCollectionDetailGrid() {
 function observeDetailLoadMore() {
   const btn = document.getElementById('tiktokDetailLoadMoreBtn');
   if (!btn) return;
+  let autoTimer = null;
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        io.disconnect();
-        btn.style.transition = 'transform 0.18s ease, opacity 0.35s ease';
-        btn.style.transform = 'scale(0.94)';
-        btn.style.opacity = '0.6';
-        setTimeout(() => { loadMoreDetailClips(); }, 220);
+        if (autoTimer) return; // deja numărăm
+        autoTimer = setTimeout(() => {
+          io.disconnect();
+          btn.style.transition = 'transform 0.18s ease, opacity 0.35s ease';
+          btn.style.transform = 'scale(0.94)';
+          btn.style.opacity = '0.6';
+          setTimeout(() => { loadMoreDetailClips(); }, 220);
+        }, 2000);
+      } else {
+        // dacă ai scrollat departe de buton înainte să treacă cele 2 secunde, anulăm
+        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
       }
     });
   }, { root: document.getElementById('tiktokCollectionDetailView'), threshold: 0.3 });
   io.observe(btn);
 }
+
 
 
 function loadMoreDetailClips() {
