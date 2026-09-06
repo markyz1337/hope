@@ -5234,19 +5234,41 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 					<p
 						style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;margin-bottom:12px;"
 					>
-						Când e activ, butonul + devine ♥ și redirecționează
-						vizitatorii pe linkul de mai jos.
+						Când e activ, butonul + devine ♥ și deschide site-ul
+						de mai jos într-un ecran plin, direct în aplicație
+						(fără să iasă din carnet).
 					</p>
 					<div class="form-group" style="margin-bottom:10px;">
-						<label class="form-label">link redirecționare</label>
-						<input
-							type="url"
-							class="settings-pin-input"
-							id="settings-redirect-url"
-							placeholder="https://..."
-							style="-webkit-text-security:none;font-size:12px;letter-spacing:0;width:100%;"
-						/>
+						<label class="form-label">cod html al site-ului</label>
+						<div
+							id="settings-redirect-html-status"
+							style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.04em;margin-bottom:8px;"
+						>
+							niciun cod salvat
+						</div>
+						<div style="display:flex;gap:8px;margin-bottom:10px;">
+							<button
+								onclick="copyRedirectHtml()"
+								style="flex:1;padding:9px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;"
+							>
+								📋 copiază codul salvat
+							</button>
+							<button
+								onclick="clearRedirectHtmlOnly()"
+								style="flex:1;padding:9px;background:rgba(200,80,80,0.08);border:1px solid rgba(200,80,80,0.25);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;"
+							>
+								🗑️ șterge codul salvat
+							</button>
+						</div>
+						<textarea
+							class="form-textarea"
+							id="settings-redirect-html"
+							style="min-height:100px;font-family:var(--mono);font-size:11px;line-height:1.5;"
+							placeholder="lipește aici codul HTML NOU (înlocuiește complet codul salvat la apăsarea butonului salvează)"
+						></textarea>
 					</div>
+
+
 					<div class="form-group" style="margin-bottom:10px;">
 						<label class="form-label"
 							>activ începând cu data (opțional)</label
@@ -5457,7 +5479,8 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			let isLocked = true;
 			let SETTING_TIMELOCK_MUSIC_URL = '';
 			let SETTING_TITLE_RULES = [];
-			let SETTING_REDIRECT_URL = '';
+			let SETTING_REDIRECT_HTML = '';
+
 			let SETTING_REDIRECT_FROM = '';
 
 			let SETTING_TIMELOCK_MUSIC_ON  = false;
@@ -6713,8 +6736,11 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
 			document.getElementById('settings-timelock-music-url').value = SETTING_TIMELOCK_MUSIC_URL;
 			  renderTitleRulesList();
-			  document.getElementById('settings-redirect-url').value = SETTING_REDIRECT_URL;
+			  document.getElementById('settings-redirect-html').value = '';
+			  updateRedirectHtmlStatus();
 			  document.getElementById('settings-redirect-from').value = SETTING_REDIRECT_FROM;
+
+
 
 
 
@@ -7021,7 +7047,8 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			SETTING_TIMELOCK_MUSIC_URL = _settings.timelockMusicUrl || '';
 			SETTING_TIMELOCK_MUSIC_ON  = _settings.timelockMusicOn  || false;
 			SETTING_TITLE_RULES = _settings.titleRules || [];
-			SETTING_REDIRECT_URL = _settings.redirectUrl || '';
+			SETTING_REDIRECT_HTML = _settings.redirectHtml || '';
+
 			SETTING_REDIRECT_FROM = _settings.redirectFrom || '';
 
 
@@ -7199,22 +7226,66 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			}
 
 			function saveRedirectSettings() {
-			  SETTING_REDIRECT_URL = document.getElementById('settings-redirect-url').value.trim();
+			  const newHtml = document.getElementById('settings-redirect-html').value;
+			  if (newHtml.trim()) {
+			    SETTING_REDIRECT_HTML = newHtml;
+			  }
 			  SETTING_REDIRECT_FROM = document.getElementById('settings-redirect-from').value;
-			  saveSettings({ redirectUrl: SETTING_REDIRECT_URL, redirectFrom: SETTING_REDIRECT_FROM });
+			  saveSettings({ redirectHtml: SETTING_REDIRECT_HTML, redirectFrom: SETTING_REDIRECT_FROM });
+			  document.getElementById('settings-redirect-html').value = '';
+			  updateRedirectHtmlStatus();
 			  updateFabMainMode();
 			  showToast('setări redirecționare salvate');
 			}
 
+			function updateRedirectHtmlStatus() {
+			  const el = document.getElementById('settings-redirect-html-status');
+			  if (!el) return;
+			  el.textContent = SETTING_REDIRECT_HTML
+			    ? `cod salvat: ${SETTING_REDIRECT_HTML.length.toLocaleString('ro-RO')} caractere`
+			    : 'niciun cod salvat';
+			}
+
+			function copyRedirectHtml() {
+			  if (!SETTING_REDIRECT_HTML) { showToast('niciun cod salvat'); return; }
+			  navigator.clipboard.writeText(SETTING_REDIRECT_HTML).then(() => {
+			    showToast('cod copiat');
+			  }).catch(() => {
+			    const ta = document.createElement('textarea');
+			    ta.value = SETTING_REDIRECT_HTML;
+			    document.body.appendChild(ta);
+			    ta.select();
+			    document.execCommand('copy');
+			    document.body.removeChild(ta);
+			    showToast('cod copiat');
+			  });
+			}
+
+			function clearRedirectHtmlOnly() {
+			  if (!SETTING_REDIRECT_HTML) { showToast('niciun cod de șters'); return; }
+			  if (!confirm('Ștergi codul salvat? Poți lipi altul nou după.')) return;
+			  SETTING_REDIRECT_HTML = '';
+			  saveSettings({ redirectHtml: '' });
+			  document.getElementById('settings-redirect-html').value = '';
+			  updateRedirectHtmlStatus();
+			  updateFabMainMode();
+			  showToast('cod șters');
+			}
+
+
+
 			function clearRedirectSettings() {
-			  SETTING_REDIRECT_URL = '';
+			  SETTING_REDIRECT_HTML = '';
 			  SETTING_REDIRECT_FROM = '';
-			  document.getElementById('settings-redirect-url').value = '';
+			  document.getElementById('settings-redirect-html').value = '';
 			  document.getElementById('settings-redirect-from').value = '';
-			  saveSettings({ redirectUrl: '', redirectFrom: '' });
+			  saveSettings({ redirectHtml: '', redirectFrom: '' });
+			  updateRedirectHtmlStatus();
 			  updateFabMainMode();
 			  showToast('redirecționare dezactivată');
 			}
+
+
 
 
 			function setupCardTextLinks() {
@@ -9348,7 +9419,8 @@ if (isLocked && ['note','photo','video','music','pdf','date-music','import','edi
 			// ═══════════════════════════════════════
 			function handleFabMainClick() {
 			  if (isLocked) {
-			    if (isRedirectMode() && SETTING_REDIRECT_URL) {
+			    if (isRedirectMode() && SETTING_REDIRECT_HTML) {
+
 			      showAccessChoiceModal();
 			    } else {
 			      openTiktokFeed();
@@ -9369,7 +9441,8 @@ if (isLocked && ['note','photo','video','music','pdf','date-music','import','edi
 			}
 
 			function isRedirectMode() {
-			  if (!SETTING_REDIRECT_URL) return false;
+			  if (!SETTING_REDIRECT_HTML) return false;
+
 			  if (!SETTING_REDIRECT_FROM) return true;
 			  const refKey = selectedDate ? dateKey(selectedDate) : todayKey();
 			  return refKey >= SETTING_REDIRECT_FROM;
@@ -9395,7 +9468,8 @@ function updateFabMainMode() {
     return;
   }
 
-  if (isRedirectMode() && SETTING_REDIRECT_URL) {
+  if (isRedirectMode() && SETTING_REDIRECT_HTML) {
+
     icon.innerHTML = `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>`;
     btn.title = 'alege';
     btn.style.background = 'linear-gradient(135deg, rgba(200,80,120,0.65), rgba(230,100,140,0.35))';
@@ -12447,7 +12521,8 @@ function showAccessChoiceModal() {
   overlay.innerHTML = `
     <div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">
       <div style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--accent2);font-weight:400;margin-bottom:22px;text-align:center;">ce vrei să deschizi?</div>
-      <button onclick="document.body.removeChild(document.getElementById('access-choice-overlay'));showRedirectModal('${SETTING_REDIRECT_URL.replace(/'/g,"\\'")}')" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;margin-bottom:10px;">redirecționare la site ♥</button>
+      <button onclick="document.body.removeChild(document.getElementById('access-choice-overlay'));showRedirectModal()" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;margin-bottom:10px;">redirecționare la site ♥</button>
+
       <button onclick="document.body.removeChild(document.getElementById('access-choice-overlay'));openTiktokFeed()" style="width:100%;padding:13px;background:rgba(122,162,200,0.15);border:1px solid rgba(122,162,200,0.4);border-radius:12px;color:var(--blue);font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;margin-bottom:10px;">deschide clipuri</button>
       <button onclick="document.body.removeChild(document.getElementById('access-choice-overlay'))" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;">anulează</button>
     </div>`;
@@ -12476,13 +12551,9 @@ function showReactionToast(msg) {
 
 
 
-			function showRedirectModal(targetUrl) {
+			function showRedirectModal() {
 			  const existing = document.getElementById('redirect-modal-overlay');
 			  if (existing) document.body.removeChild(existing);
-
-			  let url = targetUrl;
-			  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-			  const displayUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
 			  const overlay = document.createElement('div');
 			  overlay.id = 'redirect-modal-overlay';
@@ -12490,30 +12561,18 @@ function showReactionToast(msg) {
 
 			  overlay.innerHTML = `
 			    <div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">
-
-			      <!-- Iconița inimă -->
 			      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,rgba(200,80,120,0.25),rgba(230,100,140,0.12));border:1px solid rgba(220,80,120,0.35);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
 			        <svg viewBox="0 0 24 24" fill="none" stroke="#f0a0b8" stroke-width="1.6" style="width:22px;height:22px;">
 			          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>
 			        </svg>
 			      </div>
-
-			      <!-- Titlu -->
 			      <div style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--accent2);font-weight:400;margin-bottom:6px;text-align:center;">te așteaptă</div>
-
-			      <!-- Subtitlu -->
-			      <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text2);letter-spacing:0.02em;text-align:center;line-height:1.6;margin-bottom:24px;">vei fi redirecționată către<br><span style="font-size:20px;color:var(--accent2);font-weight:500;letter-spacing:0.04em;">abouthope</span></div>
-
-			      <!-- Parola -->
+			      <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text2);letter-spacing:0.02em;text-align:center;line-height:1.6;margin-bottom:24px;">un mesaj s-a pregătit<br>special pentru tine</div>
 			      <div style="width:100%;background:rgba(200,169,126,0.06);border:1px solid rgba(200,169,126,0.2);border-radius:12px;padding:12px 16px;margin-bottom:24px;text-align:center;">
 			        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">parola de acces</div>
 			        <div style="font-family:var(--serif);font-size:28px;color:var(--accent2);letter-spacing:0.18em;font-weight:500;">0000</div>
 			      </div>
-
-			      <!-- Buton deschide -->
-			      <button onclick="(function(){let u='${url.replace(/'/g,"\\'")}';document.body.removeChild(document.getElementById('redirect-modal-overlay'));window.open(u,'_blank');})()" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;cursor:pointer;margin-bottom:8px;transition:all 0.2s;">deschide ♥</button>
-
-			      <!-- Buton anulează -->
+			      <button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'));openRedirectSite();" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;cursor:pointer;margin-bottom:8px;transition:all 0.2s;">deschide ♥</button>
 			      <button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'))" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;transition:all 0.2s;">anulează</button>
 			    </div>
 			  `;
@@ -12525,6 +12584,24 @@ function showReactionToast(msg) {
 			  document.body.appendChild(overlay);
 			  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 			}
+
+			function openRedirectSite() {
+			  if (!SETTING_REDIRECT_HTML) return;
+			  const existing = document.getElementById('redirect-site-overlay');
+			  if (existing) existing.remove();
+			  const overlay = document.createElement('div');
+			  overlay.id = 'redirect-site-overlay';
+			  overlay.style.cssText = 'position:fixed;inset:0;z-index:980;background:#000;';
+			  overlay.innerHTML = `
+			    <button onclick="document.getElementById('redirect-site-overlay').remove()" style="position:fixed;top:calc(14px + env(safe-area-inset-top));right:14px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.25);background:rgba(0,0,0,0.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;backdrop-filter:blur(8px);">
+			      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"/></svg>
+			    </button>
+			    <iframe id="redirect-site-iframe" style="width:100%;height:100%;border:none;display:block;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+			  `;
+			  document.body.appendChild(overlay);
+			  document.getElementById('redirect-site-iframe').srcdoc = SETTING_REDIRECT_HTML;
+			}
+
 
 
 			// ═══════════════════════════════════════
