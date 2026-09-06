@@ -1261,22 +1261,6 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
   pointer-events: none;
 }
 
-.lockscreen-top-shade {
-  position: fixed; top: 0; left: 0; right: 0;
-  height: calc(95px + env(safe-area-inset-top));
-  background: var(--bg);
-  z-index: 1005;
-  pointer-events: none;
-}
-.lockscreen-bottom-shade {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  height: calc(75px + env(safe-area-inset-bottom));
-  background: var(--bg);
-  z-index: 1005;
-  pointer-events: none;
-}
-
-
 
 
 
@@ -2280,16 +2264,13 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			id="timeLockOverlay"
 			style="flex-direction:column;gap:16px;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;inset:0;background:#0c0c0f;z-index:1000;"
 		>
-<canvas
-    id="timeLockStarsCanvas"
-    style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"
-></canvas>
-<div class="lockscreen-top-shade"></div>
-<div class="lockscreen-bottom-shade"></div>
+			<canvas
+				id="timeLockStarsCanvas"
+				style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"
+			></canvas>
 
-<div
-    class="pin-modal"
-
+			<div
+				class="pin-modal"
 				style="align-items:center;gap:16px;position:relative;z-index:1;"
 				id="timeLockModal"
 			>
@@ -2304,11 +2285,8 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 		</div>
 
 		<!-- PIN OVERLAY -->
-<div class="pin-overlay" id="pinOverlay">
-    <div class="lockscreen-top-shade"></div>
-    <div class="lockscreen-bottom-shade"></div>
-    <div class="pin-modal">
-
+		<div class="pin-overlay" id="pinOverlay">
+			<div class="pin-modal">
 				<button
 					class="pin-exit-btn"
 					onclick="closePinOverlay()"
@@ -2369,11 +2347,8 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 		</div>
 
 		<!-- 2FA PASSWORD OVERLAY -->
-<div class="pin-overlay" id="password2faOverlay">
-    <div class="lockscreen-top-shade"></div>
-    <div class="lockscreen-bottom-shade"></div>
-    <div class="pin-modal" style="align-items:center;gap:14px;">
-
+		<div class="pin-overlay" id="password2faOverlay">
+			<div class="pin-modal" style="align-items:center;gap:14px;">
 				<div class="pin-title">verificare 2FA</div>
 				<div class="pin-subtitle">introdu parola de verificare</div>
 				<input
@@ -5622,12 +5597,15 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			  buildCarousel();
 			}
 
-			function openPassword2FAOverlay() {
-			  document.getElementById('password2faInput').value = '';
-			  document.getElementById('password2faErrorText').classList.remove('visible');
-			  document.getElementById('password2faOverlay').classList.add('open');
-			  setTimeout(() => document.getElementById('password2faInput').focus(), 200);
-			}
+function openPassword2FAOverlay() {
+  document.getElementById('password2faInput').value = '';
+  document.getElementById('password2faErrorText').classList.remove('visible');
+  document.getElementById('password2faOverlay').classList.add('open');
+  const input = document.getElementById('password2faInput');
+  input.focus();
+  requestAnimationFrame(() => input.focus());
+}
+
 
 			function checkPassword2FA() {
 			  const val = document.getElementById('password2faInput').value;
