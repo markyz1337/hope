@@ -5579,23 +5579,25 @@ body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			function mark2FAVerifiedToday() {
 			  try { localStorage.setItem(get2FAStorageKey(), todayKey()); } catch(e) {}
 			}
-			function finishVisitorUnlock() {
-			  document.getElementById('pinOverlay').classList.remove('open');
-			  pinBuffer = '';
-			  updatePinDots();
-			  userHasInteracted = true;
-			  if (pendingDateMusicKey && pendingDateMusicAutoplay) {
-			    const dk = pendingDateMusicKey;
-			    pendingDateMusicKey = null;
-			    pendingDateMusicAutoplay = false;
-			    dmAudio.volume = 0.28;
-			    dmAudio.play().catch(() => {});
-			    syncDateMusicWaves();
-			  }
-			  updateFabMainMode();
-			  renderEntries();
-			  buildCarousel();
-			}
+function finishVisitorUnlock() {
+  document.getElementById('pinOverlay').classList.remove('open');
+  pinBuffer = '';
+  updatePinDots();
+  userHasInteracted = true;
+  if (pendingDateMusicKey && pendingDateMusicAutoplay) {
+    const dk = pendingDateMusicKey;
+    pendingDateMusicKey = null;
+    pendingDateMusicAutoplay = false;
+    dmAudio.volume = 0.28;
+    dmAudio.play().catch(() => {});
+    syncDateMusicWaves();
+  }
+  updateFabMainMode();
+  // renderEntries() și buildCarousel() se fac în init(), după ce
+  // waitForVisitorPin() se rezolvă (adică după PIN + 2FA), cu datele
+  // deja încărcate — nu mai randăm aici pe date goale.
+}
+
 
 function openPassword2FAOverlay() {
   document.getElementById('password2faInput').value = '';
