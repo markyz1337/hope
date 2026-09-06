@@ -11452,7 +11452,26 @@ function renderCollectionDetailGrid() {
   const visible = tiktokCurrentDetailClips.slice(0, tiktokDetailVisibleCount);
   grid.innerHTML = visible.map((c, i) => detailCardHtml(c, i)).join('') + detailLoadMoreBtnHtml();
   setupThumbLazyLoad('tiktokCollDetailGrid');
+  observeDetailLoadMore();
 }
+
+function observeDetailLoadMore() {
+  const btn = document.getElementById('tiktokDetailLoadMoreBtn');
+  if (!btn) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        io.disconnect();
+        btn.style.transition = 'transform 0.18s ease, opacity 0.35s ease';
+        btn.style.transform = 'scale(0.94)';
+        btn.style.opacity = '0.6';
+        setTimeout(() => { loadMoreDetailClips(); }, 220);
+      }
+    });
+  }, { root: document.getElementById('tiktokCollectionDetailView'), threshold: 0.3 });
+  io.observe(btn);
+}
+
 
 function loadMoreDetailClips() {
   const grid = document.getElementById('tiktokCollDetailGrid');
@@ -11472,7 +11491,9 @@ function loadMoreDetailClips() {
   }
   // rulează lazy-load doar peste elementele noi (cele deja convertite în <img> nu mai sunt afectate)
   setupThumbLazyLoad('tiktokCollDetailGrid');
+  observeDetailLoadMore();
 }
+
 
 
 
@@ -11639,12 +11660,13 @@ async function openTiktokFeed() {
   tiktokActiveTab = 'feed';
   tiktokUploadPresetCollId = null;
   document.querySelectorAll('.tiktok-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'feed'));
-  document.getElementById('tiktokMuteBtnGlobal').style.display = '';
+document.getElementById('tiktokMuteBtnGlobal').style.display = '';
   document.getElementById('tiktokAutoscrollBtn').style.display = '';
 document.getElementById('tiktokResetWatchedWrap').style.display = '';
-document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'none';
+document.getElementById('tiktokReactionWrap').style.display = 'none';
 
   updateResetBtnPosition();
+
 
 
 
@@ -11657,8 +11679,12 @@ document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'n
   renderClips(clips);
   if (!isLocked) loadClipManagerSizes().then(updateFeedSizeBadges);
   const _dailyMsgShown = maybeShowTiktokDailyMessage();
-  if (!_dailyMsgShown) maybeShowTiktokSwipeHint();
+  if (!_dailyMsgShown) {
+    document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'none';
+    maybeShowTiktokSwipeHint();
+  }
 }
+
 
 
 
@@ -11694,8 +11720,10 @@ function maybeShowTiktokDailyMessage() {
     overlay.remove();
     tiktokDailyMsgBlocking = false;
     if (tiktokCurrentVisibleVideo) playClipVideo(tiktokCurrentVisibleVideo, false);
+    document.getElementById('tiktokReactionWrap').style.display = isLocked ? '' : 'none';
     maybeShowTiktokSwipeHint();
   }
+
 
   overlay.querySelector('#tiktok-daily-msg-close-btn').onclick = dismissDailyMsg;
   overlay.addEventListener('click', e => { if (e.target === overlay) dismissDailyMsg(); });
