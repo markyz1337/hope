@@ -1865,6 +1865,8 @@ body.redirect-active {
 		</style>
 	</head>
 	<body class="locked">
+		<div id="bootCover" style="position:fixed;inset:0;background:#0c0c0f;z-index:2000;"></div>
+
 		<div class="app">
 			<div class="header">
 				<div class="header-brand">
@@ -5902,6 +5904,11 @@ function checkPassword2FA() {
 			  setTimeout(() => { pinBuffer = ''; updatePinDots(); }, 700);
 			}
 
+			function hideBootCover() {
+			  const el = document.getElementById('bootCover');
+			  if (el) el.remove();
+			}
+
 			function setUnlocked(unlocked) {
 			  isLocked = !unlocked;
 			  if (unlocked) {
@@ -7087,15 +7094,20 @@ SETTING_REDIRECT_ENABLED = _settings.redirectEnabled || false;
 
 			  timeLockBypassed = false; // ← asigură-te că e reset
 			  showTimeLockOverlay();
+			  hideBootCover();
 			  return;
 			}
 
 
 			if (SETTING_VISITOR_LOCK) {
 			  openPinOverlay('visitor');
+			  hideBootCover();
 			  // nu facem return -- dar nu încărcăm până la confirmare
 			  await waitForVisitorPin();
+			} else {
+			  hideBootCover();
 			}
+
 
 			await loadDateMusicMap();
 			await loadEntries();
