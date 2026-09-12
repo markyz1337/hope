@@ -12742,7 +12742,8 @@ overlay.style.cssText = 'position:fixed;inset:0;z-index:980;background:#140a10;'
 			// SUPABASE EXPORT
 			// ═══════════════════════════════════════
 
-			const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts'];
+const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'hope_clips', 'hope_clip_collections'];
+
 
 			async function openSupabaseExport() {
 			  closeSettings();
@@ -12836,9 +12837,12 @@ overlay.style.cssText = 'position:fixed;inset:0;z-index:980;background:#140a10;'
 			  try {
 			const { data, error } = await sb.from(tableName).select('*').order(
 			  tableName === 'hope_entries' ? 'posted_at' :
-			  tableName === 'hope_date_music' ? 'date' : 'key',
+			  tableName === 'hope_date_music' ? 'date' :
+			  tableName === 'hope_clips' ? 'posted_at' :
+			  tableName === 'hope_clip_collections' ? 'created_at' : 'key',
 			  { ascending: true }
 			);
+
 			    if (error) throw error;
 			    if (!data || !data.length) { showToast(`${tableName} e gol`); return; }
 			    const csv = rowsToCsv(data);
