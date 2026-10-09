@@ -5864,21 +5864,17 @@ function checkPassword2FA() {
 
 			  if (selectedDate) {
 			    const dk = dateKey(selectedDate);
+			  if (selectedDate) {
+			    const dk = dateKey(selectedDate);
 			    if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-			const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
-			dmAudio.src = resolvedUrl;
-			dmAudioLoaded = true;
-			updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-			dmAudio.volume = 0.28;
-			dmAudio.play().then(() => {
-			  syncDateMusicWaves();
-			}).catch(() => {
-			  pendingDateMusicKey = dk;
-			  pendingDateMusicAutoplay = true;
-			});
-
+			      dmAudio.src = resolveUrl(dateMusicMap[dk].url);
+			      dmAudioLoaded = true;
+			      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
+			      dmAudio.volume = 0.28;
 			    }
+			    startSyncedDateMedia(dk);
 			  }
+
 
 
 
@@ -7153,24 +7149,16 @@ SETTING_REDIRECT_ENABLED = _settings.redirectEnabled || false;
 			  setDefaultDates();
 			  updateCalFabState();
 			if (selectedDate) {
-
 			    const dk = dateKey(selectedDate);
 			    if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-			      const resolvedUrl = resolveUrl(dateMusicMap[dk].url);
-			      dmAudio.src = resolvedUrl;
+			      dmAudio.src = resolveUrl(dateMusicMap[dk].url);
 			      dmAudioLoaded = true;
 			      updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
 			      dmAudio.volume = 0.28;
-			      // Încearcă direct — PIN-ul a fost deja apăsat deci browserul permite
-			      dmAudio.play().then(() => {
-			        syncDateMusicWaves();
-			      }).catch(() => {
-			        // Fallback: la primul touch/click
-			        pendingDateMusicKey = dk;
-			        pendingDateMusicAutoplay = true;
-			      });
 			    }
+			    startSyncedDateMedia(dk);
 			  }
+
 
 
 			  setupNavButtons();
@@ -7905,8 +7893,10 @@ function saveRedirectSettings() {
 
 			  clearSearch(true);
 			  stopEntryMusicCompletely();
-			  playDateMusic(key, true);
+			  playDateMusic(key, false);
 			  renderEntries();
+			  startSyncedDateMedia(key);
+
 			  setDefaultDates();
 			  resetRing('next');
 			  updateCalFabState();
@@ -7927,6 +7917,50 @@ function saveRedirectSettings() {
 			    const w = p.querySelector('.wave-bars');
 			    const s = p.querySelector('.music-sub');
 			    if (ov) ov.innerHTML = playIcon(); if (w) w.classList.add('paused'); if (s) s.textContent = 'apasă pentru redare';
+			  });
+			}
+
+			let syncMediaToken = 0;
+			function startSyncedDateMedia(dk) {
+			  const token = ++syncMediaToken;
+			  const vids = [...document.querySelectorAll('video[data-sync-autoplay]')];
+			  const dm = dateMusicMap[dk];
+			  const hasMusic = !!(dm && dm.url && (!dm.hidden || !isLocked));
+
+			  vids.forEach(v => { v.muted = true; v.pause(); });
+			  if (hasMusic) dmAudio.pause();
+
+			  if (!vids.length) {
+			    if (hasMusic) playDateMusic(dk, true);
+			    return;
+			  }
+
+			  const media = hasMusic ? [dmAudio, ...vids] : vids;
+			  const waitReady = m => new Promise(res => {
+			    if (m.readyState >= 3) return res();
+			    const done = () => { m.removeEventListener('canplay', done); res(); };
+			    m.addEventListener('canplay', done);
+			  });
+
+			  const minDelay = new Promise(r => setTimeout(r, 1500));
+			  const timeout = new Promise(r => setTimeout(r, 3000));
+
+			  Promise.all([
+			    minDelay,
+			    Promise.race([Promise.all(media.map(waitReady)), timeout])
+			  ]).then(() => {
+			    if (token !== syncMediaToken) return;
+			    if (selectedDate && dateKey(selectedDate) !== dk) return;
+
+			    media.forEach(m => { try { if (m.currentTime > 0.05) m.currentTime = 0; } catch(e) {} });
+			    if (hasMusic) dmAudio.volume = 0.28;
+
+			    media.forEach(m => {
+			      m.play().catch(() => {
+			        if (m === dmAudio) { pendingDateMusicKey = dk; pendingDateMusicAutoplay = true; }
+			      });
+			    });
+			    syncDateMusicWaves();
 			  });
 			}
 
@@ -8283,7 +8317,8 @@ function saveRedirectSettings() {
 			      // Video nativ R2/direct
 			if (autoplay) {
 			  videoHtml = `<div style="position:relative;width:100%;border-radius:var(--r2);overflow:hidden;background:#000;border:1px solid var(--border);">
-			    <video class="entry-video" preload="auto" src="${escHtml(url)}" autoplay muted playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate" loop></video>
+    <video class="entry-video" preload="auto" data-sync-autoplay="1" src="${escHtml(url)}" muted playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate" loop></video>
+
 			  </div>`;
 			}
 			 else {
