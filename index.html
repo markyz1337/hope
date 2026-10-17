@@ -7940,8 +7940,8 @@ function saveRedirectSettings() {
 			    m.addEventListener('canplay', done);
 			  });
 
-			  const minDelay = new Promise(r => setTimeout(r, 1500));
-			  const timeout = new Promise(r => setTimeout(r, 3000));
+			  const minDelay = new Promise(r => setTimeout(r, 500));
+			  const timeout = new Promise(r => setTimeout(r, 1500));
 
 			  Promise.all([
 			    minDelay,
