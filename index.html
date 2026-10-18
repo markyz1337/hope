@@ -4112,7 +4112,16 @@ body.redirect-active {
 					</div>
 				</div>
 
-				<button class="btn-primary" onclick="saveDateMusic()">
+<div class="blur-toggle-row">
+	<label class="form-label">ascunde bannerul (muzica cântă oricum)</label>
+	<div class="toggle-track" id="dm-banner-toggle" onclick="toggleDmBanner()">
+		<div class="toggle-bg"></div>
+		<div class="toggle-thumb"></div>
+	</div>
+</div>
+
+<button class="btn-primary" onclick="saveDateMusic()">
+
 					salvează
 				</button>
 				<button
@@ -5497,7 +5506,9 @@ body.redirect-active {
 			let editBlurEnabled = false;
 			let edit18Enabled   = false;
 			let editHiddenEnabled = false;
-			let dmHiddenEnabled = false;
+let dmHiddenEnabled = false;
+let dmBannerHiddenEnabled = false;
+
 			let isLocked = true;
 			let SETTING_TIMELOCK_MUSIC_URL = '';
 			let SETTING_TITLE_RULES = [];
@@ -7778,7 +7789,7 @@ function saveRedirectSettings() {
 			async function loadDateMusicMap() {
 			  try {
 			    const { data, error } = await sb.from('hope_date_music').select('*');
-			if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'', hidden:!!r.hidden }; }); return; }
+			if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'', hidden:!!r.hidden, bannerHidden:!!r.banner_hidden }; }); return; }
 
 			  } catch(e) {}
 			  try { const saved = localStorage.getItem('carnet_date_music'); if (saved) dateMusicMap = JSON.parse(saved); } catch(e) {}
@@ -7791,11 +7802,11 @@ function saveRedirectSettings() {
 			  const cover = document.getElementById('dm-cover').value.trim();
 			  if (!date||!url) { showToast('completează data și link-ul'); return; }
 			  // url și cover pot fi R2:video:publicId sau URL-uri externe
-			  const row = { date, url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled };
+			  const row = { date, url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled, banner_hidden:dmBannerHiddenEnabled };
 
 
 			  try { const { error } = await sb.from('hope_date_music').upsert([row], { onConflict:'date' }); if (error) { showToast('eroare la salvare: '+error.message); return; } } catch(e) { showToast('eroare la salvare'); return; }
-			  dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled };
+			  dateMusicMap[date] = { url, title:title||'melodie', cover:cover||'', hidden:dmHiddenEnabled, bannerHidden:dmBannerHiddenEnabled };
 
 			  document.getElementById('dm-url').value = ''; document.getElementById('dm-title').value = ''; document.getElementById('dm-cover').value = '';
 			  showToast('muzică salvată');
@@ -8151,7 +8162,8 @@ function saveRedirectSettings() {
 			    let html = '';
 			    const dk = selectedDate ? dateKey(selectedDate) : null;
 			    if (dk && dateMusicMap[dk] && (!dateMusicMap[dk].hidden || !isLocked)) html += renderDateMusicBanner(dk);
-			    const hasVisibleContent = filtered.length > 0 || (dk && dateMusicMap[dk] && (!dateMusicMap[dk].hidden || !isLocked));
+const hasVisibleContent = filtered.length > 0 || (dk && dateMusicMap[dk] && (!dateMusicMap[dk].hidden || !isLocked) && (!dateMusicMap[dk].bannerHidden || !isLocked));
+
 			    if (!hasVisibleContent) {
 			      html += `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="empty-text">nimic în această zi</div></div>`;
 			    }
@@ -8192,7 +8204,8 @@ function saveRedirectSettings() {
 
 			function renderDateMusicBanner(dk) {
 			  const dm = dateMusicMap[dk]; if (!dm) return '';
-			  if (dm.hidden && isLocked) return '';
+if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
+
 
 			  const coverHtml = dm.cover
 			    ? `<div class="dm-banner-cover"><img src="${escHtml(resolveUrl(dm.cover))}" alt=""></div>`
@@ -9467,14 +9480,20 @@ if (isLocked && ['note','photo','video','music','pdf','date-music','import','edi
 			    document.getElementById('dm-date').value = dateKey(selectedDate);
 			    document.getElementById('dm-url').value=''; document.getElementById('dm-title').value=''; document.getElementById('dm-cover').value='';
 			    dmHiddenEnabled = false;
-			    document.getElementById('dm-hidden-toggle').classList.remove('on-private');
+document.getElementById('dm-hidden-toggle').classList.remove('on-private');
+dmBannerHiddenEnabled = false;
+document.getElementById('dm-banner-toggle').classList.remove('on-private');
+
 
 			    const dk = dateKey(selectedDate);
 			    if (dateMusicMap[dk]) {
 			      document.getElementById('dm-url').value=dateMusicMap[dk].url||'';
 			      document.getElementById('dm-title').value=dateMusicMap[dk].title||'';
 			      document.getElementById('dm-cover').value=dateMusicMap[dk].cover||'';
-			      dmHiddenEnabled = !!dateMusicMap[dk].hidden;
+dmHiddenEnabled = !!dateMusicMap[dk].hidden;
+dmBannerHiddenEnabled = !!dateMusicMap[dk].bannerHidden;
+document.getElementById('dm-banner-toggle').classList.toggle('on-private', dmBannerHiddenEnabled);
+
 			      document.getElementById('dm-hidden-toggle').classList.toggle('on-private', dmHiddenEnabled);
 			    }
 
@@ -9592,7 +9611,12 @@ function updateFabMainMode() {
 			  t.classList.toggle('on-private', editHiddenEnabled);
 			}
 
-			function toggleDmHidden() {
+function toggleDmBanner() {
+  dmBannerHiddenEnabled = !dmBannerHiddenEnabled;
+  document.getElementById('dm-banner-toggle').classList.toggle('on-private', dmBannerHiddenEnabled);
+}
+
+function toggleDmHidden() {
 			  dmHiddenEnabled = !dmHiddenEnabled;
 			  document.getElementById('dm-hidden-toggle').classList.toggle('on-private', dmHiddenEnabled);
 			}
