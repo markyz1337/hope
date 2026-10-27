@@ -1476,11 +1476,18 @@ body.redirect-active {
 			}
 			.tiktok-tab-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
 
-			.tiktok-collections-view, .tiktok-collection-detail-view {
-			  position: absolute; inset: 0; background: #000; z-index: 2; display: none;
-			  padding: calc(70px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
-			  overflow-y: auto;
-			}
+.tiktok-collections-view, .tiktok-collection-detail-view {
+  position: absolute; inset: 0; background: #000; z-index: 2; display: none;
+  padding: calc(70px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* Edge vechi */
+}
+.tiktok-collections-view::-webkit-scrollbar,
+.tiktok-collection-detail-view::-webkit-scrollbar {
+  display: none;                /* Chrome / Safari */
+}
+
 			.tiktok-collections-view.open, .tiktok-collection-detail-view.open { display: block; }
 			.tiktok-coll-new-btn {
 			  width: 100%; padding: 12px; margin-bottom: 14px; background: rgba(200,169,126,0.12);
@@ -12174,26 +12181,21 @@ function renderCollectionDetailGrid() {
 function observeDetailLoadMore() {
   const btn = document.getElementById('tiktokDetailLoadMoreBtn');
   if (!btn) return;
-  let autoTimer = null;
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        if (autoTimer) return; // deja numărăm
-        autoTimer = setTimeout(() => {
-          io.disconnect();
-          btn.style.transition = 'transform 0.18s ease, opacity 0.35s ease';
-          btn.style.transform = 'scale(0.94)';
-          btn.style.opacity = '0.6';
-          setTimeout(() => { loadMoreDetailClips(); }, 220);
-        }, 1500);
-      } else {
-        // dacă ai scrollat departe de buton înainte să treacă cele 2 secunde, anulăm
-        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+        io.disconnect();
+        loadMoreDetailClips();
       }
     });
-  }, { root: document.getElementById('tiktokCollectionDetailView'), threshold: 0.3 });
+  }, {
+    root: document.getElementById('tiktokCollectionDetailView'),
+    rootMargin: '0px 0px 400px 0px', // se declanșează cu ~400px înainte să ajungi la buton
+    threshold: 0
+  });
   io.observe(btn);
 }
+
 
 
 
