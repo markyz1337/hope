@@ -1187,8 +1187,15 @@ body.redirect-active {
   transition: opacity 0.12s linear;
 }
 .tiktok-poster.hidden { opacity: 0; }
+.tiktok-player {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; background: #000; pointer-events: none;
+  transition: filter 0.35s ease;
+}
+.tiktok-player.tap-paused { filter: brightness(0.5) saturate(0.85); }
 
-.tiktok-video.tap-paused { filter: brightness(0.5) saturate(0.85); }
+
+
 
 .tiktok-pause-overlay {
   position: absolute;
@@ -5537,7 +5544,29 @@ let SETTING_REDIRECT_ENABLED = false;
 
 			const dmAudio = document.getElementById('dateMusicAudio');
 			const entryAudio = document.getElementById('entryAudio');
-			const tiktokAudio = document.getElementById('tiktokClipAudio');
+const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+function makePlayer() {
+  const p = document.createElement('video');
+  p.className = 'tiktok-player';
+  p.playsInline = true;
+  p.setAttribute('playsinline', '');
+  p.setAttribute('webkit-playsinline', '');
+  p.setAttribute('disablePictureInPicture', '');
+  p.preload = 'auto';
+  return p;
+}
+const tkPlayers = [makePlayer(), makePlayer(), makePlayer()];
+let tkCurrent = null;
+// shim: restul codului care apelează tiktokAudio.pause()/paused/muted merge neschimbat
+const tiktokAudio = {
+  get paused() { return !tkCurrent || tkCurrent.paused; },
+  get muted() { return tkPlayers[0].muted; },
+  set muted(m) { tkPlayers.forEach(p => p.muted = m); },
+  currentTime: 0,
+  pause() { if (tkCurrent) tkCurrent.pause(); },
+  play() { return Promise.resolve(); }
+};
+
 
 			let currentEntryAudioUrl = null;
 			let currentMusicTextSpan = null;
@@ -11176,7 +11205,7 @@ function clipSlideHtml(c) {
   const collName = getClipCollectionName(c.collection_id);
 return `<div class="tiktok-slide" data-id="${c.id}">
 
-    <video class="tiktok-video" data-src="${escHtml(url)}" playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
+    <video class="tiktok-video" data-clip-src="${escHtml(url)}" playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
     ${getClipThumbUrl(c) ? `<img class="tiktok-poster" src="${escHtml(getClipThumbUrl(c))}" alt="">` : ''}
 
 
@@ -11315,16 +11344,26 @@ function releaseVideoSrc(v) {
 }
 
 function preloadNeighbors(activeSlide) {
-  const slides = [...document.querySelectorAll('#tiktokFeed .tiktok-slide')];
-  const idx = slides.indexOf(activeSlide);
-  if (idx === -1) return;
-  [idx + 1, idx + 2, idx - 1].forEach(i => {
-    const v = slides[i]?.querySelector('.tiktok-video');
-    if (!v || !v.dataset.src) return;
-    v.preload = 'auto';
-    if (!v.src) v.src = v.dataset.src;
+  const wanted = [];
+  let s = activeSlide.nextElementSibling;
+  for (let i = 0; i < 2 && s; i++, s = s.nextElementSibling) {
+    const nv = s.querySelector('.tiktok-video');
+    if (nv && nv.dataset.clipSrc) wanted.push(nv.dataset.clipSrc);
+  }
+  wanted.forEach(src => {
+    if (tkPlayers.some(x => x._forSrc === src)) return;
+    const p = tkPlayers.find(x => x !== tkCurrent && !wanted.includes(x._forSrc));
+    if (!p) return;
+    p.pause();
+    detachPlayer(p);
+    p._forSrc = src;
+    p.preload = 'auto';
+    p.src = src;
+    p.load();
   });
+
 }
+
 
 
 function releaseDistantVideos(activeSlide) {
@@ -11435,37 +11474,116 @@ function waitMediaReady(m, ms) {
   });
 }
 
+function detachPlayer(p) {
+  p.ontimeupdate = p.onplaying = p.onended = null;
+  const oldSlide = p.parentNode;
+  if (!oldSlide) return;
+  p.remove();
+  const poster = oldSlide.querySelector('.tiktok-poster');
+  if (poster) poster.classList.remove('hidden');
+}
+
+
+function acquirePlayer(v) {
+  const src = v.dataset.clipSrc;
+  let p = tkPlayers.find(x => x._forSrc === src);
+  if (!p) {
+    p = tkPlayers.find(x => x !== tkCurrent) || tkPlayers[0];
+    p.pause();
+    detachPlayer(p);
+    p._forSrc = src;
+    p.src = src;
+    p.load();
+    const poster = v.closest('.tiktok-slide')?.querySelector('.tiktok-poster');
+    if (poster) poster.classList.remove('hidden');
+  }
+  return p;
+}
+
+
+function bindPlayerToSlide(p, v) {
+  const slide = v.closest('.tiktok-slide');
+  const poster = slide.querySelector('.tiktok-poster');
+  const fill = slide.querySelector('.tiktok-progress-fill');
+  p.ontimeupdate = () => {
+    if (p.duration && fill) fill.style.width = (p.currentTime / p.duration * 100) + '%';
+  };
+  p.onplaying = () => {
+    if (!poster) return;
+    const hide = () => poster.classList.add('hidden');
+    if ('requestVideoFrameCallback' in p) p.requestVideoFrameCallback(hide);
+    else setTimeout(hide, 80);
+  };
+  p.onended = () => handleClipEnded(v);
+}
+
+function handleClipEnded(v) {
+  if (tiktokIsMainFeed) {
+    const id = v.closest('.tiktok-slide')?.dataset?.id;
+    if (id) markClipWatched(id);
+  }
+  if (tiktokReactionPickerOpen) {
+    tiktokReactionVideoEndedWhilePicking = true;
+    playClipVideo(v, true);
+    return;
+  }
+  if (tiktokAutoscroll) scrollToNextTiktokSlide(v);
+  else playClipVideo(v, true);
+}
+
+
+function resumeClipVideo(v) {
+  const p = v._player;
+  if (!p || p._forSrc !== v.dataset.clipSrc || tkCurrent !== p) return false;
+  v._pt = (v._pt || 0) + 1;
+  p.classList.remove('tap-paused');
+  p.play().catch(() => {});
+  return true;
+}
+
+
 function playClipVideo(v, resetTime) {
   if (tiktokDailyMsgBlocking) return;
+  const slide = v.closest('.tiktok-slide');
+  if (!slide) return;
+  const pauseOv = slide.querySelector('.tiktok-pause-overlay');
+  if (pauseOv) pauseOv.classList.remove('show');
+
   v._pt = (v._pt || 0) + 1;
   const myToken = v._pt;
-  if (resetTime) { try { v.currentTime = 0; } catch(e) {} }
-  const src = v.currentSrc || v.src;
 
-  v.pause();
-  tiktokAudio.pause();
-  if (tiktokAudioActiveVideo !== v || tiktokAudio.src !== src) {
-    tiktokAudioActiveVideo = v;
-    tiktokAudio.src = src;
+  if (tkCurrent && tkCurrent !== v._player) tkCurrent.pause();
+  const p = acquirePlayer(v);
+  const alreadyHere = (p.parentNode === slide);
+  v._player = p;
+  tkCurrent = p;
+  tiktokAudioActiveVideo = v;
+
+  if (!alreadyHere) {
+    slide.querySelectorAll('.tiktok-player').forEach(x => { if (x !== p) detachPlayer(x); });
+    const poster = slide.querySelector('.tiktok-poster');
+    if (poster) poster.classList.remove('hidden');
+    slide.insertBefore(p, v.nextSibling);
   }
+  p.classList.remove('tap-paused');
 
-  Promise.all([waitMediaReady(v, 550), waitMediaReady(tiktokAudio, 550)]).then(() => {
-    if (v._pt !== myToken) return;
-    if (tiktokAudioActiveVideo !== v) return;
-    if (tiktokDailyMsgBlocking) return;
-    if (!v.isConnected || !v.getClientRects().length) return;
-    try { tiktokAudio.currentTime = v.currentTime; } catch(e) {}
-    tiktokAudio.muted = tiktokGloballyMuted;
-    v.play().catch(() => {});
-    tiktokAudio.play().catch(() => {});
+  p.muted = tiktokGloballyMuted;
+  if (resetTime && !alreadyHere) { try { p.currentTime = 0; } catch(e) {} }
+  bindPlayerToSlide(p, v);
+
+
+  waitMediaReady(p, 800).then(() => {
+    if (v._pt !== myToken || tkCurrent !== p || tiktokDailyMsgBlocking) return;
+    p.play().catch(() => {});
   });
 }
 
 function pauseClipVideo(v) {
   v._pt = (v._pt || 0) + 1;
-  v.pause();
-  if (tiktokAudioActiveVideo === v) tiktokAudio.pause();
+  const p = v._player;
+  if (p && p._forSrc === v.dataset.clipSrc) p.pause();
 }
+
 
 function bindAudioToVideo(v) {
   if (v._audioBound) return;
@@ -11517,9 +11635,12 @@ function setupTiktokObserver(sourceClips) {
         updateReactionBtnDisplay();
         if (v.dataset.src && !v.src) v.src = v.dataset.src; // fallback, dacă preload n-a apucat
 
-        if (v.paused) {
+        if (!v._player || v._player.paused) {
+          if (v._player && v._player.parentNode === slide) { try { v._player.currentTime = 0; } catch(e) {} }
           playClipVideo(v, true);
         }
+
+
 
 
 
@@ -11537,12 +11658,20 @@ function setupTiktokObserver(sourceClips) {
 
 
       } else {
-        if (!v.paused) pauseClipVideo(v);
-        if (tiktokIsMainFeed && v.currentTime > 0) {
+        pauseClipVideo(v);
+        const pl = v._player;
+
+        // curăță starea vizuală de "pauză prin tap"
+        if (pl) pl.classList.remove('tap-paused');
+        const ov = slide?.querySelector('.tiktok-pause-overlay');
+        if (ov) ov.classList.remove('show');
+
+        if (tiktokIsMainFeed && pl && pl._forSrc === v.dataset.clipSrc && pl.currentTime > 0) {
           const id = slide?.dataset?.id;
           if (id) markClipWatched(id);
         }
       }
+
 
     });
   }, { threshold: 0.6 });
@@ -12211,19 +12340,20 @@ function setupTiktokTapToggle() {
     const v = slide.querySelector('.tiktok-video');
     if (!v) return;
     const pauseOv = slide.querySelector('.tiktok-pause-overlay');
-    if (v.paused) {
-      playClipVideo(v, false);
-      v.classList.remove('tap-paused');
+    const pl = (v._player && v._player._forSrc === v.dataset.clipSrc) ? v._player : null;
+    if (!pl || pl.paused) {
+      if (!resumeClipVideo(v)) playClipVideo(v, false);
       if (pauseOv) pauseOv.classList.remove('show');
     } else {
       pauseClipVideo(v);
-      v.classList.add('tap-paused');
+      pl.classList.add('tap-paused');
       if (pauseOv) {
         pauseOv.classList.remove('show');
-        void pauseOv.offsetWidth; // reset animația dacă apeși repede
+        void pauseOv.offsetWidth;
         pauseOv.classList.add('show');
       }
     }
+
   });
 }
 
@@ -12242,9 +12372,13 @@ async function openTiktokFeed() {
   if (!entryAudio.paused) { entryAudio.pause(); }
   stopEntryMusicCompletely();
   // deblochează elementul audio global pentru clipuri, folosind gestul curent (tap)
-  tiktokAudio.muted = false;
+  tkPlayers.forEach(p => {
+    p.muted = false;
+    p._forSrc = null;
+    p.src = SILENT_WAV;
+    p.play().then(() => p.pause()).catch(() => {});
+  });
 
-  tiktokAudio.play().then(() => tiktokAudio.pause()).catch(() => {});
   document.getElementById('tiktokOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   enterTiktokBlackout();
@@ -12347,9 +12481,11 @@ function closeTiktokFeed() {
   document.body.style.overflow = '';
   document.querySelectorAll('.tiktok-video').forEach(v => v.pause());
 
-  tiktokAudio.pause();
+  tkPlayers.forEach(p => { p.pause(); p._forSrc = null; p.removeAttribute('src'); p.load(); });
+  tkCurrent = null;
   tiktokAudioActiveVideo = null;
   if (tiktokIO) { tiktokIO.disconnect(); tiktokIO = null; }
+
   if (tiktokPreloadIO) { tiktokPreloadIO.disconnect(); tiktokPreloadIO = null; }
 }
 
