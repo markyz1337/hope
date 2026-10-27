@@ -10072,7 +10072,8 @@ function toggleDmHidden() {
 
 
 			function renderR2Gallery(files) {
-			  files = files.filter(f => !f.key.endsWith('/'));
+files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/'));
+
 			  if (!files.length) {
 			    document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">niciun fișier în R2</div></div>';
 			    return;
@@ -10235,7 +10236,7 @@ function toggleDmHidden() {
   const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
 
 			  const { files } = await res.json();
-			  const orphanKeys = files.filter(f => !f.key.endsWith('/') && !usedKeys.has(f.key)).map(f => f.key);
+const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !usedKeys.has(f.key)).map(f => f.key);
 			  if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
 			  if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
 			  try {
@@ -11567,14 +11568,156 @@ document.getElementById('tiktokReactionWrap').style.display = (tab === 'feed' &&
 
 
 
-function renderThumbEl(clip) {
-  if (!clip) return '';
+function thumbKeyFromUrl(url) {
+  if (!url || !url.startsWith('r2:')) return null;
+  const base = url.slice(3).split('/').pop().replace(/\.[^.]+$/, '');
+  return 'thumbs/' + base + '.jpg';
+}
+
+function getClipThumbKey(clip) {
+  return clip ? thumbKeyFromUrl(clip.url) : null;
+}
+
+function getClipThumbUrl(clip) {
+  const k = getClipThumbKey(clip);
+  return k ? `${R2_PUBLIC_URL}/${k}` : null;
+}
+
+function renderThumbFallbackHtml(clip) {
   const cached = thumbFrameCache[clip.id];
   if (cached) {
     return `<img src="${cached}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">`;
   }
   return `<div class="thumb-skeleton"></div><video data-src="${escHtml(resolveUrl(clip.url))}" data-clip-id="${clip.id}" muted playsinline preload="metadata" onloadedmetadata="this.currentTime=0.15" onseeked="captureClipThumb(this)" style="opacity:0;"></video>`;
 }
+
+function renderThumbEl(clip) {
+  if (!clip) return '';
+  const tUrl = getClipThumbUrl(clip);
+  if (tUrl) {
+    return `<img src="${escHtml(tUrl)}" data-clip-id="${clip.id}" loading="lazy" onerror="thumbImgFallback(this)" style="width:100%;height:100%;object-fit:cover;display:block;">`;
+  }
+  return renderThumbFallbackHtml(clip);
+}
+
+function thumbImgFallback(img) {
+  img.onerror = null;
+  const clip = clips.find(c => String(c.id) === String(img.dataset.clipId));
+  if (!clip) return;
+  const parent = img.parentNode;
+  img.insertAdjacentHTML('afterend', renderThumbFallbackHtml(clip));
+  const v = parent.querySelector('video[data-clip-id="' + clip.id + '"]');
+  if (v && v.dataset.src && !v.src) v.src = v.dataset.src;
+  img.remove();
+}
+
+function captureVideoFrameBlob(url) {
+  return new Promise((resolve, reject) => {
+    const v = document.createElement('video');
+    v.crossOrigin = 'anonymous';
+    v.muted = true;
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.preload = 'auto';
+    let finished = false;
+    const timer = setTimeout(() => finish(new Error('timeout')), 25000);
+    function finish(err, blob) {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      try { v.removeAttribute('src'); v.load(); } catch(e) {}
+      if (err) reject(err); else resolve(blob);
+    }
+    v.addEventListener('error', () => finish(new Error('video error (CORS sau fisier)')), { once: true });
+    v.addEventListener('loadedmetadata', () => {
+      const t = Math.min(0.5, (v.duration || 1) / 2);
+      v.currentTime = t;
+    }, { once: true });
+    v.addEventListener('seeked', () => {
+      try {
+        const w0 = v.videoWidth, h0 = v.videoHeight;
+        if (!w0 || !h0) { finish(new Error('fara cadru')); return; }
+        const MAX = 480;
+        const scale = Math.min(1, MAX / Math.max(w0, h0));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w0 * scale);
+        canvas.height = Math.round(h0 * scale);
+        canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(b => {
+          if (b) finish(null, b); else finish(new Error('toBlob esuat'));
+        }, 'image/jpeg', 0.75);
+      } catch(e) {
+        finish(e);
+      }
+    }, { once: true });
+    v.src = url;
+  });
+}
+
+async function uploadThumbBlob(blob, key) {
+  const fd = new FormData();
+  fd.append('file', new File([blob], key.split('/').pop(), { type: 'image/jpeg' }));
+  fd.append('public_id', key);
+  const res = await fetch(R2_WORKER_URL, {
+    method: 'POST',
+    headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET },
+    body: fd,
+  });
+  if (!res.ok) throw new Error('Upload thumbnail esuat');
+}
+
+async function generateAllClipThumbs(btn) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'se verifica...';
+  const existing = new Set();
+  try {
+    const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+    const { files } = await res.json();
+    files.forEach(f => existing.add(f.key));
+  } catch(e) {
+    showToast('eroare la citirea R2');
+    btn.disabled = false; btn.textContent = orig;
+    return;
+  }
+  const todo = clips.filter(c => {
+    const k = getClipThumbKey(c);
+    return k && !existing.has(k);
+  });
+  if (!todo.length) {
+    showToast('toate thumbnailurile exista deja');
+    btn.disabled = false; btn.textContent = orig;
+    return;
+  }
+  let done = 0, fail = 0, idx = 0, firstErr = '';
+  async function worker() {
+    while (idx < todo.length) {
+      const c = todo[idx++];
+      try {
+        const blob = await captureVideoFrameBlob(resolveUrl(c.url));
+        await uploadThumbBlob(blob, getClipThumbKey(c));
+      } catch(e) {
+        fail++;
+        if (!firstErr) firstErr = (e && e.message) ? e.message : String(e);
+      }
+      done++;
+      btn.textContent = done + '/' + todo.length + '...';
+    }
+  }
+  await Promise.all([worker(), worker()]);
+  btn.disabled = false;
+  btn.textContent = orig;
+  if (fail) {
+    console.warn('Thumbnail esuat:', firstErr);
+    showToast((todo.length - fail) + ' ok, ' + fail + ' esuate: ' + firstErr);
+  } else {
+    showToast(todo.length + ' thumbnailuri generate');
+  }
+  renderCollectionsGrid();
+  if (document.getElementById('clip-manager-overlay')) renderClipManagerList();
+}
+
 
 
 function captureClipThumb(video) {
@@ -12149,7 +12292,21 @@ async function uploadClipToR2(files) {
     status.textContent = `se încarcă ${i+1}/${files.length}...`;
     try {
       const result = await uploadToR2(files[i], 'video');
-      clipUploadedUrls.push(`r2:${result.publicId}`);
+      const stored = `r2:${result.publicId}`;
+      clipUploadedUrls.push(stored);
+      const tKey = thumbKeyFromUrl(stored);
+      if (tKey) {
+        status.textContent = `thumbnail ${i+1}/${files.length}...`;
+        const localUrl = URL.createObjectURL(files[i]);
+        try {
+          const blob = await captureVideoFrameBlob(localUrl);
+          await uploadThumbBlob(blob, tKey);
+        } catch(e) {
+          console.warn('thumbnail esuat', e);
+        } finally {
+          URL.revokeObjectURL(localUrl);
+        }
+      }
     } catch(e) {
       status.textContent = `eroare la fișierul ${i+1}`;
       return;
@@ -12157,6 +12314,7 @@ async function uploadClipToR2(files) {
   }
   status.textContent = `✓ ${clipUploadedUrls.length} clip(uri) încărcate`;
 }
+
 
 
 function populateClipCollectionSelect() {
@@ -12199,11 +12357,14 @@ async function deleteClip(id) {
   if (!confirm('Ștergi acest clip definitiv?')) return;
   const clip = clips.find(c => String(c.id) === String(id));
   if (clip && clip.url && clip.url.startsWith('r2:')) {
+    const keys = [clip.url.slice(3)];
+    const tKey = thumbKeyFromUrl(clip.url);
+    if (tKey) keys.push(tKey);
     try {
       await fetch(R2_WORKER_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-        body: JSON.stringify({ keys: [clip.url.slice(3)] }),
+        body: JSON.stringify({ keys }),
       });
     } catch(e) {}
   }
@@ -12213,6 +12374,7 @@ async function deleteClip(id) {
   await loadClips();
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
+
 
 function editClipCaption(clipId) {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
@@ -12395,6 +12557,7 @@ async function openClipManager() {
         <button data-sort="dur_desc" class="cm-sort-btn">durată ↓</button>
         <button data-sort="dur_asc" class="cm-sort-btn">durată ↑</button>
       </div>
+<button onclick="generateAllClipThumbs(this)" style="width:100%;padding:10px;margin-bottom:8px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.3);border-radius:12px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;flex-shrink:0;">genereaza thumbnailuri pe R2</button>
       <button onclick="deleteAllClipReactions()" style="width:100%;padding:10px;margin-bottom:12px;background:rgba(200,80,80,0.08);border:1px solid rgba(200,80,80,0.25);border-radius:12px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;flex-shrink:0;">🗑️ șterge toate reacțiile</button>
       <div id="clip-manager-summary" style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.06em;margin-bottom:10px;flex-shrink:0;">se încarcă...</div>
 
@@ -12598,11 +12761,14 @@ async function deleteClipFromManager(clipId) {
   if (!confirm('Ștergi acest clip definitiv?')) return;
   const clip = clips.find(c => String(c.id) === String(clipId));
   if (clip && clip.url && clip.url.startsWith('r2:')) {
+    const keys = [clip.url.slice(3)];
+    const tKey = thumbKeyFromUrl(clip.url);
+    if (tKey) keys.push(tKey);
     try {
       await fetch(R2_WORKER_URL, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-        body: JSON.stringify({ keys: [clip.url.slice(3)] }),
+        body: JSON.stringify({ keys }),
       });
     } catch(e) {}
   }
@@ -12616,6 +12782,7 @@ async function deleteClipFromManager(clipId) {
   renderCollectionsGrid();
   if (tiktokActiveTab === 'feed') renderClips(clips);
 }
+
 
 function showAccessChoiceModal() {
   const existing = document.getElementById('access-choice-overlay');
