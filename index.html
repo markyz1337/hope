@@ -1181,6 +1181,13 @@ body.redirect-active {
 
 .tiktok-video::-webkit-media-controls { display: none !important; }
 .tiktok-video { transition: filter 0.35s ease; }
+.tiktok-poster {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; background: #000; pointer-events: none;
+  transition: opacity 0.12s linear;
+}
+.tiktok-poster.hidden { opacity: 0; }
+
 .tiktok-video.tap-paused { filter: brightness(0.5) saturate(0.85); }
 
 .tiktok-pause-overlay {
@@ -11170,6 +11177,9 @@ function clipSlideHtml(c) {
 return `<div class="tiktok-slide" data-id="${c.id}">
 
     <video class="tiktok-video" data-src="${escHtml(url)}" playsinline webkit-playsinline x-webkit-airplay="allow" disablePictureInPicture controlslist="nodownload noplaybackrate nofullscreen" muted preload="none"></video>
+    ${getClipThumbUrl(c) ? `<img class="tiktok-poster" src="${escHtml(getClipThumbUrl(c))}" alt="">` : ''}
+
+
     <div class="tiktok-pause-overlay">
       <div class="tiktok-pause-icon">
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -11299,14 +11309,32 @@ function releaseVideoSrc(v) {
   try { v.pause(); } catch(e) {}
   v.removeAttribute('src');
   v.load(); // forțează eliberarea bufferului pe iOS/Safari
+  const p = v.closest('.tiktok-slide')?.querySelector('.tiktok-poster');
+  if (p) p.classList.remove('hidden');
+
 }
+
+function preloadNeighbors(activeSlide) {
+  const slides = [...document.querySelectorAll('#tiktokFeed .tiktok-slide')];
+  const idx = slides.indexOf(activeSlide);
+  if (idx === -1) return;
+  [idx + 1, idx + 2, idx - 1].forEach(i => {
+    const v = slides[i]?.querySelector('.tiktok-video');
+    if (!v || !v.dataset.src) return;
+    v.preload = 'auto';
+    if (!v.src) v.src = v.dataset.src;
+  });
+}
+
 
 function releaseDistantVideos(activeSlide) {
   const allSlides = [...document.querySelectorAll('#tiktokFeed .tiktok-slide')];
   const idx = allSlides.indexOf(activeSlide);
   if (idx === -1) return;
   allSlides.forEach((s, i) => {
-    if (Math.abs(i - idx) <= 1) return; // păstrăm activul + vecinii direcți
+    const d = i - idx;
+    if (d >= -1 && d <= 2) return; // păstrăm precedentul, activul și următoarele 2
+
     const v = s.querySelector('.tiktok-video');
     if (v) releaseVideoSrc(v);
   });
@@ -11374,7 +11402,16 @@ function bindProgressToVideo(v) {
   if (v._progressBound) return;
   v._progressBound = true;
   const slide = v.closest('.tiktok-slide');
+  const poster = slide ? slide.querySelector('.tiktok-poster') : null;
+  if (poster) {
+    const hidePoster = () => poster.classList.add('hidden');
+    v.addEventListener('playing', () => {
+      if ('requestVideoFrameCallback' in v) v.requestVideoFrameCallback(hidePoster);
+      else setTimeout(hidePoster, 80);
+    });
+  }
   const fill = slide ? slide.querySelector('.tiktok-progress-fill') : null;
+
   if (!fill) return;
 v.addEventListener('timeupdate', () => {
     if (v.duration) fill.style.width = `${(v.currentTime / v.duration) * 100}%`;
@@ -11384,33 +11421,58 @@ v.addEventListener('timeupdate', () => {
 }
 
 
+function waitMediaReady(m, ms) {
+  return new Promise(res => {
+    if (m.readyState >= 3) { res(); return; }
+    let t = null;
+    const done = () => {
+      m.removeEventListener('canplay', done);
+      clearTimeout(t);
+      res();
+    };
+    m.addEventListener('canplay', done);
+    t = setTimeout(done, ms);
+  });
+}
+
 function playClipVideo(v, resetTime) {
   if (tiktokDailyMsgBlocking) return;
-  if (resetTime) v.currentTime = 0;
+  v._pt = (v._pt || 0) + 1;
+  const myToken = v._pt;
+  if (resetTime) { try { v.currentTime = 0; } catch(e) {} }
   const src = v.currentSrc || v.src;
 
+  v.pause();
+  tiktokAudio.pause();
   if (tiktokAudioActiveVideo !== v || tiktokAudio.src !== src) {
     tiktokAudioActiveVideo = v;
     tiktokAudio.src = src;
   }
-  tiktokAudio.currentTime = v.currentTime;
-  tiktokAudio.muted = tiktokGloballyMuted;
-  Promise.all([v.play().catch(()=>{}), tiktokAudio.play().catch(()=>{})]);
+
+  Promise.all([waitMediaReady(v, 550), waitMediaReady(tiktokAudio, 550)]).then(() => {
+    if (v._pt !== myToken) return;
+    if (tiktokAudioActiveVideo !== v) return;
+    if (tiktokDailyMsgBlocking) return;
+    if (!v.isConnected || !v.getClientRects().length) return;
+    try { tiktokAudio.currentTime = v.currentTime; } catch(e) {}
+    tiktokAudio.muted = tiktokGloballyMuted;
+    v.play().catch(() => {});
+    tiktokAudio.play().catch(() => {});
+  });
 }
 
 function pauseClipVideo(v) {
+  v._pt = (v._pt || 0) + 1;
   v.pause();
   if (tiktokAudioActiveVideo === v) tiktokAudio.pause();
 }
 
-
-
 function bindAudioToVideo(v) {
   if (v._audioBound) return;
   v._audioBound = true;
-  // sincronizarea audio/video se face acum explicit prin playClipVideo/pauseClipVideo,
-  // nu mai reacționăm la evenimentele native play/pause (asta introducea întârzierea)
+  // sincronizarea se face doar la pornire, in playClipVideo
 }
+
 
 
 
@@ -11464,10 +11526,15 @@ function setupTiktokObserver(sourceClips) {
         // eliberează video-urile îndepărtate ca să nu depășim limita de decodoare a browserului
         releaseDistantVideos(slide);
 
-        if (slide === feed_lastSlide()) {
+        // adaugă slide-uri noi din timp, ca să existe mereu 2-3 clipuri după cel activ
+        const allSl = [...document.querySelectorAll('#tiktokFeed .tiktok-slide')];
+        if (allSl.indexOf(slide) >= allSl.length - 3) {
           if (tiktokFeedScope !== 'fixed') extendFeedOrderIfNeeded(sourceClips);
           appendMoreFeedSlides(sourceClips);
         }
+
+        preloadNeighbors(slide);
+
 
       } else {
         if (!v.paused) pauseClipVideo(v);
@@ -11618,22 +11685,17 @@ function captureVideoFrameBlob(url) {
     v.muted = true;
     v.playsInline = true;
     v.setAttribute('playsinline', '');
-    v.preload = 'auto';
+    v.preload = 'metadata';
     let finished = false;
-    const timer = setTimeout(() => finish(new Error('timeout')), 25000);
+    const timer = setTimeout(() => finish(new Error('timeout (fisier prea mare sau lent)')), 20000);
     function finish(err, blob) {
       if (finished) return;
       finished = true;
       clearTimeout(timer);
-      try { v.removeAttribute('src'); v.load(); } catch(e) {}
+      try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e) {}
       if (err) reject(err); else resolve(blob);
     }
-    v.addEventListener('error', () => finish(new Error('video error (CORS sau fisier)')), { once: true });
-    v.addEventListener('loadedmetadata', () => {
-      const t = Math.min(0.5, (v.duration || 1) / 2);
-      v.currentTime = t;
-    }, { once: true });
-    v.addEventListener('seeked', () => {
+    function draw() {
       try {
         const w0 = v.videoWidth, h0 = v.videoHeight;
         if (!w0 || !h0) { finish(new Error('fara cadru')); return; }
@@ -11649,10 +11711,22 @@ function captureVideoFrameBlob(url) {
       } catch(e) {
         finish(e);
       }
+    }
+    v.addEventListener('error', () => finish(new Error('video error (CORS sau fisier)')), { once: true });
+    v.addEventListener('loadedmetadata', () => {
+      v.currentTime = 0.1;
+    }, { once: true });
+    v.addEventListener('seeked', () => {
+      if (v.readyState >= 2) {
+        draw();
+      } else {
+        v.addEventListener('loadeddata', draw, { once: true });
+      }
     }, { once: true });
     v.src = url;
   });
 }
+
 
 async function uploadThumbBlob(blob, key) {
   const fd = new FormData();
@@ -11690,33 +11764,32 @@ async function generateAllClipThumbs(btn) {
     btn.disabled = false; btn.textContent = orig;
     return;
   }
-  let done = 0, fail = 0, idx = 0, firstErr = '';
-  async function worker() {
-    while (idx < todo.length) {
-      const c = todo[idx++];
-      try {
-        const blob = await captureVideoFrameBlob(resolveUrl(c.url));
-        await uploadThumbBlob(blob, getClipThumbKey(c));
-      } catch(e) {
-        fail++;
-        if (!firstErr) firstErr = (e && e.message) ? e.message : String(e);
-      }
-      done++;
-      btn.textContent = done + '/' + todo.length + '...';
+  let ok = 0, fail = 0, firstErr = '';
+  for (let i = 0; i < todo.length; i++) {
+    const c = todo[i];
+    btn.textContent = (i + 1) + '/' + todo.length + ' (ok ' + ok + ', esuate ' + fail + ')';
+    try {
+      const blob = await captureVideoFrameBlob(resolveUrl(c.url));
+      await uploadThumbBlob(blob, getClipThumbKey(c));
+      ok++;
+    } catch(e) {
+      fail++;
+      if (!firstErr) firstErr = (e && e.message) ? e.message : String(e);
     }
+    await new Promise(r => setTimeout(r, 30));
   }
-  await Promise.all([worker(), worker()]);
   btn.disabled = false;
   btn.textContent = orig;
   if (fail) {
     console.warn('Thumbnail esuat:', firstErr);
-    showToast((todo.length - fail) + ' ok, ' + fail + ' esuate: ' + firstErr);
+    showToast(ok + ' ok, ' + fail + ' esuate: ' + firstErr);
   } else {
-    showToast(todo.length + ' thumbnailuri generate');
+    showToast(ok + ' thumbnailuri generate');
   }
   renderCollectionsGrid();
   if (document.getElementById('clip-manager-overlay')) renderClipManagerList();
 }
+
 
 
 
