@@ -9400,6 +9400,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			  }
 			}
 
+
 			function removeEditPhotoPreview(btn, url) {
 			  btn.closest('div').remove();
 			  const field = document.getElementById('edit-content');
@@ -10115,7 +10116,8 @@ function toggleDmHidden() {
 
 
 			function renderR2Gallery(files) {
-files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/'));
+files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/'));
+
 
 			  if (!files.length) {
 			    document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">niciun fișier în R2</div></div>';
@@ -10279,7 +10281,8 @@ files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/'));
   const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
 
 			  const { files } = await res.json();
-const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !usedKeys.has(f.key)).map(f => f.key);
+const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !usedKeys.has(f.key)).map(f => f.key);
+
 			  if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
 			  if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
 			  try {
@@ -11814,17 +11817,6 @@ function thumbImgFallback(img) {
   img.remove();
 }
 
-function frameBrightness(canvas) {
-  const s = document.createElement('canvas');
-  s.width = 16; s.height = 16;
-  const c = s.getContext('2d');
-  c.drawImage(canvas, 0, 0, 16, 16);
-  const d = c.getImageData(0, 0, 16, 16).data;
-  let sum = 0;
-  for (let i = 0; i < d.length; i += 4) sum += d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
-  return sum / 256;
-}
-
 function captureVideoFrameBlob(url) {
   return new Promise((resolve, reject) => {
     const v = document.createElement('video');
@@ -11832,10 +11824,9 @@ function captureVideoFrameBlob(url) {
     v.muted = true;
     v.playsInline = true;
     v.setAttribute('playsinline', '');
-v.preload = 'metadata';
+    v.preload = 'metadata';
     let finished = false;
-const timer = setTimeout(() => finish(new Error('timeout (fisier prea mare sau lent)')), 90000);
-
+    const timer = setTimeout(() => finish(new Error('timeout (fisier prea mare sau lent)')), 20000);
     function finish(err, blob) {
       if (finished) return;
       finished = true;
@@ -11843,61 +11834,37 @@ const timer = setTimeout(() => finish(new Error('timeout (fisier prea mare sau l
       try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e) {}
       if (err) reject(err); else resolve(blob);
     }
-
-    const seekTo = t => new Promise(res => {
-      const h = () => { v.removeEventListener('seeked', h); res(); };
-      v.addEventListener('seeked', h);
-      v.currentTime = t;
-    });
-
-    // pornește scurt redarea ca să fie sigur decodat un cadru real (iOS)
-const settle = async () => {
-  try { await Promise.race([v.play(), new Promise(r => setTimeout(r, 1500))]); } catch(e) {}
-  await new Promise(r => {
-    if ('requestVideoFrameCallback' in v) {
-      v.requestVideoFrameCallback(() => r());
-      setTimeout(r, 300);
-    } else setTimeout(r, 150);
-  });
-  v.pause();
-};
-
-    async function run() {
+    function draw() {
       try {
         const w0 = v.videoWidth, h0 = v.videoHeight;
         if (!w0 || !h0) { finish(new Error('fara cadru')); return; }
-        const dur = isFinite(v.duration) ? v.duration : 1;
-const times = [0.1, 0.5, 1]
-          .map(t => Math.min(Math.max(t, 0.05), Math.max(dur - 0.1, 0.05)));
         const MAX = 480;
         const scale = Math.min(1, MAX / Math.max(w0, h0));
-        let best = null, bestB = -1;
-
-        for (const t of times) {
-          await seekTo(t);
-          await settle();
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(w0 * scale);
-          canvas.height = Math.round(h0 * scale);
-          canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
-          const b = frameBrightness(canvas);
-          if (b > bestB) { bestB = b; best = canvas; }
-          if (b >= 12) break; // cadru suficient de luminos
-        }
-        best.toBlob(b => {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w0 * scale);
+        canvas.height = Math.round(h0 * scale);
+        canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(b => {
           if (b) finish(null, b); else finish(new Error('toBlob esuat'));
         }, 'image/jpeg', 0.75);
       } catch(e) {
         finish(e);
       }
     }
-
     v.addEventListener('error', () => finish(new Error('video error (CORS sau fisier)')), { once: true });
-    v.addEventListener('loadedmetadata', run, { once: true });
+    v.addEventListener('loadedmetadata', () => {
+      v.currentTime = 0.1;
+    }, { once: true });
+    v.addEventListener('seeked', () => {
+      if (v.readyState >= 2) {
+        draw();
+      } else {
+        v.addEventListener('loadeddata', draw, { once: true });
+      }
+    }, { once: true });
     v.src = url;
   });
 }
-
 
 
 async function uploadThumbBlob(blob, key) {
@@ -11912,25 +11879,7 @@ async function uploadThumbBlob(blob, key) {
   if (!res.ok) throw new Error('Upload thumbnail esuat');
 }
 
-function isThumbBlack(key) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      try {
-        const c = document.createElement('canvas');
-        c.width = img.naturalWidth; c.height = img.naturalHeight;
-        c.getContext('2d').drawImage(img, 0, 0);
-        resolve(frameBrightness(c) < 6);
-      } catch(e) { resolve(false); } // canvas tainted (CORS), nu putem verifica
-    };
-    img.onerror = () => resolve(true); // fisier stricat = il refacem
-    img.src = `${R2_PUBLIC_URL}/${key}?t=${Date.now()}`;
-  });
-}
-
-
-async function generateAllClipThumbs(btn) {
+async function generateAllClipThumbs(btn, force) {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
   const orig = btn.textContent;
   btn.disabled = true;
@@ -11945,14 +11894,10 @@ async function generateAllClipThumbs(btn) {
     btn.disabled = false; btn.textContent = orig;
     return;
   }
-  const todo = [];
-  for (let i = 0; i < clips.length; i++) {
-    const c = clips[i];
+  const todo = clips.filter(c => {
     const k = getClipThumbKey(c);
-    if (!k) continue;
-    btn.textContent = 'verific ' + (i + 1) + '/' + clips.length + '...';
-    if (!existing.has(k) || await isThumbBlack(k)) todo.push(c);
-  }
+    return k && (force || !existing.has(k));
+  });
 
   if (!todo.length) {
     showToast('toate thumbnailurile exista deja');
@@ -12553,6 +12498,7 @@ function closeTiktokFeed() {
 
 
 
+
 async function uploadClipToR2(files) {
   if (!files || !files.length) return;
   const status = document.getElementById('clip-upload-status');
@@ -12563,20 +12509,6 @@ async function uploadClipToR2(files) {
       const result = await uploadToR2(files[i], 'video');
       const stored = `r2:${result.publicId}`;
       clipUploadedUrls.push(stored);
-      const tKey = thumbKeyFromUrl(stored);
-      if (tKey) {
-        status.textContent = `thumbnail ${i+1}/${files.length}...`;
-        const localUrl = URL.createObjectURL(files[i]);
-        try {
-          const blob = await captureVideoFrameBlob(localUrl);
-          await uploadThumbBlob(blob, tKey);
-        } catch(e) {
-          console.warn('thumbnail esuat', e);
-          showToast('thumbnail esuat: ' + (e.message || e));
-        } finally {
-          URL.revokeObjectURL(localUrl);
-        }
-      }
     } catch(e) {
       status.textContent = `eroare la fișierul ${i+1}`;
       return;
@@ -12584,7 +12516,6 @@ async function uploadClipToR2(files) {
   }
   status.textContent = `✓ ${clipUploadedUrls.length} clip(uri) încărcate`;
 }
-
 
 
 
@@ -12614,6 +12545,7 @@ async function saveClip() {
   clipUploadedUrls = [];
   await loadClips();
   if (tiktokActiveTab === 'feed') renderClips(clips);
+
   if (document.getElementById('tiktokCollectionDetailView').classList.contains('open') && tiktokCurrentDetailCollId !== null) {
     tiktokCurrentDetailClips = tiktokCurrentDetailCollId === '__none__'
       ? clips.filter(c => !c.collection_id)
