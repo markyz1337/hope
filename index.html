@@ -11814,6 +11814,17 @@ function thumbImgFallback(img) {
   img.remove();
 }
 
+function frameBrightness(canvas) {
+  const s = document.createElement('canvas');
+  s.width = 16; s.height = 16;
+  const c = s.getContext('2d');
+  c.drawImage(canvas, 0, 0, 16, 16);
+  const d = c.getImageData(0, 0, 16, 16).data;
+  let sum = 0;
+  for (let i = 0; i < d.length; i += 4) sum += d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+  return sum / 256;
+}
+
 function captureVideoFrameBlob(url) {
   return new Promise((resolve, reject) => {
     const v = document.createElement('video');
@@ -11821,9 +11832,10 @@ function captureVideoFrameBlob(url) {
     v.muted = true;
     v.playsInline = true;
     v.setAttribute('playsinline', '');
-    v.preload = 'metadata';
+v.preload = 'metadata';
     let finished = false;
-    const timer = setTimeout(() => finish(new Error('timeout (fisier prea mare sau lent)')), 20000);
+const timer = setTimeout(() => finish(new Error('timeout (fisier prea mare sau lent)')), 90000);
+
     function finish(err, blob) {
       if (finished) return;
       finished = true;
@@ -11831,37 +11843,61 @@ function captureVideoFrameBlob(url) {
       try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e) {}
       if (err) reject(err); else resolve(blob);
     }
-    function draw() {
+
+    const seekTo = t => new Promise(res => {
+      const h = () => { v.removeEventListener('seeked', h); res(); };
+      v.addEventListener('seeked', h);
+      v.currentTime = t;
+    });
+
+    // pornește scurt redarea ca să fie sigur decodat un cadru real (iOS)
+const settle = async () => {
+  try { await Promise.race([v.play(), new Promise(r => setTimeout(r, 1500))]); } catch(e) {}
+  await new Promise(r => {
+    if ('requestVideoFrameCallback' in v) {
+      v.requestVideoFrameCallback(() => r());
+      setTimeout(r, 300);
+    } else setTimeout(r, 150);
+  });
+  v.pause();
+};
+
+    async function run() {
       try {
         const w0 = v.videoWidth, h0 = v.videoHeight;
         if (!w0 || !h0) { finish(new Error('fara cadru')); return; }
+        const dur = isFinite(v.duration) ? v.duration : 1;
+const times = [0.1, 0.5, 1]
+          .map(t => Math.min(Math.max(t, 0.05), Math.max(dur - 0.1, 0.05)));
         const MAX = 480;
         const scale = Math.min(1, MAX / Math.max(w0, h0));
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(w0 * scale);
-        canvas.height = Math.round(h0 * scale);
-        canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(b => {
+        let best = null, bestB = -1;
+
+        for (const t of times) {
+          await seekTo(t);
+          await settle();
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(w0 * scale);
+          canvas.height = Math.round(h0 * scale);
+          canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
+          const b = frameBrightness(canvas);
+          if (b > bestB) { bestB = b; best = canvas; }
+          if (b >= 12) break; // cadru suficient de luminos
+        }
+        best.toBlob(b => {
           if (b) finish(null, b); else finish(new Error('toBlob esuat'));
         }, 'image/jpeg', 0.75);
       } catch(e) {
         finish(e);
       }
     }
+
     v.addEventListener('error', () => finish(new Error('video error (CORS sau fisier)')), { once: true });
-    v.addEventListener('loadedmetadata', () => {
-      v.currentTime = 0.1;
-    }, { once: true });
-    v.addEventListener('seeked', () => {
-      if (v.readyState >= 2) {
-        draw();
-      } else {
-        v.addEventListener('loadeddata', draw, { once: true });
-      }
-    }, { once: true });
+    v.addEventListener('loadedmetadata', run, { once: true });
     v.src = url;
   });
 }
+
 
 
 async function uploadThumbBlob(blob, key) {
@@ -11875,6 +11911,24 @@ async function uploadThumbBlob(blob, key) {
   });
   if (!res.ok) throw new Error('Upload thumbnail esuat');
 }
+
+function isThumbBlack(key) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        c.getContext('2d').drawImage(img, 0, 0);
+        resolve(frameBrightness(c) < 6);
+      } catch(e) { resolve(false); } // canvas tainted (CORS), nu putem verifica
+    };
+    img.onerror = () => resolve(true); // fisier stricat = il refacem
+    img.src = `${R2_PUBLIC_URL}/${key}?t=${Date.now()}`;
+  });
+}
+
 
 async function generateAllClipThumbs(btn) {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
@@ -11891,10 +11945,15 @@ async function generateAllClipThumbs(btn) {
     btn.disabled = false; btn.textContent = orig;
     return;
   }
-  const todo = clips.filter(c => {
+  const todo = [];
+  for (let i = 0; i < clips.length; i++) {
+    const c = clips[i];
     const k = getClipThumbKey(c);
-    return k && !existing.has(k);
-  });
+    if (!k) continue;
+    btn.textContent = 'verific ' + (i + 1) + '/' + clips.length + '...';
+    if (!existing.has(k) || await isThumbBlack(k)) todo.push(c);
+  }
+
   if (!todo.length) {
     showToast('toate thumbnailurile exista deja');
     btn.disabled = false; btn.textContent = orig;
@@ -12494,7 +12553,6 @@ function closeTiktokFeed() {
 
 
 
-
 async function uploadClipToR2(files) {
   if (!files || !files.length) return;
   const status = document.getElementById('clip-upload-status');
@@ -12514,6 +12572,7 @@ async function uploadClipToR2(files) {
           await uploadThumbBlob(blob, tKey);
         } catch(e) {
           console.warn('thumbnail esuat', e);
+          showToast('thumbnail esuat: ' + (e.message || e));
         } finally {
           URL.revokeObjectURL(localUrl);
         }
@@ -12525,6 +12584,7 @@ async function uploadClipToR2(files) {
   }
   status.textContent = `✓ ${clipUploadedUrls.length} clip(uri) încărcate`;
 }
+
 
 
 
