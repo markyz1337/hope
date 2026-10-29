@@ -1342,17 +1342,7 @@ body.redirect-active {
 .tiktok-autoscroll-btn { display: none !important; }
 
 
-.tiktok-autoscroll-btn {
-  position: fixed; top: calc(64px + env(safe-area-inset-top)); left: 16px;
-  width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
-  cursor: pointer; z-index: 810; backdrop-filter: blur(10px); color: rgba(255,255,255,0.5);
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.tiktok-autoscroll-btn.active {
-  background: rgba(200,169,126,0.35); border-color: rgba(200,169,126,0.6); color: var(--accent2);
-}
-.tiktok-autoscroll-btn svg { width: 16px; height: 16px; }
+
 
 .tiktok-reset-watched-wrap {
   position: fixed; bottom: calc(11px + env(safe-area-inset-bottom)); right: 16px;
@@ -6827,12 +6817,6 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			}
 
 
-			function toggleSettingGotoToday() {
-			  SETTING_GOTO_TODAY = !SETTING_GOTO_TODAY;
-			  saveSettings({ gotoToday: SETTING_GOTO_TODAY });
-			  document.getElementById('settings-goto-today-toggle').classList.toggle('on', SETTING_GOTO_TODAY);
-			  showToast(SETTING_GOTO_TODAY ? 'merge la ziua de azi' : 'merge la ultima zi cu conținut');
-			}
 
 			function toggleSettingVisitorLock() {
 			  SETTING_VISITOR_LOCK = !SETTING_VISITOR_LOCK;
@@ -7069,17 +7053,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 
 
 
-			function openCreatorPinFromTitle() {
-			  pinBuffer = '';
-			  updatePinDots();
-			  const overlay = document.getElementById('pinOverlay');
-			  overlay.classList.remove('mode-private');
-			  document.getElementById('pinTitle').textContent = 'carnet';
-			  document.getElementById('pinSubtitle').textContent = 'cod creator';
-			  // Suprascriem temporar checkPin să accepte doar creator PIN
-			  _pinModeOverride = 'creator';
-			  overlay.classList.add('open');
-			}
+
 			let _pinModeOverride = null;
 
 
@@ -7362,16 +7336,7 @@ function saveRedirectSettings() {
 
 
 
-			function clearRedirectSettings() {
-			  SETTING_REDIRECT_HTML = '';
-			  SETTING_REDIRECT_FROM = '';
-			  document.getElementById('settings-redirect-html').value = '';
-			  document.getElementById('settings-redirect-from').value = '';
-			  saveSettings({ redirectHtml: '', redirectFrom: '' });
-			  updateRedirectHtmlStatus();
-			  updateFabMainMode();
-			  showToast('redirecționare dezactivată');
-			}
+
 
 
 
@@ -11331,16 +11296,7 @@ function renderClipsFixed(fixedClipsList, startIndex) {
 
 
 
-function feed_lastSlide() {
-  const slides = document.querySelectorAll('#tiktokFeed .tiktok-slide');
-  return slides[slides.length - 1];
-}
 
-function feed_prefetchTriggerSlide() {
-  const slides = document.querySelectorAll('#tiktokFeed .tiktok-slide');
-  const idx = Math.max(0, slides.length - 3); // declanșează cu 2 slide-uri înainte de ultimul
-  return slides[idx];
-}
 
 
 function releaseVideoSrc(v) {
