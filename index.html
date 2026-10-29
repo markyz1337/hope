@@ -91,8 +91,6 @@
 			}
 
 			.app { max-width: 440px; margin: 0 auto; min-height: 100vh; padding-bottom: 120px; }
-
-			/* ── HEADER ── */
 			.header {
 			  display: flex; align-items: center; justify-content: space-between;
 			  padding: 16px 16px 0; gap: 12px;
@@ -106,8 +104,6 @@
 			.header-logo svg { width: 13px; height: 13px; color: var(--accent); }
 			.header-title { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--accent2); font-weight: 400; letter-spacing: 0.01em; }
 			.header-date-display { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
-
-			/* ── LOCK BADGE ── */
 			.lock-badge {
 			  display: flex; align-items: center; gap: 6px;
 			  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
@@ -121,8 +117,6 @@
 			.lock-badge:hover { border-color: var(--border2); color: var(--text2); }
 			.lock-badge svg { width: 11px; height: 11px; }
 			.lock-badge.unlocked { color: var(--accent); border-color: rgba(200,169,126,0.3); background: rgba(200,169,126,0.07); }
-
-			/* ── PIN OVERLAY ── */
 			.pin-overlay {
 			  position: fixed;
 			  top: 0; left: 0; right: 0; bottom: 0;
@@ -299,8 +293,6 @@
 			  width: 26px;
 			  height: 26px;
 			}
-
-			/* ── SEARCH ── */
 			.search-wrap { padding: 12px 16px 0; position: relative; }
 			.search-inner { position: relative; display: flex; align-items: center; }
 			.search-icon { position: absolute; left: 12px; color: var(--text3); pointer-events: none; }
@@ -323,8 +315,6 @@
 			.search-clear svg { width: 13px; height: 13px; }
 			.search-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; padding: 10px 16px 0; display: none; }
 			.search-label.visible { display: block; }
-
-			/* ── DATE CAROUSEL ── */
 			.carousel-wrap { padding: 10px 0 0; overflow: hidden; position: relative; }
 			.carousel-wrap::before, .carousel-wrap::after {
 			  content: ''; position: absolute; top: 0; bottom: 0; width: 48px;
@@ -364,12 +354,8 @@
 			}
 			.month-sep-name { font-family: var(--mono); font-size: 8px; letter-spacing: 0.08em; color: var(--blue); text-transform: uppercase; opacity: 0.7; }
 			.month-sep-year { font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em; color: var(--text4); }
-
-			/* ── ENTRIES ── */
 			#entries-container { padding-top: 10px; }
 			.section-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text4); text-transform: uppercase; padding: 16px 16px 6px; }
-
-			/* ── ENTRY CARD ── */
 			.entry-card {
 			  margin: 0 12px 8px; background: var(--surface); border: 1px solid var(--border);
 			  border-radius: var(--r); overflow: hidden;
@@ -419,8 +405,6 @@
 			.icon-btn svg { width: 12px; height: 12px; }
 			.icon-btn:hover { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
 			.icon-btn.del:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.3); color: #e07070; }
-
-			/* ── RICH TEXT ── */
 			.card-text {
 			  font-family: var(--serif);
 			  font-size: 15px; line-height: 1.72; color: var(--text);
@@ -485,8 +469,6 @@
 			  padding: 0 1px;
 			  font-weight: 600;
 			}
-
-			/* ── MEDIA ── */
 			.media-wrap { margin-top: 10px; }
 			.media-grid { display: grid; gap: 4px; }
 			.media-grid.cols-1 { grid-template-columns: 1fr; }
@@ -666,8 +648,6 @@
 
 			/* video privat */
 			.video-private-wrap { position: relative; }
-
-			/* ── VIDEO ── */
 			.video-embed-wrap {
 			  position: relative;
 			  width: 100%;
@@ -691,8 +671,6 @@
 
 			.entry-caption { margin-top: 7px; font-family: var(--serif); font-size: 13px; font-style: italic; color: var(--text3); line-height: 1.6; }
 			.entry-caption a { color: var(--text3) !important; border-bottom: 1px solid var(--accent); text-decoration: none; }
-
-			/* ── MUSIC ── */
 			.music-player {
 			  display: flex; align-items: center; gap: 10px;
 			  background: rgba(122,200,149,0.05); border: 1px solid rgba(122,200,149,0.12);
@@ -729,8 +707,6 @@
 			.wave-bar:nth-child(5){ height:6px;  animation: wv .65s ease-in-out infinite .05s; }
 			@keyframes wv { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.25); } }
 			.wave-bars.paused .wave-bar { animation-play-state: paused; }
-
-			/* ── PDF ENTRY ── */
 			.pdf-entry {
 			  display: flex; align-items: center; gap: 12px;
 			  background: rgba(160,122,200,0.06); border: 1px solid rgba(160,122,200,0.18);
@@ -750,8 +726,6 @@
 			.pdf-sub { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 2px; letter-spacing: 0.03em; }
 			.pdf-arrow { color: var(--purple); opacity: 0.6; flex-shrink: 0; }
 			.pdf-arrow svg { width: 14px; height: 14px; }
-
-			/* ── DATE MUSIC BANNER ── */
 			.date-music-banner {
 			  margin: 4px 12px 8px; background: rgba(200,169,126,0.05); border: 1px solid rgba(200,169,126,0.15);
 			  border-radius: var(--r2); padding: 9px 12px; display: flex; align-items: center; gap: 10px; transition: all 0.2s;
@@ -778,8 +752,6 @@
 			.dm-delete-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(200,80,80,0.2); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(200,80,80,0.4); transition: all 0.15s; }
 			.dm-delete-btn svg { width: 11px; height: 11px; }
 			.dm-delete-btn:hover { background: rgba(200,80,80,0.12); border-color: rgba(200,80,80,0.4); color: #e07070; }
-
-			/* ── BOTTOM BAR ── */
 			.bottom-bar {
 			  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
 			  width: 100%; max-width: 440px;
@@ -855,8 +827,6 @@
 			}
 			.bottom-nav-btn:hover { border-color: var(--border3); color: var(--text); background: rgba(20,20,28,0.97); }
 			.bottom-nav-btn:active { transform: scale(0.91); background: rgba(30,30,40,1); }
-
-			/* ── FAB ── */
 			body.locked .fab-wrap:not(.redirect-visible) { display: none !important; }
 
 			/* Ascunde vizual tot continutul cand sunt deschise setarile sau calendarul */
@@ -877,9 +847,6 @@
 			.fab-main svg { width: 20px; height: 20px; transition: transform 0.3s; }
 			.fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
 			.fab-main.open svg { transform: rotate(45deg); }
-
-
-			/* ── CAL FAB ── */
 			.cal-fab-wrap { pointer-events: all; position: relative; flex-shrink: 0; }
 			.cal-fab-btn {
 			  width: 48px; height: 48px; border-radius: 50%;
@@ -891,8 +858,6 @@
 			.cal-fab-btn:hover { background: rgba(122,162,200,0.22); border-color: rgba(122,162,200,0.6); box-shadow: 0 12px 36px rgba(122,162,200,0.25); transform: translateY(-2px) scale(1.05); }
 			.cal-fab-btn.is-active { background: rgba(200,169,126,0.22); border-color: rgba(200,169,126,0.6); color: var(--accent2); box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 12px 36px rgba(200,169,126,0.2); }
 			.cal-fab-btn svg { width: 19px; height: 19px; }
-
-			/* ── CALENDAR POPUP ── */
 			.cal-popup-overlay {
 			  position: fixed; inset: 0; background: #0c0c0f; backdrop-filter: blur(10px);
 			  z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -954,8 +919,6 @@
 			.cal-popup-legend { display: flex; gap: 10px; flex-wrap: wrap; font-family: var(--mono); font-size: 9px; color: var(--text4); padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); letter-spacing: 0.03em; }
 			.cal-popup-legend-item { display: flex; align-items: center; gap: 4px; }
 			.cal-popup-legend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-
-			/* ── MODALS ── */
 .backdrop { position: fixed; inset: 0; background: rgba(4,4,8,0.7); backdrop-filter: blur(8px); z-index: 900; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 
 			.backdrop.open { opacity: 1; pointer-events: all; }
@@ -963,8 +926,6 @@
 			.backdrop.open .sheet { transform: translateY(0); }
 			.sheet-handle { width: 32px; height: 3px; background: var(--border2); border-radius: 2px; margin: 0 auto 18px; }
 			.sheet-title { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--text); margin-bottom: 18px; font-weight: 400; }
-
-			/* ── FORM ── */
 			.form-group { margin-bottom: 14px; }
 			.form-label { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 7px; }
 			.form-input, .form-textarea, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
@@ -972,8 +933,6 @@
 			.form-textarea { min-height: 100px; resize: vertical; line-height: 1.65; font-family: var(--serif); font-size: 15px; }
 			input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
 			.form-select option { background: #17171d; }
-
-			/* ── RICH TEXT EDITOR ── */
 			.rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s, background 0.2s; }
 			.rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
 			.rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 7px 8px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); flex-wrap: wrap; }
@@ -1036,8 +995,6 @@
 			.btn-danger { flex: 1; padding: 12px; background: rgba(200,80,80,0.1); border: 1px solid rgba(200,80,80,0.25); border-radius: var(--r2); color: #e07070; font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em; cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
 			.btn-danger:hover { background: rgba(200,80,80,0.18); }
 			.confirm-row { display: flex; gap: 8px; margin-top: 16px; }
-
-			/* ── LIGHTBOX ── */
 			.lightbox { position: fixed; inset: 0; background: rgba(4,4,8,0.96); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 			.lightbox.open { opacity: 1; pointer-events: all; }
 			.lb-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -1069,8 +1026,6 @@
 			.lb-zoom-reset { position: absolute; top: 16px; left: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border2); background: rgba(10,10,14,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); z-index: 10; font-family: var(--mono); font-size: 9px; transition: all 0.15s; opacity: 0; pointer-events: none; }
 			.lb-zoom-reset.visible { opacity: 1; pointer-events: all; }
 			.lb-zoom-reset:hover { border-color: var(--border3); color: var(--text); }
-
-			/* ── LOADING / EMPTY ── */
 			.loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 24px; gap: 12px; }
 			.spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
 			@keyframes spin { to { transform: rotate(360deg); } }
@@ -1079,9 +1034,6 @@
 			.empty-icon { font-size: 28px; margin-bottom: 12px; opacity: 0.2; color: var(--text2); }
 			.empty-icon svg { width: 32px; height: 32px; }
 			.empty-text { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text3); }
-
-
-			/* ── TOAST ── */
 			.toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(14,14,20,0.92); border: 1px solid var(--border2); backdrop-filter: blur(20px); border-radius: 50px; padding: 9px 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--text2); z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1); white-space: nowrap; box-shadow: var(--shadow2); }
 			.toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -1095,9 +1047,6 @@
 			.toggle-track.on .toggle-thumb { background: var(--accent2); transform: translateX(16px); }
 			.toggle-track.on-private .toggle-bg { background: rgba(138,122,160,0.25); border-color: rgba(138,122,160,0.45); }
 			.toggle-track.on-private .toggle-thumb { background: var(--private2); transform: translateX(16px); }
-
-
-			/* ── TIME OF DAY ICON ── */
 			.time-of-day-icon {
 			  display: inline-flex;
 			  align-items: center;
@@ -1130,29 +1079,17 @@
 			::-webkit-scrollbar { width: 3px; }
 			::-webkit-scrollbar-track { background: transparent; }
 			::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-
-			/* ── TIKTOK FEED ── */
-			
-
-
-			
-			
 .tiktok-overlay {
   position: fixed; inset: 0; background: #000; z-index: 800;
   opacity: 0; pointer-events: none; transition: opacity 0.25s;
 }
 .tiktok-overlay.open { opacity: 1; pointer-events: all; }
-
-			/* ── BLACKOUT când e deschis TikTok ── */
 			body.tiktok-active {
 			  background: #000 !important;
 			}
 			body.tiktok-active > *:not(.tiktok-overlay):not(#modal-clip):not(#toast) {
 			  display: none !important;
 			}
-
-			/* ── BLACKOUT roșu când e deschis site-ul redirecționat ── */
 body.redirect-active {
   background: #140a10 !important;
   overflow: hidden !important;
@@ -1576,10 +1513,6 @@ body.redirect-active {
 			  cursor: pointer; z-index: 5; backdrop-filter: blur(10px); color: #fff;
 			}
 			.tiktok-clip-add-btn svg { width: 17px; height: 17px; }
-
-
-
-			/* ── NOTE THEMES ── */
 			.entry-card.theme-card { overflow: visible; }
 			.note-theme-wrap {
 			  position: relative;
@@ -1606,16 +1539,12 @@ body.redirect-active {
 			  position: relative;
 			  z-index: 1;
 			}
-
-			/* ── TEMA 1: Stele căzătoare ── */
 			.theme-stars {
 			  background: transparent;
 			  min-height: 80px;
 			}
 
 			.theme-stars .card-text { color: #e8e4f0; text-shadow: 0 0 20px rgba(180,160,255,0.15); }
-
-			/* ── TEMA 2: Aurora (gradient dark) ── */
 			.theme-aurora {
 			  background: linear-gradient(135deg, #020b14 0%, #0a1628 30%, #071420 60%, #0d0a20 100%);
 			  min-height: 80px;
@@ -1636,8 +1565,6 @@ body.redirect-active {
 			  100% { opacity: 1;   transform: scaleX(1.05) scaleY(0.97); }
 			}
 			.theme-aurora .card-text { color: #d0f0e8; }
-
-			/* ── TEMA 3: Glow ── */
 			.theme-glow {
 			  background: #08060f;
 			  min-height: 80px;
@@ -1670,24 +1597,17 @@ body.redirect-active {
 			  100% { transform: scale(0.9) translate(-2%,4%); opacity: 0.75; }
 			}
 			.theme-glow .card-text { color: #f0e8ff; text-shadow: 0 0 12px rgba(200,160,255,0.3); }
-
-			/* ── TEMA 4: Inimi și flori ── */
 			.theme-hearts {
 			  background: linear-gradient(145deg, #1a0812 0%, #220d18 50%, #1a0d20 100%);
 			  min-height: 80px;
 			}
 			.theme-hearts .card-text { color: #ffd6e8; }
-
-			/* ── TEMA 5: Ploaie depresivă ── */
 			.theme-rain {
 			  background: transparent;
 			  min-height: 80px;
 			}
 
 			.theme-rain .card-text { color: #b8c8d8; }
-
-
-			/* ── TEMA 9: Matrix ── */
 			.theme-matrix {
 			  background: #000800;
 			  min-height: 80px;
@@ -1698,15 +1618,11 @@ body.redirect-active {
 			  font-size: 13px !important;
 			  text-shadow: 0 0 8px rgba(0,255,65,0.5);
 			}
-
-			/* ── TEMA 10: Nisip de aur ── */
 			.theme-gold {
 			  background: linear-gradient(135deg, #0f0900 0%, #1a1000 50%, #0c0800 100%);
 			  min-height: 80px;
 			}
 			.theme-gold .card-text { color: #ffe8a0; }
-
-			/* ── SELECTOR TEME în modal ── */
 			.theme-selector-wrap { margin-bottom: 14px; }
 			.theme-selector-grid {
 			  display: flex;
@@ -1744,9 +1660,6 @@ body.redirect-active {
 			  text-transform: uppercase;
 			}
 			.theme-swatch-icon { font-size: 16px; line-height: 1; position: relative; z-index: 1; }
-
-
-			/* ── SETTINGS MENU ── */
 			.settings-overlay {
 			  position: fixed; inset: 0;
 			  background: #0c0c0f;
@@ -5465,18 +5378,13 @@ body.redirect-active {
 		</div>
 
 		<script>
-			// ═══════════════════════════════════════
 			// SUPABASE
-			// ═══════════════════════════════════════
 			const { createClient } = supabase;
 			const sb = createClient(
 			  'https://fndjrfieitieqzafhyzz.supabase.co',
 			  'sb_publishable_bHDKjiKAVHqW199ICw7i2g_O3olYMAr'
 			);
-
-			// ═══════════════════════════════════════
 			// SUPABASE KEEP-ALIVE (previne conexiune "rece" după inactivitate)
-			// ═══════════════════════════════════════
 			let supabaseKeepAliveInterval = null;
 
 			async function supabaseHeartbeat() {
@@ -5495,10 +5403,7 @@ body.redirect-active {
 			    if (!document.hidden) supabaseHeartbeat();
 			  });
 			}
-
-			// ═══════════════════════════════════════
 			// STATE
-			// ═══════════════════════════════════════
 
 			let entries = [];
 			let dateMusicMap = {};
@@ -5585,11 +5490,7 @@ const tiktokAudio = {
 			let pending2FAAction = null; // 'creator' | 'visitor'
 
 			let _pendingPrivateEntryId = null;
-
-
-			// ═══════════════════════════════════════
 			// PIN SYSTEM
-			// ═══════════════════════════════════════
 			// ── SETTINGS STORAGE ──
 			async function loadSettings() {
 			  try {
@@ -5990,11 +5891,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  if (!isLocked) { setUnlocked(false); showToast('blocat'); }
 			  else openPinOverlay('main');
 			});
-
-
-			// ═══════════════════════════════════════
 			// PRIVATE TOGGLES (form)
-			// ═══════════════════════════════════════
 			function toggleNote18() {
 			  note18Enabled = !note18Enabled;
 			  const t = document.getElementById('note-18-toggle');
@@ -6041,10 +5938,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  const t = document.getElementById('edit-18-toggle');
 			  t.classList.toggle('on-private', edit18Enabled);
 			}
-
-			// ═══════════════════════════════════════
 			// CAPTION RTE (mini)
-			// ═══════════════════════════════════════
 			let capSavedRange = null;
 
 			function capRteLink(editorId, barId, inputId) {
@@ -6087,10 +5981,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  ed.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
 			  return ed.innerHTML.trim();
 			}
-
-			// ═══════════════════════════════════════
 			// YOUTUBE
-			// ═══════════════════════════════════════
 			function extractYouTubeId(url) {
 			  if (!url) return null;
 			  const patterns = [
@@ -6117,15 +6008,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  wrap.onclick = null;
 			  wrap.style.cursor = 'default';
 			}
-
-
-
-
-
-
-			// ═══════════════════════════════════════
 			// UTILS
-			// ═══════════════════════════════════════
 			function normRo(str) {
 			  return (str || '').toLowerCase()
 			    .replace(/[ăâ]/g,'a').replace(/[î]/g,'i')
@@ -6209,311 +6092,13 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  return `<span class="time-of-day-icon" title="${tod.label}" style="--tod-glow:${tod.glow}">${svg}</span>`;
 			}
 
-			function getTimeOfDaySvg(key, color) {
-			  const c = color;
-			  const svgWrap = (content) =>
-			    `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">${content}</svg>`;
+function getTimeOfDaySvg(key, c) {
+  const night = ['midnight','deep-night','pre-dawn','dusk','evening'].includes(key);
+  const w = s => `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+  if (night) return w(`<path d="M13.5 6.5a5 5 0 1 0 0 7a3.8 3.8 0 1 1 0-7z" fill="${c}"/><circle cx="4" cy="4.5" r="0.8" fill="#fff"/><circle cx="16" cy="4" r="0.7" fill="#fff"/><circle cx="17" cy="14" r="0.6" fill="#fff"/>`);
+  return w(`<circle cx="10" cy="10" r="3.5" fill="${c}"/><g stroke="${c}" stroke-width="1.3" stroke-linecap="round"><path d="M10 3v2M10 15v2M3 10h2M15 10h2M5 5l1.5 1.5M13.5 13.5L15 15M5 15l1.5-1.5M13.5 6.5L15 5"/></g>`);
+}
 
-			  if (key === 'midnight') return svgWrap(`
-			    <defs>
-			      <radialGradient id="mg_mid" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(58,53,120,0.5)"/>
-			        <stop offset="100%" stop-color="rgba(10,8,30,0.0)"/>
-			      </radialGradient>
-			    </defs>
-			    <circle cx="10" cy="10" r="9" fill="url(#mg_mid)"/>
-			    <!-- Luna plină cu relief -->
-			    <circle cx="10.5" cy="9.5" r="4.8" fill="${c}" opacity="0.92"/>
-			    <circle cx="10.5" cy="9.5" r="4.8" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
-			    <!-- Cratere subtile -->
-			    <circle cx="9" cy="8.5" r="0.9" fill="rgba(0,0,0,0.18)"/>
-			    <circle cx="12" cy="10.5" r="0.6" fill="rgba(0,0,0,0.14)"/>
-			    <circle cx="10.5" cy="12" r="0.5" fill="rgba(0,0,0,0.12)"/>
-			    <!-- Stele -->
-			    <circle cx="3.5" cy="4" r="0.7" fill="white" opacity="0.9"/>
-			    <circle cx="5.5" cy="2.5" r="0.5" fill="white" opacity="0.7"/>
-			    <circle cx="16" cy="3" r="0.6" fill="white" opacity="0.8"/>
-			    <circle cx="17.5" cy="6" r="0.5" fill="white" opacity="0.6"/>
-			    <circle cx="2.5" cy="14" r="0.5" fill="white" opacity="0.6"/>
-			    <circle cx="17" cy="15" r="0.6" fill="white" opacity="0.55"/>
-			    <circle cx="4" cy="17" r="0.45" fill="white" opacity="0.5"/>
-			    <!-- Stea mică strălucitoare -->
-			    <path d="M15 4 L15.3 5 L16.3 5 L15.5 5.6 L15.8 6.6 L15 6 L14.2 6.6 L14.5 5.6 L13.7 5 L14.7 5 Z" fill="white" opacity="0.85"/>
-			  `);
-
-			  if (key === 'deep-night') return svgWrap(`
-			    <defs>
-			      <radialGradient id="mg_dn" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(30,42,90,0.4)"/>
-			        <stop offset="100%" stop-color="rgba(5,8,20,0.0)"/>
-			      </radialGradient>
-			    </defs>
-			    <circle cx="10" cy="10" r="9" fill="url(#mg_dn)"/>
-			    <!-- Semilună -->
-			    <path d="M13.5 6.5 a5 5 0 1 0 0 7 a3.8 3.8 0 1 1 0-7z" fill="${c}" opacity="0.88"/>
-			    <path d="M13.5 6.5 a5 5 0 1 0 0 7 a3.8 3.8 0 1 1 0-7z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-			    <!-- Stele variate ca mărime -->
-			    <circle cx="4" cy="4.5" r="0.8" fill="white" opacity="0.9"/>
-			    <circle cx="7" cy="2.5" r="0.5" fill="white" opacity="0.65"/>
-			    <circle cx="16" cy="4" r="0.7" fill="white" opacity="0.8"/>
-			    <circle cx="17.5" cy="7.5" r="0.5" fill="white" opacity="0.6"/>
-			    <circle cx="2.5" cy="9" r="0.55" fill="white" opacity="0.7"/>
-			    <circle cx="3" cy="15" r="0.5" fill="white" opacity="0.55"/>
-			    <circle cx="17" cy="14" r="0.6" fill="white" opacity="0.6"/>
-			    <!-- Două stele cu 4 colțuri -->
-			    <path d="M6 13 L6.25 13.75 L7 14 L6.25 14.25 L6 15 L5.75 14.25 L5 14 L5.75 13.75Z" fill="white" opacity="0.75"/>
-			    <path d="M15 9 L15.2 9.6 L15.8 9.8 L15.2 10 L15 10.6 L14.8 10 L14.2 9.8 L14.8 9.6Z" fill="white" opacity="0.65"/>
-			  `);
-
-			  if (key === 'pre-dawn') return svgWrap(`
-			    <defs>
-			      <linearGradient id="pd_bg" x1="0" y1="1" x2="0" y2="0">
-			        <stop offset="0%" stop-color="rgba(30,20,70,0.6)"/>
-			        <stop offset="100%" stop-color="rgba(60,40,100,0.15)"/>
-			      </linearGradient>
-			      <radialGradient id="pd_glow" cx="50%" cy="100%" r="60%">
-			        <stop offset="0%" stop-color="rgba(100,60,160,0.25)"/>
-			        <stop offset="100%" stop-color="rgba(100,60,160,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <rect x="1" y="1" width="18" height="18" rx="2" fill="url(#pd_bg)"/>
-			    <ellipse cx="10" cy="20" rx="10" ry="6" fill="url(#pd_glow)"/>
-			    <!-- Semiluna mică -->
-			    <path d="M11 4.5 a3.5 3.5 0 1 0 0 5 a2.6 2.6 0 1 1 0-5z" fill="${c}" opacity="0.75"/>
-			    <!-- Orizont care se luminează -->
-			    <line x1="2" y1="16.5" x2="18" y2="16.5" stroke="rgba(150,100,200,0.3)" stroke-width="0.7"/>
-			    <line x1="3" y1="15.5" x2="17" y2="15.5" stroke="rgba(200,130,100,0.15)" stroke-width="0.5"/>
-			    <!-- Stele care palesc -->
-			    <circle cx="4" cy="6" r="0.6" fill="white" opacity="0.6"/>
-			    <circle cx="16" cy="5" r="0.5" fill="white" opacity="0.5"/>
-			    <circle cx="17" cy="10" r="0.45" fill="white" opacity="0.4"/>
-			    <circle cx="3.5" cy="12" r="0.4" fill="white" opacity="0.35"/>
-			  `);
-
-			  if (key === 'sunrise') return svgWrap(`
-			    <defs>
-			      <radialGradient id="sr_glow" cx="50%" cy="100%" r="70%">
-			        <stop offset="0%" stop-color="rgba(255,160,60,0.5)"/>
-			        <stop offset="60%" stop-color="rgba(255,100,40,0.15)"/>
-			        <stop offset="100%" stop-color="rgba(255,100,40,0)"/>
-			      </radialGradient>
-			      <radialGradient id="sr_sun" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,240,180,1)"/>
-			        <stop offset="60%" stop-color="${c}"/>
-			        <stop offset="100%" stop-color="rgba(200,80,20,0.8)"/>
-			      </radialGradient>
-			    </defs>
-			    <ellipse cx="10" cy="19" rx="9" ry="7" fill="url(#sr_glow)"/>
-			    <!-- Soare la orizont, pe jumătate -->
-			    <clipPath id="sr_clip"><rect x="0" y="0" width="20" height="16"/></clipPath>
-			    <g clip-path="url(#sr_clip)">
-			      <circle cx="10" cy="16" r="4.5" fill="url(#sr_sun)"/>
-			      <!-- Raze -->
-			      <line x1="10" y1="10.5" x2="10" y2="8.5" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-			      <line x1="13.8" y1="11.8" x2="15.2" y2="10.4" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.7"/>
-			      <line x1="6.2" y1="11.8" x2="4.8" y2="10.4" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.7"/>
-			      <line x1="15.2" y1="14.5" x2="17.2" y2="13.8" stroke="${c}" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
-			      <line x1="4.8" y1="14.5" x2="2.8" y2="13.8" stroke="${c}" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
-			    </g>
-			    <!-- Linie orizont -->
-			    <line x1="1.5" y1="16" x2="18.5" y2="16" stroke="rgba(255,160,80,0.45)" stroke-width="0.8"/>
-			  `);
-
-			  if (key === 'morning') return svgWrap(`
-			    <defs>
-			      <radialGradient id="mo_sun" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,250,200,1)"/>
-			        <stop offset="50%" stop-color="${c}"/>
-			        <stop offset="100%" stop-color="rgba(220,160,40,0.7)"/>
-			      </radialGradient>
-			      <radialGradient id="mo_glow" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,210,80,0.2)"/>
-			        <stop offset="100%" stop-color="rgba(255,210,80,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <circle cx="10" cy="10" r="8" fill="url(#mo_glow)"/>
-			    <circle cx="10" cy="10" r="3.2" fill="url(#mo_sun)"/>
-			    <!-- 8 raze cu lungimi variate -->
-			    <line x1="10" y1="5.6" x2="10" y2="3.5" stroke="${c}" stroke-width="1.3" stroke-linecap="round" opacity="0.85"/>
-			    <line x1="13.9" y1="6.9" x2="15.4" y2="5.4" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.75"/>
-			    <line x1="15.2" y1="10" x2="17.5" y2="10" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.75"/>
-			    <line x1="13.9" y1="13.1" x2="15.4" y2="14.6" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
-			    <line x1="10" y1="14.4" x2="10" y2="16.5" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
-			    <line x1="6.1" y1="13.1" x2="4.6" y2="14.6" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
-			    <line x1="4.8" y1="10" x2="2.5" y2="10" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.75"/>
-			    <line x1="6.1" y1="6.9" x2="4.6" y2="5.4" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.75"/>
-			  `);
-
-			  if (key === 'midday') return svgWrap(`
-			    <defs>
-			      <radialGradient id="md_sun" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,255,230,1)"/>
-			        <stop offset="40%" stop-color="${c}"/>
-			        <stop offset="100%" stop-color="rgba(230,180,20,0.6)"/>
-			      </radialGradient>
-			      <radialGradient id="md_halo" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,230,100,0.18)"/>
-			        <stop offset="70%" stop-color="rgba(255,230,100,0.06)"/>
-			        <stop offset="100%" stop-color="rgba(255,230,100,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <!-- Halo extern -->
-			    <circle cx="10" cy="10" r="8.5" fill="url(#md_halo)"/>
-			    <!-- Soare -->
-			    <circle cx="10" cy="10" r="3.5" fill="url(#md_sun)"/>
-			    <!-- 10 raze egale și puternice -->
-			    <line x1="10" y1="5.3" x2="10" y2="3" stroke="${c}" stroke-width="1.4" stroke-linecap="round"/>
-			    <line x1="13.5" y1="6.5" x2="15.4" y2="4.6" stroke="${c}" stroke-width="1.3" stroke-linecap="round"/>
-			    <line x1="14.7" y1="10" x2="17" y2="10" stroke="${c}" stroke-width="1.4" stroke-linecap="round"/>
-			    <line x1="13.5" y1="13.5" x2="15.4" y2="15.4" stroke="${c}" stroke-width="1.3" stroke-linecap="round"/>
-			    <line x1="10" y1="14.7" x2="10" y2="17" stroke="${c}" stroke-width="1.4" stroke-linecap="round"/>
-			    <line x1="6.5" y1="13.5" x2="4.6" y2="15.4" stroke="${c}" stroke-width="1.3" stroke-linecap="round"/>
-			    <line x1="5.3" y1="10" x2="3" y2="10" stroke="${c}" stroke-width="1.4" stroke-linecap="round"/>
-			    <line x1="6.5" y1="6.5" x2="4.6" y2="4.6" stroke="${c}" stroke-width="1.3" stroke-linecap="round"/>
-			    <!-- Raze intermediare mai scurte -->
-			    <line x1="12.2" y1="5.8" x2="13.2" y2="4.2" stroke="${c}" stroke-width="0.9" stroke-linecap="round" opacity="0.6"/>
-			    <line x1="7.8" y1="5.8" x2="6.8" y2="4.2" stroke="${c}" stroke-width="0.9" stroke-linecap="round" opacity="0.6"/>
-			  `);
-
-			  if (key === 'afternoon') return svgWrap(`
-			    <defs>
-			      <radialGradient id="af_sun" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,240,180,1)"/>
-			        <stop offset="50%" stop-color="${c}"/>
-			        <stop offset="100%" stop-color="rgba(200,130,20,0.65)"/>
-			      </radialGradient>
-			      <radialGradient id="af_glow" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(240,180,60,0.15)"/>
-			        <stop offset="100%" stop-color="rgba(240,180,60,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <circle cx="10" cy="10" r="8" fill="url(#af_glow)"/>
-			    <circle cx="10" cy="10" r="3.2" fill="url(#af_sun)"/>
-			    <!-- 8 raze, ușor mai scurte față de amiază -->
-			    <line x1="10" y1="5.6" x2="10" y2="3.8" stroke="${c}" stroke-width="1.3" stroke-linecap="round" opacity="0.9"/>
-			    <line x1="13.5" y1="6.8" x2="14.9" y2="5.4" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-			    <line x1="14.7" y1="10" x2="16.8" y2="10" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-			    <line x1="13.5" y1="13.2" x2="14.9" y2="14.6" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.7"/>
-			    <line x1="10" y1="14.4" x2="10" y2="16.2" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.7"/>
-			    <line x1="6.5" y1="13.2" x2="5.1" y2="14.6" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.7"/>
-			    <line x1="5.3" y1="10" x2="3.2" y2="10" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-			    <line x1="6.5" y1="6.8" x2="5.1" y2="5.4" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
-			  `);
-
-			if (key === 'late-afternoon') return getTimeOfDaySvg('afternoon', color);
-
-			  if (key === 'pre-sunset') return svgWrap(`
-			    <defs>
-			      <radialGradient id="ps_sun" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,220,140,1)"/>
-			        <stop offset="40%" stop-color="${c}"/>
-			        <stop offset="100%" stop-color="rgba(160,60,20,0.7)"/>
-			      </radialGradient>
-			      <radialGradient id="ps_atm" cx="50%" cy="100%" r="70%">
-			        <stop offset="0%" stop-color="rgba(220,100,40,0.3)"/>
-			        <stop offset="100%" stop-color="rgba(220,100,40,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <ellipse cx="10" cy="19" rx="10" ry="8" fill="url(#ps_atm)"/>
-			    <circle cx="10" cy="11" r="3.8" fill="url(#ps_sun)"/>
-			    <!-- Raze mai puține, mai calde, mai orizontale -->
-			    <line x1="10" y1="6.5" x2="10" y2="4.8" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
-			    <line x1="14.2" y1="7.8" x2="15.8" y2="6.2" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
-			    <line x1="15.5" y1="11" x2="17.5" y2="11" stroke="${c}" stroke-width="1.3" stroke-linecap="round" opacity="0.75"/>
-			    <line x1="4.5" y1="11" x2="2.5" y2="11" stroke="${c}" stroke-width="1.3" stroke-linecap="round" opacity="0.75"/>
-			    <line x1="5.8" y1="7.8" x2="4.2" y2="6.2" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
-			    <!-- Orizont cald -->
-			    <line x1="1.5" y1="16" x2="18.5" y2="16" stroke="rgba(220,120,50,0.35)" stroke-width="0.8"/>
-			  `);
-
-			  if (key === 'sunset') return svgWrap(`
-			    <defs>
-			      <radialGradient id="ss_sun" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(255,200,100,1)"/>
-			        <stop offset="35%" stop-color="${c}"/>
-			        <stop offset="100%" stop-color="rgba(120,40,10,0.8)"/>
-			      </radialGradient>
-			      <radialGradient id="ss_sky" cx="50%" cy="100%" r="80%">
-			        <stop offset="0%" stop-color="rgba(200,80,30,0.45)"/>
-			        <stop offset="40%" stop-color="rgba(150,50,20,0.2)"/>
-			        <stop offset="100%" stop-color="rgba(80,20,10,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <!-- Cer aprins -->
-			    <ellipse cx="10" cy="20" rx="11" ry="10" fill="url(#ss_sky)"/>
-			    <!-- Soare la orizont, mai mult de jumătate ascuns -->
-			    <clipPath id="ss_clip"><rect x="0" y="0" width="20" height="15.5"/></clipPath>
-			    <g clip-path="url(#ss_clip)">
-			      <circle cx="10" cy="15.5" r="5" fill="url(#ss_sun)"/>
-			      <!-- Raze orizontale / radiale -->
-			      <line x1="10" y1="9.3" x2="10" y2="7.5" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
-			      <line x1="14.8" y1="10.8" x2="16.5" y2="9.5" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.6"/>
-			      <line x1="5.2" y1="10.8" x2="3.5" y2="9.5" stroke="${c}" stroke-width="1.1" stroke-linecap="round" opacity="0.6"/>
-			      <line x1="16.5" y1="13.5" x2="18.5" y2="13" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
-			      <line x1="3.5" y1="13.5" x2="1.5" y2="13" stroke="${c}" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
-			    </g>
-			    <!-- Linii orizont stratificate -->
-			    <line x1="1" y1="15.5" x2="19" y2="15.5" stroke="rgba(220,100,40,0.5)" stroke-width="1"/>
-			    <line x1="2" y1="14" x2="18" y2="14" stroke="rgba(200,80,30,0.2)" stroke-width="0.6"/>
-			    <!-- Nori de apus hint -->
-			    <ellipse cx="5" cy="12.5" rx="2.5" ry="0.8" fill="rgba(180,60,20,0.18)"/>
-			    <ellipse cx="15" cy="11.5" rx="2" ry="0.7" fill="rgba(180,60,20,0.14)"/>
-			  `);
-
-			  if (key === 'dusk') return svgWrap(`
-			    <defs>
-			      <linearGradient id="dk_sky" x1="0" y1="1" x2="0" y2="0">
-			        <stop offset="0%" stop-color="rgba(80,20,20,0.5)"/>
-			        <stop offset="40%" stop-color="rgba(60,20,80,0.3)"/>
-			        <stop offset="100%" stop-color="rgba(20,10,40,0.1)"/>
-			      </linearGradient>
-			      <radialGradient id="dk_glow" cx="50%" cy="100%" r="60%">
-			        <stop offset="0%" stop-color="rgba(160,60,200,0.2)"/>
-			        <stop offset="100%" stop-color="rgba(160,60,200,0)"/>
-			      </radialGradient>
-			    </defs>
-			    <rect x="1" y="1" width="18" height="18" rx="2" fill="url(#dk_sky)"/>
-			    <ellipse cx="10" cy="19" rx="9" ry="5" fill="url(#dk_glow)"/>
-			    <!-- Luna care răsare -->
-			    <path d="M13.8 7.5 a4.5 4.5 0 1 0 0 6.5 a3.4 3.4 0 1 1 0-6.5z" fill="${c}" opacity="0.85"/>
-			    <!-- Cromatică cer amurg -->
-			    <line x1="1.5" y1="16.5" x2="18.5" y2="16.5" stroke="rgba(150,50,100,0.3)" stroke-width="0.7"/>
-			    <line x1="3" y1="15" x2="17" y2="15" stroke="rgba(180,60,30,0.15)" stroke-width="0.5"/>
-			    <!-- Stele care apar -->
-			    <circle cx="4.5" cy="5.5" r="0.6" fill="white" opacity="0.7"/>
-			    <circle cx="16" cy="5" r="0.7" fill="white" opacity="0.75"/>
-			    <circle cx="17.5" cy="9.5" r="0.5" fill="white" opacity="0.55"/>
-			    <circle cx="3" cy="11" r="0.5" fill="white" opacity="0.5"/>
-			    <path d="M7 4 L7.2 4.7 L7.9 4.9 L7.2 5.1 L7 5.8 L6.8 5.1 L6.1 4.9 L6.8 4.7Z" fill="white" opacity="0.8"/>
-			  `);
-
-			  if (key === 'evening') return svgWrap(`
-			    <defs>
-			      <radialGradient id="ev_bg" cx="50%" cy="50%" r="50%">
-			        <stop offset="0%" stop-color="rgba(42,32,90,0.5)"/>
-			        <stop offset="100%" stop-color="rgba(10,8,25,0.1)"/>
-			      </radialGradient>
-			    </defs>
-			    <circle cx="10" cy="10" r="9" fill="url(#ev_bg)"/>
-			    <!-- Lună cu lumină mai clară -->
-			    <circle cx="11" cy="9.5" r="4.5" fill="${c}" opacity="0.9"/>
-			    <circle cx="11" cy="9.5" r="4.5" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-			    <!-- Umbra lunii (pentru semilună subtilă) -->
-			    <circle cx="12.2" cy="8.8" r="3.8" fill="rgba(15,10,40,0.55)"/>
-			    <!-- Stele clare de seară -->
-			    <circle cx="3.5" cy="4.5" r="0.75" fill="white" opacity="0.9"/>
-			    <circle cx="6" cy="2.8" r="0.5" fill="white" opacity="0.7"/>
-			    <circle cx="16.5" cy="4" r="0.65" fill="white" opacity="0.85"/>
-			    <circle cx="17.5" cy="7.5" r="0.5" fill="white" opacity="0.65"/>
-			    <circle cx="2.5" cy="12" r="0.5" fill="white" opacity="0.6"/>
-			    <circle cx="4" cy="16" r="0.45" fill="white" opacity="0.5"/>
-			    <circle cx="17" cy="14" r="0.55" fill="white" opacity="0.55"/>
-			    <!-- Stea scânteietoare -->
-			    <path d="M14 3 L14.25 3.85 L15.1 4.1 L14.25 4.35 L14 5.2 L13.75 4.35 L12.9 4.1 L13.75 3.85Z" fill="white" opacity="0.9"/>
-			  `);
-
-			  return svgWrap(`<circle cx="10" cy="10" r="5" fill="${c}"/>`);
-			}
 
 
 
@@ -6526,10 +6111,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			  selectDate(key);
 			  window.scrollTo({ top:0, behavior:'smooth' });
 			}
-
-			// ═══════════════════════════════════════
 			// DATE SEARCH
-			// ═══════════════════════════════════════
 			const RO_MONTHS_MAP = {
 			  'ianuarie':1,'ian':1,'january':1,'jan':1,
 			  'februarie':2,'feb':2,'february':2,
@@ -6650,10 +6232,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 
 			  container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg></div><div class="empty-text">nicio intrare pe ${day} ${['','ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'][month]} ${year}</div></div>${suggHtml}`;
 			}
-
-			// ═══════════════════════════════════════
 			// DRAFT AUTOSAVE
-			// ═══════════════════════════════════════
 			let draftSaveTimer = null;
 			const DRAFT_DEBOUNCE = 3000; // 3s după ultima tastare
 
@@ -6734,11 +6313,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			    txt.textContent = s.label;
 			  }
 			}
-
-
-			// ═══════════════════════════════════════
 			// SETTINGS
-			// ═══════════════════════════════════════
 			function openSettings() {
 			  if (isLocked) return;
 			  syncSettingsUI();
@@ -7072,13 +6647,7 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 			    setTimeout(checkPin, 300);
 			  });
 			}
-
-
-
-
-			// ═══════════════════════════════════════
 			// INIT
-			// ═══════════════════════════════════════
 			async function init() {
 			updateHeaderDate();
 			setInterval(updateHeaderDate, 60000);
@@ -7355,12 +6924,7 @@ function saveRedirectSettings() {
 			    e.stopPropagation();
 			  }, true);
 			}
-
-
-
-			// ═══════════════════════════════════════
 			// FONT SIZE (RTE)
-			// ═══════════════════════════════════════
 			const SIZE_CLASSES = ['txt-xs','txt-sm','txt-md','txt-lg','txt-xl','txt-xxl'];
 			const SIZE_LABELS  = { '':'m','txt-xs':'xs','txt-sm':'s','txt-lg':'l','txt-xl':'xl','txt-xxl':'xxl' };
 
@@ -7433,11 +6997,7 @@ function saveRedirectSettings() {
 			    drop.classList.remove('open');
 			  }
 			}
-
-
-			// ═══════════════════════════════════════
 			// CALENDAR POPUP
-			// ═══════════════════════════════════════
 			function toggleCalPopup() { if (calPopupOpen) { closeCalPopup(); return; } openCalPopup(); }
 			function openCalPopup() {
 			  calPopupOpen = true;
@@ -7589,10 +7149,7 @@ function saveRedirectSettings() {
 			  document.getElementById('calFabBtn').classList.toggle('is-active', !isViewingToday);
 			}
 			function goBackToToday() { selectDate(todayKey()); }
-
-			// ═══════════════════════════════════════
 			// NAV BUTTONS
-			// ═══════════════════════════════════════
 			function setupNavButtons() {
 			  const prev = document.getElementById('navPrev');
 			  const next = document.getElementById('navNext');
@@ -7619,12 +7176,7 @@ function saveRedirectSettings() {
 			  prev.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
 			  next.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
 			}
-
-
-
-			// ═══════════════════════════════════════
 			// OVERSCROLL / RING
-			// ═══════════════════════════════════════
 			const RING_CIRC = 2 * Math.PI * 28;
 			let ringProgress = 0, ringVisible = false, jumpLocked = false;
 			let touchStartY = 0, touchLastY = 0, overscrollActive = false, overscrollDelta = 0;
@@ -7760,14 +7312,7 @@ function saveRedirectSettings() {
 			    topscrollDelta = 0; topscrollActive = false;
 			  }
 			}
-
-
-
-
-
-			// ═══════════════════════════════════════
 			// LAST DATE
-			// ═══════════════════════════════════════
 			async function loadLastDate() {
 			  try { const { data, error } = await sb.from('hope_app_state').select('value').eq('key','last_date').single(); if (!error && data) return data.value; } catch(e) {}
 			  return null;
@@ -7775,10 +7320,7 @@ function saveRedirectSettings() {
 			async function saveLastDate(key) {
 			  try { await sb.from('hope_app_state').upsert([{ key:'last_date', value:key }], { onConflict:'key' }); } catch(e) {}
 			}
-
-			// ═══════════════════════════════════════
 			// DEFAULT DATES
-			// ═══════════════════════════════════════
 			function setDefaultDates() {
 			  const base = selectedDate ? new Date(selectedDate) : new Date();
 			  const now = new Date();
@@ -7789,11 +7331,7 @@ function saveRedirectSettings() {
 			  });
 			  if (selectedDate) { const dmDate = document.getElementById('dm-date'); if (dmDate) dmDate.value = dateKey(selectedDate); }
 			}
-
-
-			// ═══════════════════════════════════════
 			// DATE MUSIC
-			// ═══════════════════════════════════════
 			async function loadDateMusicMap() {
 			  try {
 			    const { data, error } = await sb.from('hope_date_music').select('*');
@@ -7846,11 +7384,7 @@ function saveRedirectSettings() {
 			  try { await sb.from('hope_date_music').delete().eq('date', date); } catch(e) {}
 			  showToast('muzică ștearsă'); closeModal('delete-dm'); buildCarousel(); renderEntries();
 			}
-
-
-			// ═══════════════════════════════════════
 			// DATE CAROUSEL
-			// ═══════════════════════════════════════
 			function buildCarousel() {
 			  const carousel = document.getElementById('dateCarousel');
 			  const today = new Date(); today.setHours(0,0,0,0);
@@ -7995,11 +7529,7 @@ function saveRedirectSettings() {
 			  if (target) { selectDate(target); window.scrollTo({ top:0, behavior:'smooth' }); }
 			  else showToast(dir===1?'nicio dată mai nouă':'nicio dată mai veche');
 			}
-
-
-			// ═══════════════════════════════════════
 			// MEDIA SESSION
-			// ═══════════════════════════════════════
 			function updateMediaSession(title, coverUrl) {
 			  if (!('mediaSession' in navigator)) return;
 			  const resolvedCover = coverUrl ? resolveUrl(coverUrl) : '';
@@ -8016,10 +7546,7 @@ function saveRedirectSettings() {
 			  navigator.mediaSession.setActionHandler('play', ()=>dmAudio.play());
 			  navigator.mediaSession.setActionHandler('pause', ()=>dmAudio.pause());
 			}
-
-			// ═══════════════════════════════════════
 			// DATE MUSIC AUDIO
-			// ═══════════════════════════════════════
 			function playDateMusic(dk, autoplay) {
 			  const dm = dateMusicMap[dk];
 			  if (dm && dm.url && (!dm.hidden || !isLocked)) {
@@ -8055,20 +7582,13 @@ function saveRedirectSettings() {
 			  }
 			  syncDateMusicWaves();
 			}
-
-
-			// ═══════════════════════════════════════
 			// LOAD
-			// ═══════════════════════════════════════
 			async function loadEntries() {
 			  const { data, error } = await sb.from('hope_entries').select('*').order('posted_at', { ascending:true });
 			  if (error) { showToast('eroare la încărcare'); return; }
 			  entries = data || [];
 			}
-
-			// ═══════════════════════════════════════
 			// SEARCH
-			// ═══════════════════════════════════════
 			const TYPE_KEYWORD_MAP = {
 			  'nota':'note','notita':'note','notite':'note','notița':'note','notițe':'note','note':'note',
 			  'foto':'photo','poza':'photo','poze':'photo','photo':'photo','imagine':'photo','imagini':'photo',
@@ -8131,10 +7651,7 @@ function saveRedirectSettings() {
 			  }
 			  walkNodes(tmp); return tmp.innerHTML;
 			}
-
-			// ═══════════════════════════════════════
 			// RENDER
-			// ═══════════════════════════════════════
 			function renderEntries() {
 			  document.querySelectorAll('.theme-canvas').forEach(c => {
 			    if (c._raf) cancelAnimationFrame(c._raf);
@@ -8246,11 +7763,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			  const haystack = normRo([e.content||'', e.caption||'', e.type||''].join(' '));
 			  return haystack.includes(qn);
 			}
-
-
-			// ═══════════════════════════════════════
 			// RENDER ENTRY -- private overlay redesign
-			// ═══════════════════════════════════════
 			function renderEntry(e, hlQuery) {
 			  const posted = new Date(e.posted_at);
 			  const timeStr = formatTime(posted);
@@ -8494,8 +8007,6 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			    if (theme === 'aurora') startAurora(canvas);
 			  });
 			}
-
-			/* ── ANIMAȚII ── */
 			function startStars(canvas) {
 			  const ctx = canvas.getContext('2d');
 			  const W = canvas.width, H = canvas.height;
@@ -8759,10 +8270,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 
 			function handleBlurClick(e) { const span = e.target.closest('.blur-text-span'); if (span) span.classList.toggle('revealed'); }
 			function handleCaptionClick(e) { const link = e.target.closest('a'); if (link) { e.stopPropagation(); window.open(link.href, '_blank', 'noopener'); } }
-
-			// ═══════════════════════════════════════
 			// PRIVATE REVEAL
-			// ═══════════════════════════════════════
 			function revealPrivateCard(entryId) {
 			  if (isPrivateUnlocked) {
 			    revealedPrivateSet.add(entryId);
@@ -8773,10 +8281,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			  _pendingPrivateEntryId = entryId;
 			  openPinOverlay('private');
 			}
-
-			// ═══════════════════════════════════════
 			// LIGHTBOX
-			// ═══════════════════════════════════════
 			let lbImages = [], lbIndex = 0;
 			let lbScale = 1, lbTransX = 0, lbTransY = 0;
 			let lbTouchStartX = 0, lbTouchStartY = 0;
@@ -8969,15 +8474,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			    });
 			  }
 			}
-
-
-
-
-
-
-			// ═══════════════════════════════════════
 			// ENTRY MUSIC CONTROLS
-			// ═══════════════════════════════════════
 			function toggleEntryMusic(url, title, cover, container) {
 			  if (typeof container === 'string') container = event.currentTarget.closest('.music-player');
 			  const overlay = container.querySelector('.music-cover-overlay');
@@ -9016,10 +8513,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			entryAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
 			dmAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
 			dmAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
-
-			// ═══════════════════════════════════════
 			// SUBMIT
-			// ═══════════════════════════════════════
 			async function submitEntry(type) {
 			  if (isLocked) { showToast('deblochează mai întâi'); return; }
 			  let payload = { type };
@@ -9173,11 +8667,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			    }, 80);
 			  }
 			}
-
-
-			// ═══════════════════════════════════════
 			// EDIT
-			// ═══════════════════════════════════════
 			function openEditFor(id) {
 			  if (isLocked) { showToast('deblochează mai întâi'); return; }
 			  const e = entries.find(x => x.id === id);
@@ -9424,11 +8914,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			  showToast('modificat'); closeModal('edit'); await reloadAndRender(id);
 
 			}
-
-
-			// ═══════════════════════════════════════
 			// DELETE
-			// ═══════════════════════════════════════
 			function openDeleteFor(id) { if (isLocked) { showToast('deblochează mai întâi'); return; } document.getElementById('delete-id').value = id; openModal('delete'); }
 			async function confirmDelete() {
 			  if (isLocked) { showToast('deblochează mai întâi'); return; }
@@ -9440,12 +8926,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			  if (error) { showToast('eroare'); return; }
 			  showToast('șters'); closeModal('delete'); await reloadAndRender();
 			}
-
-
-
-			// ═══════════════════════════════════════
 			// DEBUG
-			// ═══════════════════════════════════════
 			function openDebugFor(id) {
 			  if (isLocked) { showToast('deblochează mai întâi'); return; }
 			  const e = entries.find(x => x.id === id); if (!e) return;
@@ -9466,10 +8947,7 @@ if ((dm.hidden || dm.bannerHidden) && isLocked) return '';
 			  if (error) { showToast('eroare'); return; }
 			  showToast('date modificate'); closeModal('debug'); await reloadAndRender();
 			}
-
-			// ═══════════════════════════════════════
 			// MODAL
-			// ═══════════════════════════════════════
 			function openModal(name) {
 if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm','clip'].includes(name)) { showToast('deblochează mai întâi'); return; }
 			  closeFab(); closeCalPopup();
@@ -9522,10 +9000,7 @@ document.getElementById('dm-banner-toggle').classList.toggle('on-private', dmBan
 
 			function closeModal(name) { document.getElementById(`modal-${name}`).classList.remove('open'); }
 			document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); }); });
-
-			// ═══════════════════════════════════════
 			// FAB
-			// ═══════════════════════════════════════
 			function handleFabMainClick() {
 			  if (isLocked) {
 			    if (isRedirectMode() && SETTING_REDIRECT_HTML) {
@@ -9603,10 +9078,7 @@ function updateFabMainMode() {
 			  const fm = document.getElementById('fabMenu'); const fb = document.getElementById('fabMain');
 			  if (fm) fm.classList.remove('open'); if (fb) fb.classList.remove('open');
 			}
-
-			// ═══════════════════════════════════════
 			// PHOTO BLUR TOGGLE
-			// ═══════════════════════════════════════
 			function togglePhotoBlur() {
 			  photoBlurEnabled = !photoBlurEnabled;
 			  const track = document.getElementById('photo-blur-track'); const thumb = document.getElementById('photo-blur-thumb');
@@ -9956,20 +9428,13 @@ function toggleDmHidden() {
 			  const urlsArrayCode = links.map(u => `  "${u}",`).join('\n');
 			  return `// ============================================================
 			// ADAUGĂ/MODIFICĂ URL-URI AICI
-			// ============================================================
 			const URLS = [
 			${urlsArrayCode}
 			];
-			// ============================================================
 			// FOLDER RĂDĂCINĂ — se salvează pe dispozitiv (nu iCloud)
-			// ============================================================
 			const fm = FileManager.iCloud();
 			const BASE_FOLDER = fm.documentsDirectory() + "/Descarcari";
-
-
-			// ============================================================
 			// LOGICĂ AUTOMATĂ — nu modifica mai jos
-			// ============================================================
 
 			function getSubfolder(url) {
 			  if (url.includes("/gifs/"))   return "gifs";
@@ -10566,14 +10031,7 @@ function filterR2Category(cat, btn) {
     }
   });
 }
-
-
-
-
-
-			// ═══════════════════════════════════════
 			// RICH TEXT EDITOR
-			// ═══════════════════════════════════════
 			let savedRange = null;
 			function rteSaveRange() { const sel=window.getSelection(); if(sel&&sel.rangeCount>0) savedRange=sel.getRangeAt(0).cloneRange(); }
 			function rteRestoreRange(editorId) { const editor=document.getElementById(editorId); if(!editor) return; editor.focus(); if(savedRange){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);} }
@@ -10653,10 +10111,7 @@ function filterR2Category(cat, btn) {
 			}
 
 			function getRteHtml(editorId) { const editor=document.getElementById(editorId); if(!editor) return ''; editor.querySelectorAll('a').forEach(a=>{a.target='_blank';a.rel='noopener';}); return editor.innerHTML; }
-
-			// ═══════════════════════════════════════
 			// MUSIC TEXT SPANS
-			// ═══════════════════════════════════════
 			function rteToggleMusicBar() {
 			  const sel = window.getSelection();
 			  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
@@ -10785,11 +10240,7 @@ function filterR2Category(cat, btn) {
 			    currentMusicTextSpan = span;
 			  }
 			}
-
-
-// ═══════════════════════════════════════
 // TIKTOK CLIPS + COLECȚII
-// ═══════════════════════════════════════
 let clips = [];
 let collections = [];
 let watchedClipIds = new Set();
@@ -12965,12 +12416,7 @@ function showAccessChoiceModal() {
   document.body.appendChild(overlay);
   requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 }
-
-
-
-			// ═══════════════════════════════════════
 			// TOAST
-			// ═══════════════════════════════════════
 			function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 
@@ -12986,28 +12432,12 @@ function showReactionToast(msg) {
 
 
 
-			function transitionAccessToRedirect() {
-			  const overlay = document.getElementById('access-choice-overlay');
-			  if (!overlay) { showRedirectModal(); return; }
-			  overlay.id = 'redirect-modal-overlay';
-			  overlay.innerHTML = `
-			    <div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">
-			      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,rgba(200,80,120,0.25),rgba(230,100,140,0.12));border:1px solid rgba(220,80,120,0.35);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
-			        <svg viewBox="0 0 24 24" fill="none" stroke="#f0a0b8" stroke-width="1.6" style="width:22px;height:22px;">
-			          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>
-			        </svg>
-			      </div>
-			      <div style="font-family:var(--serif);font-size:21px;font-style:italic;color:var(--accent2);font-weight:400;margin-bottom:6px;text-align:center;">te așteaptă</div>
-			      <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text2);letter-spacing:0.02em;text-align:center;line-height:1.6;margin-bottom:24px;">ceva special<br>doar pentru tine</div>
-			      <div style="width:100%;background:rgba(200,169,126,0.06);border:1px solid rgba(200,169,126,0.2);border-radius:12px;padding:12px 16px;margin-bottom:24px;text-align:center;">
-			        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">parola de acces</div>
-			        <div style="font-family:var(--serif);font-size:28px;color:var(--accent2);letter-spacing:0.18em;font-weight:500;">0000</div>
-			      </div>
-			      <button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'));openRedirectSite();" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;cursor:pointer;margin-bottom:8px;transition:all 0.2s;">deschide ♥</button>
-			      <button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'))" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;transition:all 0.2s;">anulează</button>
-			    </div>
-			  `;
-			}
+function transitionAccessToRedirect() {
+  const o = document.getElementById('access-choice-overlay');
+  if (o) o.remove();
+  showRedirectModal();
+}
+
 
 
 
@@ -13099,14 +12529,7 @@ overlay.style.cssText = 'position:fixed;inset:0;z-index:980;background:#140a10;'
 			  document.body.appendChild(overlay);
 			  document.getElementById('redirect-site-iframe').srcdoc = SETTING_REDIRECT_HTML;
 			}
-
-
-
-
-
-			// ═══════════════════════════════════════
 			// START
-			// ═══════════════════════════════════════
 			window.addEventListener('message', function(e) {
 			  if (e.data && e.data.type === 'hope-audio-play') {
 			    if (!dmAudio.paused) {
@@ -13118,12 +12541,7 @@ overlay.style.cssText = 'position:fixed;inset:0;z-index:980;background:#140a10;'
 
 			init();
 			startSupabaseKeepAlive();
-
-
-
-			// ═══════════════════════════════════════
 			// SUPABASE EXPORT
-			// ═══════════════════════════════════════
 
 const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'hope_clips', 'hope_clip_collections'];
 
