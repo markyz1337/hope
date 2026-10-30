@@ -5200,33 +5200,23 @@ document.getElementById('lockBadge').addEventListener('click', () => {
 if (!isLocked) { setUnlocked(false); showToast('blocat'); }
 else openPinOverlay('main');
 });
-function toggleNote18() {
-note18Enabled = !note18Enabled;
-const t = document.getElementById('note-18-toggle');
-t.classList.toggle('on-private', note18Enabled);
-}
-function togglePhoto18() {
-photo18Enabled = !photo18Enabled;
-const t = document.getElementById('photo-18-toggle');
-t.classList.toggle('on-private', photo18Enabled);
-}
-function toggleVideo18() {
-video18Enabled = !video18Enabled;
-const t = document.getElementById('video-18-toggle');
-t.classList.toggle('on-private', video18Enabled);
-}
+function _tgl(id, cls, val) { document.getElementById(id).classList.toggle(cls, val); }
+function toggleNote18()  { note18Enabled  = !note18Enabled;  _tgl('note-18-toggle',  'on-private', note18Enabled); }
+function togglePhoto18() { photo18Enabled = !photo18Enabled; _tgl('photo-18-toggle', 'on-private', photo18Enabled); }
+function toggleVideo18() { video18Enabled = !video18Enabled; _tgl('video-18-toggle', 'on-private', video18Enabled); }
+function toggleHtml18()  { html18Enabled  = !html18Enabled;  _tgl('html-18-toggle',  'on-private', html18Enabled); }
+function toggleHtmlHidden() { htmlHiddenEnabled = !htmlHiddenEnabled; _tgl('html-hidden-toggle', 'on-private', htmlHiddenEnabled); }
+function toggleVideoAutoplay() { videoAutoplayEnabled = !videoAutoplayEnabled; _tgl('video-autoplay-toggle', 'on', videoAutoplayEnabled); }
+function toggleEdit18() { edit18Enabled = !edit18Enabled; _tgl('edit-18-toggle', 'on-private', edit18Enabled); }
+function toggleEditBlur() { editBlurEnabled = !editBlurEnabled; _tgl('edit-blur-toggle', 'on', editBlurEnabled); }
+function toggleEditHidden() { editHiddenEnabled = !editHiddenEnabled; _tgl('edit-hidden-toggle', 'on-private', editHiddenEnabled); }
+function toggleDmBanner() { dmBannerHiddenEnabled = !dmBannerHiddenEnabled; _tgl('dm-banner-toggle', 'on-private', dmBannerHiddenEnabled); }
+function toggleDmHidden() { dmHiddenEnabled = !dmHiddenEnabled; _tgl('dm-hidden-toggle', 'on-private', dmHiddenEnabled); }
+function toggleEditVideoAutoplay() { editVideoAutoplayEnabled = !editVideoAutoplayEnabled; _tgl('edit-video-autoplay-toggle', 'on', editVideoAutoplayEnabled); }
 
 
-function toggleHtml18() {
-html18Enabled = !html18Enabled;
-const t = document.getElementById('html-18-toggle');
-t.classList.toggle('on-private', html18Enabled);
-}
-function toggleHtmlHidden() {
-htmlHiddenEnabled = !htmlHiddenEnabled;
-const t = document.getElementById('html-hidden-toggle');
-t.classList.toggle('on-private', htmlHiddenEnabled);
-}
+
+
 
 function updateHtmlPreview() {
 const code = document.getElementById('html-code').value;
@@ -5234,18 +5224,10 @@ document.getElementById('html-preview-frame').srcdoc = code;
 }
 
 
-function toggleVideoAutoplay() {
-videoAutoplayEnabled = !videoAutoplayEnabled;
-const t = document.getElementById('video-autoplay-toggle');
-t.classList.toggle('on', videoAutoplayEnabled);
-}
 
 
-function toggleEdit18() {
-edit18Enabled = !edit18Enabled;
-const t = document.getElementById('edit-18-toggle');
-t.classList.toggle('on-private', edit18Enabled);
-}
+
+
 let capSavedRange = null;
 
 function capRteLink(editorId, barId, inputId) {
@@ -5282,12 +5264,8 @@ else editor.appendChild(a);
 document.getElementById(barId).classList.remove('visible');
 }
 
-function getCapHtml(editorId) {
-const ed = document.getElementById(editorId);
-if (!ed) return '';
-ed.querySelectorAll('a').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
-return ed.innerHTML.trim();
-}
+const getCapHtml = id => getRteHtml(id).trim();
+
 function extractYouTubeId(url) {
 if (!url) return null;
 const patterns = [
@@ -6419,6 +6397,13 @@ if (which === 'prev') { setRingProgress(0, 'prev'); topJumpLocked = false; }
 else { setRingProgress(0, 'next'); jumpLocked = false; }
 }
 
+function touchBlocked(e) {
+  if (e.target.closest('.bottom-nav-btn,.nav-btn-outer,.pdf-entry,a,.backdrop.open')) return true;
+  return ['lightbox','calPopupOverlay','settingsOverlay','r2GalleryOverlay']
+    .some(id => document.getElementById(id).classList.contains('open'));
+}
+
+
 let _overscrollSetup = false;
 function setupOverscroll() {
 if (_overscrollSetup) return;
@@ -6431,12 +6416,7 @@ let touchStartX = 0;
 let touchDirectionLocked = false; // 'h' | 'v' | false
 
 function onTouchStart(e) {
-if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')||e.target.closest('.pdf-entry')||e.target.closest('a')) return;
-if (e.target.closest('.backdrop.open')) return;
-if (document.getElementById('lightbox').classList.contains('open')) return;
-if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
-if (document.getElementById('settingsOverlay').classList.contains('open')) return;
-if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+if (touchBlocked(e)) return;
 
 
 if (document.getElementById('tikhope-site-overlay')) return;
@@ -6455,12 +6435,7 @@ topscrollActive = window.scrollY <= 4;
 }
 
 function onTouchMove(e) {
-if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')||e.target.closest('.pdf-entry')||e.target.closest('a')) return;
-if (e.target.closest('.backdrop.open')) return;
-if (document.getElementById('lightbox').classList.contains('open')) return;
-if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
-if (document.getElementById('settingsOverlay').classList.contains('open')) return;
-if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+if (touchBlocked(e)) return;
 
 
 
@@ -6509,12 +6484,7 @@ setRingProgress(topscrollDelta/OVERSCROLL_THRESHOLD, 'prev');
 }
 
 function onTouchEnd(e) {
-if (e.target.closest('.bottom-nav-btn')||e.target.closest('.nav-btn-outer')||e.target.closest('.pdf-entry')||e.target.closest('a')) return;
-if (e.target.closest('.backdrop.open')) return;
-if (document.getElementById('lightbox').classList.contains('open')) return;
-if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
-if (document.getElementById('settingsOverlay').classList.contains('open')) return;
-if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+if (touchBlocked(e)) return;
 
 
 
@@ -8248,22 +8218,9 @@ const track = document.getElementById('photo-blur-track'); const thumb = documen
 if (photoBlurEnabled) { track.style.background='rgba(200,169,126,0.25)'; track.style.borderColor='rgba(200,169,126,0.4)'; thumb.style.background='var(--accent2)'; thumb.style.transform='translateX(16px)'; }
 else { track.style.background='var(--surface2)'; track.style.borderColor='var(--border)'; thumb.style.background='var(--text3)'; thumb.style.transform='translateX(0)'; }
 }
-function toggleEditBlur() { editBlurEnabled=!editBlurEnabled; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
-function toggleEditHidden() {
-editHiddenEnabled = !editHiddenEnabled;
-const t = document.getElementById('edit-hidden-toggle');
-t.classList.toggle('on-private', editHiddenEnabled);
-}
 
-function toggleDmBanner() {
-dmBannerHiddenEnabled = !dmBannerHiddenEnabled;
-document.getElementById('dm-banner-toggle').classList.toggle('on-private', dmBannerHiddenEnabled);
-}
 
-function toggleDmHidden() {
-dmHiddenEnabled = !dmHiddenEnabled;
-document.getElementById('dm-hidden-toggle').classList.toggle('on-private', dmHiddenEnabled);
-}
+
 
 
 let selectedNoteTheme = 'none';
@@ -8271,25 +8228,15 @@ let selectedEditTheme = 'none';
 
 
 let editVideoAutoplayEnabled = false;
-function toggleEditVideoAutoplay() {
-editVideoAutoplayEnabled = !editVideoAutoplayEnabled;
-document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
-}
 
 
-function selectNoteTheme(theme) {
-selectedNoteTheme = theme;
-document.querySelectorAll('#themeSelectorGrid .theme-swatch').forEach(s => {
-s.classList.toggle('selected', s.dataset.theme === theme);
-});
-}
 
-function selectEditTheme(theme) {
-selectedEditTheme = theme;
-document.querySelectorAll('#editThemeSelectorGrid .theme-swatch').forEach(s => {
-s.classList.toggle('selected', s.dataset.theme === theme);
-});
+function _selTheme(gridId, t) {
+  document.querySelectorAll('#'+gridId+' .theme-swatch').forEach(s => s.classList.toggle('selected', s.dataset.theme === t));
 }
+function selectNoteTheme(t) { selectedNoteTheme = t; _selTheme('themeSelectorGrid', t); }
+function selectEditTheme(t) { selectedEditTheme = t; _selTheme('editThemeSelectorGrid', t); }
+
 const R2_WORKER_URL = 'https://carnet-upload.sergiu-disk.workers.dev';
 const R2_UPLOAD_SECRET = 'carnet2026secret'; // ce ai pus tu la UPLOAD_SECRET
 const R2_PUBLIC_URL = 'https://pub-b2074a6250b94e72a2f56ff71f7dbc94.r2.dev';
@@ -8361,41 +8308,24 @@ setTimeout(() => status.textContent = '', 3000);
 
 
 
-async function uploadEditCoverToR2(file) {
-const status = document.getElementById('edit-cover-upload-status');
-const preview = document.getElementById('edit-cover-preview');
-const previewImg = document.getElementById('edit-cover-preview-img');
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'image');
-document.getElementById('edit-cover').value = `r2:${result.publicId}`;
-previewImg.src = result.secureUrl;
-preview.style.display = 'block';
-status.textContent = '✓ copertă încărcată';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
 
 
-async function uploadMusicCoverToR2(file) {
-const status = document.getElementById('music-cover-upload-status');
-const preview = document.getElementById('music-cover-preview');
-const previewImg = document.getElementById('music-cover-preview-img');
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'image');
-document.getElementById('music-cover-inp').value = `r2:${result.publicId}`;
 
-previewImg.src = result.secureUrl;
-preview.style.display = 'block';
-status.textContent = '✓ copertă încărcată';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
+async function _uploadCover(file, p, inputId) {
+  const status = document.getElementById(p+'-cover-upload-status');
+  status.textContent = 'se încarcă...';
+  try {
+    const r = await uploadToR2(file);
+    document.getElementById(inputId).value = 'r2:' + r.publicId;
+    document.getElementById(p+'-cover-preview-img').src = r.secureUrl;
+    document.getElementById(p+'-cover-preview').style.display = 'block';
+    status.textContent = '✓ copertă încărcată';
+    setTimeout(() => status.textContent = '', 3000);
+  } catch(e) { status.textContent = 'eroare la upload'; }
 }
-}
+const uploadEditCoverToR2 = f => _uploadCover(f, 'edit', 'edit-cover');
+const uploadMusicCoverToR2 = f => _uploadCover(f, 'music', 'music-cover-inp');
+
 
 
 
@@ -9067,26 +8997,31 @@ section.style.display = section.dataset.folderSection === cat ? '' : 'none';
 let savedRange = null;
 function rteSaveRange() { const sel=window.getSelection(); if(sel&&sel.rangeCount>0) savedRange=sel.getRangeAt(0).cloneRange(); }
 function rteRestoreRange(editorId) { const editor=document.getElementById(editorId); if(!editor) return; editor.focus(); if(savedRange){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);} }
-function rteCmd(cmd) { document.getElementById('rte-editor').focus(); document.execCommand(cmd,false,null); updateRteState(); }
-function rteCmd2(cmd) { document.getElementById('rte-editor2').focus(); document.execCommand(cmd,false,null); }
+function rteCmd(cmd, s = '') { document.getElementById('rte-editor'+s).focus(); document.execCommand(cmd,false,null); if (!s) updateRteState(); }
+const rteCmd2 = cmd => rteCmd(cmd, '2');
+
 function updateRteState() { document.getElementById('rte-bold')?.classList.toggle('active', document.queryCommandState('bold')); }
 document.addEventListener('selectionchange', () => { if (document.activeElement&&document.activeElement.closest('#modal-note')) updateRteState(); });
-function rteToggleLinkBar() { rteSaveRange(); const bar=document.getElementById('rte-link-bar'); const inp=document.getElementById('rte-link-input'); if(bar.classList.toggle('visible')){inp.value='';setTimeout(()=>inp.focus(),50);} }
-function rteToggleLinkBar2() { rteSaveRange(); const bar=document.getElementById('rte-link-bar2'); const inp=document.getElementById('rte-link-input2'); if(bar.classList.toggle('visible')){inp.value='';setTimeout(()=>inp.focus(),50);} }
-function rteInsertLink() {
-const url=document.getElementById('rte-link-input').value.trim(); if(!url) return;
-rteRestoreRange('rte-editor'); const sel=window.getSelection();
-if(sel&&sel.rangeCount>0&&!sel.isCollapsed){document.execCommand('createLink',false,url);}
-else{const a=document.createElement('a');a.href=url;a.textContent=url;a.target='_blank';const range=window.getSelection().getRangeAt(0);range.insertNode(a);range.setStartAfter(a);range.collapse(true);window.getSelection().removeAllRanges();window.getSelection().addRange(range);}
-document.getElementById('rte-link-bar').classList.remove('visible');
+function rteToggleLinkBar(s = '') {
+  rteSaveRange();
+  const bar = document.getElementById('rte-link-bar'+s), inp = document.getElementById('rte-link-input'+s);
+  if (bar.classList.toggle('visible')) { inp.value = ''; setTimeout(() => inp.focus(), 50); }
 }
-function rteInsertLink2() {
-const url=document.getElementById('rte-link-input2').value.trim(); if(!url) return;
-rteRestoreRange('rte-editor2'); const sel=window.getSelection();
-if(sel&&sel.rangeCount>0&&!sel.isCollapsed){document.execCommand('createLink',false,url);}
-else{const a=document.createElement('a');a.href=url;a.textContent=url;a.target='_blank';const range=window.getSelection().getRangeAt(0);range.insertNode(a);range.setStartAfter(a);range.collapse(true);window.getSelection().removeAllRanges();window.getSelection().addRange(range);}
-document.getElementById('rte-link-bar2').classList.remove('visible');
+function rteInsertLink(s = '') {
+  const url = document.getElementById('rte-link-input'+s).value.trim(); if (!url) return;
+  rteRestoreRange('rte-editor'+s);
+  const sel = window.getSelection();
+  if (sel.rangeCount > 0 && !sel.isCollapsed) document.execCommand('createLink', false, url);
+  else {
+    const a = document.createElement('a'); a.href = url; a.textContent = url; a.target = '_blank';
+    const r = sel.getRangeAt(0); r.insertNode(a); r.setStartAfter(a); r.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r);
+  }
+  document.getElementById('rte-link-bar'+s).classList.remove('visible');
 }
+const rteToggleLinkBar2 = () => rteToggleLinkBar('2');
+const rteInsertLink2 = () => rteInsertLink('2');
+
 function rteBlurSelected() { _rteToggleBlur('rte-editor'); }
 function rteBlurSelected2() { _rteToggleBlur('rte-editor2'); }
 function rteMusicUnwrap(editorId) {
@@ -9139,33 +9074,16 @@ sel.removeAllRanges();
 }
 
 function getRteHtml(editorId) { const editor=document.getElementById(editorId); if(!editor) return ''; editor.querySelectorAll('a').forEach(a=>{a.target='_blank';a.rel='noopener';}); return editor.innerHTML; }
-function rteToggleMusicBar() {
-const sel = window.getSelection();
-if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-savedRteMusicRange = sel.getRangeAt(0).cloneRange();
+function rteToggleMusicBar(s = '') {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) savedRteMusicRange = sel.getRangeAt(0).cloneRange();
+  if (document.getElementById('rte-music-bar'+s).classList.toggle('visible')) {
+    document.getElementById('rte-music-url-input'+s).value = '';
+    document.getElementById('rte-music-title-input'+s).value = '';
+    document.getElementById('rte-music-upload-status'+s).textContent = '';
+  }
 }
-const bar = document.getElementById('rte-music-bar');
-const isVis = bar.classList.toggle('visible');
-if (isVis) {
-document.getElementById('rte-music-url-input').value = '';
-document.getElementById('rte-music-title-input').value = '';
-document.getElementById('rte-music-upload-status').textContent = '';
-}
-}
-
-function rteToggleMusicBar2() {
-const sel = window.getSelection();
-if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-savedRteMusicRange = sel.getRangeAt(0).cloneRange();
-}
-const bar = document.getElementById('rte-music-bar2');
-const isVis = bar.classList.toggle('visible');
-if (isVis) {
-document.getElementById('rte-music-url-input2').value = '';
-document.getElementById('rte-music-title-input2').value = '';
-document.getElementById('rte-music-upload-status2').textContent = '';
-}
-}
+const rteToggleMusicBar2 = () => rteToggleMusicBar('2');
 
 async function uploadRteMusicFile(file, num) {
 const statusId = num === 2 ? 'rte-music-upload-status2' : 'rte-music-upload-status';
