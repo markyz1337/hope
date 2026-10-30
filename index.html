@@ -922,11 +922,11 @@ padding: 16px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-s
 .sheet-title { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--text); margin-bottom: 18px; font-weight: 400; }
 .form-group { margin-bottom: 14px; }
 .form-label { display: block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 7px; }
-.form-input, .form-textarea, .form-select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
-.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--border2); background: var(--surface2); }
+.form-input, .form-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 13px; color: var(--text); font-family: var(--sans); font-size: 15px; outline: none; transition: border-color 0.2s, background 0.2s; appearance: none; -webkit-appearance: none; }
+.form-input:focus, .form-textarea:focus { border-color: var(--border2); background: var(--surface2); }
 .form-textarea { min-height: 100px; resize: vertical; line-height: 1.65; font-family: var(--serif); font-size: 15px; }
 input[type="datetime-local"], input[type="date"] { color-scheme: dark; }
-.form-select option { background: #17171d; }
+
 .rte-wrap { border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; background: var(--surface); transition: border-color 0.2s, background 0.2s; }
 .rte-wrap:focus-within { border-color: var(--border2); background: var(--surface2); }
 .rte-toolbar { display: flex; align-items: center; gap: 2px; padding: 7px 8px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); flex-wrap: wrap; }
@@ -2807,7 +2807,7 @@ type="file"
 id="video-file-input"
 accept="video/*"
 style="display:none"
-onchange="uploadVideoToR2(this.files[0])"
+onchange="uploadTo(this.files[0],'video-upload-status','video-url')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -2987,7 +2987,7 @@ type="file"
 id="music-file-input"
 accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
 style="display:none"
-onchange="uploadMusicToR2(this.files[0])"
+onchange="uploadTo(this.files[0],'music-upload-status','music-url')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -3177,7 +3177,7 @@ type="file"
 id="pdf-file-input"
 accept=".pdf"
 style="display:none"
-onchange="uploadPdfToR2(this.files[0])"
+onchange="uploadTo(this.files[0],'pdf-upload-status','pdf-url')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -3297,7 +3297,7 @@ type="file"
 id="dm-file-input"
 accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
 style="display:none"
-onchange="uploadDmMusicToR2(this.files[0])"
+onchange="uploadTo(this.files[0],'dm-upload-status','dm-url')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -3375,7 +3375,7 @@ type="file"
 id="dm-cover-file-input"
 accept="image/*"
 style="display:none"
-onchange="uploadDmCoverToR2(this.files[0])"
+onchange="uploadTo(this.files[0],'dm-cover-upload-status','dm-cover','✓ copertă încărcată')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -3867,7 +3867,7 @@ id="edit-content"
 <button
 id="edit-html-copy-btn"
 style="display:none;width:100%;margin-bottom:10px;padding:11px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:var(--r2);color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;"
-onclick="navigator.clipboard.writeText(document.getElementById('edit-content').value).then(()=>showToast('cod HTML copiat')).catch(()=>showToast('eroare'))"
+onclick="copyText(document.getElementById('edit-content').value,'cod HTML copiat')"
 >
 📋 copiază codul HTML
 </button>
@@ -4702,7 +4702,7 @@ type="file"
 id="timelock-music-file-input"
 accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
 style="display:none"
-onchange="uploadTimelockMusicToR2(this.files[0])"
+onchange="uploadTo(this.files[0],'timelock-music-upload-status','settings-timelock-music-url')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -5099,36 +5099,8 @@ const savedKey = await loadLastDate();
 const _settings = await loadSettings();
 SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
 
-const allDates = [
-...entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)),
-...Object.keys(dateMusicMap).filter(d => !dateMusicMap[d].hidden || !isLocked)
-].sort();
+selectedDate = pickInitialDate(SETTING_NAV_MODE, savedKey);
 
-
-
-if (SETTING_NAV_MODE === 'today') {
-const today = new Date(); today.setHours(0,0,0,0);
-selectedDate = today;
-} else if (SETTING_NAV_MODE === 'last') {
-const visibleDates = [...new Set(
-entries.filter(e => !e.hidden).map(e => dateKey(e.posted_at))
-)].sort();
-const visibleMusicDates = Object.entries(dateMusicMap).filter(([,dm]) => !dm.hidden).map(([d]) => d);
-const allVisibleDates = [...new Set([...visibleDates, ...visibleMusicDates])].sort();
-
-
-const lastDate = allVisibleDates[allVisibleDates.length - 1];
-if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-}
-else if (SETTING_NAV_MODE === 'first') {
-const firstDate = allDates[0];
-if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-} else {
-if (savedKey) { const [y,m,d] = savedKey.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-}
 
 
 
@@ -6001,34 +5973,8 @@ await loadEntries();
 const savedKey = await loadLastDate();
 SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
 
-const allDates = [
-...entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)),
-...Object.keys(dateMusicMap).filter(d => !dateMusicMap[d].hidden || !isLocked)
-].sort();
+selectedDate = pickInitialDate(SETTING_NAV_MODE, savedKey);
 
-
-if (SETTING_NAV_MODE === 'today') {
-const today = new Date(); today.setHours(0,0,0,0);
-selectedDate = today;
-} else if (SETTING_NAV_MODE === 'last') {
-const visibleDates = [...new Set(
-entries.filter(e => !e.hidden).map(e => dateKey(e.posted_at))
-)].sort();
-const visibleMusicDates = Object.entries(dateMusicMap).filter(([,dm]) => !dm.hidden).map(([d]) => d);
-const allVisibleDates = [...new Set([...visibleDates, ...visibleMusicDates])].sort();
-
-const lastDate = allVisibleDates[allVisibleDates.length - 1];
-if (lastDate) { const [y,m,d] = lastDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-}
-else if (SETTING_NAV_MODE === 'first') {
-const firstDate = allDates[0];
-if (firstDate) { const [y,m,d] = firstDate.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-} else {
-if (savedKey) { const [y,m,d] = savedKey.split('-').map(Number); selectedDate = new Date(y,m-1,d); }
-else { selectedDate = new Date(); selectedDate.setHours(0,0,0,0); }
-}
 
 
 buildCarousel();
@@ -6173,20 +6119,7 @@ el.textContent = SETTING_REDIRECT_HTML
 : 'niciun cod salvat';
 }
 
-function copyRedirectHtml() {
-if (!SETTING_REDIRECT_HTML) { showToast('niciun cod salvat'); return; }
-navigator.clipboard.writeText(SETTING_REDIRECT_HTML).then(() => {
-showToast('cod copiat');
-}).catch(() => {
-const ta = document.createElement('textarea');
-ta.value = SETTING_REDIRECT_HTML;
-document.body.appendChild(ta);
-ta.select();
-document.execCommand('copy');
-document.body.removeChild(ta);
-showToast('cod copiat');
-});
-}
+
 
 async function clearRedirectHtmlOnly() {
   if (!SETTING_REDIRECT_HTML) { showToast('niciun cod de șters'); return; }
@@ -8362,7 +8295,7 @@ const R2_UPLOAD_SECRET = 'carnet2026secret'; // ce ai pus tu la UPLOAD_SECRET
 const R2_PUBLIC_URL = 'https://pub-b2074a6250b94e72a2f56ff71f7dbc94.r2.dev';
 
 
-async function uploadToR2(file, resourceType = 'auto') {
+async function uploadToR2(file) {
 const now = new Date();
 const pad = n => String(n).padStart(2, '0');
 const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
@@ -8426,18 +8359,7 @@ status.textContent = `✓ ${ids.length} imagine(i) încărcate`;
 setTimeout(() => status.textContent = '', 3000);
 }
 
-async function uploadMusicToR2(file) {
-const status = document.getElementById('music-upload-status');
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'audio');
-document.getElementById('music-url').value = `r2:${result.publicId}`;
-status.textContent = '✓ încărcat';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
+
 
 async function uploadEditCoverToR2(file) {
 const status = document.getElementById('edit-cover-upload-status');
@@ -8476,81 +8398,48 @@ status.textContent = 'eroare la upload';
 }
 
 
-async function uploadDmMusicToR2(file) {
-const status = document.getElementById('dm-upload-status');
+
+
+
+
+
+async function uploadTo(file, statusId, inputId, okMsg = '✓ încărcat') {
+const status = document.getElementById(statusId);
 status.textContent = 'se încarcă...';
 try {
-const result = await uploadToR2(file, 'audio');
-document.getElementById('dm-url').value = `r2:${result.publicId}`;
-
-status.textContent = '✓ încărcat';
+const r = await uploadToR2(file);
+document.getElementById(inputId).value = `r2:${r.publicId}`;
+status.textContent = okMsg;
 setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
+} catch(e) { status.textContent = 'eroare la upload'; }
 }
 
 
-async function uploadDmCoverToR2(file) {
-const status = document.getElementById('dm-cover-upload-status');
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'image');
-document.getElementById('dm-cover').value = `r2:${result.publicId}`;
-status.textContent = '✓ copertă încărcată';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
 
 
-async function uploadTimelockMusicToR2(file) {
-const status = document.getElementById('timelock-music-upload-status');
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'audio');
-document.getElementById('settings-timelock-music-url').value = `r2:${result.publicId}`;
-status.textContent = '✓ încărcat';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
 
 
-async function uploadPdfToR2(file) {
-const status = document.getElementById('pdf-upload-status');
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'raw');
-document.getElementById('pdf-url').value = `r2:${result.publicId}`;
 
-status.textContent = '✓ încărcat';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
-
-async function uploadVideoToR2(file) {
-const status = document.getElementById('video-upload-status');
-status.textContent = 'se încarcă (poate dura...)';
-try {
-const result = await uploadToR2(file, 'video');
-document.getElementById('video-url').value = `r2:${result.publicId}`;
-status.textContent = '✓ încărcat';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
 
 
 function removePhotoPreview(btn, url) {
 btn.closest('div').remove();
 const field = document.getElementById('photo-urls');
 field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
+}
+
+
+function getUsedKeys() {
+  const k = new Set();
+  const add = u => { if (u?.startsWith('r2:')) k.add(u.slice(3)); };
+  entries.forEach(e => {
+    (e.media_urls || []).forEach(add);
+    add(e.cover_url);
+    extractR2KeysFromContent(e.content).forEach(x => k.add(x));
+  });
+  Object.values(dateMusicMap).forEach(dm => { add(dm.url); add(dm.cover); });
+  add(SETTING_TIMELOCK_MUSIC_URL);
+  return k;
 }
 
 
@@ -8739,21 +8628,37 @@ Script.complete();
 
 
 
-function copyAllR2Links() {
-const btn = document.getElementById('copyAllR2Btn');
-const links = JSON.parse(btn.dataset.links);
-const text = buildScriptableScript(links);
-navigator.clipboard.writeText(text).then(() => {
-showToast(`script Scriptable copiat (${links.length} fișiere)`);
-}).catch(() => {
-const ta = document.createElement('textarea');
-ta.value = text; document.body.appendChild(ta);
-ta.select(); document.execCommand('copy');
-document.body.removeChild(ta);
-showToast(`script Scriptable copiat (${links.length} fișiere)`);
-});
+function copyRedirectHtml() {
+  if (!SETTING_REDIRECT_HTML) { showToast('niciun cod salvat'); return; }
+  copyText(SETTING_REDIRECT_HTML, 'cod copiat');
 }
 
+async function copyTikHopeHtml() {
+  const code = await loadTikHopeHtml();
+  if (!code) { showToast('niciun cod salvat'); return; }
+  copyText(code, 'cod copiat');
+}
+
+function copyR2Link(key, type) {
+  const direct = type === 'direct';
+  copyText(direct ? `${R2_PUBLIC_URL}/${key}` : `r2:${key}`,
+           direct ? 'link direct copiat' : 'referință r2: copiată');
+}
+
+function copyAllR2Links() {
+  const links = JSON.parse(document.getElementById('copyAllR2Btn').dataset.links);
+  copyText(buildScriptableScript(links), `script Scriptable copiat (${links.length} fișiere)`);
+}
+
+
+
+
+function copyText(text, msg = 'copiat') {
+  (navigator.clipboard?.writeText(text) || Promise.reject()).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = text;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }).then(() => showToast(msg));
+}
 
 
 function renderR2Gallery(files) {
@@ -8773,22 +8678,9 @@ if (!groups[folder]) groups[folder] = [];
 groups[folder].push(f);
 });
 
-const usedKeys = new Set();
-entries.forEach(e => {
-(e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
-if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
-extractR2KeysFromContent(e.content).forEach(k => usedKeys.add(k));
-});
+const usedKeys = getUsedKeys();
 
 
-
-Object.values(dateMusicMap).forEach(dm => {
-if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
-if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
-});
-if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
-usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
-}
 
 const totalSize = files.reduce((a, f) => a + f.size, 0);
 
@@ -8893,18 +8785,7 @@ openR2FileDetailFromGallery(key, visualOrder[idx], visualOrder, idx);
 
 
 async function deleteAllOrphans() {
-const usedKeys = new Set();
-entries.forEach(e => {
-(e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
-if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
-extractR2KeysFromContent(e.content).forEach(k => usedKeys.add(k));
-});
-
-Object.values(dateMusicMap).forEach(dm => {
-if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
-if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
-});
-if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
+const usedKeys = getUsedKeys();
 
 const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
 
@@ -9064,20 +8945,8 @@ openR2FileDetailFromGallery(next.key, next, allFiles, currentIndex + 1);
 
 
 function openR2FileDetailFromGallery(key, fileObj, allFiles, currentIndex) {
-const usedKeys = new Set();
-entries.forEach(e => {
-(e.media_urls || []).forEach(u => { if (u.startsWith('r2:')) usedKeys.add(u.slice(3)); });
-if (e.cover_url?.startsWith('r2:')) usedKeys.add(e.cover_url.slice(3));
-extractR2KeysFromContent(e.content).forEach(k => usedKeys.add(k));
-});
+const usedKeys = getUsedKeys();
 
-Object.values(dateMusicMap).forEach(dm => {
-if (dm.url?.startsWith('r2:')) usedKeys.add(dm.url.slice(3));
-if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
-});
-if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) {
-usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
-}
 
 const isUsed = usedKeys.has(key);
 
@@ -9093,25 +8962,7 @@ if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
 return (bytes/(1024*1024)).toFixed(1) + ' MB';
 }
 
-function copyR2Link(key, type) {
-let text;
-if (type === 'direct') {
-text = `${R2_PUBLIC_URL}/${key}`;
-} else {
-text = `r2:${key}`;
-}
-navigator.clipboard.writeText(text).then(() => {
-showToast(type === 'direct' ? 'link direct copiat' : 'referință r2: copiată');
-}).catch(() => {
-const ta = document.createElement('textarea');
-ta.value = text;
-document.body.appendChild(ta);
-ta.select();
-document.execCommand('copy');
-document.body.removeChild(ta);
-showToast('copiat');
-});
-}
+
 
 function downloadR2File(key) {
 const url = `${R2_PUBLIC_URL}/${key}`;
@@ -9459,21 +9310,7 @@ async function saveTikHopeSettings() {
 }
 
 
-async function copyTikHopeHtml() {
-const code = await loadTikHopeHtml();
-if (!code) { showToast('niciun cod salvat'); return; }
-try {
-await navigator.clipboard.writeText(code);
-} catch(e) {
-const ta = document.createElement('textarea');
-ta.value = code;
-document.body.appendChild(ta);
-ta.select();
-document.execCommand('copy');
-document.body.removeChild(ta);
-}
-showToast('cod copiat');
-}
+
 
 async function clearTikHopeHtmlOnly() {
   const code = await loadTikHopeHtml(true);
@@ -9790,12 +9627,8 @@ async function openBackupList(kind) {
           <button data-a="restore" style="flex:1;padding:7px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:8px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;">restaurează</button>
           <button data-a="del" style="padding:7px 10px;background:rgba(200,80,80,0.08);border:1px solid rgba(200,80,80,0.25);border-radius:8px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;">✕</button>
         </div>`;
-      row.querySelector('[data-a="copy"]').onclick = async () => {
-        try { await navigator.clipboard.writeText(it.code); } catch (e) {
-          const ta = document.createElement('textarea'); ta.value = it.code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-        }
-        showToast('cod copiat');
-      };
+row.querySelector('[data-a="copy"]').onclick = () => copyText(it.code, 'cod copiat');
+
       row.querySelector('[data-a="restore"]').onclick = async () => { if (await restoreBackup(kind, i)) render(); };
       row.querySelector('[data-a="del"]').onclick = async () => {
         if (!confirm('Ștergi acest backup?')) return;
@@ -9808,6 +9641,22 @@ async function openBackupList(kind) {
   modal.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
   render();
 }
+
+
+
+function pickInitialDate(mode, savedKey) {
+  const dates = [...new Set([
+    ...entries.filter(e => !e.hidden || !isLocked).map(e => dateKey(e.posted_at)),
+    ...Object.keys(dateMusicMap).filter(d => !dateMusicMap[d].hidden || !isLocked)
+  ])].sort();
+  const key = mode === 'last' ? dates[dates.length - 1]
+            : mode === 'first' ? dates[0]
+            : mode === 'saved' ? savedKey : null;
+  if (key) { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d); }
+  const t = new Date(); t.setHours(0,0,0,0); return t;
+}
+
+
 
 /* ---------- CSV: export ---------- */
 async function fetchAllRows(table, pk) {
