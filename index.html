@@ -32,8 +32,6 @@ rel="stylesheet"
 <style>
 :root {
 --bg: #0c0c0f;
---bg2: #111115;
---bg3: #17171d;
 --surface: rgba(255,255,255,0.03);
 --surface2: rgba(255,255,255,0.055);
 --surface3: rgba(255,255,255,0.085);
@@ -53,14 +51,11 @@ rel="stylesheet"
 --purple: #a07ac8;
 --private: #8a7aa0;
 --private2: #b8a8d0;
---private-bg: rgba(80,60,110,0.18);
---private-border: rgba(138,122,160,0.3);
 --mono: 'JetBrains Mono', monospace;
 --sans: 'Inter', sans-serif;
 --serif: 'Lora', serif;
 --r: 16px;
 --r2: 12px;
---r3: 10px;
 --shadow: 0 2px 16px rgba(0,0,0,0.4);
 --shadow2: 0 8px 40px rgba(0,0,0,0.5);
 }
@@ -646,8 +641,7 @@ transition: color 0.25s;
 color: rgba(184,168,208,0.65);
 }
 
-/* video privat */
-.video-private-wrap { position: relative; }
+
 .video-embed-wrap {
 position: relative;
 width: 100%;
@@ -1793,7 +1787,7 @@ id="timeLockModal"
 id="timeLockCountdown"
 style="font-family:var(--mono);font-size:28px;color:var(--accent2);letter-spacing:0.08em;"
 ></div>
-<div style="display:none;" id="timeLockNote"></div>
+
 </div>
 </div>
 
@@ -4854,8 +4848,7 @@ let SETTING_REDIRECT_ENABLED = false;
 let SETTING_TIMELOCK_MUSIC_ON  = false;
 let timeLockAudio = null;
 let timeLockBypassed = false;
-let headerTitleTapCount = 0;
-let headerTitleTapTimer = null;
+
 
 
 let isPrivateUnlocked = false;
@@ -4883,7 +4876,7 @@ let pinBuffer = '';
 let pinMode = 'main';
 let pending2FAAction = null; // 'creator' | 'visitor'
 
-let _pendingPrivateEntryId = null;
+
 async function loadSettings() {
 try {
 const { data, error } = await sb.from('hope_app_state').select('value').eq('key', 'carnet_settings').single();
@@ -4927,10 +4920,8 @@ document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
 } else if (pinMode === 'visitor') {
 document.getElementById('pinTitle').textContent = 'hope';
 document.getElementById('pinSubtitle').textContent = 'introdu codul de acces';
-} else if (pinMode === 'visitor2fa') {
-document.getElementById('pinTitle').textContent = 'hope';
-document.getElementById('pinSubtitle').textContent = 'verificare 2FA';
 } else {
+
 
 document.getElementById('pinTitle').textContent = 'hope';
 document.getElementById('pinSubtitle').textContent = 'introdu codul PIN';
@@ -5101,21 +5092,7 @@ pinError();
 }
 return;
 }
-if (pinBuffer === PIN_CODE) {
-setUnlocked(true);
-closePinOverlay();
-userHasInteracted = true;
-if (pendingDateMusicKey && pendingDateMusicAutoplay) {
-const dk = pendingDateMusicKey;
-pendingDateMusicKey = null;
-pendingDateMusicAutoplay = false;
-dmAudio.volume = 0.28;
-dmAudio.play().catch(() => {});
-syncDateMusicWaves();
-}
-} else {
 pinError();
-}
 }
 
 async function continueInitAfterAuth() {
@@ -5398,12 +5375,6 @@ return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
 
 function resolveUrl(stored) {
 if (!stored) return '';
-if (stored.startsWith('R2:')) {
-const parts = stored.split(':');
-const resourceType = parts[1];
-const publicId = parts.slice(2).join(':');
-return cdnUrl(publicId, resourceType);
-}
 if (stored.startsWith('r2:')) {
 return `${R2_PUBLIC_URL}/${stored.slice(3)}`;
 }
@@ -5915,8 +5886,8 @@ await waitForVisitorPin();
 }
 await loadDateMusicMap();
 await loadEntries();
-const savedKey = await loadLastDate();
 buildCarousel();
+
 renderEntries();
 setDefaultDates();
 updateCalFabState();
@@ -7564,7 +7535,6 @@ document.querySelectorAll(`.entry-card[data-id="${entryId}"] .private-overlay,
 .entry-card[data-id="${entryId}"] .private-img-overlay`).forEach(el => el.classList.add('revealed'));
 return;
 }
-_pendingPrivateEntryId = entryId;
 openPinOverlay('private');
 }
 let lbImages = [], lbIndex = 0;
@@ -7688,8 +7658,8 @@ if (lbIsPinching) { lbIsPinching = false; lbClampPan(); applyLbTransform(true); 
 
 const dx = Math.abs((e.changedTouches[0]?.clientX || 0) - lbTouchStartX);
 const dy = Math.abs((e.changedTouches[0]?.clientY || 0) - lbTouchStartY);
-const now2 = Date.now();
 const isQuickTap = dx < 8 && dy < 8;
+
 
 
 
@@ -8219,7 +8189,7 @@ if (error) { showToast('eroare'); return; }
 showToast('date modificate'); closeModal('debug'); await reloadAndRender();
 }
 function openModal(name) {
-if (isLocked && ['note','photo','video','music','pdf','date-music','import','edit','debug','delete','delete-dm','clip'].includes(name)) { showToast('deblochează mai întâi'); return; }
+if (isLocked && ['note','photo','video','music','pdf','date-music','edit','debug','delete','delete-dm'].includes(name)) { showToast('deblochează mai întâi'); return; }
 closeFab(); closeCalPopup();
 if (name === 'note') {
 loadDraft();
@@ -8432,11 +8402,6 @@ publicId: data.public_id,
 resourceType: data.resource_type,
 secureUrl: data.secure_url,
 };
-}
-function cdnUrl(publicId, resourceType) {
-if (!publicId) return '';
-if (publicId.startsWith('http://') || publicId.startsWith('https://')) return publicId;
-return `${R2_PUBLIC_URL}/${publicId}`;
 }
 
 
