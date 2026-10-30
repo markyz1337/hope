@@ -9565,17 +9565,24 @@ exitTikHopeBlackout();
 }
 
 async function loadProtectedR2Keys() {
-try {
-const { data, error } = await sb.from('hope_clips').select('url');
-if (error || !data) return false;
-const s = new Set();
-data.forEach(r => { if (r.url && r.url.startsWith('r2:')) s.add(r.url.slice(3)); });
-r2ProtectedKeys = s;
-return true;
-} catch(e) {
-return false;
+  try {
+    const s = new Set();
+    const PAGE = 1000;
+    let from = 0;
+    while (true) {
+      const { data, error } = await sb.from('tikhope_clips').select('url').order('id').range(from, from + PAGE - 1);
+      if (error || !data) return false;
+      data.forEach(r => { if (r.url && r.url.startsWith('r2:')) s.add(r.url.slice(3)); });
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
+    r2ProtectedKeys = s;
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
-}
+
 
 
 function showAccessChoiceModal() {
@@ -9718,7 +9725,131 @@ syncDateMusicWaves();
 init();
 startSupabaseKeepAlive();
 
-const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'hope_clips', 'hope_clip_collections'];
+// ordinea contează la import: colecțiile înaintea clipurilor
+const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'tikhope_clip_collections', 'tikhope_clips'];
+const TABLE_PK = {
+  hope_entries: 'id',
+  hope_date_music: 'date',
+  hope_app_state: 'key',
+  hope_drafts: 'id',
+  tikhope_clip_collections: 'id',
+  tikhope_clips: 'id'
+};
+
+async function fetchAllRows(table) {
+  const PAGE = 1000;
+  let from = 0, all = [];
+  while (true) {
+    const { data, error } = await sb.from(table).select('*').order(TABLE_PK[table], { ascending: true }).range(from, from + PAGE - 1);
+    if (error) throw error;
+    all = all.concat(data || []);
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+  return all;
+}
+
+async function exportSingleCsv(btn) {
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'se exportă...'; }
+  try {
+    const q = s => '"' + String(s).replace(/"/g, '""') + '"';
+    const lines = ['table,data'];
+    const summary = [];
+    for (const t of EXPORT_TABLES) {
+      if (btn) btn.textContent = 'citesc ' + t + '...';
+      try {
+        const rows = await fetchAllRows(t);
+        rows.forEach(r => lines.push(t + ',' + q(JSON.stringify(r))));
+        summary.push(t + ': ' + rows.length);
+      } catch(e) {
+        summary.push(t + ': EROARE (' + (e.message || e) + ')');
+      }
+    }
+    const date = new Date().toISOString().slice(0, 10);
+    downloadCsv(lines.join('\r\n'), 'hope_backup_complet_' + date + '.csv');
+    alert('Export terminat:\n\n' + summary.join('\n'));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+  }
+}
+
+function parseCsv(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = [];
+  let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { cur += '"'; i++; }
+        else q = false;
+      } else cur += c;
+    } else {
+      if (c === '"') q = true;
+      else if (c === ',') { row.push(cur); cur = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cur); cur = ''; rows.push(row); row = [];
+      } else cur += c;
+    }
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+
+function importSingleCsv(btn) {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.csv,text/csv';
+  inp.onchange = async () => {
+    const f = inp.files[0];
+    if (!f) return;
+    const orig = btn ? btn.textContent : '';
+    try {
+      const rows = parseCsv(await f.text());
+      if (!rows.length || rows[0][0] !== 'table' || rows[0][1] !== 'data') {
+        showToast('CSV invalid (nu e export combinat)'); return;
+      }
+      const byTable = {};
+      let bad = 0, skipped = 0;
+      rows.slice(1).forEach(r => {
+        if (r.length < 2 || !r[0]) return;
+        if (!EXPORT_TABLES.includes(r[0])) { skipped++; return; }
+        try { (byTable[r[0]] = byTable[r[0]] || []).push(JSON.parse(r[1])); }
+        catch(e) { bad++; }
+      });
+      const names = EXPORT_TABLES.filter(t => byTable[t]);
+      if (!names.length) { showToast('niciun rând valid în CSV'); return; }
+      const info = names.map(t => t + ': ' + byTable[t].length).join('\n');
+      if (!confirm('Se importă (upsert — rândurile existente cu același ID/cheie se suprascriu, nu se șterge nimic):\n\n' + info +
+        (names.includes('hope_app_state') ? '\n\nATENȚIE: hope_app_state conține setările (PIN-uri, cod TikHope etc.) și va fi suprascris.' : '') +
+        (bad ? '\n\nRânduri corupte ignorate: ' + bad : '') + '\n\nContinui?')) return;
+
+      if (btn) btn.disabled = true;
+      const result = [];
+      for (const t of names) {
+        const list = byTable[t];
+        let ok = 0, err = null;
+        for (let i = 0; i < list.length; i += 200) {
+          if (btn) btn.textContent = t + ' ' + Math.min(i + 200, list.length) + '/' + list.length;
+          const { error } = await sb.from(t).upsert(list.slice(i, i + 200), { onConflict: TABLE_PK[t] });
+          if (error) { err = error.message; break; }
+          ok += Math.min(200, list.length - i);
+        }
+        result.push(t + ': ' + ok + '/' + list.length + (err ? ' EROARE: ' + err : ''));
+      }
+      alert('Import terminat:\n\n' + result.join('\n') + (skipped ? '\n\nTabele necunoscute ignorate: ' + skipped + ' rânduri' : ''));
+      await loadEntries(); await loadDateMusicMap(); buildCarousel(); renderEntries();
+    } catch(e) {
+      showToast('eroare: ' + (e.message || e));
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
+    }
+  };
+  inp.click();
+}
+
 
 
 async function openSupabaseExport() {
@@ -9750,6 +9881,10 @@ ${EXPORT_TABLES.map(t => `
 </div>
 `).join('')}
 </div>
+
+<button onclick="exportSingleCsv(this)" style="width:100%;margin-top:14px;padding:12px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:12px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">↓ toate tabelele într-un singur CSV</button>
+<button onclick="importSingleCsv(this)" style="width:100%;margin-top:8px;padding:12px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:12px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">↑ importă CSV combinat</button>
+
 <button onclick="exportAllTablesCsv()" style="width:100%;margin-top:14px;padding:12px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:12px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;transition:all 0.15s;" onmouseover="this.style.background='rgba(122,162,200,0.18)'" onmouseout="this.style.background='rgba(122,162,200,0.1)'">↓ descarcă toate tabelele</button>
 </div>
 `;
