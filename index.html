@@ -4208,7 +4208,7 @@ stroke-linecap="round"
 </button>
 </div>
 
-
+<div class="settings-section">
 <div class="settings-section">
 <div class="settings-section-title">navigare inițială</div>
 <div style="display:flex;flex-direction:column;gap:8px;">
@@ -4306,6 +4306,18 @@ Butonul clipuri si butonul de acces (cand e blocat) deschid acest cod intr-un ec
 </div>
 
 <div class="settings-section">
+<div class="settings-section-title">backup & date</div>
+<p style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.6;margin-bottom:12px;">
+Exportă toate datele (fără TikHope) într-un singur CSV. La import, TOT ce există acum se șterge și se rescrie din CSV.
+</p>
+<div id="csv-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.04em;margin-bottom:8px;min-height:14px;"></div>
+<button class="settings-pin-btn" style="width:100%;margin-bottom:8px;" onclick="exportAllDataCsv()">exportă tot în CSV</button>
+<button class="settings-pin-btn" style="width:100%;margin-bottom:14px;border-color:rgba(200,80,80,0.35);color:#e07070;background:rgba(200,80,80,0.08);" onclick="document.getElementById('csv-import-input').click()">importă CSV (înlocuiește tot)</button>
+<input type="file" id="csv-import-input" accept=".csv,text/csv" style="display:none" onchange="importAllDataCsv(this.files[0])" />
+<button class="settings-pin-btn" style="width:100%;margin-bottom:8px;" onclick="openBackupList('tikhope')">backup-uri cod TikHope</button>
+<button class="settings-pin-btn" style="width:100%;" onclick="openBackupList('redirect')">backup-uri buton redirecționare</button>
+</div>
+
 <div class="settings-section-title">stocare r2</div>
 
 <button
@@ -6168,18 +6180,23 @@ updateFabMainMode();
 showToast(SETTING_REDIRECT_ENABLED ? 'redirecționare activată' : 'redirecționare dezactivată');
 }
 
-function saveRedirectSettings() {
-const newHtml = document.getElementById('settings-redirect-html').value;
-if (newHtml.trim()) {
-SETTING_REDIRECT_HTML = newHtml;
+async function saveRedirectSettings() {
+  const newHtml = document.getElementById('settings-redirect-html').value;
+  if (newHtml.trim() && SETTING_REDIRECT_HTML && newHtml !== SETTING_REDIRECT_HTML) {
+    const ok = await pushBackup('redirect', SETTING_REDIRECT_HTML, 'înainte de înlocuire');
+    if (!ok) { showToast('backup eșuat, nu am salvat'); return; }
+  }
+  if (newHtml.trim()) {
+    SETTING_REDIRECT_HTML = newHtml;
+  }
+  SETTING_REDIRECT_FROM = document.getElementById('settings-redirect-from').value;
+  saveSettings({ redirectHtml: SETTING_REDIRECT_HTML, redirectFrom: SETTING_REDIRECT_FROM });
+  document.getElementById('settings-redirect-html').value = '';
+  updateRedirectHtmlStatus();
+  updateFabMainMode();
+  showToast('setări redirecționare salvate');
 }
-SETTING_REDIRECT_FROM = document.getElementById('settings-redirect-from').value;
-saveSettings({ redirectHtml: SETTING_REDIRECT_HTML, redirectFrom: SETTING_REDIRECT_FROM });
-document.getElementById('settings-redirect-html').value = '';
-updateRedirectHtmlStatus();
-updateFabMainMode();
-showToast('setări redirecționare salvate');
-}
+
 
 function updateRedirectHtmlStatus() {
 const el = document.getElementById('settings-redirect-html-status');
@@ -6204,16 +6221,19 @@ showToast('cod copiat');
 });
 }
 
-function clearRedirectHtmlOnly() {
-if (!SETTING_REDIRECT_HTML) { showToast('niciun cod de șters'); return; }
-if (!confirm('Ștergi codul salvat? Poți lipi altul nou după.')) return;
-SETTING_REDIRECT_HTML = '';
-saveSettings({ redirectHtml: '' });
-document.getElementById('settings-redirect-html').value = '';
-updateRedirectHtmlStatus();
-updateFabMainMode();
-showToast('cod șters');
+async function clearRedirectHtmlOnly() {
+  if (!SETTING_REDIRECT_HTML) { showToast('niciun cod de șters'); return; }
+  if (!confirm('Ștergi codul salvat? Se face backup automat.')) return;
+  const ok = await pushBackup('redirect', SETTING_REDIRECT_HTML, 'înainte de ștergere');
+  if (!ok) { showToast('backup eșuat, nu am șters'); return; }
+  SETTING_REDIRECT_HTML = '';
+  saveSettings({ redirectHtml: '' });
+  document.getElementById('settings-redirect-html').value = '';
+  updateRedirectHtmlStatus();
+  updateFabMainMode();
+  showToast('cod șters (backup salvat)');
 }
+
 
 
 
@@ -8778,8 +8798,7 @@ showToast(`script Scriptable copiat (${links.length} fișiere)`);
 
 
 function renderR2Gallery(files) {
-files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/'));
-
+files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !f.key.startsWith('tikhope/') && !f.key.startsWith('tikhopethumbs/'));
 
 
 
@@ -8928,14 +8947,11 @@ if (dm.cover?.startsWith('r2:')) usedKeys.add(dm.cover.slice(3));
 });
 if (SETTING_TIMELOCK_MUSIC_URL?.startsWith('r2:')) usedKeys.add(SETTING_TIMELOCK_MUSIC_URL.slice(3));
 
-
-
-
 const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
 
-const { files } = await res.json();
-const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !usedKeys.has(f.key)).map(f => f.key);
 
+const { files } = await res.json();
+const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !f.key.startsWith('tikhope/') && !f.key.startsWith('tikhopethumbs/') && !usedKeys.has(f.key)).map(f => f.key);
 
 
 if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
@@ -9440,7 +9456,6 @@ currentMusicTextSpan = span;
 
 let SETTING_TIKHOPE_HTML = null;
 
-
 async function loadTikHopeHtml(force) {
 if (SETTING_TIKHOPE_HTML !== null && !force) return SETTING_TIKHOPE_HTML;
 try {
@@ -9466,18 +9481,24 @@ el.textContent = code ? ('cod salvat: ' + code.length.toLocaleString('ro-RO') + 
 }
 
 async function saveTikHopeSettings() {
-const ta = document.getElementById('settings-tikhope-html');
-const newHtml = ta.value;
-if (!newHtml.trim()) { showToast('lipeste mai intai codul'); return; }
-try {
-const { error } = await sb.from('hope_app_state').upsert([{ key: 'tikhope_html', value: newHtml }], { onConflict: 'key' });
-if (error) { showToast('eroare: ' + error.message); return; }
-} catch(e) { showToast('eroare la salvare'); return; }
-SETTING_TIKHOPE_HTML = newHtml;
-ta.value = '';
-updateTikHopeHtmlStatus();
-showToast('cod TikHope salvat');
+  const ta = document.getElementById('settings-tikhope-html');
+  const newHtml = ta.value;
+  if (!newHtml.trim()) { showToast('lipeste mai intai codul'); return; }
+  const old = await loadTikHopeHtml(true);
+  if (old && old !== newHtml) {
+    const ok = await pushBackup('tikhope', old, 'înainte de înlocuire');
+    if (!ok) { showToast('backup eșuat, nu am salvat'); return; }
+  }
+  try {
+    const { error } = await sb.from('hope_app_state').upsert([{ key: 'tikhope_html', value: newHtml }], { onConflict: 'key' });
+    if (error) { showToast('eroare: ' + error.message); return; }
+  } catch(e) { showToast('eroare la salvare'); return; }
+  SETTING_TIKHOPE_HTML = newHtml;
+  ta.value = '';
+  updateTikHopeHtmlStatus();
+  showToast('cod TikHope salvat');
 }
+
 
 async function copyTikHopeHtml() {
 const code = await loadTikHopeHtml();
@@ -9496,17 +9517,20 @@ showToast('cod copiat');
 }
 
 async function clearTikHopeHtmlOnly() {
-const code = await loadTikHopeHtml();
-if (!code) { showToast('niciun cod de sters'); return; }
-if (!confirm('Stergi codul salvat? Poti lipi altul nou dupa.')) return;
-try {
-const { error } = await sb.from('hope_app_state').upsert([{ key: 'tikhope_html', value: '' }], { onConflict: 'key' });
-if (error) { showToast('eroare: ' + error.message); return; }
-} catch(e) { showToast('eroare la stergere'); return; }
-SETTING_TIKHOPE_HTML = '';
-updateTikHopeHtmlStatus();
-showToast('cod sters');
+  const code = await loadTikHopeHtml(true);
+  if (!code) { showToast('niciun cod de sters'); return; }
+  if (!confirm('Stergi codul salvat? Se face backup automat.')) return;
+  const ok = await pushBackup('tikhope', code, 'înainte de ștergere');
+  if (!ok) { showToast('backup eșuat, nu am șters'); return; }
+  try {
+    const { error } = await sb.from('hope_app_state').upsert([{ key: 'tikhope_html', value: '' }], { onConflict: 'key' });
+    if (error) { showToast('eroare: ' + error.message); return; }
+  } catch(e) { showToast('eroare la stergere'); return; }
+  SETTING_TIKHOPE_HTML = '';
+  updateTikHopeHtmlStatus();
+  showToast('cod sters (backup salvat)');
 }
+
 
 function enterTikHopeBlackout() {
 document.body.style.position = 'fixed';
@@ -9700,6 +9724,299 @@ syncDateMusicWaves();
 }
 }
 });
+
+
+/* ═══════════ BACKUP / EXPORT / IMPORT ═══════════ */
+const BACKUP_KEYS = { tikhope: 'backup_tikhope_html', redirect: 'backup_redirect_html' };
+const MAX_BACKUPS = 10;
+const CSV_TABLES = [
+  { name: 'hope_entries',    pk: 'id'   },
+  { name: 'hope_date_music', pk: 'date' },
+  { name: 'hope_app_state',  pk: 'key'  },
+  { name: 'hope_drafts',     pk: 'id'   },
+];
+const CSV_EXCLUDED_STATE_KEYS = ['tikhope_html', 'backup_tikhope_html'];
+
+function setCsvStatus(msg) {
+  const el = document.getElementById('csv-status');
+  if (el) el.textContent = msg || '';
+}
+
+/* ---------- backup-uri TikHope / redirect ---------- */
+async function loadBackups(kind) {
+  try {
+    const { data, error } = await sb.from('hope_app_state').select('value').eq('key', BACKUP_KEYS[kind]).maybeSingle();
+    if (error || !data || !data.value) return [];
+    const arr = JSON.parse(data.value);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+
+async function pushBackup(kind, code, reason) {
+  if (!code || !code.trim()) return true;
+  try {
+    const arr = await loadBackups(kind);
+    if (arr.length && arr[0].code === code) return true;
+    arr.unshift({ t: new Date().toISOString(), reason: reason || '', code });
+    const { error } = await sb.from('hope_app_state').upsert(
+      [{ key: BACKUP_KEYS[kind], value: JSON.stringify(arr.slice(0, MAX_BACKUPS)) }],
+      { onConflict: 'key' }
+    );
+    return !error;
+  } catch (e) { return false; }
+}
+
+async function deleteBackup(kind, idx) {
+  const arr = await loadBackups(kind);
+  arr.splice(idx, 1);
+  await sb.from('hope_app_state').upsert([{ key: BACKUP_KEYS[kind], value: JSON.stringify(arr) }], { onConflict: 'key' });
+}
+
+async function restoreBackup(kind, idx) {
+  const arr = await loadBackups(kind);
+  const item = arr[idx];
+  if (!item) return false;
+  if (!confirm('Restaurezi această versiune? Versiunea curentă va fi salvată în backup.')) return false;
+  const current = kind === 'tikhope' ? await loadTikHopeHtml(true) : SETTING_REDIRECT_HTML;
+  if (current && current !== item.code) {
+    const ok = await pushBackup(kind, current, 'înainte de restaurare');
+    if (!ok) { showToast('backup eșuat, am anulat'); return false; }
+  }
+  if (kind === 'tikhope') {
+    const { error } = await sb.from('hope_app_state').upsert([{ key: 'tikhope_html', value: item.code }], { onConflict: 'key' });
+    if (error) { showToast('eroare: ' + error.message); return false; }
+    SETTING_TIKHOPE_HTML = item.code;
+    updateTikHopeHtmlStatus();
+  } else {
+    SETTING_REDIRECT_HTML = item.code;
+    await saveSettings({ redirectHtml: item.code });
+    updateRedirectHtmlStatus();
+    updateFabMainMode();
+  }
+  showToast('versiune restaurată');
+  return true;
+}
+
+async function openBackupList(kind) {
+  const old = document.getElementById('backup-list-overlay');
+  if (old) old.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'backup-list-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(16px);z-index:9600;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid var(--border2);border-radius:22px;padding:20px;width:100%;max-width:380px;max-height:85vh;overflow-y:auto;';
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  async function render() {
+    const arr = await loadBackups(kind);
+    const title = kind === 'tikhope' ? 'backup-uri TikHope' : 'backup-uri redirecționare';
+    modal.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div style="font-family:var(--serif);font-size:19px;font-style:italic;color:var(--accent2);">${title}</div>
+      <button id="bk-close" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;">✕</button></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.06em;margin-bottom:14px;">se păstrează ultimele ${MAX_BACKUPS} versiuni · salvate automat înainte de orice înlocuire/ștergere</div>`;
+    if (!arr.length) {
+      modal.innerHTML += '<div style="font-family:var(--serif);font-style:italic;color:var(--text3);padding:20px 0;text-align:center;">niciun backup încă</div>';
+    }
+    arr.forEach((it, i) => {
+      const d = new Date(it.t);
+      const when = d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+      const row = document.createElement('div');
+      row.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;';
+      row.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--text2);">${when}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin:3px 0 8px;">${escHtml(it.reason || '')} · ${it.code.length.toLocaleString('ro-RO')} caractere</div>
+        <div style="display:flex;gap:6px;">
+          <button data-a="copy" style="flex:1;padding:7px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:8px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;">copiază</button>
+          <button data-a="restore" style="flex:1;padding:7px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:8px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;">restaurează</button>
+          <button data-a="del" style="padding:7px 10px;background:rgba(200,80,80,0.08);border:1px solid rgba(200,80,80,0.25);border-radius:8px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;">✕</button>
+        </div>`;
+      row.querySelector('[data-a="copy"]').onclick = async () => {
+        try { await navigator.clipboard.writeText(it.code); } catch (e) {
+          const ta = document.createElement('textarea'); ta.value = it.code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        }
+        showToast('cod copiat');
+      };
+      row.querySelector('[data-a="restore"]').onclick = async () => { if (await restoreBackup(kind, i)) render(); };
+      row.querySelector('[data-a="del"]').onclick = async () => {
+        if (!confirm('Ștergi acest backup?')) return;
+        await deleteBackup(kind, i); render();
+      };
+      modal.appendChild(row);
+    });
+    modal.querySelector('#bk-close').onclick = () => overlay.remove();
+  }
+  modal.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  render();
+}
+
+/* ---------- CSV: export ---------- */
+async function fetchAllRows(table, pk) {
+  const rows = [];
+  const size = 1000;
+  let from = 0;
+  while (true) {
+    const { data, error } = await sb.from(table).select('*').order(pk, { ascending: true }).range(from, from + size - 1);
+    if (error) throw new Error(table + ': ' + error.message);
+    rows.push(...data);
+    if (data.length < size) break;
+    from += size;
+  }
+  return rows;
+}
+
+async function buildSnapshot() {
+  const snap = {};
+  for (const t of CSV_TABLES) {
+    let rows = await fetchAllRows(t.name, t.pk);
+    if (t.name === 'hope_app_state') rows = rows.filter(r => !CSV_EXCLUDED_STATE_KEYS.includes(r.key));
+    snap[t.name] = rows;
+  }
+  return snap;
+}
+
+function csvQuote(s) { return '"' + String(s).replace(/"/g, '""') + '"'; }
+
+function snapshotToCsv(snap) {
+  const lines = ['table,row_json'];
+  for (const t of CSV_TABLES) {
+    (snap[t.name] || []).forEach(r => lines.push(t.name + ',' + csvQuote(JSON.stringify(r))));
+  }
+  return lines.join('\r\n');
+}
+
+async function saveTextFile(name, text) {
+  const blob = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' });
+  const file = new File([blob], name, { type: 'text/csv' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function csvFileName(prefix) {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${prefix}-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.csv`;
+}
+
+async function exportAllDataCsv() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  try {
+    setCsvStatus('se citesc datele...');
+    const snap = await buildSnapshot();
+    const total = CSV_TABLES.reduce((a, t) => a + snap[t.name].length, 0);
+    await saveTextFile(csvFileName('hope-backup'), snapshotToCsv(snap));
+    setCsvStatus(`exportat: ${total} rânduri`);
+    showToast('export terminat');
+  } catch (e) {
+    setCsvStatus('eroare: ' + e.message);
+    showToast('eroare la export');
+  }
+}
+
+/* ---------- CSV: import ---------- */
+function parseCsv(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = [];
+  let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); field = ''; rows.push(row); row = [];
+      } else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function replaceAllData(data) {
+  for (const t of CSV_TABLES) {
+    let q = sb.from(t.name).delete();
+    if (t.name === 'hope_app_state') q = q.not('key', 'in', '(' + CSV_EXCLUDED_STATE_KEYS.join(',') + ')');
+    else q = q.not(t.pk, 'is', null);
+    const { error } = await q;
+    if (error) throw new Error('ștergere ' + t.name + ': ' + error.message);
+  }
+  for (const t of CSV_TABLES) {
+    const rows = data[t.name] || [];
+    for (let i = 0; i < rows.length; i += 200) {
+      const { error } = await sb.from(t.name).insert(rows.slice(i, i + 200));
+      if (error) throw new Error('inserare ' + t.name + ': ' + error.message);
+    }
+  }
+}
+
+async function importAllDataCsv(file) {
+  const input = document.getElementById('csv-import-input');
+  if (!file) return;
+  if (isLocked) { showToast('deblochează mai întâi'); input.value = ''; return; }
+  try {
+    const parsed = parseCsv(await file.text());
+    if (!parsed.length || parsed[0][0] !== 'table' || parsed[0][1] !== 'row_json') {
+      showToast('CSV invalid'); setCsvStatus('fișier CSV invalid'); return;
+    }
+    const incoming = {};
+    CSV_TABLES.forEach(t => incoming[t.name] = []);
+    for (let i = 1; i < parsed.length; i++) {
+      const [tName, json] = parsed[i];
+      if (!tName) continue;
+      if (!incoming[tName]) { showToast('tabel necunoscut: ' + tName); return; }
+      let obj;
+      try { obj = JSON.parse(json); } catch (e) { showToast('rând invalid: ' + (i + 1)); return; }
+      if (tName === 'hope_app_state' && CSV_EXCLUDED_STATE_KEYS.includes(obj.key)) continue;
+      incoming[tName].push(obj);
+    }
+    const total = CSV_TABLES.reduce((a, t) => a + incoming[t.name].length, 0);
+    if (!total) { showToast('CSV-ul nu conține date'); return; }
+    const summary = CSV_TABLES.map(t => `${t.name}: ${incoming[t.name].length}`).join('\n');
+    if (!confirm(`Vei ȘTERGE toate datele curente și le vei înlocui cu:\n\n${summary}\n\nContinui?`)) return;
+    if (!confirm('ULTIMA CONFIRMARE: datele curente se șterg definitiv (se face totuși un backup automat). Continui?')) return;
+
+    setCsvStatus('backup automat înainte de import...');
+    const current = await buildSnapshot();
+    await saveTextFile(csvFileName('hope-inainte-de-import'), snapshotToCsv(current));
+
+    setCsvStatus('se importă...');
+    try {
+      await replaceAllData(incoming);
+    } catch (err) {
+      setCsvStatus('eroare: ' + err.message + ' · restaurez...');
+      try {
+        await replaceAllData(current);
+        setCsvStatus('import eșuat, datele vechi au fost restaurate');
+        showToast('import eșuat, date restaurate');
+      } catch (e2) {
+        setCsvStatus('EROARE GRAVĂ: folosește fișierul de backup descărcat');
+        showToast('eroare gravă la restaurare');
+      }
+      return;
+    }
+    setCsvStatus(`import terminat: ${total} rânduri`);
+    showToast('import terminat');
+    setTimeout(() => location.reload(), 1200);
+  } catch (e) {
+    setCsvStatus('eroare: ' + e.message);
+    showToast('eroare la import');
+  } finally {
+    input.value = '';
+  }
+}
+/* ═══════════ SFÂRȘIT BACKUP / EXPORT / IMPORT ═══════════ */
+
 
 init();
 startSupabaseKeepAlive();
