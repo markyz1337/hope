@@ -114,7 +114,6 @@ flex-shrink: 0;
 .lock-badge.unlocked { color: var(--accent); border-color: rgba(200,169,126,0.3); background: rgba(200,169,126,0.07); }
 .pin-overlay {
 position: fixed;
-top: 0; left: 0; right: 0; bottom: 0;
 inset: 0;
 /* Eliminăm blur-ul și transparenta. Pus exact culoarea fundalului base */
 background: #0c0c0f;
@@ -854,7 +853,7 @@ backdrop-filter: blur(12px); position: relative; z-index: 2;
 .cal-fab-btn.is-active { background: rgba(200,169,126,0.22); border-color: rgba(200,169,126,0.6); color: var(--accent2); box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 12px 36px rgba(200,169,126,0.2); }
 .cal-fab-btn svg { width: 19px; height: 19px; }
 .cal-popup-overlay {
-position: fixed; inset: 0; background: #0c0c0f; backdrop-filter: blur(10px);
+position: fixed; inset: 0; background: #0c0c0f;
 z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;
 opacity: 0; pointer-events: none; transition: opacity 0.22s ease;
 }
@@ -1236,8 +1235,6 @@ text-transform: uppercase;
 .settings-overlay {
 position: fixed; inset: 0;
 background: #0c0c0f;
-backdrop-filter: blur(24px);
--webkit-backdrop-filter: blur(24px);
 z-index: 600;
 display: flex; align-items: flex-start; justify-content: center;
 padding: 20px 16px;
@@ -4952,7 +4949,6 @@ pinBuffer = '';
 updatePinDots();
 userHasInteracted = true;
 if (pendingDateMusicKey && pendingDateMusicAutoplay) {
-const dk = pendingDateMusicKey;
 pendingDateMusicKey = null;
 pendingDateMusicAutoplay = false;
 dmAudio.volume = 0.28;
@@ -6071,7 +6067,6 @@ e.target.closest('.cal-popup-today-btn')
 )) return;
 userHasInteracted = true;
 if (pendingDateMusicKey && pendingDateMusicAutoplay) {
-const dk = pendingDateMusicKey;
 pendingDateMusicKey = null; pendingDateMusicAutoplay = false;
 dmAudio.volume = 0.28;
 dmAudio.play().catch(()=>{});
@@ -6624,7 +6619,7 @@ const { data, error } = await sb.from('hope_date_music').select('*');
 if (!error && data) { dateMusicMap = {}; data.forEach(r => { dateMusicMap[r.date] = { url:r.url, title:r.title, cover:r.cover||'', hidden:!!r.hidden, bannerHidden:!!r.banner_hidden }; }); return; }
 
 } catch(e) {}
-try { const saved = localStorage.getItem('carnet_date_music'); if (saved) dateMusicMap = JSON.parse(saved); } catch(e) {}
+
 }
 
 async function saveDateMusic() {
@@ -8138,7 +8133,6 @@ update.video_autoplay = editVideoAutoplayEnabled;
 
 } else if (type === 'html') {
 update.content = document.getElementById('edit-content').value.trim();
-update.blur_18 = edit18Enabled;
 
 
 
@@ -8371,7 +8365,6 @@ const R2_PUBLIC_URL = 'https://pub-b2074a6250b94e72a2f56ff71f7dbc94.r2.dev';
 async function uploadToR2(file, resourceType = 'auto') {
 const now = new Date();
 const pad = n => String(n).padStart(2, '0');
-const ms = String(now.getMilliseconds()).padStart(3, '0');
 const timestamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 
 const ext = file.name.split('.').pop() || '';
