@@ -4327,6 +4327,14 @@ onclick="openSupabaseExport()"
 >
 descarcă tabele ca CSV
 </button>
+<button
+class="settings-pin-btn"
+style="width:100%;margin-top:8px;"
+onclick="openDbCleanup()"
+>
+curăță tabele (verifică R2)
+</button>
+
 </div>
 
 
@@ -6526,6 +6534,8 @@ if (document.getElementById('lightbox').classList.contains('open')) return;
 if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
 if (document.getElementById('settingsOverlay').classList.contains('open')) return;
 if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+if (document.getElementById('sb-export-overlay')) return;
+
 if (document.getElementById('tikhope-site-overlay')) return;
 
 
@@ -6548,6 +6558,8 @@ if (document.getElementById('lightbox').classList.contains('open')) return;
 if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
 if (document.getElementById('settingsOverlay').classList.contains('open')) return;
 if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+if (document.getElementById('sb-export-overlay')) return;
+
 
 
 const y = e.touches[0].clientY;
@@ -6600,6 +6612,8 @@ if (document.getElementById('lightbox').classList.contains('open')) return;
 if (document.getElementById('calPopupOverlay').classList.contains('open')) return;
 if (document.getElementById('settingsOverlay').classList.contains('open')) return;
 if (document.getElementById('r2GalleryOverlay').classList.contains('open')) return;
+if (document.getElementById('sb-export-overlay')) return;
+
 
 
 if (overscrollActive) {
@@ -9568,13 +9582,19 @@ async function loadProtectedR2Keys() {
   try {
     const s = new Set();
     const PAGE = 1000;
-    let from = 0;
-    while (true) {
-      const { data, error } = await sb.from('tikhope_clips').select('url').order('id').range(from, from + PAGE - 1);
-      if (error || !data) return false;
-      data.forEach(r => { if (r.url && r.url.startsWith('r2:')) s.add(r.url.slice(3)); });
-      if (data.length < PAGE) break;
-      from += PAGE;
+    for (const table of ['hope_clips', 'tikhope_clips']) {
+      let from = 0;
+      while (true) {
+        const { data, error } = await sb.from(table).select('url').order('id').range(from, from + PAGE - 1);
+        if (error) {
+          // tabel inexistent => îl sărim; orice altă eroare => anulăm ștergerea
+          if (error.code === '42P01' || error.code === 'PGRST205') break;
+          return false;
+        }
+        (data || []).forEach(r => { if (r.url && r.url.startsWith('r2:')) s.add(r.url.slice(3)); });
+        if (!data || data.length < PAGE) break;
+        from += PAGE;
+      }
     }
     r2ProtectedKeys = s;
     return true;
@@ -9582,6 +9602,7 @@ async function loadProtectedR2Keys() {
     return false;
   }
 }
+
 
 
 
@@ -9725,18 +9746,16 @@ syncDateMusicWaves();
 init();
 startSupabaseKeepAlive();
 
-// ordinea contează la import: colecțiile înaintea clipurilor
-const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'hope_clip_collections', 'hope_clips', 'tikhope_clip_collections', 'tikhope_clips'];
+const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'hope_clips'];
 const TABLE_PK = {
   hope_entries: 'id',
   hope_date_music: 'date',
   hope_app_state: 'key',
   hope_drafts: 'id',
-  hope_clip_collections: 'id',
-  hope_clips: 'id',
-  tikhope_clip_collections: 'id',
-  tikhope_clips: 'id'
+  hope_clips: 'id'
 };
+
+
 
 
 async function fetchAllRows(table) {
@@ -9863,11 +9882,13 @@ if (existing) document.body.removeChild(existing);
 
 const overlay = document.createElement('div');
 overlay.id = 'sb-export-overlay';
-overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:700;display:flex;align-items:center;justify-content:center;padding:20px;';
+overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:700;display:flex;align-items:flex-start;justify-content:center;padding:20px 20px calc(40px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;';
+
 overlay.addEventListener('click', e => { if (e.target === overlay) closeSbExport(); });
 
 overlay.innerHTML = `
-<div style="background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.13);border-radius:22px;padding:20px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;">
+<div style="background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.13);border-radius:22px;padding:20px;width:100%;max-width:360px;margin:auto 0;">
+
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
 <div style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--accent2);">export tabele</div>
 <button onclick="closeSbExport()" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
@@ -9976,6 +9997,206 @@ await new Promise(r => setTimeout(r, 400));
 }
 showToast('toate tabelele descărcate!');
 }
+const CLEAN_TABLES = [
+  { name: 'hope_entries', pk: 'id' },
+  { name: 'hope_date_music', pk: 'date' },
+  { name: 'hope_clips', pk: 'id' },
+  { name: 'tikhope_clips', pk: 'id' },
+];
+let dbCleanState = null;
+
+function closeDbCleanup() {
+  const el = document.getElementById('db-clean-overlay');
+  if (el) el.remove();
+}
+
+function openDbCleanup() {
+  closeSettings();
+  closeDbCleanup();
+  const ov = document.createElement('div');
+  ov.id = 'db-clean-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:#0c0c0f;z-index:700;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px calc(40px + env(safe-area-inset-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;';
+  ['touchstart', 'touchmove', 'touchend'].forEach(t => ov.addEventListener(t, e => e.stopPropagation(), { passive: true }));
+  ov.innerHTML = `
+  <div style="background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.13);border-radius:22px;padding:20px;width:100%;max-width:400px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--accent2);">curăță tabele</div>
+      <button onclick="closeDbCleanup()" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div id="db-clean-body">
+      <p style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text3);line-height:1.65;margin-bottom:14px;">Compară referințele r2: din tabele cu fișierele reale din R2. Rândurile ale căror fișiere nu mai există apar în listă, tu alegi ce ștergi. Nu se șterge nimic fără confirmare.</p>
+      <button onclick="exportSingleCsv(this)" style="width:100%;padding:11px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:12px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;margin-bottom:8px;">↓ backup CSV înainte</button>
+      <button onclick="runDbCleanScan()" style="width:100%;padding:12px;background:rgba(200,169,126,0.12);border:1px solid rgba(200,169,126,0.35);border-radius:12px;color:var(--accent2);font-family:var(--mono);font-size:11px;cursor:pointer;letter-spacing:0.06em;">scanează</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+}
+
+function dbCleanRefs(obj) {
+  const keys = new Set();
+  const prefix = R2_PUBLIC_URL + '/';
+  (function walk(v) {
+    if (typeof v === 'string') {
+      if (v.startsWith('r2:')) keys.add(v.slice(3));
+      else if (v.startsWith(prefix)) keys.add(v.slice(prefix.length));
+    } else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+  })(obj);
+  return [...keys];
+}
+
+async function dbCleanFetch(t) {
+  const PAGE = 1000;
+  let from = 0, all = [];
+  while (true) {
+    const { data, error } = await sb.from(t.name).select('*').order(t.pk, { ascending: true }).range(from, from + PAGE - 1);
+    if (error) return { error };
+    all = all.concat(data || []);
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+  return { rows: all };
+}
+
+async function runDbCleanScan() {
+  const body = document.getElementById('db-clean-body');
+  if (!body) return;
+  body.innerHTML = '<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">se scanează R2 și tabelele...</div></div>';
+
+  let files;
+  try {
+    const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    files = (await res.json()).files || [];
+  } catch (e) {
+    body.innerHTML = `<div style="color:var(--rose);font-family:var(--mono);font-size:11px;">eroare la citirea R2: ${escHtml(e.message || String(e))}</div>`;
+    return;
+  }
+  if (!files.length) {
+    body.innerHTML = '<div style="color:var(--rose);font-family:var(--mono);font-size:11px;">lista R2 e goală, anulat din siguranță.</div>';
+    return;
+  }
+
+  const exist = new Set(files.map(f => f.key));
+  const truncated = files.length >= 1000 && files.length % 1000 === 0;
+  const result = [];
+
+  for (const t of CLEAN_TABLES) {
+    const r = await dbCleanFetch(t);
+    if (r.error) {
+      const missingTable = r.error.code === '42P01' || r.error.code === 'PGRST205';
+      result.push({ t, skipped: missingTable ? 'tabel inexistent' : r.error.message });
+      continue;
+    }
+    const dead = [], partial = [];
+    let withRefs = 0;
+    r.rows.forEach(row => {
+      const refs = dbCleanRefs(row);
+      if (!refs.length) return;
+      withRefs++;
+      const missing = refs.filter(k => !exist.has(k));
+      if (!missing.length) return;
+      const item = { row, id: row[t.pk], refs, missing };
+      (missing.length === refs.length ? dead : partial).push(item);
+    });
+    result.push({ t, total: r.rows.length, withRefs, dead, partial });
+  }
+
+  dbCleanState = { result, truncated, fileCount: files.length };
+  renderDbClean();
+}
+
+function dbCleanLabel(row) {
+  const d = row.posted_at || row.date || row.created_at || '';
+  const title = String(row.caption || row.title || row.name || '').replace(/<[^>]*>/g, '').slice(0, 40);
+  return [row.type || '', d ? String(d).slice(0, 10) : '', title].filter(Boolean).join(' · ');
+}
+
+function renderDbClean() {
+  const body = document.getElementById('db-clean-body');
+  if (!body || !dbCleanState) return;
+  const { result, truncated, fileCount } = dbCleanState;
+  let html = `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;">R2: ${fileCount} fișiere</div>`;
+  if (truncated) {
+    html += `<div style="background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;padding:10px;margin-bottom:12px;font-family:var(--mono);font-size:10px;color:#e07070;line-height:1.6;">Lista R2 pare trunchiată (multiplu de 1000). Ștergerea e blocată, ca să nu ștergi rânduri valide.</div>`;
+  }
+  let totalDead = 0;
+  result.forEach(r => {
+    html += `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:12px;margin-bottom:10px;">`;
+    html += `<div style="font-family:var(--mono);font-size:12px;color:var(--text);margin-bottom:4px;">${r.t.name}</div>`;
+    if (r.skipped) {
+      html += `<div style="font-family:var(--mono);font-size:10px;color:var(--text4);">${escHtml(r.skipped)}</div></div>`;
+      return;
+    }
+    html += `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px;">${r.total} rânduri · ${r.withRefs} cu fișiere · <span style="color:${r.dead.length ? 'var(--rose)' : 'var(--green)'}">${r.dead.length} moarte</span> · ${r.partial.length} parțiale</div>`;
+    r.dead.forEach(it => {
+      totalDead++;
+      const miss = it.missing.map(k => k.split('/').pop()).join(', ');
+      html += `<label style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--border);cursor:pointer;">
+        <input type="checkbox" class="db-clean-chk" data-t="${r.t.name}" data-id="${escHtml(String(it.id))}" checked style="margin-top:3px;accent-color:var(--accent);">
+        <div style="min-width:0;">
+          <div style="font-family:var(--sans);font-size:12px;color:var(--text2);">${escHtml(dbCleanLabel(it.row)) || escHtml(String(it.id))}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--rose);word-break:break-all;">${escHtml(miss)}</div>
+        </div></label>`;
+    });
+    if (r.partial.length) {
+      html += `<div style="font-family:var(--mono);font-size:9px;color:var(--text4);margin-top:8px;">Parțiale (unele fișiere există, altele nu): ${r.partial.length}. Nu se șterg.</div>`;
+      if (r.t.name === 'hope_entries') {
+        const fixable = r.partial.filter(it => it.row.type === 'photo' && Array.isArray(it.row.media_urls)).length;
+        if (fixable) html += `<button onclick="fixPartialPhotoEntries()" style="width:100%;margin-top:6px;padding:8px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:10px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;">scoate link-urile moarte din ${fixable} postări foto</button>`;
+      }
+    }
+    html += `</div>`;
+  });
+
+  html += `<button onclick="runDbCleanDelete()" ${(truncated || !totalDead) ? 'disabled' : ''} style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:12px;color:#e07070;font-family:var(--mono);font-size:11px;cursor:pointer;letter-spacing:0.06em;margin-bottom:8px;${(truncated || !totalDead) ? 'opacity:0.35;' : ''}">șterge rândurile bifate</button>
+  <button onclick="runDbCleanScan()" style="width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;">re-scanează</button>`;
+  body.innerHTML = html;
+}
+
+async function runDbCleanDelete() {
+  const checks = [...document.querySelectorAll('.db-clean-chk:checked')];
+  if (!checks.length) { showToast('nimic bifat'); return; }
+  if (!confirm(`Ștergi definitiv ${checks.length} rânduri din Supabase? Nu poate fi anulat (fă backup CSV înainte).`)) return;
+  const byTable = {};
+  checks.forEach(c => { (byTable[c.dataset.t] = byTable[c.dataset.t] || []).push(c.dataset.id); });
+  let done = 0; const errs = [];
+  for (const [tn, ids] of Object.entries(byTable)) {
+    const pk = CLEAN_TABLES.find(x => x.name === tn).pk;
+    for (let i = 0; i < ids.length; i += 100) {
+      const chunk = ids.slice(i, i + 100);
+      const { error } = await sb.from(tn).delete().in(pk, chunk);
+      if (error) { errs.push(tn + ': ' + error.message); break; }
+      done += chunk.length;
+    }
+  }
+  showToast(errs.length ? 'erori: ' + errs.join(' | ') : `${done} rânduri șterse`);
+  await loadEntries(); await loadDateMusicMap();
+  buildCarousel(); renderEntries();
+  await runDbCleanScan();
+}
+
+async function fixPartialPhotoEntries() {
+  const r = dbCleanState.result.find(x => x.t.name === 'hope_entries');
+  if (!r) return;
+  const todo = r.partial.filter(it => it.row.type === 'photo' && Array.isArray(it.row.media_urls));
+  if (!confirm(`Scot link-urile moarte din ${todo.length} postări foto?`)) return;
+  const missingAll = new Set(todo.flatMap(it => it.missing));
+  let fixed = 0;
+  for (const it of todo) {
+    const keep = it.row.media_urls.filter(u => {
+      const k = u.startsWith('r2:') ? u.slice(3) : (u.startsWith(R2_PUBLIC_URL + '/') ? u.slice(R2_PUBLIC_URL.length + 1) : null);
+      return !(k && missingAll.has(k));
+    });
+    if (!keep.length || keep.length === it.row.media_urls.length) continue;
+    const { error } = await sb.from('hope_entries').update({ media_urls: keep }).eq('id', it.id);
+    if (!error) fixed++;
+  }
+  showToast(`${fixed} postări reparate`);
+  await loadEntries(); buildCarousel(); renderEntries();
+  await runDbCleanScan();
+}
+
 function startTimeLockStars() {
 const canvas = document.getElementById('timeLockStarsCanvas');
 if (!canvas) return;
