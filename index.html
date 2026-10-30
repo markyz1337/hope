@@ -9726,15 +9726,18 @@ init();
 startSupabaseKeepAlive();
 
 // ordinea contează la import: colecțiile înaintea clipurilor
-const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'tikhope_clip_collections', 'tikhope_clips'];
+const EXPORT_TABLES = ['hope_entries', 'hope_date_music', 'hope_app_state', 'hope_drafts', 'hope_clip_collections', 'hope_clips', 'tikhope_clip_collections', 'tikhope_clips'];
 const TABLE_PK = {
   hope_entries: 'id',
   hope_date_music: 'date',
   hope_app_state: 'key',
   hope_drafts: 'id',
+  hope_clip_collections: 'id',
+  hope_clips: 'id',
   tikhope_clip_collections: 'id',
   tikhope_clips: 'id'
 };
+
 
 async function fetchAllRows(table) {
   const PAGE = 1000;
