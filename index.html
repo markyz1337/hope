@@ -830,7 +830,8 @@ flex-shrink: 0;
 body.locked .fab-wrap:not(.redirect-visible) { display: none !important; }
 
 /* Ascunde vizual tot continutul cand sunt deschise setarile sau calendarul */
-body.hide-app-content > *:not(.cal-popup-overlay):not(.settings-overlay):not(.pin-overlay):not(.toast):not(.lightbox) {
+body.hide-app-content > *:not(.cal-popup-overlay):not(.settings-overlay):not(.pin-overlay):not(.toast):not(.lightbox):not(#backup-list-overlay) {
+
 opacity: 0 !important;
 transition: opacity 0.15s ease;
 }
@@ -9984,11 +9985,12 @@ async function importAllDataCsv(file) {
     if (!total) { showToast('CSV-ul nu conține date'); return; }
     const summary = CSV_TABLES.map(t => `${t.name}: ${incoming[t.name].length}`).join('\n');
     if (!confirm(`Vei ȘTERGE toate datele curente și le vei înlocui cu:\n\n${summary}\n\nContinui?`)) return;
-    if (!confirm('ULTIMA CONFIRMARE: datele curente se șterg definitiv (se face totuși un backup automat). Continui?')) return;
+    if (!confirm('ULTIMA CONFIRMARE: datele curente se șterg definitiv. Continui?')) return;
 
-    setCsvStatus('backup automat înainte de import...');
+
+    setCsvStatus('se pregătește importul...');
     const current = await buildSnapshot();
-    await saveTextFile(csvFileName('hope-inainte-de-import'), snapshotToCsv(current));
+
 
     setCsvStatus('se importă...');
     try {
