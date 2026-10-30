@@ -8781,7 +8781,8 @@ showToast(`script Scriptable copiat (${links.length} fișiere)`);
 
 
 function renderR2Gallery(files) {
-files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/'));
+files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !f.key.startsWith('tikhope/') && !f.key.startsWith('tikhopethumbs/'));
+
 
 
 if (!files.length) {
@@ -8888,8 +8889,9 @@ const thumb = isImage
 : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
 html += `<div data-r2key="${f.key}" data-idx="${visualIdx}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
 ${thumb}
-font-size:11px;background:rgba(0,0,0,0.55);border-radius:6px;padding:1px 4px;">🎞️</div>' : ''}
+${/\.gif$/i.test(f.key) ? '<div style="position:absolute;top:5px;left:5px;font-size:11px;background:rgba(0,0,0,0.55);border-radius:6px;padding:1px 4px;">🎞️</div>' : ''}
 ${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
+
 </div>`;
 });
 
@@ -8938,7 +8940,8 @@ r2ProtectedKeys.forEach(k => usedKeys.add(k));
 const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
 
 const { files } = await res.json();
-const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !usedKeys.has(f.key)).map(f => f.key);
+const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !f.key.startsWith('tikhope/') && !f.key.startsWith('tikhopethumbs/') && !usedKeys.has(f.key)).map(f => f.key);
+
 
 if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
 if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
