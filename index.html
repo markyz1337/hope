@@ -4094,10 +4094,25 @@ anulează
 <div class="sheet-title">mută conținutul zilei</div>
 <p id="move-src-info" style="color:var(--text3);font-size:14px;line-height:1.6;font-family:var(--serif);font-style:italic;margin-bottom:16px;"></p>
 <div class="form-group">
-<label class="form-label">mută pe data</label>
-<input type="date" class="form-input" id="move-target-date" oninput="checkMoveTarget()" />
-<div id="move-target-status" style="font-family:var(--mono);font-size:10px;letter-spacing:0.05em;min-height:16px;margin-top:8px;color:var(--text3);"></div>
+<label class="form-label">alege ziua în care muți</label>
+<div class="cal-popup-month-nav">
+<button class="cal-popup-nav-btn" onclick="moveCalNav(-1)">
+<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="10 3 5 8 10 13" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<span class="cal-popup-month-lbl" id="move-cal-lbl"></span>
+<button class="cal-popup-nav-btn" onclick="moveCalNav(1)">
+<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 3 11 8 6 13" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
 </div>
+<div class="cal-popup-grid" id="move-cal-grid"></div>
+<div class="cal-popup-legend">
+<div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--green)"></span><span>liberă</span></div>
+<div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--rose)"></span><span>ocupată</span></div>
+<div class="cal-popup-legend-item"><span class="cal-popup-legend-dot" style="background:var(--blue)"></span><span>ziua sursă</span></div>
+</div>
+<div id="move-target-status" style="font-family:var(--mono);font-size:10px;letter-spacing:0.05em;min-height:16px;margin-top:10px;color:var(--text3);"></div>
+</div>
+
 <button class="btn-primary" id="move-confirm-btn" onclick="confirmMoveDay()">mută tot</button>
 <button class="btn-secondary" onclick="closeModal('move')">anulează</button>
 </div>
@@ -9760,13 +9775,13 @@ async function importAllDataCsv(file) {
 /* ═══════════ SFÂRȘIT BACKUP / EXPORT / IMPORT ═══════════ */
 
 /* ═══════════ MUTARE ZI ═══════════ */
+let moveCalYear = 0, moveCalMonth = 0, moveTargetKey = null;
+
 function onPillClick(k) {
-  // a doua apăsare, pe ziua deja selectată => meniul de mutare
   if (!isLocked && selectedDate && dateKey(selectedDate) === k) {
     openMoveDayModal();
     return;
   }
-  // altfel doar navighează la ziua respectivă
   selectDate(k);
 }
 
@@ -9786,33 +9801,80 @@ function openMoveDayModal() {
   if (hasMusic) parts.push('muzica zilei');
   document.getElementById('move-src-info').textContent =
     `${formatKeyLabelRo(src)} · ${parts.join(' + ')}`;
-  document.getElementById('move-target-date').value = '';
-  const st = document.getElementById('move-target-status');
-  st.textContent = ''; st.style.color = 'var(--text3)';
+
+  moveTargetKey = null;
+  moveCalYear = selectedDate.getFullYear();
+  moveCalMonth = selectedDate.getMonth();
+  renderMoveCal();
+  updateMoveStatus();
   openModal('move');
 }
 
-function checkMoveTarget() {
-  const target = document.getElementById('move-target-date').value;
-  const st = document.getElementById('move-target-status');
+function moveCalNav(dir) {
+  moveCalMonth += dir;
+  if (moveCalMonth < 0) { moveCalMonth = 11; moveCalYear--; }
+  if (moveCalMonth > 11) { moveCalMonth = 0; moveCalYear++; }
+  renderMoveCal();
+}
+
+function renderMoveCal() {
+  const names = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  document.getElementById('move-cal-lbl').textContent = `${names[moveCalMonth]} ${moveCalYear}`;
   const src = dateKey(selectedDate);
-  if (!target) { st.textContent = ''; return false; }
-  if (target === src) {
-    st.textContent = 'asta e ziua curentă'; st.style.color = 'var(--rose)'; return false;
+  const daysInMonth = new Date(moveCalYear, moveCalMonth + 1, 0).getDate();
+  let startWd = new Date(moveCalYear, moveCalMonth, 1).getDay() - 1;
+  if (startWd < 0) startWd = 6;
+
+  let html = ['Lu','Ma','Mi','Jo','Vi','Sâ','Du'].map(n => `<div class="cal-popup-day-name">${n}</div>`).join('');
+  for (let i = 0; i < startWd; i++) html += `<div class="cal-popup-cell empty"></div>`;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const k = `${moveCalYear}-${String(moveCalMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    let style, click, title = '';
+    if (k === src) {
+      style = 'border-color:rgba(122,162,200,0.6);background:rgba(122,162,200,0.2);color:var(--blue);font-weight:700;cursor:default;';
+      click = `onclick="showToast('asta e ziua sursă')"`;
+    } else if (isDayOccupied(k)) {
+      style = 'border-color:rgba(200,80,80,0.35);background:rgba(200,80,80,0.13);color:var(--rose);cursor:not-allowed;';
+      click = `onclick="showToast('ziua aceasta are deja conținut')"`;
+    } else if (k === moveTargetKey) {
+      style = 'border-color:rgba(122,200,149,0.8);background:rgba(122,200,149,0.3);color:var(--green);font-weight:700;box-shadow:0 0 0 2px rgba(122,200,149,0.18);';
+      click = `onclick="pickMoveTarget('${k}')"`;
+    } else {
+      style = 'border-color:rgba(122,200,149,0.25);background:rgba(122,200,149,0.05);color:var(--green);';
+      click = `onclick="pickMoveTarget('${k}')"`;
+    }
+    html += `<div class="cal-popup-cell" style="${style}" ${click}>${day}</div>`;
   }
-  if (isDayOccupied(target)) {
-    st.textContent = 'ziua aceasta are deja conținut'; st.style.color = 'var(--rose)'; return false;
+  document.getElementById('move-cal-grid').innerHTML = html;
+}
+
+function pickMoveTarget(k) {
+  moveTargetKey = k;
+  renderMoveCal();
+  updateMoveStatus();
+}
+
+function updateMoveStatus() {
+  const st = document.getElementById('move-target-status');
+  const btn = document.getElementById('move-confirm-btn');
+  if (moveTargetKey) {
+    st.textContent = `✓ se mută pe ${formatKeyLabelRo(moveTargetKey)}`;
+    st.style.color = 'var(--green)';
+    btn.disabled = false; btn.style.opacity = '';
+  } else {
+    st.textContent = 'alege o zi liberă (verde)';
+    st.style.color = 'var(--text3)';
+    btn.disabled = true; btn.style.opacity = '0.4';
   }
-  st.textContent = '✓ ziua este liberă'; st.style.color = 'var(--green)';
-  return true;
 }
 
 async function confirmMoveDay() {
   if (isLocked) { showToast('deblochează mai întâi'); return; }
   const src = dateKey(selectedDate);
-  const target = document.getElementById('move-target-date').value;
-  if (!target) { showToast('alege o dată'); return; }
-  if (!checkMoveTarget()) { showToast('nu pot muta pe data aleasă'); return; }
+  const target = moveTargetKey;
+  if (!target) { showToast('alege o zi'); return; }
+  if (target === src || isDayOccupied(target)) { showToast('ziua aleasă e ocupată'); return; }
 
   const [ty, tm, td] = target.split('-').map(Number);
   const toMove = entries.filter(e => dateKey(e.posted_at) === src);
@@ -9820,7 +9882,6 @@ async function confirmMoveDay() {
   btn.disabled = true;
 
   try {
-    // intrările: se schimbă doar ziua, ora rămâne aceeași
     const results = await Promise.all(toMove.map(e => {
       const d = new Date(e.posted_at);
       d.setFullYear(ty, tm - 1, td);
@@ -9829,7 +9890,6 @@ async function confirmMoveDay() {
     const failed = results.find(r => r.error);
     if (failed) throw new Error(failed.error.message);
 
-    // muzica zilei
     if (dateMusicMap[src]) {
       const { error } = await sb.from('hope_date_music').update({ date: target }).eq('date', src);
       if (error) throw new Error(error.message);
@@ -9853,6 +9913,7 @@ async function confirmMoveDay() {
   }
 }
 /* ═══════════ SFÂRȘIT MUTARE ZI ═══════════ */
+
 
 
 
