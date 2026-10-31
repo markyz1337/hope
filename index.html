@@ -4088,6 +4088,20 @@ anulează
 </div>
 </div>
 
+<div class="backdrop" id="modal-move">
+<div class="sheet">
+<div class="sheet-handle"></div>
+<div class="sheet-title">mută conținutul zilei</div>
+<p id="move-src-info" style="color:var(--text3);font-size:14px;line-height:1.6;font-family:var(--serif);font-style:italic;margin-bottom:16px;"></p>
+<div class="form-group">
+<label class="form-label">mută pe data</label>
+<input type="date" class="form-input" id="move-target-date" oninput="checkMoveTarget()" />
+<div id="move-target-status" style="font-family:var(--mono);font-size:10px;letter-spacing:0.05em;min-height:16px;margin-top:8px;color:var(--text3);"></div>
+</div>
+<button class="btn-primary" id="move-confirm-btn" onclick="confirmMoveDay()">mută tot</button>
+<button class="btn-secondary" onclick="closeModal('move')">anulează</button>
+</div>
+</div>
 
 <div class="backdrop" id="modal-debug">
 <div class="sheet">
@@ -6594,7 +6608,8 @@ if (dateMusicMap[k] && (!dateMusicMap[k].hidden || !isLocked) && !types.includes
 
 const dots = types.map(t => { const color = t === 'music_dm' ? 'var(--accent)' : (typeColors[t]||'var(--accent)'); return `<span class="pill-dot" style="background:${color}"></span>`; }).join('');
 const isFuturePill = k > dateKey(today);
-const pillClick = (isFuturePill && isLocked) ? '' : `onclick="selectDate('${k}')"`;
+const pillClick = (isFuturePill && isLocked) ? '' : `onclick="onPillClick('${k}')"`;
+
 html += `<div class="date-pill${isSelected?' active':''}" data-key="${k}" style="${(isFuturePill && isLocked) ? 'opacity:0.35;pointer-events:none;cursor:default;' : ''}" ${pillClick}>
 
 
@@ -9743,6 +9758,102 @@ async function importAllDataCsv(file) {
   }
 }
 /* ═══════════ SFÂRȘIT BACKUP / EXPORT / IMPORT ═══════════ */
+
+/* ═══════════ MUTARE ZI ═══════════ */
+function onPillClick(k) {
+  // a doua apăsare, pe ziua deja selectată => meniul de mutare
+  if (!isLocked && selectedDate && dateKey(selectedDate) === k) {
+    openMoveDayModal();
+    return;
+  }
+  // altfel doar navighează la ziua respectivă
+  selectDate(k);
+}
+
+function isDayOccupied(k) {
+  return entries.some(e => dateKey(e.posted_at) === k) || !!dateMusicMap[k];
+}
+
+function openMoveDayModal() {
+  if (isLocked || !selectedDate) return;
+  const src = dateKey(selectedDate);
+  const n = entries.filter(e => dateKey(e.posted_at) === src).length;
+  const hasMusic = !!dateMusicMap[src];
+  if (!n && !hasMusic) { showToast('nimic de mutat în ziua asta'); return; }
+
+  const parts = [];
+  if (n) parts.push(`${n} intrări`);
+  if (hasMusic) parts.push('muzica zilei');
+  document.getElementById('move-src-info').textContent =
+    `${formatKeyLabelRo(src)} · ${parts.join(' + ')}`;
+  document.getElementById('move-target-date').value = '';
+  const st = document.getElementById('move-target-status');
+  st.textContent = ''; st.style.color = 'var(--text3)';
+  openModal('move');
+}
+
+function checkMoveTarget() {
+  const target = document.getElementById('move-target-date').value;
+  const st = document.getElementById('move-target-status');
+  const src = dateKey(selectedDate);
+  if (!target) { st.textContent = ''; return false; }
+  if (target === src) {
+    st.textContent = 'asta e ziua curentă'; st.style.color = 'var(--rose)'; return false;
+  }
+  if (isDayOccupied(target)) {
+    st.textContent = 'ziua aceasta are deja conținut'; st.style.color = 'var(--rose)'; return false;
+  }
+  st.textContent = '✓ ziua este liberă'; st.style.color = 'var(--green)';
+  return true;
+}
+
+async function confirmMoveDay() {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const src = dateKey(selectedDate);
+  const target = document.getElementById('move-target-date').value;
+  if (!target) { showToast('alege o dată'); return; }
+  if (!checkMoveTarget()) { showToast('nu pot muta pe data aleasă'); return; }
+
+  const [ty, tm, td] = target.split('-').map(Number);
+  const toMove = entries.filter(e => dateKey(e.posted_at) === src);
+  const btn = document.getElementById('move-confirm-btn');
+  btn.disabled = true;
+
+  try {
+    // intrările: se schimbă doar ziua, ora rămâne aceeași
+    const results = await Promise.all(toMove.map(e => {
+      const d = new Date(e.posted_at);
+      d.setFullYear(ty, tm - 1, td);
+      return sb.from('hope_entries').update({ posted_at: d.toISOString() }).eq('id', e.id);
+    }));
+    const failed = results.find(r => r.error);
+    if (failed) throw new Error(failed.error.message);
+
+    // muzica zilei
+    if (dateMusicMap[src]) {
+      const { error } = await sb.from('hope_date_music').update({ date: target }).eq('date', src);
+      if (error) throw new Error(error.message);
+    }
+
+    closeModal('move');
+    await loadDateMusicMap();
+    await loadEntries();
+    buildCarousel();
+    selectDate(target);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('conținut mutat');
+  } catch (err) {
+    showToast('eroare: ' + err.message);
+    await loadDateMusicMap();
+    await loadEntries();
+    buildCarousel();
+    renderEntries();
+  } finally {
+    btn.disabled = false;
+  }
+}
+/* ═══════════ SFÂRȘIT MUTARE ZI ═══════════ */
+
 
 
 init();
