@@ -6271,7 +6271,8 @@ const month = parseInt(document.getElementById('calJumpMonth').value);
 const year  = parseInt(document.getElementById('calJumpYear').value);
 if (isNaN(year) || year < 2000 || year > 2099) { showToast('an invalid'); return; }
 const now = new Date();
-if (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth())) {
+if (isLocked && (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth()))) {
+
 showToast('nu poți naviga în viitor'); return;
 }
 calPopupMonth = month;
@@ -6348,8 +6349,9 @@ const isSelected = k === selKey || (isToday && isViewingToday);
 const types = dayTypesMap[day] ? [...dayTypesMap[day]] : [];
 const hasData = types.length > 0;
 let cls = 'cal-popup-cell';
-if (isFuture) cls += ' future';
+if (isFuture && isLocked) cls += ' future';
 else if (isSelected) cls += ' is-selected';
+
 else if (isToday) cls += ' is-today';
 else if (hasData) cls += ' has-data';
 else cls += ' no-data';
@@ -6358,7 +6360,6 @@ const dotMap = { note:'cal-dot-note', photo:'cal-dot-photo', video:'cal-dot-vide
 const dots = dotOrder.filter(t => types.includes(t)).map(t => `<span class="cal-popup-dot ${dotMap[t]}"></span>`).join('');
 const dotsHtml = dots ? `<div class="cal-popup-dots">${dots}</div>` : '';
 const clickHandler = (isFuture && isLocked) ? '' : `onclick="calPopupSelectDay('${k}')"`;
-if (isFuture && !isLocked) cls = cls.replace(' future', '') + ' no-data';
 html += `<div class="${cls}" ${clickHandler}>${day}${dotsHtml}</div>`;
 
 }
@@ -6599,7 +6600,15 @@ function buildCarousel() {
 const carousel = document.getElementById('dateCarousel');
 const today = new Date(); today.setHours(0,0,0,0);
 const days = [];
-for (let i = -365; i <= 7; i++) { const d = new Date(today); d.setDate(today.getDate()+i); days.push(d); }
+let maxAhead = 7;
+if (!isLocked) {
+  maxAhead = 365;
+  if (selectedDate) {
+    const diff = Math.ceil((selectedDate - today) / 86400000) + 60;
+    if (diff > maxAhead) maxAhead = diff;
+  }
+}
+for (let i = -365; i <= maxAhead; i++) { const d = new Date(today); d.setDate(today.getDate()+i); days.push(d); }
 const dayTypesMap = {};
 entries.forEach(e => {
 if (!!e.hidden && isLocked) return;
@@ -6647,7 +6656,9 @@ function selectDate(key) {
 const [y,m,d] = key.split('-').map(Number);
 selectedDate = new Date(y, m-1, d);
 saveLastDate(key);
+if (!document.querySelector(`.date-pill[data-key="${key}"]`)) buildCarousel();
 const prevActive = document.querySelector('.date-pill.active');
+
 if (prevActive) prevActive.classList.remove('active');
 const nextActive = document.querySelector(`.date-pill[data-key="${key}"]`);
 if (nextActive) nextActive.classList.add('active');
