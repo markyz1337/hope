@@ -61,7 +61,9 @@ rel="stylesheet"
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html { scroll-behavior:smooth; }
+html { scroll-behavior:smooth; overscroll-behavior-y: none; }
+body { overscroll-behavior-y: none; }
+
 
 
 
@@ -6445,6 +6447,21 @@ window.addEventListener('touchend', onTouchEnd, { passive:false });
 let touchStartX = 0;
 let touchDirectionLocked = false; // 'h' | 'v' | false
 
+
+function rubberCalc(delta) {
+const L = 140; // distanța maximă de întindere (px)
+return L * (1 - 1 / (delta * 0.55 / L + 1));
+}
+
+function rubber(px, animate) {
+const a = document.querySelector('.app');
+if (!a) return;
+a.style.transition = animate ? 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)' : 'none';
+a.style.transform = px ? `translateY(${px}px)` : '';
+}
+
+
+
 function onTouchStart(e) {
 if (touchBlocked(e)) return;
 
@@ -6461,14 +6478,12 @@ touchLastY = touchStartY;
 touchDirectionLocked = false;
 overscrollDelta = 0; topscrollDelta = 0;
 overscrollActive = maxScroll < 10 || (window.scrollY >= maxScroll - 4);
-topscrollActive = window.scrollY <= 4;
+topscrollActive = window.scrollY <= 4 && !document.querySelector('.backdrop.open');
+
 }
 
 function onTouchMove(e) {
 if (touchBlocked(e)) return;
-
-
-
 
 const y = e.touches[0].clientY;
 const x = e.touches[0].clientX;
@@ -6487,22 +6502,27 @@ if (overscrollActive && !jumpLocked) {
 if (dy > 0) {
 overscrollDelta += dy;
 setRingProgress(Math.min(1, overscrollDelta/OVERSCROLL_THRESHOLD), 'next');
-const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-if (maxScroll < 10) e.preventDefault();
+if (e.cancelable) e.preventDefault();
 } else if (dy < 0) {
 overscrollDelta = Math.max(0, overscrollDelta+dy);
 setRingProgress(overscrollDelta/OVERSCROLL_THRESHOLD, 'next');
 }
+rubber(-rubberCalc(overscrollDelta), false);
 }
 
+
 if (topscrollActive && !topJumpLocked) {
+// gest în jos pornit de sus: blochează scroll-ul nativ imediat
+const pulledDown = (y - touchStartY) > 0;
+if (pulledDown && window.scrollY <= 4) {
+if (e.cancelable) e.preventDefault();
+}
 if (dy < 0) {
 topscrollDelta += Math.abs(dy);
 setRingProgress(Math.min(1, topscrollDelta/OVERSCROLL_THRESHOLD), 'prev');
-const atTop = window.scrollY <= 4;
-if (atTop) e.preventDefault();
 if (topscrollDelta >= OVERSCROLL_THRESHOLD) {
 topJumpLocked = true;
+topscrollActive = false;
 jumpDate(-1);
 setTimeout(() => { topJumpLocked = false; topscrollDelta = 0; setRingProgress(0, 'prev'); }, 600);
 }
@@ -6513,22 +6533,24 @@ setRingProgress(topscrollDelta/OVERSCROLL_THRESHOLD, 'prev');
 }
 }
 
+
 function onTouchEnd(e) {
 if (touchBlocked(e)) return;
-
-
-
 
 if (overscrollActive) {
 if (ringProgress >= 1 && !jumpLocked) { jumpLocked = true; jumpDate(1); setTimeout(() => resetRing('next'), 400); }
 else { setRingProgress(0, 'next'); jumpLocked = false; }
 overscrollDelta = 0; overscrollActive = false;
+rubber(0, true);
 }
 if (topscrollActive) {
 if (!topJumpLocked) { setRingProgress(0, 'prev'); }
 topscrollDelta = 0; topscrollActive = false;
+rubber(0, true);
 }
 }
+
+
 async function loadLastDate() {
 try { const { data, error } = await sb.from('hope_app_state').select('value').eq('key','last_date').single(); if (!error && data) return data.value; } catch(e) {}
 return null;
