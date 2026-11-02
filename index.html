@@ -2517,7 +2517,7 @@ type="file"
 id="rte-music-file-input"
 accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
 style="display:none"
-onchange="uploadRteMusicFile(this.files[0], 1)"
+onchange="uploadTo(this.files[0],'rte-music-upload-status','rte-music-url-input')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -3741,7 +3741,7 @@ type="file"
 id="rte-music-file-input2"
 accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
 style="display:none"
-onchange="uploadRteMusicFile(this.files[0], 2)"
+onchange="uploadTo(this.files[0],'rte-music-upload-status2','rte-music-url-input2')"
 />
 <svg
 viewBox="0 0 24 24"
@@ -5677,13 +5677,7 @@ if (ret) ret.classList.toggle('on', SETTING_REDIRECT_ENABLED);
 
 
 
-function toggleSettingVisitorLock() {
-SETTING_VISITOR_LOCK = !SETTING_VISITOR_LOCK;
-saveSettings({ visitorLock: SETTING_VISITOR_LOCK });
-document.getElementById('settings-visitor-lock-toggle').classList.toggle('on', SETTING_VISITOR_LOCK);
-document.getElementById('settings-visitor-pin-group').style.display = SETTING_VISITOR_LOCK ? 'block' : 'none';
-showToast(SETTING_VISITOR_LOCK ? 'protecție vizitatori activată' : 'protecție vizitatori dezactivată');
-}
+
 
 function toggleSettingTimeLock() {
 SETTING_TIME_LOCK = !SETTING_TIME_LOCK;
@@ -5706,43 +5700,18 @@ showToast(`interval: ${sub}`);
 }
 
 
-function changeCreatorPin() {
-const inp = document.getElementById('settings-new-creator-pin');
-const val = inp.value.trim();
-if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
-PIN_CODE = val;
-saveSettings({ creatorPin: val });
-inp.value = '';
-showToast('parolă creator schimbată');
-}
 
-function changePrivatePin() {
-const inp = document.getElementById('settings-new-private-pin');
-const val = inp.value.trim();
-if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
-PIN_PRIVATE = val;
-saveSettings({ privatePin: val });
-inp.value = '';
-showToast('parolă privat schimbată');
+function changePin(inputId, key, set, msg) {
+  const inp = document.getElementById(inputId), val = inp.value.trim();
+  if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
+  set(val); saveSettings({ [key]: val }); inp.value = ''; showToast(msg);
 }
+const changeCreatorPin = () => changePin('settings-new-creator-pin','creatorPin',v=>PIN_CODE=v,'parolă creator schimbată');
+const changePrivatePin = () => changePin('settings-new-private-pin','privatePin',v=>PIN_PRIVATE=v,'parolă privat schimbată');
+const changeVisitorPin = () => changePin('settings-new-visitor-pin','visitorPin',v=>PIN_VISITOR=v,'parolă vizitatori schimbată');
 
-function changeVisitorPin() {
-const inp = document.getElementById('settings-new-visitor-pin');
-const val = inp.value.trim();
-if (!/^\d{4}$/.test(val)) { showToast('PIN-ul trebuie să fie 4 cifre'); return; }
-PIN_VISITOR = val;
-saveSettings({ visitorPin: val });
-inp.value = '';
-showToast('parolă vizitatori schimbată');
-}
 
-function toggleSetting2FA() {
-SETTING_2FA_ENABLED = !SETTING_2FA_ENABLED;
-saveSettings({ twoFaEnabled: SETTING_2FA_ENABLED });
-document.getElementById('settings-2fa-toggle').classList.toggle('on', SETTING_2FA_ENABLED);
-document.getElementById('settings-2fa-pin-group').style.display = SETTING_2FA_ENABLED ? 'block' : 'none';
-showToast(SETTING_2FA_ENABLED ? '2FA activat' : '2FA dezactivat');
-}
+
 
 function changePassword2FA() {
 const inp = document.getElementById('settings-new-2fa-pin');
@@ -5756,13 +5725,16 @@ showToast('parolă 2FA schimbată');
 
 
 
-function toggleTimelockMusic() {
-SETTING_TIMELOCK_MUSIC_ON = !SETTING_TIMELOCK_MUSIC_ON;
-saveSettings({ timelockMusicOn: SETTING_TIMELOCK_MUSIC_ON });
-document.getElementById('settings-timelock-music-toggle').classList.toggle('on', SETTING_TIMELOCK_MUSIC_ON);
-document.getElementById('settings-timelock-music-group').style.display = SETTING_TIMELOCK_MUSIC_ON ? 'block' : 'none';
-showToast(SETTING_TIMELOCK_MUSIC_ON ? 'melodie ecran activată' : 'melodie ecran dezactivată');
+function settingToggle(id, groupId, key, val, msgs) {
+  saveSettings({ [key]: val });
+  document.getElementById(id).classList.toggle('on', val);
+  document.getElementById(groupId).style.display = val ? 'block' : 'none';
+  showToast(val ? msgs[0] : msgs[1]);
 }
+const toggleSettingVisitorLock = () => settingToggle('settings-visitor-lock-toggle','settings-visitor-pin-group','visitorLock',SETTING_VISITOR_LOCK=!SETTING_VISITOR_LOCK,['protecție vizitatori activată','protecție vizitatori dezactivată']);
+const toggleSetting2FA = () => settingToggle('settings-2fa-toggle','settings-2fa-pin-group','twoFaEnabled',SETTING_2FA_ENABLED=!SETTING_2FA_ENABLED,['2FA activat','2FA dezactivat']);
+const toggleTimelockMusic = () => settingToggle('settings-timelock-music-toggle','settings-timelock-music-group','timelockMusicOn',SETTING_TIMELOCK_MUSIC_ON=!SETTING_TIMELOCK_MUSIC_ON,['melodie ecran activată','melodie ecran dezactivată']);
+
 
 function saveTimelockMusic() {
 SETTING_TIMELOCK_MUSIC_URL = document.getElementById('settings-timelock-music-url').value.trim();
@@ -6704,16 +6676,9 @@ updateFabMainMode();
 function stopEntryMusicCompletely() {
 if (!entryAudio.paused) { entryAudio.pause(); entryAudio.currentTime = 0; }
 currentEntryAudioUrl = null;
-currentMusicTextSpan = null;
-document.querySelectorAll('.music-text-span.playing').forEach(s => s.classList.remove('playing'));
-document.querySelectorAll('.music-player').forEach(p => {
-
-const ov = p.querySelector('.music-cover-overlay');
-const w = p.querySelector('.wave-bars');
-const s = p.querySelector('.music-sub');
-if (ov) ov.innerHTML = playIcon(); if (w) w.classList.add('paused'); if (s) s.textContent = 'apasă pentru redare';
-});
+resetMusicPlayers();
 }
+
 
 let syncMediaToken = 0;
 function startSyncedDateMedia(dk) {
@@ -7697,15 +7662,9 @@ const waves   = container.querySelector('.wave-bars');
 const sub     = container.querySelector('.music-sub');
 const isCurrentlyPlaying = currentEntryAudioUrl === url && !entryAudio.paused;
 
-document.querySelectorAll('.music-player').forEach(p => {
-if (p !== container) {
-const ov = p.querySelector('.music-cover-overlay'); const w = p.querySelector('.wave-bars'); const s = p.querySelector('.music-sub');
-if (ov) ov.innerHTML = playIcon(); if (w) w.classList.add('paused'); if (s) s.textContent = 'apasă pentru redare';
-}
-});
-document.querySelectorAll('.music-text-span.playing').forEach(s => s.classList.remove('playing'));
-currentMusicTextSpan = null;
+resetMusicPlayers(container);
 if (isCurrentlyPlaying) {
+
 
 entryAudio.pause();
 if (overlay) overlay.innerHTML = playIcon(); if (waves) waves.classList.add('paused'); if (sub) sub.textContent = 'apasă pentru redare';
@@ -9148,20 +9107,7 @@ function rteToggleMusicBar(s = '') {
 }
 const rteToggleMusicBar2 = () => rteToggleMusicBar('2');
 
-async function uploadRteMusicFile(file, num) {
-const statusId = num === 2 ? 'rte-music-upload-status2' : 'rte-music-upload-status';
-const urlInputId = num === 2 ? 'rte-music-url-input2' : 'rte-music-url-input';
-const status = document.getElementById(statusId);
-status.textContent = 'se încarcă...';
-try {
-const result = await uploadToR2(file, 'audio');
-document.getElementById(urlInputId).value = `r2:${result.publicId}`;
-status.textContent = '✓ încărcat';
-setTimeout(() => status.textContent = '', 3000);
-} catch(e) {
-status.textContent = 'eroare la upload';
-}
-}
+
 
 function _rteInsertMusicForEditor(editorId, urlInputId, titleInputId, barId, statusId) {
 const url = document.getElementById(urlInputId).value.trim();
@@ -9214,21 +9160,25 @@ function rteInsertMusic2() {
 _rteInsertMusicForEditor('rte-editor2', 'rte-music-url-input2', 'rte-music-title-input2', 'rte-music-bar2', 'rte-music-upload-status2');
 }
 
+function resetMusicPlayers(except) {
+  document.querySelectorAll('.music-player').forEach(p => {
+    if (p === except) return;
+    p.querySelector('.music-cover-overlay').innerHTML = playIcon();
+    p.querySelector('.wave-bars').classList.add('paused');
+    p.querySelector('.music-sub').textContent = 'apasă pentru redare';
+  });
+  document.querySelectorAll('.music-text-span.playing').forEach(s => s.classList.remove('playing'));
+  currentMusicTextSpan = null;
+}
+
+
 function toggleMusicTextSpan(span) {
 const url = span.dataset.url;
 const title = span.dataset.title || 'melodie';
 if (!url) return;
 const resolvedUrl = resolveUrl(url);
 const isCurrentlyPlaying = currentMusicTextSpan === span && !entryAudio.paused;
-document.querySelectorAll('.music-text-span.playing').forEach(s => s.classList.remove('playing'));
-currentMusicTextSpan = null;
-document.querySelectorAll('.music-player').forEach(p => {
-const ov = p.querySelector('.music-cover-overlay');
-const w = p.querySelector('.wave-bars');
-const s = p.querySelector('.music-sub');
-if (ov) ov.innerHTML = playIcon(); if (w) w.classList.add('paused'); if (s) s.textContent = 'apasă pentru redare';
-});
-
+resetMusicPlayers();
 if (isCurrentlyPlaying) {
 entryAudio.pause();
 currentEntryAudioUrl = null;
