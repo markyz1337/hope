@@ -4205,26 +4205,15 @@ for (const d of allAvail) { if (d < targetKey) prev = d; else if (d > targetKey 
 
 label.textContent = 'nicio intrare pentru această dată'; label.classList.add('visible');
 
-let suggHtml = '';
-if (prev || next) {
-suggHtml = `<div style="margin:16px 12px 8px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.18);border-radius:14px;padding:14px 16px;">
-<div style="font-family:var(--mono);font-size:10px;color:var(--blue);letter-spacing:0.08em;margin-bottom:12px;">DATE APROPIATE DISPONIBILE</div>`;
-if (prev) {
-const pd = new Date(prev+'T12:00:00');
-suggHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-<span style="font-family:var(--serif);font-size:14px;color:var(--text2);">${pd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}</span>
-<button onclick="jumpToDateFromSearch('${prev}')" style="font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(200,169,126,0.3);background:rgba(200,169,126,0.08);border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:0.04em;">vezi →</button>
+const near = [prev, next].filter(Boolean);
+const suggRow = k => `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;${k === prev ? 'border-bottom:1px solid rgba(255,255,255,0.05);' : (prev ? 'margin-top:4px;' : '')}">
+<span style="font-family:var(--serif);font-size:14px;color:var(--text2);">${new Date(k+'T12:00:00').toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}</span>
+<button onclick="jumpToDateFromSearch('${k}')" style="font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(200,169,126,0.3);background:rgba(200,169,126,0.08);border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:0.04em;">vezi →</button>
 </div>`;
-}
-if (next) {
-const nd = new Date(next+'T12:00:00');
-suggHtml += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-top:${prev?'4px':'0'};">
-<span style="font-family:var(--serif);font-size:14px;color:var(--text2);">${nd.toLocaleDateString('ro-RO',{day:'numeric',month:'long',year:'numeric'})}</span>
-<button onclick="jumpToDateFromSearch('${next}')" style="font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid rgba(200,169,126,0.3);background:rgba(200,169,126,0.08);border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:0.04em;">vezi →</button>
-</div>`;
-}
-suggHtml += `</div>`;
-}
+
+const suggHtml = near.length ? `<div style="margin:16px 12px 8px;background:rgba(122,162,200,0.06);border:1px solid rgba(122,162,200,0.18);border-radius:14px;padding:14px 16px;">
+<div style="font-family:var(--mono);font-size:10px;color:var(--blue);letter-spacing:0.08em;margin-bottom:12px;">DATE APROPIATE DISPONIBILE</div>${near.map(suggRow).join('')}</div>` : '';
+
 
 container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg></div><div class="empty-text">nicio intrare pe ${day} ${['','ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'][month]} ${year}</div></div>${suggHtml}`;
 }
@@ -5235,27 +5224,24 @@ buildCarousel(); renderEntries();
 }
 
 function openDeleteDateMusic(date) { document.getElementById('delete-dm-date').value = date; openModal('delete-dm'); }
+const r2Delete = keys => fetch(R2_WORKER_URL, {
+method: 'DELETE',
+headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
+body: JSON.stringify({ keys }),
+});
+
 async function confirmDeleteDateMusic() {
 const date = document.getElementById('delete-dm-date').value;
 if (!date) return;
 const dm = dateMusicMap[date];
 if (selectedDate && dateKey(selectedDate) === date) { dmAudio.pause(); dmAudio.src = ''; dmAudioLoaded = false; }
-if (dm) {
-const keys = [dm.url, dm.cover]
-.filter(u => u && u.startsWith('r2:'))
-.map(u => u.slice(3));
-if (keys.length) {
-await fetch(R2_WORKER_URL, {
-method: 'DELETE',
-headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-body: JSON.stringify({ keys }),
-});
-}
-}
+const keys = dm ? [dm.url, dm.cover].filter(u => u && u.startsWith('r2:')).map(u => u.slice(3)) : [];
+if (keys.length) await r2Delete(keys);
 delete dateMusicMap[date];
 try { await sb.from('hope_date_music').delete().eq('date', date); } catch(e) {}
 showToast('muzică ștearsă'); closeModal('delete-dm'); buildCarousel(); renderEntries();
 }
+
 function buildCarousel() {
 const carousel = document.getElementById('dateCarousel');
 const today = new Date(); today.setHours(0,0,0,0);
@@ -5404,22 +5390,19 @@ else { for (let i=allDates.length-1;i>=0;i--) { if (allDates[i]<cur) { target=al
 if (target) { selectDate(target); window.scrollTo({ top:0, behavior:'smooth' }); }
 else showToast(dir===1?'nicio dată mai nouă':'nicio dată mai veche');
 }
-function updateMediaSession(title, coverUrl) {
+function setMediaSession(title, coverUrl, album, audio, withStop) {
 if (!('mediaSession' in navigator)) return;
-const resolvedCover = coverUrl ? resolveUrl(coverUrl) : '';
-navigator.mediaSession.metadata = new MediaMetadata({ title:title||'carnet', artist:'', album:'carnet', artwork:resolvedCover?[{src:resolvedCover,sizes:'512x512',type:'image/jpeg'}]:[] });
-navigator.mediaSession.setActionHandler('play', ()=>entryAudio.play());
-navigator.mediaSession.setActionHandler('pause', ()=>entryAudio.pause());
-navigator.mediaSession.setActionHandler('stop', ()=>{entryAudio.pause();entryAudio.currentTime=0;});
+const c = coverUrl ? resolveUrl(coverUrl) : '';
+const ms = navigator.mediaSession;
+ms.metadata = new MediaMetadata({ title, artist:'', album, artwork: c ? [{src:c,sizes:'512x512',type:'image/jpeg'}] : [] });
+ms.setActionHandler('play', () => audio.play());
+ms.setActionHandler('pause', () => audio.pause());
+if (withStop) ms.setActionHandler('stop', () => { audio.pause(); audio.currentTime = 0; });
 }
+const updateMediaSession = (t, c) => setMediaSession(t || 'carnet', c, 'carnet', entryAudio, true);
+const updateDateMusicMediaSession = (t, c) => setMediaSession(t || 'melodia zilei', c, 'carnet · melodia zilei', dmAudio, false);
 
-function updateDateMusicMediaSession(title, coverUrl) {
-if (!('mediaSession' in navigator)) return;
-const resolvedCover = coverUrl ? resolveUrl(coverUrl) : '';
-navigator.mediaSession.metadata = new MediaMetadata({ title:title||'melodia zilei', artist:'', album:'carnet · melodia zilei', artwork:resolvedCover?[{src:resolvedCover,sizes:'512x512',type:'image/jpeg'}]:[] });
-navigator.mediaSession.setActionHandler('play', ()=>dmAudio.play());
-navigator.mediaSession.setActionHandler('pause', ()=>dmAudio.pause());
-}
+
 function playDateMusic(dk, autoplay) {
 const dm = dateMusicMap[dk];
 if (dm && dm.url && (!dm.hidden || !isLocked)) {
@@ -6348,81 +6331,43 @@ if (overlay) overlay.innerHTML = pauseIcon(); if (waves) waves.classList.remove(
 }
 
 
-entryAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
-entryAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
-dmAudio.addEventListener('play', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
-dmAudio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
+[entryAudio, dmAudio].forEach(a => ['play', 'pause'].forEach(ev =>
+a.addEventListener(ev, () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = ev === 'play' ? 'playing' : 'paused'; })
+));
+
 async function submitEntry(type) {
 if (isLocked) { showToast('deblochează mai întâi'); return; }
-let payload = { type };
+const $ = id => document.getElementById(id);
+const val = id => $(id).value.trim();
+const date = $(type + '-date').value;
+const at = date ? new Date(date).toISOString() : new Date().toISOString();
+const payload = { type, posted_at: at, modified_at: at, theme: type === 'note' ? (selectedNoteTheme || 'none') : 'none', hidden: false };
+
 
 if (type === 'note') {
-const html = getRteHtml('rte-editor');
-const plain = document.getElementById('rte-editor').innerText.trim();
-const date = document.getElementById('note-date').value;
-if (!plain) { showToast('scrie ceva mai întâi'); return; }
-payload.content = html;
-payload.blur_18 = note18Enabled;
-payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-payload.theme = selectedNoteTheme || 'none';
+if (!$('rte-editor').innerText.trim()) { showToast('scrie ceva mai întâi'); return; }
+Object.assign(payload, { content: getRteHtml('rte-editor'), blur_18: note18Enabled });
 } else if (type === 'photo') {
-const raw = document.getElementById('photo-urls').value.trim();
-const date = document.getElementById('photo-date').value;
-const captionHtml = getCapHtml('photo-cap-editor');
+const raw = val('photo-urls');
 if (!raw) { showToast('adaugă cel puțin un link'); return; }
-payload.media_urls = raw.split('\n').map(u=>u.trim()).filter(Boolean);
-
-payload.caption = captionHtml;
-payload.blur_images = photoBlurEnabled;
-payload.blur_18 = photo18Enabled;
-payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+Object.assign(payload, { media_urls: raw.split('\n').map(u => u.trim()).filter(Boolean), caption: getCapHtml('photo-cap-editor'), blur_images: photoBlurEnabled, blur_18: photo18Enabled });
 } else if (type === 'video') {
-const url = document.getElementById('video-url').value.trim();
-const date = document.getElementById('video-date').value;
-const captionHtml = getCapHtml('video-cap-editor');
+const url = val('video-url');
 if (!url) { showToast('adaugă un link'); return; }
-payload.media_urls = [url];
-payload.caption = captionHtml;
-payload.blur_18 = video18Enabled;
-payload.video_autoplay = videoAutoplayEnabled;
-
-payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+Object.assign(payload, { media_urls: [url], caption: getCapHtml('video-cap-editor'), blur_18: video18Enabled, video_autoplay: videoAutoplayEnabled });
 } else if (type === 'music') {
-const url = document.getElementById('music-url').value.trim();
-const title = document.getElementById('music-title-inp').value.trim();
-const cover = document.getElementById('music-cover-inp').value.trim();
-const date = document.getElementById('music-date').value;
-const note = document.getElementById('music-note').value.trim();
+const url = val('music-url');
 if (!url) { showToast('adaugă un link'); return; }
-payload.media_urls = [url]; payload.caption = title; payload.content = note; payload.cover_url = cover;
-
-payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-
+Object.assign(payload, { media_urls: [url], caption: val('music-title-inp'), content: val('music-note'), cover_url: val('music-cover-inp') });
 } else if (type === 'html') {
-const code = document.getElementById('html-code').value.trim();
-const date = document.getElementById('html-date').value;
+const code = val('html-code');
 if (!code) { showToast('adaugă cod HTML'); return; }
-payload.content = code;
-payload.blur_18 = html18Enabled;
-payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
-
-
-
+Object.assign(payload, { content: code, blur_18: html18Enabled, hidden: $('html-hidden-toggle').classList.contains('on-private') });
 } else if (type === 'pdf') {
-const url = document.getElementById('pdf-url').value.trim();
-const title = document.getElementById('pdf-title').value.trim();
-const note = document.getElementById('pdf-note').value.trim();
-const date = document.getElementById('pdf-date').value;
+const url = val('pdf-url');
 if (!url) { showToast('adaugă un link PDF'); return; }
-payload.media_urls = [url]; payload.caption = title || 'document PDF'; payload.content = note;
-payload.posted_at = date ? new Date(date).toISOString() : new Date().toISOString();
+Object.assign(payload, { media_urls: [url], caption: val('pdf-title') || 'document PDF', content: val('pdf-note') });
 }
-payload.theme = selectedNoteTheme || 'none';
-if (type !== 'html') payload.hidden = false;
-else payload.hidden = document.getElementById('html-hidden-toggle').classList.contains('on-private');
-payload.modified_at = payload.posted_at;
-
-
 
 const { data: inserted, error } = await sb.from('hope_entries').insert([payload]).select().single();
 if (error) { showToast('eroare: ' + error.message); return; }
@@ -6430,64 +6375,45 @@ showToast('salvat');
 closeModal(type);
 clearForm(type);
 await reloadAndRender(inserted?.id);
-
 }
 
 function clearForm(type) {
+const $ = id => document.getElementById(id);
+const off = (id, cls) => $(id).classList.remove(cls);
+const FIELDS = {
+note: ['rte-editor'],
+photo: ['photo-urls', 'photo-cap-editor', 'photo-upload-previews', 'photo-upload-status', 'photo-file-input'],
+video: ['video-url', 'video-cap-editor', 'video-upload-status', 'video-file-input'],
+music: ['music-url', 'music-title-inp', 'music-note', 'music-cover-inp', 'music-upload-status', 'music-file-input', 'music-cover-upload-status', 'music-cover-file-input'],
+html: ['html-code'],
+pdf: ['pdf-url', 'pdf-title', 'pdf-note', 'pdf-upload-status', 'pdf-file-input']
+};
+(FIELDS[type] || []).forEach(id => { const el = $(id); if ('value' in el) el.value = ''; else el.innerHTML = ''; });
+
 if (type === 'note') {
-document.getElementById('rte-editor').innerHTML = '';
-document.getElementById('rte-link-bar').classList.remove('visible');
-if (note18Enabled) { note18Enabled=false; document.getElementById('note-18-toggle').classList.remove('on-private'); }
-selectedNoteTheme = 'none';
-selectNoteTheme('none')
+off('rte-link-bar', 'visible');
+note18Enabled = false; off('note-18-toggle', 'on-private');
+selectNoteTheme('none');
 clearTimeout(draftSaveTimer);
 setDraftStatus('empty');
 sb.from('hope_drafts').delete().eq('id', 'note').then(() => {});
 } else if (type === 'photo') {
-document.getElementById('photo-urls').value = '';
-document.getElementById('photo-cap-editor').innerHTML = '';
-document.getElementById('photo-upload-previews').innerHTML = '';
-document.getElementById('photo-upload-status').textContent = '';
-document.getElementById('photo-file-input').value = '';
 if (photoBlurEnabled) togglePhotoBlur();
-if (photo18Enabled) { photo18Enabled=false; document.getElementById('photo-18-toggle').classList.remove('on-private'); }
-
+photo18Enabled = false; off('photo-18-toggle', 'on-private');
 } else if (type === 'video') {
-document.getElementById('video-url').value = '';
-document.getElementById('video-cap-editor').innerHTML = '';
-document.getElementById('video-upload-status').textContent = '';
-document.getElementById('video-file-input').value = '';
-if (video18Enabled) { video18Enabled=false; document.getElementById('video-18-toggle').classList.remove('on-private'); }
-if (videoAutoplayEnabled) { videoAutoplayEnabled=false; document.getElementById('video-autoplay-toggle').classList.remove('on'); }
-
-
+video18Enabled = false; off('video-18-toggle', 'on-private');
+videoAutoplayEnabled = false; off('video-autoplay-toggle', 'on');
 } else if (type === 'music') {
-document.getElementById('music-url').value = ''; document.getElementById('music-title-inp').value = '';
-document.getElementById('music-note').value = ''; document.getElementById('music-cover-inp').value = '';
-document.getElementById('music-upload-status').textContent = '';
-document.getElementById('music-file-input').value = '';
-document.getElementById('music-cover-upload-status').textContent = '';
-document.getElementById('music-cover-file-input').value = '';
-document.getElementById('music-cover-preview').style.display = 'none';
-document.getElementById('music-cover-preview-img').src = '';
-
-
+$('music-cover-preview').style.display = 'none';
+$('music-cover-preview-img').src = '';
 } else if (type === 'html') {
-document.getElementById('html-code').value = '';
-document.getElementById('html-preview-frame').srcdoc = '';
-if (html18Enabled) { html18Enabled=false; document.getElementById('html-18-toggle').classList.remove('on-private'); }
-htmlHiddenEnabled = false; document.getElementById('html-hidden-toggle').classList.remove('on-private');
-
-
-
-} else if (type === 'pdf') {
-document.getElementById('pdf-url').value = ''; document.getElementById('pdf-title').value = ''; document.getElementById('pdf-note').value = '';
-document.getElementById('pdf-upload-status').textContent = '';
-document.getElementById('pdf-file-input').value = '';
-
+$('html-preview-frame').srcdoc = '';
+html18Enabled = false; off('html-18-toggle', 'on-private');
+htmlHiddenEnabled = false; off('html-hidden-toggle', 'on-private');
 }
 setDefaultDates();
 }
+
 
 async function reloadAndRender(scrollToId) {
 await loadEntries();
@@ -7025,37 +6951,19 @@ return keys;
 }
 
 async function deleteFromR2(entry) {
-const urls = entry.media_urls || [];
-const cover = entry.cover_url || '';
-const contentKeys = extractR2KeysFromContent(entry.content);
-const candidates = [...urls, cover].filter(u => u && u.startsWith('r2:')).map(u => u.slice(3));
-const allCandidates = [...new Set([...candidates, ...contentKeys])];
-if (!allCandidates.length) return;
-const keysToDelete = [];
-for (const key of allCandidates) {
-
-const usedElsewhere = entries.some(e => {
-if (String(e.id) === String(entry.id)) return false; // skip current entry
-const allUrls = [...(e.media_urls || []), e.cover_url || ''].filter(Boolean);
-return allUrls.some(u => u === `r2:${key}`);
-});
-const usedInDm = Object.values(dateMusicMap).some(dm =>
-dm.url === `r2:${key}` || dm.cover === `r2:${key}`
-);
-if (!usedElsewhere && !usedInDm) keysToDelete.push(key);
+const own = [...(entry.media_urls || []), entry.cover_url || ''].filter(u => u && u.startsWith('r2:')).map(u => u.slice(3));
+const all = [...new Set([...own, ...extractR2KeysFromContent(entry.content)])];
+const others = entries.filter(e => String(e.id) !== String(entry.id));
+const usedElsewhere = key => {
+const ref = `r2:${key}`;
+return others.some(e => [...(e.media_urls || []), e.cover_url || ''].includes(ref))
+|| Object.values(dateMusicMap).some(dm => dm.url === ref || dm.cover === ref);
+};
+const keys = all.filter(k => !usedElsewhere(k));
+if (!keys.length) return;
+try { await r2Delete(keys); } catch(e) { console.warn('R2 delete failed:', e); }
 }
 
-if (!keysToDelete.length) return;
-try {
-await fetch(R2_WORKER_URL, {
-method: 'DELETE',
-headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-body: JSON.stringify({ keys: keysToDelete }),
-});
-} catch(e) {
-console.warn('R2 delete failed:', e);
-}
-}
 
 
 
@@ -7355,28 +7263,20 @@ openR2FileDetailFromGallery(key, visualOrder[idx], visualOrder, idx);
 
 async function deleteAllOrphans() {
 const usedKeys = getUsedKeys();
-
 const res = await fetch(R2_WORKER_URL, { headers: { 'X-Upload-Secret': R2_UPLOAD_SECRET } });
-
-
 const { files } = await res.json();
-const orphanKeys = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !f.key.startsWith('tikhope/') && !f.key.startsWith('tikhopethumbs/') && !usedKeys.has(f.key)).map(f => f.key);
-
-
+const orphanKeys = files.filter(f => !f.key.endsWith('/') && !/^(thumbs2?|tikhope|tikhopethumbs)\//.test(f.key) && !usedKeys.has(f.key)).map(f => f.key);
 if (!orphanKeys.length) { showToast('niciun fișier nefolosit'); return; }
 if (!confirm(`Ștergi ${orphanKeys.length} fișiere nefolosite?`)) return;
 try {
-await fetch(R2_WORKER_URL, {
-method: 'DELETE',
-headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-body: JSON.stringify({ keys: orphanKeys }),
-});
+await r2Delete(orphanKeys);
 showToast(`${orphanKeys.length} fișiere șterse`);
 await openR2Gallery();
 } catch(e) {
 showToast('eroare la ștergere');
 }
 }
+
 
 
 function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
@@ -7597,11 +7497,7 @@ obs.observe(modal, { attributes: true });
 
 async function deleteR2File(key) {
 try {
-const res = await fetch(R2_WORKER_URL, {
-method: 'DELETE',
-headers: { 'Content-Type': 'application/json', 'X-Upload-Secret': R2_UPLOAD_SECRET },
-body: JSON.stringify({ keys: [key] }),
-});
+const res = await r2Delete([key]);
 if (!res.ok) throw new Error('HTTP ' + res.status);
 showToast('fișier șters');
 } catch(e) {
@@ -7609,6 +7505,7 @@ console.error(e);
 showToast('eroare la ștergere: ' + e.message);
 }
 }
+
 
 
 
