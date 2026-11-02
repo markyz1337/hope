@@ -1601,155 +1601,7 @@ stroke-linejoin="round"
 </div>
 
 <div class="fab-wrap" id="fabWrap">
-<div class="fab-menu" id="fabMenu">
-<div class="fab-row">
-<span class="fab-lbl">clipuri</span>
-<button class="fab-sm" onclick="closeFab();openTikHopeSite()">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-<polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/>
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">muzică pentru dată</span>
-<button
-class="fab-sm"
-onclick="openModal('date-music')"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<path d="M3 18v-6a9 9 0 0118 0v6" />
-<path
-d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">pdf</span>
-<button class="fab-sm" onclick="openModal('pdf')">
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<path
-d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<polyline points="14 2 14 8 20 8" />
-<line x1="9" y1="15" x2="15" y2="15" />
-<line x1="9" y1="11" x2="15" y2="11" />
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">muzică</span>
-<button class="fab-sm" onclick="openModal('music')">
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">videoclip</span>
-<button class="fab-sm" onclick="openModal('video')">
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<rect
-x="2"
-y="6"
-width="14"
-height="12"
-rx="2"
-/>
-<path
-d="M16 10l6-4v12l-6-4V10z"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">poze</span>
-<button class="fab-sm" onclick="openModal('photo')">
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<rect
-x="3"
-y="3"
-width="18"
-height="18"
-rx="3"
-/>
-<circle cx="8.5" cy="8.5" r="1.5" />
-<path
-d="M21 15l-5-5L5 21"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">html live</span>
-<button class="fab-sm" onclick="openModal('html')">
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<polyline points="16 18 22 12 16 6" />
-<polyline points="8 6 2 12 8 18" />
-</svg>
-</button>
-</div>
-<div class="fab-row">
-<span class="fab-lbl">notiță</span>
-<button class="fab-sm" onclick="openModal('note')">
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<path
-d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-</button>
-</div>
-</div>
+<div class="fab-menu" id="fabMenu"></div>
 <button
 class="fab-main"
 id="fabMain"
@@ -3984,46 +3836,33 @@ return;
 pinError();
 }
 
-async function continueInitAfterAuth() {
-await loadDateMusicMap();
-await loadEntries();
-
-const savedKey = await loadLastDate();
-const _settings = await loadSettings();
-SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
-
-selectedDate = pickInitialDate(SETTING_NAV_MODE, savedKey);
-
-
-
-
-buildCarousel();
-updateDynamicTitle();
-renderEntries();
-setDefaultDates();
-updateCalFabState();
-setupNavButtons();
-setupOverscroll();
-setupCardTextLinks();
-updateFabMainMode();
-
-
-
-if (selectedDate) {
-const dk = dateKey(selectedDate);
-if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-dmAudio.src = resolveUrl(dateMusicMap[dk].url);
-dmAudioLoaded = true;
-updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-dmAudio.volume = 0.28;
+async function bootApp() {
+  await loadDateMusicMap();
+  await loadEntries();
+  const _s = await loadSettings();
+  SETTING_NAV_MODE = _s.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
+  selectedDate = pickInitialDate(SETTING_NAV_MODE, await loadLastDate());
+  buildCarousel();
+  updateDynamicTitle();
+  renderEntries();
+  setDefaultDates();
+  updateCalFabState();
+  const dk = dateKey(selectedDate);
+  const dm = dateMusicMap[dk];
+  if (dm && dm.url) {
+    dmAudio.src = resolveUrl(dm.url);
+    dmAudioLoaded = true;
+    updateDateMusicMediaSession(dm.title, dm.cover);
+    dmAudio.volume = 0.28;
+  }
+  startSyncedDateMedia(dk);
+  setupNavButtons();
+  setupOverscroll();
+  setupCardTextLinks();
+  updateFabMainMode();
 }
-startSyncedDateMedia(dk);
-}
+const continueInitAfterAuth = bootApp;
 
-
-
-
-}
 
 
 function updatePinDots() {
@@ -4234,24 +4073,27 @@ const d = new Date(date);
 return d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
 }
 
+const TOD = [
+ [60,'midnight','miez de noapte','#3a3560','rgba(58,53,96,0.5)'],
+ [270,'deep-night','noapte târziu','#1e2a4a','rgba(30,42,74,0.5)'],
+ [330,'pre-dawn','înainte de răsărit','#2d3a6b','rgba(45,58,107,0.5)'],
+ [420,'sunrise','răsărit','#c8714a','rgba(200,113,74,0.5)'],
+ [480,'morning','dimineață','#e8a84a','rgba(232,168,74,0.4)'],
+ [720,'midday','zi','#f0c060','rgba(240,192,96,0.4)'],
+ [900,'afternoon','după-amiază','#e09840','rgba(224,152,64,0.4)'],
+ [1080,'late-afternoon','după-amiază târziu','#c87840','rgba(200,120,64,0.45)'],
+ [1140,'pre-sunset','spre apus','#c86030','rgba(200,96,48,0.5)'],
+ [1200,'sunset','apus','#a03820','rgba(160,56,32,0.5)'],
+ [1260,'dusk','amurg','#6a3a8a','rgba(106,58,138,0.5)'],
+ [1320,'evening','seară','#2a2060','rgba(42,32,96,0.5)'],
+ [1441,'midnight','miez de noapte','#3a3560','rgba(58,53,96,0.5)']
+];
 function getTimeOfDay(date) {
-const h = new Date(date).getHours();
-const m = new Date(date).getMinutes();
-const total = h * 60 + m;
-if (total >= 0   && total < 60)  return { key:'midnight',  label:'miez de noapte', color:'#3a3560', glow:'rgba(58,53,96,0.5)' };
-if (total >= 60  && total < 270) return { key:'deep-night', label:'noapte târziu',   color:'#1e2a4a', glow:'rgba(30,42,74,0.5)' };
-if (total >= 270 && total < 330) return { key:'pre-dawn',   label:'înainte de răsărit', color:'#2d3a6b', glow:'rgba(45,58,107,0.5)' };
-if (total >= 330 && total < 420) return { key:'sunrise',    label:'răsărit',         color:'#c8714a', glow:'rgba(200,113,74,0.5)' };
-if (total >= 420 && total < 480) return { key:'morning',    label:'dimineață',       color:'#e8a84a', glow:'rgba(232,168,74,0.4)' };
-if (total >= 480 && total < 720) return { key:'midday',     label:'zi',              color:'#f0c060', glow:'rgba(240,192,96,0.4)' };
-if (total >= 720 && total < 900) return { key:'afternoon',  label:'după-amiază',     color:'#e09840', glow:'rgba(224,152,64,0.4)' };
-if (total >= 900 && total < 1080) return { key:'late-afternoon', label:'după-amiază târziu', color:'#c87840', glow:'rgba(200,120,64,0.45)' };
-if (total >= 1080 && total < 1140) return { key:'pre-sunset', label:'spre apus', color:'#c86030', glow:'rgba(200,96,48,0.5)' };
-if (total >= 1140 && total < 1200) return { key:'sunset', label:'apus', color:'#a03820', glow:'rgba(160,56,32,0.5)' };
-if (total >= 1200 && total < 1260) return { key:'dusk', label:'amurg', color:'#6a3a8a', glow:'rgba(106,58,138,0.5)' };
-if (total >= 1260 && total < 1320) return { key:'evening', label:'seară', color:'#2a2060', glow:'rgba(42,32,96,0.5)' }
-return { key:'midnight', label:'miez de noapte', color:'#3a3560', glow:'rgba(58,53,96,0.5)' };
+  const d = new Date(date), t = d.getHours() * 60 + d.getMinutes();
+  const [, key, label, color, glow] = TOD.find(r => t < r[0]);
+  return { key, label, color, glow };
 }
+
 
 function renderTimeIcon(date) {
 const tod = getTimeOfDay(date);
@@ -4695,16 +4537,8 @@ if (SETTING_VISITOR_LOCK) {
 openPinOverlay('visitor');
 await waitForVisitorPin();
 }
-await loadDateMusicMap();
-await loadEntries();
-buildCarousel();
+await bootApp();
 
-renderEntries();
-setDefaultDates();
-updateCalFabState();
-setupNavButtons();
-setupOverscroll();
-setupCardTextLinks();
 } else {
 updateCountdown();
 }
@@ -4810,38 +4644,8 @@ hideBootCover();
 }
 
 
-await loadDateMusicMap();
-await loadEntries();
+await bootApp();
 
-const savedKey = await loadLastDate();
-SETTING_NAV_MODE = _settings.navMode || (SETTING_GOTO_TODAY ? 'today' : 'last');
-
-selectedDate = pickInitialDate(SETTING_NAV_MODE, savedKey);
-
-
-
-buildCarousel();
-updateDynamicTitle();
-renderEntries();
-setDefaultDates();
-updateCalFabState();
-if (selectedDate) {
-const dk = dateKey(selectedDate);
-if (dateMusicMap[dk] && dateMusicMap[dk].url) {
-dmAudio.src = resolveUrl(dateMusicMap[dk].url);
-dmAudioLoaded = true;
-updateDateMusicMediaSession(dateMusicMap[dk].title, dateMusicMap[dk].cover);
-dmAudio.volume = 0.28;
-}
-startSyncedDateMedia(dk);
-}
-
-
-
-setupNavButtons();
-setupOverscroll();
-setupCardTextLinks();
-updateFabMainMode();
 }
 
 function setupInteractionCapture() {
@@ -6699,158 +6503,109 @@ window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
 }, 80);
 }
 }
-function openEditFor(id) {
-if (isLocked) { showToast('deblochează mai întâi'); return; }
-const e = entries.find(x => x.id === id);
-if (!e) return;
-document.getElementById('edit-id').value = id;
-document.getElementById('edit-type').value = e.type;
-const uploadSection = document.getElementById('edit-upload-section');
-const editFileInput = document.getElementById('edit-file-input');
-const editUploadPreviews = document.getElementById('edit-upload-previews');
-editFileInput.value = '';
-document.getElementById('edit-upload-status').textContent = '';
-if (editUploadPreviews) editUploadPreviews.innerHTML = '';
-const uploadConfigs = {
-photo: { accept: 'image/*', label: 'încarcă imagini', show: true, multiple: true },
-video: { accept: 'video/*,.mp4,.webm', label: 'încarcă video', show: true, multiple: false },
-music: { accept: 'audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a', label: 'încarcă audio', show: true, multiple: false },
-pdf:   { accept: '.pdf', label: 'încarcă PDF', show: true, multiple: false },
-note:  { show: false },
+const EDIT_CFG = {
+  note:  { rte: 1, p18: 1 },
+  photo: { ph: 'link-uri (unul per linie)', capLbl: 'descriere (cu link-uri)', rich: 1,
+           up: ['image/*', 'încarcă imagini', 1], blur: 1, p18: 1 },
+  video: { ph: 'link video', capLbl: 'descriere (cu link-uri)', rich: 1,
+           up: ['video/*,.mp4,.webm', 'încarcă video'], p18: 1, auto: 1 },
+  music: { ph: 'link audio', capLbl: 'descriere', txt: 'content', cover: 1,
+           up: ['audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a', 'încarcă audio'] },
+  pdf:   { ph: 'link PDF', plainLbl: 'link PDF', capLbl: 'titlu document', txt: 'caption',
+           up: ['.pdf', 'încarcă PDF'] },
+  html:  { code: 1 }
 };
-const cfg = uploadConfigs[e.type] || { show: false };
-if (uploadSection) {
-uploadSection.style.display = cfg.show ? 'block' : 'none';
-if (cfg.show) {
-editFileInput.accept = cfg.accept;
-editFileInput.multiple = !!cfg.multiple;
-document.getElementById('edit-upload-label').textContent = cfg.label;
-}
-}
 
-document.getElementById('edit-date').value = toLocal(e.posted_at);
-editHiddenEnabled = !!e.hidden;
-document.getElementById('edit-hidden-toggle').classList.toggle('on-private', editHiddenEnabled);
-document.getElementById('edit-html-copy-btn').style.display = (e.type === 'html') ? 'block' : 'none';
+function openEditFor(id) {
+  if (isLocked) { showToast('deblochează mai întâi'); return; }
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  const $ = i => document.getElementById(i);
+  const show = (i, on, d = 'block') => { $(i).style.display = on ? d : 'none'; };
+  const c = EDIT_CFG[e.type] || { capLbl: 'descriere / titlu', txt: 'caption' };
 
+  $('edit-id').value = id;
+  $('edit-type').value = e.type;
 
-document.getElementById('edit-cover-group').style.display = (e.type==='music') ? 'block':'none';
-document.getElementById('edit-cover').value = e.cover_url || '';
+  // încărcare fișier
+  const fi = $('edit-file-input');
+  fi.value = '';
+  $('edit-upload-status').textContent = '';
+  $('edit-upload-previews').innerHTML = '';
+  show('edit-upload-section', !!c.up);
+  if (c.up) { fi.accept = c.up[0]; fi.multiple = !!c.up[2]; $('edit-upload-label').textContent = c.up[1]; }
 
-const blurGroup = document.getElementById('edit-blur-group');
-if (e.type === 'photo') { blurGroup.style.display='flex'; editBlurEnabled=!!e.blur_images; document.getElementById('edit-blur-toggle').classList.toggle('on', editBlurEnabled); }
-else { blurGroup.style.display='none'; editBlurEnabled=false; }
+  // câmpuri comune
+  $('edit-date').value = toLocal(e.posted_at);
+  editHiddenEnabled = !!e.hidden;
+  $('edit-hidden-toggle').classList.toggle('on-private', editHiddenEnabled);
+  show('edit-html-copy-btn', e.type === 'html');
 
-const g18 = document.getElementById('edit-18-group');
-if (e.type === 'note' || e.type === 'photo' || e.type === 'video') {
-g18.style.display = 'flex'; edit18Enabled = !!e.blur_18;
-document.getElementById('edit-18-toggle').classList.toggle('on-private', edit18Enabled);
-} else { g18.style.display='none'; edit18Enabled=false; }
+  // copertă
+  show('edit-cover-group', !!c.cover);
+  $('edit-cover').value = e.cover_url || '';
+  $('edit-cover-upload-status').textContent = '';
+  $('edit-cover-preview').style.display = 'none';
+  $('edit-cover-file-input').value = '';
 
-const gAutoplay = document.getElementById('edit-video-autoplay-group');
-if (e.type === 'video') {
-gAutoplay.style.display = 'flex';
-editVideoAutoplayEnabled = !!e.video_autoplay;
-document.getElementById('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
-} else { gAutoplay.style.display='none'; editVideoAutoplayEnabled=false; }
+  // toggle-uri în funcție de tip
+  show('edit-blur-group', !!c.blur, 'flex');
+  editBlurEnabled = !!c.blur && !!e.blur_images;
+  $('edit-blur-toggle').classList.toggle('on', editBlurEnabled);
 
+  show('edit-18-group', !!c.p18, 'flex');
+  edit18Enabled = !!c.p18 && !!e.blur_18;
+  $('edit-18-toggle').classList.toggle('on-private', edit18Enabled);
 
-const editCapWrap = document.getElementById('editCapWrap');
-const editCapTa   = document.getElementById('edit-caption');
-const editThemeGroup = document.getElementById('edit-theme-group');
-editThemeGroup.style.display = 'block';
-selectedEditTheme = e.theme || 'none';
-selectEditTheme(selectedEditTheme);
+  show('edit-video-autoplay-group', !!c.auto, 'flex');
+  editVideoAutoplayEnabled = !!c.auto && !!e.video_autoplay;
+  $('edit-video-autoplay-toggle').classList.toggle('on', editVideoAutoplayEnabled);
 
-if (e.type === 'note') {
-document.getElementById('edit-rte-group').style.display='block';
-document.getElementById('edit-plain-group').style.display='none';
-document.getElementById('edit-caption-group').style.display='none';
-document.getElementById('rte-editor2').innerHTML = e.content||'';
-} else if (e.type === 'photo') {
-document.getElementById('edit-rte-group').style.display='none';
-document.getElementById('edit-plain-group').style.display='block';
-const urls = (e.media_urls || []);
-document.getElementById('edit-content').value = urls.join('\n');
-const previews = document.getElementById('edit-upload-previews');
-previews.innerHTML = '';
-urls.forEach(u => {
-const resolvedUrl = resolveUrl(u);
-const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(u);
-if (!isImage) return;
-const div = document.createElement('div');
-div.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);flex-shrink:0;';
-div.innerHTML = `<img src="${resolvedUrl}" style="width:100%;height:100%;object-fit:cover;">
+  // temă
+  show('edit-theme-group', true);
+  selectedEditTheme = e.theme || 'none';
+  selectEditTheme(selectedEditTheme);
+
+  // conținut principal
+  show('edit-rte-group', !!c.rte);
+  show('edit-plain-group', !c.rte);
+  show('edit-caption-group', !c.rte && !c.code);
+
+  if (c.rte) {
+    $('rte-editor2').innerHTML = e.content || '';
+  } else {
+    const urls = e.media_urls || [];
+    const multi = !!(c.up && c.up[2]);
+    const ct = $('edit-content');
+    ct.value = c.code ? (e.content || '') : (multi ? urls.join('\n') : (urls[0] || ''));
+    ct.placeholder = c.ph || (c.code ? 'cod HTML...' : '');
+    ct.style.fontFamily = c.code ? 'var(--mono)' : '';
+    ct.style.fontSize = c.code ? '12px' : '';
+    ct.style.display = c.code ? 'none' : '';
+    $('edit-plain-lbl').textContent = c.plainLbl || 'conținut / URL-uri';
+
+    if (multi) {
+      urls.forEach(u => {
+        if (!/\.(jpg|jpeg|png|gif|webp)$/i.test(u)) return;
+        const d = document.createElement('div');
+        d.style.cssText = 'position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);flex-shrink:0;';
+        d.innerHTML = `<img src="${resolveUrl(u)}" style="width:100%;height:100%;object-fit:cover;">
 <button onclick="removeEditPhotoPreview(this,'${u}')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(200,80,80,0.85);border:none;color:white;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>`;
-previews.appendChild(div);
-});
+        $('edit-upload-previews').appendChild(d);
+      });
+    }
 
-document.getElementById('edit-content').placeholder = 'link-uri (unul per linie)';
-document.getElementById('edit-caption-group').style.display='block';
-document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
-editCapWrap.style.display='block'; editCapTa.style.display='none';
-document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
-} else if (e.type === 'video') {
-document.getElementById('edit-rte-group').style.display='none';
-document.getElementById('edit-plain-group').style.display='block';
-document.getElementById('edit-content').value = e.media_urls?.[0]||'';
-document.getElementById('edit-content').placeholder='link video';
-document.getElementById('edit-caption-group').style.display='block';
-document.getElementById('edit-caption-lbl').textContent='descriere (cu link-uri)';
-editCapWrap.style.display='block'; editCapTa.style.display='none';
-document.getElementById('edit-cap-editor').innerHTML = e.caption||'';
-
-
-} else if (e.type === 'music') {
-document.getElementById('edit-rte-group').style.display='none';
-document.getElementById('edit-cover-upload-status').textContent = '';
-document.getElementById('edit-cover-preview').style.display = 'none';
-document.getElementById('edit-cover-file-input').value = '';
-
-document.getElementById('edit-plain-group').style.display='block';
-document.getElementById('edit-content').value = e.media_urls?.[0]||'';
-document.getElementById('edit-content').placeholder='link audio';
-document.getElementById('edit-caption-group').style.display='block';
-document.getElementById('edit-caption-lbl').textContent='descriere';
-editCapWrap.style.display='none'; editCapTa.style.display='block';
-editCapTa.value = e.content||'';
-
-
-} else if (e.type === 'html') {
-document.getElementById('edit-rte-group').style.display='none';
-document.getElementById('edit-plain-group').style.display='block';
-document.getElementById('edit-content').value = e.content||'';
-document.getElementById('edit-content').placeholder='cod HTML...';
-document.getElementById('edit-content').style.fontFamily='var(--mono)';
-document.getElementById('edit-content').style.fontSize='12px';
-document.getElementById('edit-content').style.display='none';
-document.getElementById('edit-upload-section').style.display='none';
-document.getElementById('edit-caption-group').style.display='none';
+    if (!c.code) {
+      $('edit-caption-lbl').textContent = c.capLbl;
+      show('editCapWrap', !!c.rich);
+      show('edit-caption', !c.rich);
+      if (c.rich) $('edit-cap-editor').innerHTML = e.caption || '';
+      else $('edit-caption').value = e[c.txt] || '';
+    }
+  }
+  openModal('edit');
 }
 
-
-
-else if (e.type === 'pdf') {
-document.getElementById('edit-rte-group').style.display='none';
-document.getElementById('edit-plain-group').style.display='block';
-document.getElementById('edit-content').value = e.media_urls?.[0]||'';
-document.getElementById('edit-content').placeholder='link PDF';
-document.getElementById('edit-caption-group').style.display='block';
-document.getElementById('edit-caption-lbl').textContent='titlu document';
-editCapWrap.style.display='none'; editCapTa.style.display='block';
-editCapTa.value = e.caption||'';
-document.getElementById('edit-plain-lbl').textContent='link PDF';
-} else {
-document.getElementById('edit-rte-group').style.display='none';
-document.getElementById('edit-plain-group').style.display='block';
-document.getElementById('edit-content').value = e.media_urls?.[0]||'';
-document.getElementById('edit-caption-group').style.display='block';
-document.getElementById('edit-caption-lbl').textContent='descriere / titlu';
-editCapWrap.style.display='none'; editCapTa.style.display='block';
-editCapTa.value = e.caption||'';
-}
-openModal('edit');
-}
 
 
 async function handleEditFileUpload(file) {
@@ -7882,7 +7637,7 @@ let savedRange = null;
 function rteSaveRange() { const sel=window.getSelection(); if(sel&&sel.rangeCount>0) savedRange=sel.getRangeAt(0).cloneRange(); }
 function rteRestoreRange(editorId) { const editor=document.getElementById(editorId); if(!editor) return; editor.focus(); if(savedRange){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);} }
 function rteCmd(cmd, s = '') { document.getElementById('rte-editor'+s).focus(); document.execCommand(cmd,false,null); if (!s) updateRteState(); }
-const rteCmd2 = cmd => rteCmd(cmd, '2');
+
 
 function updateRteState() { document.getElementById('rte-bold')?.classList.toggle('active', document.queryCommandState('bold')); }
 document.addEventListener('selectionchange', () => { if (document.activeElement&&document.activeElement.closest('#modal-note')) updateRteState(); });
@@ -7903,8 +7658,8 @@ function rteInsertLink(s = '') {
   }
   document.getElementById('rte-link-bar'+s).classList.remove('visible');
 }
-const rteToggleLinkBar2 = () => rteToggleLinkBar('2');
-const rteInsertLink2 = () => rteInsertLink('2');
+
+
 
 function rteBlurSelected() { _rteToggleBlur('rte-editor'); }
 function rteBlurSelected2() { _rteToggleBlur('rte-editor2'); }
@@ -7967,7 +7722,7 @@ function rteToggleMusicBar(s = '') {
     document.getElementById('rte-music-upload-status'+s).textContent = '';
   }
 }
-const rteToggleMusicBar2 = () => rteToggleMusicBar('2');
+
 
 
 
@@ -8788,6 +8543,19 @@ document.getElementById(id).innerHTML=THEMES.map(([t,i,l,bg],n)=>`<div class="th
 /* ═══════════ SFÂRȘIT MUTARE ZI ═══════════ */
 
 
+const FAB = [
+ ['clipuri','closeFab();openTikHopeSite()','<polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/>'],
+ ['muzică pentru dată',"openModal('date-music')",'<path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z" stroke-linecap="round"/>'],
+ ['pdf',"openModal('pdf')",ICO.pdf],
+ ['muzică',"openModal('music')",ICO.music],
+ ['videoclip',"openModal('video')",ICO.video],
+ ['poze',"openModal('photo')",ICO.img],
+ ['html live',"openModal('html')",'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'],
+ ['notiță',"openModal('note')",'<path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linecap="round" stroke-linejoin="round"/>']
+];
+document.getElementById('fabMenu').innerHTML = FAB.map(([l,fn,svg]) =>
+  `<div class="fab-row"><span class="fab-lbl">${l}</span><button class="fab-sm" onclick="${fn}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${svg}</svg></button></div>`
+).join('');
 
 
 init();
@@ -8796,70 +8564,17 @@ startSupabaseKeepAlive();
 
 
 function startTimeLockStars() {
-const canvas = document.getElementById('timeLockStarsCanvas');
-if (!canvas) return;
-const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-resize();
-window.addEventListener('resize', resize);
-const staticStars = Array.from({length: 80}, () => ({
-x: Math.random(), y: Math.random(),
-r: Math.random()*0.9+0.2,
-phase: Math.random()*Math.PI*2,
-speed: Math.random()*0.004+0.001,
-}));
-const shootingStars = Array.from({length: 3}, (_, i) => ({
-x: 0, y: 0, vx: 0, vy: 0,
-size: Math.random()*0.8+0.4,
-tail: Math.random()*22+14,
-life: 0, maxLife: 0, delay: i*180+Math.random()*120,
-}));
-shootingStars.forEach(s => {
-s.x = 0.3+Math.random()*0.7; s.y = Math.random()*0.4;
-s.vx = -(Math.random()*0.6+0.3)/canvas.width*500;
-s.vy = (Math.random()*0.25+0.1)/canvas.height*500;
-s.maxLife = Math.random()*220+180;
-});
-function frame() {
-if (!document.getElementById('timeLockOverlay').classList.contains('open')) {
-canvas._raf = requestAnimationFrame(frame);
-return;
-}
-const W = canvas.width, H = canvas.height;
-ctx.clearRect(0,0,W,H);
-
-const now = Date.now();
-staticStars.forEach(s => {
-const op = 0.25 + Math.sin(now * s.speed + s.phase) * 0.22;
-ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
-ctx.fillStyle = `rgba(210,215,255,${Math.max(0,op)})`; ctx.fill();
-});
-shootingStars.forEach(s => {
-s.life++;
-if (s.life < s.delay) return;
-const progress = (s.life - s.delay) / s.maxLife;
-if (progress >= 1) {
-s.x = 0.3+Math.random()*0.7; s.y = Math.random()*0.4;
-s.vx = -(Math.random()*0.6+0.3)/W*500;
-s.vy = (Math.random()*0.25+0.1)/H*500;
-s.tail = Math.random()*22+14; s.maxLife = Math.random()*220+180;
-s.delay = Math.random()*300+100; s.life = 0; return;
-}
-const fade = progress < 0.15 ? progress/0.15 : progress > 0.75 ? 1-(progress-0.75)/0.25 : 1;
-const op = fade * 0.75;
-s.x += s.vx/60; s.y += s.vy/60;
-const grad = ctx.createLinearGradient(s.x*W, s.y*H, s.x*W - s.vx/60*s.tail*W, s.y*H - s.vy/60*s.tail*H);
-grad.addColorStop(0, `rgba(255,252,220,${op})`);
-grad.addColorStop(1, 'rgba(200,210,255,0)');
-ctx.beginPath(); ctx.moveTo(s.x*W, s.y*H);
-ctx.lineTo(s.x*W - s.vx/60*s.tail*W, s.y*H - s.vy/60*s.tail*H);
-ctx.strokeStyle = grad; ctx.lineWidth = s.size; ctx.lineCap = 'round'; ctx.stroke();
-ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.size*0.9, 0, Math.PI*2);
-ctx.fillStyle = `rgba(255,252,230,${op})`; ctx.fill();
-});
-canvas._raf = requestAnimationFrame(frame);
-}
-canvas._raf = requestAnimationFrame(frame);
+  const c = document.getElementById('timeLockStarsCanvas'),
+        ov = document.getElementById('timeLockOverlay');
+  if (!c || !ov) return;
+  const sync = () => {
+    if (ov.classList.contains('open')) {
+      if (c._on) return;
+      c._on = 1; c.width = innerWidth; c.height = innerHeight; startStars(c);
+    } else { c._on = 0; cancelAnimationFrame(c._raf); }
+  };
+  new MutationObserver(sync).observe(ov, { attributes: true, attributeFilter: ['class'] });
+  sync();
 }
 </script>
 </body>
