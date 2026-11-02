@@ -2033,29 +2033,9 @@ style="margin-top:7px;width:100%;padding:9px;background:rgba(122,162,200,0.1);bo
 </button>
 </div>
 
-<div class="blur-toggle-row">
-<label class="form-label">ascunde de vizitatori</label>
-<div
-class="toggle-track"
-id="html-hidden-toggle"
-onclick="toggleHtmlHidden()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
+<div class="tgl" data-lbl="ascunde de vizitatori" data-id="html-hidden-toggle" data-fn="toggleHtmlHidden"></div>
+<div class="tgl" data-lbl="conținut privat" data-id="html-18-toggle" data-fn="toggleHtml18"></div>
 
-<div class="blur-toggle-row">
-<label class="form-label">conținut privat</label>
-<div
-class="toggle-track"
-id="html-18-toggle"
-onclick="toggleHtml18()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
 <div class="form-group">
 <label class="form-label">data postării</label>
 <input
@@ -2100,17 +2080,8 @@ style="width:5px;height:5px;border-radius:50%;background:currentColor;display:in
 ></span>
 <span id="draft-status-txt">niciun draft salvat</span>
 </div>
-<div class="blur-toggle-row">
-<label class="form-label">conținut privat</label>
-<div
-class="toggle-track"
-id="note-18-toggle"
-onclick="toggleNote18()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
+<div class="tgl" data-lbl="conținut privat" data-id="note-18-toggle" data-fn="toggleNote18"></div>
+
 <div class="form-group">
 <label class="form-label">data postării</label>
 <input
@@ -2217,17 +2188,8 @@ style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:5
 ></div>
 </div>
 </div>
-<div class="blur-toggle-row">
-<label class="form-label">imagini private</label>
-<div
-class="toggle-track"
-id="photo-18-toggle"
-onclick="togglePhoto18()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
+<div class="tgl" data-lbl="imagini private" data-id="photo-18-toggle" data-fn="togglePhoto18"></div>
+
 <div class="form-group">
 <label class="form-label">data postării</label>
 <input
@@ -2286,31 +2248,9 @@ YouTube.
 <div class="cap-rte-gen" data-p="video"></div>
 
 </div>
-<div class="blur-toggle-row">
-<label class="form-label">conținut privat</label>
-<div
-class="toggle-track"
-id="video-18-toggle"
-onclick="toggleVideo18()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
+<div class="tgl" data-lbl="conținut privat" data-id="video-18-toggle" data-fn="toggleVideo18"></div>
+<div class="tgl" data-lbl="pornește automat (fără sunet)" data-id="video-autoplay-toggle" data-fn="toggleVideoAutoplay"></div>
 
-<div class="blur-toggle-row">
-<label class="form-label"
->pornește automat (fără sunet)</label
->
-<div
-class="toggle-track"
-id="video-autoplay-toggle"
-onclick="toggleVideoAutoplay()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
 
 <div class="form-group">
 <label class="form-label">data postării</label>
@@ -2564,25 +2504,9 @@ placeholder="https://..."
 />
 </div>
 
-<div class="blur-toggle-row">
-<label class="form-label">ascunde de vizitatori</label>
-<div
-class="toggle-track"
-id="dm-hidden-toggle"
-onclick="toggleDmHidden()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
+<div class="tgl" data-lbl="ascunde de vizitatori" data-id="dm-hidden-toggle" data-fn="toggleDmHidden"></div>
+<div class="tgl" data-lbl="ascunde bannerul (muzica cântă oricum)" data-id="dm-banner-toggle" data-fn="toggleDmBanner"></div>
 
-<div class="blur-toggle-row">
-<label class="form-label">ascunde bannerul (muzica cântă oricum)</label>
-<div class="toggle-track" id="dm-banner-toggle" onclick="toggleDmBanner()">
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
 
 <button class="btn-primary" onclick="saveDateMusic()">
 
@@ -2757,67 +2681,11 @@ placeholder="https://..."
 />
 </div>
 
-<div
-class="blur-toggle-row"
-id="edit-blur-group"
-style="display:none"
->
-<label class="form-label">blur imagini</label>
-<div
-class="toggle-track"
-id="edit-blur-toggle"
-onclick="toggleEditBlur()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
+<div class="tgl" data-lbl="blur imagini" data-rid="edit-blur-group" data-hide="1" data-id="edit-blur-toggle" data-fn="toggleEditBlur"></div>
+<div class="tgl" data-lbl="ascunde de vizitatori" data-rid="edit-hidden-group" data-id="edit-hidden-toggle" data-fn="toggleEditHidden"></div>
+<div class="tgl" data-lbl="conținut privat" data-rid="edit-18-group" data-hide="1" data-id="edit-18-toggle" data-fn="toggleEdit18"></div>
+<div class="tgl" data-lbl="pornește automat (fără sunet)" data-rid="edit-video-autoplay-group" data-hide="1" data-id="edit-video-autoplay-toggle" data-fn="toggleEditVideoAutoplay"></div>
 
-<div class="blur-toggle-row" id="edit-hidden-group">
-<label class="form-label">ascunde de vizitatori</label>
-<div
-class="toggle-track"
-id="edit-hidden-toggle"
-onclick="toggleEditHidden()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
-
-<div
-class="blur-toggle-row"
-id="edit-18-group"
-style="display:none"
->
-<label class="form-label">conținut privat</label>
-<div
-class="toggle-track"
-id="edit-18-toggle"
-onclick="toggleEdit18()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
-
-<div
-class="blur-toggle-row"
-id="edit-video-autoplay-group"
-style="display:none"
->
-<label class="form-label"
->pornește automat (fără sunet)</label
->
-<div
-class="toggle-track"
-id="edit-video-autoplay-toggle"
-onclick="toggleEditVideoAutoplay()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
-</div>
 
 <div class="form-group">
 <label class="form-label">data postării</label>
@@ -3161,14 +3029,8 @@ Protejează cu parolă la intrare
 vizitatorii trebuie să introducă un PIN
 </div>
 </div>
-<div
-class="toggle-track"
-id="settings-visitor-lock-toggle"
-onclick="toggleSettingVisitorLock()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
+<div class="tgl" data-id="settings-visitor-lock-toggle" data-fn="toggleSettingVisitorLock"></div>
+
 </div>
 <div
 id="settings-visitor-pin-group"
@@ -3207,14 +3069,8 @@ Activează 2FA (al doilea PIN)
 cerut o dată pe zi, după PIN-ul vizitatorilor
 </div>
 </div>
-<div
-class="toggle-track"
-id="settings-2fa-toggle"
-onclick="toggleSetting2FA()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
+<div class="tgl" data-id="settings-2fa-toggle" data-fn="toggleSetting2FA"></div>
+
 </div>
 <div
 id="settings-2fa-pin-group"
@@ -3263,14 +3119,8 @@ id="settings-time-lock-sub"
 dezactivat
 </div>
 </div>
-<div
-class="toggle-track"
-id="settings-time-lock-toggle"
-onclick="toggleSettingTimeLock()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
+<div class="tgl" data-id="settings-time-lock-toggle" data-fn="toggleSettingTimeLock"></div>
+
 </div>
 <div
 id="settings-time-lock-group"
@@ -3420,14 +3270,8 @@ Activează redirecționarea
 butonul + devine ♥ și deschide site-ul
 </div>
 </div>
-<div
-class="toggle-track"
-id="settings-redirect-enabled-toggle"
-onclick="toggleRedirectEnabled()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
+<div class="tgl" data-id="settings-redirect-enabled-toggle" data-fn="toggleRedirectEnabled"></div>
+
 </div>
 <button
 class="settings-pin-btn"
@@ -3454,14 +3298,8 @@ Pornește la atingere
 se aude în timp ce aștepți
 </div>
 </div>
-<div
-class="toggle-track"
-id="settings-timelock-music-toggle"
-onclick="toggleTimelockMusic()"
->
-<div class="toggle-bg"></div>
-<div class="toggle-thumb"></div>
-</div>
+<div class="tgl" data-id="settings-timelock-music-toggle" data-fn="toggleTimelockMusic"></div>
+
 </div>
 <div
 id="settings-timelock-music-group"
@@ -4483,23 +4321,12 @@ timeLockAudio = new Audio(resolveUrl(SETTING_TIMELOCK_MUSIC_URL));
 timeLockAudio.loop = true;
 timeLockAudio.volume = 0.3;
 
-let timeLockMusicStarted = false;
-function tryPlayTimeLockAudio() {
-if (timeLockMusicStarted) return;
-timeLockAudio.play().then(() => {
-timeLockMusicStarted = true;
-document.removeEventListener('click', tryPlayTimeLockAudio);
-document.removeEventListener('touchstart', tryPlayTimeLockAudio);
-document.removeEventListener('touchend', tryPlayTimeLockAudio);
-document.removeEventListener('touchmove', tryPlayTimeLockAudio);
-document.removeEventListener('scroll', tryPlayTimeLockAudio);
-}).catch(() => {});
-}
-document.addEventListener('click', tryPlayTimeLockAudio);
-document.addEventListener('touchstart', tryPlayTimeLockAudio, { passive: true });
-document.addEventListener('touchend', tryPlayTimeLockAudio, { passive: true });
-document.addEventListener('touchmove', tryPlayTimeLockAudio, { passive: true });
-document.addEventListener('scroll', tryPlayTimeLockAudio, { passive: true });
+const lockEvs = ['click', 'touchstart', 'touchend', 'touchmove', 'scroll'];
+const tryPlayTimeLockAudio = () => {
+if (!timeLockAudio) { lockEvs.forEach(ev => document.removeEventListener(ev, tryPlayTimeLockAudio)); return; }
+timeLockAudio.play().then(() => lockEvs.forEach(ev => document.removeEventListener(ev, tryPlayTimeLockAudio))).catch(() => {});
+};
+lockEvs.forEach(ev => document.addEventListener(ev, tryPlayTimeLockAudio, { passive: true }));
 }
 
 
@@ -6571,54 +6398,35 @@ field.value = field.value.split('\n').filter(u => u.trim() !== url).join('\n');
 
 async function saveEdit() {
 if (isLocked) { showToast('deblochează mai întâi'); return; }
-const id = document.getElementById('edit-id').value;
-const type = document.getElementById('edit-type').value;
-const dateVal = document.getElementById('edit-date').value;
-const cover = document.getElementById('edit-cover').value.trim();
-const update = { posted_at: dateVal ? new Date(dateVal).toISOString() : undefined, modified_at: new Date().toISOString() };
-
-update.theme = selectedEditTheme || 'none';
-update.hidden = editHiddenEnabled;
-
+const $ = i => document.getElementById(i);
+const id = $('edit-id').value, type = $('edit-type').value;
+const dateVal = $('edit-date').value;
+const content = $('edit-content').value.trim();
+const text = $('edit-caption').value.trim();
+const update = {
+posted_at: dateVal ? new Date(dateVal).toISOString() : undefined,
+modified_at: new Date().toISOString(),
+theme: selectedEditTheme || 'none',
+hidden: editHiddenEnabled
+};
 
 if (type === 'note') {
-update.content = getRteHtml('rte-editor2');
-update.blur_18 = edit18Enabled;
-} else if (type === 'music') {
-const content = document.getElementById('edit-content').value.trim();
-const caption = document.getElementById('edit-caption').value.trim();
-update.media_urls = [content]; update.content = caption; update.cover_url = cover;
-} else if (type === 'photo') {
-const content = document.getElementById('edit-content').value.trim();
-const capHtml = getCapHtml('edit-cap-editor');
-update.media_urls = content.split('\n').map(u=>u.trim()).filter(Boolean);
-update.caption = capHtml; update.blur_images = editBlurEnabled; update.blur_18 = edit18Enabled;
-} else if (type === 'video') {
-const content = document.getElementById('edit-content').value.trim();
-const capHtml = getCapHtml('edit-cap-editor');
-update.media_urls = [content]; update.caption = capHtml; update.blur_18 = edit18Enabled;
-update.video_autoplay = editVideoAutoplayEnabled;
-
+Object.assign(update, { content: getRteHtml('rte-editor2'), blur_18: edit18Enabled });
 } else if (type === 'html') {
-update.content = document.getElementById('edit-content').value.trim();
-
-
-
-} else if (type === 'pdf') {
-const content = document.getElementById('edit-content').value.trim();
-const caption = document.getElementById('edit-caption').value.trim();
-update.media_urls = [content]; update.caption = caption || 'document PDF';
+update.content = content;
 } else {
-const content = document.getElementById('edit-content').value.trim();
-const caption = document.getElementById('edit-caption').value.trim();
-update.media_urls = [content]; update.caption = caption;
+update.media_urls = type === 'photo' ? content.split('\n').map(u => u.trim()).filter(Boolean) : [content];
+if (type === 'photo') Object.assign(update, { caption: getCapHtml('edit-cap-editor'), blur_images: editBlurEnabled, blur_18: edit18Enabled });
+else if (type === 'video') Object.assign(update, { caption: getCapHtml('edit-cap-editor'), blur_18: edit18Enabled, video_autoplay: editVideoAutoplayEnabled });
+else if (type === 'music') Object.assign(update, { content: text, cover_url: $('edit-cover').value.trim() });
+else update.caption = type === 'pdf' ? (text || 'document PDF') : text;
 }
 
 const { error } = await sb.from('hope_entries').update(update).eq('id', id);
 if (error) { showToast('eroare'); return; }
 showToast('modificat'); closeModal('edit'); await reloadAndRender(id);
-
 }
+
 function openDeleteFor(id) { if (isLocked) { showToast('deblochează mai întâi'); return; } document.getElementById('delete-id').value = id; openModal('delete'); }
 async function confirmDelete() {
 if (isLocked) { showToast('deblochează mai întâi'); return; }
@@ -8395,6 +8203,14 @@ video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-
 pdf:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/>',
 link:'<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/>'
 };
+
+/* comutatoare (cu etichetă = rând complet, fără etichetă = doar comutatorul) */
+document.querySelectorAll('.tgl').forEach(r => { const d = r.dataset;
+const t = `<div class="toggle-track" id="${d.id}" onclick="${d.fn}()"><div class="toggle-bg"></div><div class="toggle-thumb"></div></div>`;
+r.outerHTML = d.lbl
+? `<div class="blur-toggle-row"${d.rid ? ` id="${d.rid}"` : ''}${d.hide ? ' style="display:none"' : ''}><label class="form-label">${d.lbl}</label>${t}</div>`
+: t;
+});
 
 /* rânduri upload */
 document.querySelectorAll('.up-row').forEach(r=>{const d=r.dataset;
