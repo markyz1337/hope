@@ -1358,6 +1358,10 @@ padding: 2px 8px;
 pointer-events: none;
 }
 .entry-card { position: relative; }
+
+.lnk{display:flex;align-items:center;gap:6px}
+
+
 </style>
 </head>
 <body class="locked">
@@ -2225,351 +2229,13 @@ anulează
 <div class="sheet-title">notiță nouă</div>
 <div class="theme-selector-wrap form-group">
 <label class="form-label">temă vizuală</label>
-<div class="theme-selector-grid" id="themeSelectorGrid">
-<div
-class="theme-swatch selected"
-data-theme="none"
-onclick="selectNoteTheme('none')"
-style="background:#17171d;"
->
-<span class="theme-swatch-icon">✏️</span>
-<span class="theme-swatch-label">implicit</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="stars"
-onclick="selectNoteTheme('stars')"
-style="background:linear-gradient(160deg,#0a0a1a,#0d0820);"
->
-<span class="theme-swatch-icon">🌠</span>
-<span class="theme-swatch-label">stele</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="aurora"
-onclick="selectNoteTheme('aurora')"
-style="background:linear-gradient(135deg,#020b14,#0a1628);"
->
-<span class="theme-swatch-icon">🌌</span>
-<span class="theme-swatch-label">aurora</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="glow"
-onclick="selectNoteTheme('glow')"
-style="background:#08060f;"
->
-<span class="theme-swatch-icon">💜</span>
-<span class="theme-swatch-label">glow</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="hearts"
-onclick="selectNoteTheme('hearts')"
-style="background:linear-gradient(145deg,#1a0812,#220d18);"
->
-<span class="theme-swatch-icon">🌸</span>
-<span class="theme-swatch-label">inimi</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="rain"
-onclick="selectNoteTheme('rain')"
-style="background:linear-gradient(180deg,#070b0f,#0a0f14);"
->
-<span class="theme-swatch-icon">🌧️</span>
-<span class="theme-swatch-label">ploaie</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="matrix"
-onclick="selectNoteTheme('matrix')"
-style="background:#000800;"
->
-<span class="theme-swatch-icon">💚</span>
-<span class="theme-swatch-label">matrix</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="gold"
-onclick="selectNoteTheme('gold')"
-style="background:linear-gradient(135deg,#0f0900,#1a1000);"
->
-<span class="theme-swatch-icon">✨</span>
-<span class="theme-swatch-label">aur</span>
-</div>
-</div>
+<div class="theme-selector-grid" id="themeSelectorGrid"></div>
+
 </div>
 
 <div class="form-group">
 <label class="form-label">text</label>
-<div class="rte-wrap">
-<div class="rte-toolbar">
-<button
-class="rte-btn"
-id="rte-bold"
-onclick="rteCmd('bold')"
-title="Bold"
->
-<svg viewBox="0 0 24 24" fill="currentColor">
-<path
-d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"
-/>
-</svg>
-</button>
-<div class="rte-sep"></div>
-<div class="rte-size-wrap" id="rteSizeWrap">
-<button
-class="rte-btn rte-size-btn"
-id="rteSizeBtn"
-onclick="toggleSizeDropdown('rteSizeDropdown')"
-title="Mărime text"
->
-<span id="rteSizeLbl">Aa</span>
-<svg
-viewBox="0 0 10 10"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<polyline points="2 3 5 7 8 3" />
-</svg>
-</button>
-<div
-class="rte-size-dropdown"
-id="rteSizeDropdown"
->
-<div
-class="rte-size-option"
-onclick="applyFontSize('txt-xs','rteSizeDropdown','rteSizeLbl')"
->
-<span class="rte-size-label">xs</span
-><span style="font-size:11px"
->mic de tot</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize('txt-sm','rteSizeDropdown','rteSizeLbl')"
->
-<span class="rte-size-label">s</span
-><span style="font-size:13px">mic</span>
-</div>
-<div
-class="rte-size-option active"
-onclick="applyFontSize('','rteSizeDropdown','rteSizeLbl')"
->
-<span class="rte-size-label">m</span
-><span style="font-size:15px"
->normal</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize('txt-lg','rteSizeDropdown','rteSizeLbl')"
->
-<span class="rte-size-label">l</span
-><span style="font-size:17px"
->mare</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize('txt-xl','rteSizeDropdown','rteSizeLbl')"
->
-<span class="rte-size-label">xl</span
-><span style="font-size:20px"
->foarte mare</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize('txt-xxl','rteSizeDropdown','rteSizeLbl')"
->
-<span class="rte-size-label">xxl</span
-><span style="font-size:24px"
->titlu</span
->
-</div>
-</div>
-</div>
-<div class="rte-sep"></div>
-<button
-class="rte-btn"
-id="rte-link-btn"
-onclick="rteToggleLinkBar()"
-title="Link"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-<div class="rte-sep"></div>
-<button
-class="rte-btn"
-id="rte-blur-btn"
-onclick="rteBlurSelected()"
-title="Blur text selectat"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.8"
->
-<path
-d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-stroke-linecap="round"
-/>
-<line
-x1="1"
-y1="1"
-x2="23"
-y2="23"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-<div class="rte-sep"></div>
-<button
-class="rte-btn"
-id="rte-music-btn"
-onclick="rteToggleMusicBar()"
-title="Adaugă muzică la text selectat"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.8"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-</button>
-<button
-class="rte-btn"
-onclick="rteMusicUnwrap('rte-editor')"
-title="Elimină muzică din text"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.8"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-<line
-x1="1"
-y1="1"
-x2="23"
-y2="23"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-</div>
-<div class="rte-link-bar" id="rte-link-bar">
-<input
-class="rte-link-input"
-id="rte-link-input"
-type="url"
-placeholder="https://..."
-onkeydown="if(event.key==='Enter')rteInsertLink()"
-/>
-<button
-class="rte-link-ok"
-onclick="rteInsertLink()"
->
-adaugă
-</button>
-</div>
-<div class="rte-music-bar" id="rte-music-bar">
-<div
-class="rte-music-upload-row"
-onclick="document.getElementById('rte-music-file-input').click()"
->
-<input
-type="file"
-id="rte-music-file-input"
-accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
-style="display:none"
-onchange="uploadTo(this.files[0],'rte-music-upload-status','rte-music-url-input')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-<span class="rte-music-upload-lbl"
->alege fișier audio</span
->
-<span
-class="rte-music-upload-status"
-id="rte-music-upload-status"
-></span>
-</div>
-<input
-class="rte-link-input"
-id="rte-music-url-input"
-type="text"
-placeholder="sau link extern (mp3, ogg...)"
-/>
-<input
-class="rte-link-input"
-id="rte-music-title-input"
-type="text"
-placeholder="titlu melodie (opțional)"
-/>
-<button
-class="rte-link-ok"
-style="width:100%;text-align:center;"
-onclick="rteInsertMusic()"
->
-adaugă muzică la text selectat
-</button>
-</div>
-<div
-class="rte-editor"
-id="rte-editor"
-contenteditable="true"
-data-placeholder="scrie ceva..."
-spellcheck="true"
-oninput="scheduleDraftSave()"
-></div>
-</div>
+<div class="rte-gen" data-s=""></div>
 </div>
 
 <div
@@ -2662,28 +2328,8 @@ style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"
 ></div>
 </div>
 <div class="form-group">
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link-uri externe (unul per linie)
-</label>
+<label class="form-label lnk">sau link-uri externe (unul per linie)</label>
+
 <textarea
 class="form-textarea"
 id="photo-urls"
@@ -2695,52 +2341,8 @@ placeholder="https://...&#10;https://..."
 <label class="form-label"
 >descriere (cu link-uri opțional)</label
 >
-<div class="cap-rte-wrap" id="photoCapWrap">
-<div class="cap-rte-toolbar">
-<button
-class="rte-btn"
-onclick="capRteLink('photo-cap-editor','photo-cap-link-bar','photo-cap-link-input')"
-title="Link"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-</div>
-<div class="cap-rte-link-bar" id="photo-cap-link-bar">
-<input
-class="rte-link-input"
-id="photo-cap-link-input"
-type="url"
-placeholder="https://"
-onkeydown="if(event.key==='Enter')capRteLinkOk('photo-cap-editor','photo-cap-link-bar','photo-cap-link-input')"
-/>
-<button
-class="rte-link-ok"
-onclick="capRteLinkOk('photo-cap-editor','photo-cap-link-bar','photo-cap-link-input')"
->
-adaugă
-</button>
-</div>
-<div
-class="cap-rte-editor"
-id="photo-cap-editor"
-contenteditable="true"
-data-placeholder="o descriere..."
-></div>
-</div>
+<div class="cap-rte-gen" data-p="photo"></div>
+
 </div>
 <div
 class="form-group"
@@ -2800,64 +2402,12 @@ anulează
 <div class="sheet-title">adaugă videoclip</div>
 <div class="form-group">
 <label class="form-label">încarcă video pe R2</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('video-file-input').click()"
->
-<input
-type="file"
-id="video-file-input"
-accept="video/*"
-style="display:none"
-onchange="uploadTo(this.files[0],'video-upload-status','video-url')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<rect x="2" y="6" width="14" height="12" rx="2" />
-<path
-d="M16 10l6-4v12l-6-4V10z"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege video</span
->
-<span
-id="video-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="video-file-input" data-st="video-upload-status" data-to="video-url" data-ico="video" data-acc="video/*" data-lbl="alege video"></div>
+
 </div>
 <div class="form-group">
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link extern (YouTube, mp4...)
-</label>
+<label class="form-label lnk">sau link extern (YouTube, mp4...)</label>
+
 <input
 type="url"
 class="form-input"
@@ -2881,52 +2431,8 @@ YouTube.
 <label class="form-label"
 >descriere (cu link-uri opțional)</label
 >
-<div class="cap-rte-wrap">
-<div class="cap-rte-toolbar">
-<button
-class="rte-btn"
-onclick="capRteLink('video-cap-editor','video-cap-link-bar','video-cap-link-input')"
-title="Link"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-</div>
-<div class="cap-rte-link-bar" id="video-cap-link-bar">
-<input
-class="rte-link-input"
-id="video-cap-link-input"
-type="url"
-placeholder="https://"
-onkeydown="if(event.key==='Enter')capRteLinkOk('video-cap-editor','video-cap-link-bar','video-cap-link-input')"
-/>
-<button
-class="rte-link-ok"
-onclick="capRteLinkOk('video-cap-editor','video-cap-link-bar','video-cap-link-input')"
->
-adaugă
-</button>
-</div>
-<div
-class="cap-rte-editor"
-id="video-cap-editor"
-contenteditable="true"
-data-placeholder="o descriere..."
-></div>
-</div>
+<div class="cap-rte-gen" data-p="video"></div>
+
 </div>
 <div class="blur-toggle-row">
 <label class="form-label">conținut privat</label>
@@ -2980,65 +2486,13 @@ anulează
 <div class="sheet-title">adaugă muzică</div>
 <div class="form-group">
 <label class="form-label">încarcă fișier audio pe R2</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('music-file-input').click()"
->
-<input
-type="file"
-id="music-file-input"
-accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
-style="display:none"
-onchange="uploadTo(this.files[0],'music-upload-status','music-url')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege fișier audio</span
->
-<span
-id="music-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="music-file-input" data-st="music-upload-status" data-to="music-url" data-ico="music" data-acc="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" data-lbl="alege fișier audio"></div>
+
 </div>
 <div class="form-group">
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link extern (mp3, ogg...)
-</label>
+
+<label class="form-label lnk">sau link extern (mp3, ogg...)</label>
+
 <input
 type="url"
 class="form-input"
@@ -3105,28 +2559,10 @@ src=""
 </div>
 
 <div style="margin-top:8px;">
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link extern copertă
-</label>
+
+
+<label class="form-label lnk">sau link extern copertă</label>
+
 <input
 type="url"
 class="form-input"
@@ -3170,66 +2606,12 @@ anulează
 <div class="sheet-title">adaugă PDF</div>
 <div class="form-group">
 <label class="form-label">încarcă PDF pe R2</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('pdf-file-input').click()"
->
-<input
-type="file"
-id="pdf-file-input"
-accept=".pdf"
-style="display:none"
-onchange="uploadTo(this.files[0],'pdf-upload-status','pdf-url')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<path
-d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<polyline points="14 2 14 8 20 8" />
-<line x1="9" y1="15" x2="15" y2="15" />
-<line x1="9" y1="11" x2="15" y2="11" />
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege PDF</span
->
-<span
-id="pdf-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="pdf-file-input" data-st="pdf-upload-status" data-to="pdf-url" data-ico="pdf" data-acc=".pdf" data-lbl="alege PDF"></div>
+
 </div>
 <div class="form-group">
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link extern PDF
-</label>
+<label class="form-label lnk">sau link extern PDF</label>
+
 <input
 type="url"
 class="form-input"
@@ -3290,65 +2672,12 @@ Melodia va porni automat când se selectează data respectivă.
 </div>
 <div class="form-group">
 <label class="form-label">încarcă fișier audio pe R2</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('dm-file-input').click()"
->
-<input
-type="file"
-id="dm-file-input"
-accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
-style="display:none"
-onchange="uploadTo(this.files[0],'dm-upload-status','dm-url')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege fișier audio</span
->
-<span
-id="dm-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="dm-file-input" data-st="dm-upload-status" data-to="dm-url" data-ico="music" data-acc="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" data-lbl="alege fișier audio"></div>
+
 </div>
 <div class="form-group">
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link extern (mp3, ogg...)
-</label>
+<label class="form-label lnk">sau link extern (mp3, ogg...)</label>
+
 <input
 type="url"
 class="form-input"
@@ -3368,41 +2697,8 @@ placeholder="numele piesei..."
 </div>
 <div class="form-group">
 <label class="form-label">copertă (opțional)</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;margin-bottom:8px;"
-onclick="document.getElementById('dm-cover-file-input').click()"
->
-<input
-type="file"
-id="dm-cover-file-input"
-accept="image/*"
-style="display:none"
-onchange="uploadTo(this.files[0],'dm-cover-upload-status','dm-cover','✓ copertă încărcată')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<rect x="3" y="3" width="18" height="18" rx="3" />
-<circle cx="8.5" cy="8.5" r="1.5" />
-<path
-d="M21 15l-5-5L5 21"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->încarcă copertă</span
->
-<span
-id="dm-cover-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div style="margin-bottom:8px;"><div class="up-row" data-file="dm-cover-file-input" data-st="dm-cover-upload-status" data-to="dm-cover" data-ico="img" data-acc="image/*" data-ok="✓ copertă încărcată" data-lbl="încarcă copertă"></div></div>
+
 <label
 class="form-label"
 style="display:flex;align-items:center;gap:6px;margin-bottom:7px;"
@@ -3460,81 +2756,8 @@ id="edit-theme-group"
 style="display:none"
 >
 <label class="form-label">temă vizuală</label>
-<div class="theme-selector-grid" id="editThemeSelectorGrid">
+<div class="theme-selector-grid" id="editThemeSelectorGrid"></div>
 
-<div
-class="theme-swatch selected"
-data-theme="none"
-onclick="selectEditTheme('none')"
-style="background:#17171d;"
->
-<span class="theme-swatch-icon">✏️</span
-><span class="theme-swatch-label">implicit</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="stars"
-onclick="selectEditTheme('stars')"
-style="background:linear-gradient(160deg,#0a0a1a,#0d0820);"
->
-<span class="theme-swatch-icon">🌠</span
-><span class="theme-swatch-label">stele</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="aurora"
-onclick="selectEditTheme('aurora')"
-style="background:linear-gradient(135deg,#020b14,#0a1628);"
->
-<span class="theme-swatch-icon">🌌</span
-><span class="theme-swatch-label">aurora</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="glow"
-onclick="selectEditTheme('glow')"
-style="background:#08060f;"
->
-<span class="theme-swatch-icon">💜</span
-><span class="theme-swatch-label">glow</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="hearts"
-onclick="selectEditTheme('hearts')"
-style="background:linear-gradient(145deg,#1a0812,#220d18);"
->
-<span class="theme-swatch-icon">🌸</span
-><span class="theme-swatch-label">inimi</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="rain"
-onclick="selectEditTheme('rain')"
-style="background:linear-gradient(180deg,#070b0f,#0a0f14);"
->
-<span class="theme-swatch-icon">🌧️</span
-><span class="theme-swatch-label">ploaie</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="matrix"
-onclick="selectEditTheme('matrix')"
-style="background:#000800;"
->
-<span class="theme-swatch-icon">💚</span
-><span class="theme-swatch-label">matrix</span>
-</div>
-<div
-class="theme-swatch"
-data-theme="gold"
-onclick="selectEditTheme('gold')"
-style="background:linear-gradient(135deg,#0f0900,#1a1000);"
->
-<span class="theme-swatch-icon">✨</span
-><span class="theme-swatch-label">aur</span>
-</div>
-</div>
 </div>
 
 <input type="hidden" id="edit-id" />
@@ -3545,269 +2768,9 @@ id="edit-rte-group"
 style="display:none"
 >
 <label class="form-label">text</label>
-<div class="rte-wrap">
-<div class="rte-toolbar">
-<button
-class="rte-btn"
-onclick="rteCmd2('bold')"
-title="Bold"
->
-<svg viewBox="0 0 24 24" fill="currentColor">
-<path
-d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"
-/>
-</svg>
-</button>
-<div class="rte-sep"></div>
-<div class="rte-size-wrap" id="rteSizeWrap2">
-<button
-class="rte-btn rte-size-btn"
-id="rteSizeBtn2"
-onclick="toggleSizeDropdown('rteSizeDropdown2')"
-title="Mărime text"
->
-<span id="rteSizeLbl2">Aa</span>
-<svg
-viewBox="0 0 10 10"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<polyline points="2 3 5 7 8 3" />
-</svg>
-</button>
-<div
-class="rte-size-dropdown"
-id="rteSizeDropdown2"
->
-<div
-class="rte-size-option"
-onclick="applyFontSize2('txt-xs','rteSizeDropdown2','rteSizeLbl2')"
->
-<span class="rte-size-label">xs</span
-><span style="font-size:11px"
->mic de tot</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize2('txt-sm','rteSizeDropdown2','rteSizeLbl2')"
->
-<span class="rte-size-label">s</span
-><span style="font-size:13px">mic</span>
-</div>
-<div
-class="rte-size-option active"
-onclick="applyFontSize2('','rteSizeDropdown2','rteSizeLbl2')"
->
-<span class="rte-size-label">m</span
-><span style="font-size:15px"
->normal</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize2('txt-lg','rteSizeDropdown2','rteSizeLbl2')"
->
-<span class="rte-size-label">l</span
-><span style="font-size:17px"
->mare</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize2('txt-xl','rteSizeDropdown2','rteSizeLbl2')"
->
-<span class="rte-size-label">xl</span
-><span style="font-size:20px"
->foarte mare</span
->
-</div>
-<div
-class="rte-size-option"
-onclick="applyFontSize2('txt-xxl','rteSizeDropdown2','rteSizeLbl2')"
->
-<span class="rte-size-label">xxl</span
-><span style="font-size:24px"
->titlu</span
->
-</div>
-</div>
-</div>
-<div class="rte-sep"></div>
-<button
-class="rte-btn"
-onclick="rteToggleLinkBar2()"
-title="Link"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-<div class="rte-sep"></div>
-<button
-class="rte-btn"
-onclick="rteBlurSelected2()"
-title="Blur text selectat"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.8"
->
-<path
-d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-stroke-linecap="round"
-/>
-<line
-x1="1"
-y1="1"
-x2="23"
-y2="23"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-<div class="rte-sep"></div>
-<button
-class="rte-btn"
-id="rte-music-btn2"
-onclick="rteToggleMusicBar2()"
-title="Adaugă muzică la text selectat"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.8"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-</button>
-<button
-class="rte-btn"
-onclick="rteMusicUnwrap('rte-editor2')"
-title="Elimină muzică din text"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.8"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-<line
-x1="1"
-y1="1"
-x2="23"
-y2="23"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-</div>
-<div class="rte-music-bar" id="rte-music-bar2">
-<div
-class="rte-music-upload-row"
-onclick="document.getElementById('rte-music-file-input2').click()"
->
-<input
-type="file"
-id="rte-music-file-input2"
-accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
-style="display:none"
-onchange="uploadTo(this.files[0],'rte-music-upload-status2','rte-music-url-input2')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-<span class="rte-music-upload-lbl"
->alege fișier audio</span
->
-<span
-class="rte-music-upload-status"
-id="rte-music-upload-status2"
-></span>
-</div>
-<input
-class="rte-link-input"
-id="rte-music-url-input2"
-type="text"
-placeholder="sau link extern (mp3, ogg...)"
-/>
-<input
-class="rte-link-input"
-id="rte-music-title-input2"
-type="text"
-placeholder="titlu melodie (opțional)"
-/>
-<button
-class="rte-link-ok"
-style="width:100%;text-align:center;"
-onclick="rteInsertMusic2()"
->
-adaugă muzică la text selectat
-</button>
-</div>
-<div class="rte-link-bar" id="rte-link-bar2">
-<input
-class="rte-link-input"
-id="rte-link-input2"
-type="url"
-placeholder="https://..."
-onkeydown="if(event.key==='Enter')rteInsertLink2()"
-/>
-<button
-class="rte-link-ok"
-onclick="rteInsertLink2()"
->
-adaugă
-</button>
-</div>
-<div
-class="rte-editor"
-id="rte-editor2"
-contenteditable="true"
-data-placeholder="textul notițe..."
-spellcheck="true"
-></div>
-</div>
+<div class="rte-gen" data-s="2"></div>
+
+
 </div>
 <div class="form-group" id="edit-plain-group">
 <label class="form-label" id="edit-plain-lbl"
@@ -3877,56 +2840,8 @@ onclick="copyText(document.getElementById('edit-content').value,'cod HTML copiat
 <label class="form-label" id="edit-caption-lbl"
 >descriere / titlu</label
 >
-<div
-class="cap-rte-wrap"
-id="editCapWrap"
-style="display:none"
->
-<div class="cap-rte-toolbar">
-<button
-class="rte-btn"
-onclick="capRteLink('edit-cap-editor','edit-cap-link-bar','edit-cap-link-input')"
-title="Link"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-</button>
-</div>
-<div class="cap-rte-link-bar" id="edit-cap-link-bar">
-<input
-class="rte-link-input"
-id="edit-cap-link-input"
-type="url"
-placeholder="https://"
-onkeydown="if(event.key==='Enter')capRteLinkOk('edit-cap-editor','edit-cap-link-bar','edit-cap-link-input')"
-/>
-<button
-class="rte-link-ok"
-onclick="capRteLinkOk('edit-cap-editor','edit-cap-link-bar','edit-cap-link-input')"
->
-adaugă
-</button>
-</div>
-<div
-class="cap-rte-editor"
-id="edit-cap-editor"
-contenteditable="true"
-data-placeholder="descriere..."
-></div>
-</div>
+<div class="cap-rte-gen" data-p="edit" data-hide="1"></div>
+
 <textarea
 class="form-textarea"
 id="edit-caption"
@@ -3980,28 +2895,8 @@ src=""
 />
 </div>
 </div>
-<label
-class="form-label"
-style="display:flex;align-items:center;gap:6px;margin-bottom:7px;"
->
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:12px;height:12px;color:var(--text3);"
->
-<path
-d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-stroke-linecap="round"
-/>
-<path
-d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-stroke-linecap="round"
-/>
-</svg>
-sau link extern copertă
-</label>
+<label class="form-label lnk" style="margin-bottom:7px;">sau link extern copertă</label>
+
 <input
 type="url"
 class="form-input"
@@ -4724,41 +3619,8 @@ style="display:none;margin-top:8px;"
 <label class="form-label"
 >încarcă fișier audio</label
 >
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('timelock-music-file-input').click()"
->
-<input
-type="file"
-id="timelock-music-file-input"
-accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a"
-style="display:none"
-onchange="uploadTo(this.files[0],'timelock-music-upload-status','settings-timelock-music-url')"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<path
-d="M9 18V6l12-2v12"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-<circle cx="6" cy="18" r="3" />
-<circle cx="18" cy="16" r="3" />
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege fișier audio</span
->
-<span
-id="timelock-music-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="timelock-music-file-input" data-st="timelock-music-upload-status" data-to="settings-timelock-music-url" data-ico="music" data-acc="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" data-lbl="alege fișier audio"></div>
+
 </div>
 <div class="form-group" style="margin-bottom:8px;">
 <label class="form-label"
@@ -9259,28 +8121,7 @@ async function clearTikHopeHtmlOnly() {
 }
 
 
-function enterTikHopeBlackout() {
-document.body.style.position = 'fixed';
-document.body.style.width = '100%';
-document.body.style.top = '-' + window.scrollY + 'px';
-document.body.style.background = '#000';
-document.documentElement.style.background = '#000';
 
-const meta = document.querySelector('meta[name="theme-color"]');
-if (meta) meta.setAttribute('content', '#000000');
-}
-
-function exitTikHopeBlackout() {
-const scrollY = document.body.style.top;
-document.body.style.position = '';
-document.body.style.width = '';
-document.body.style.top = '';
-document.body.style.background = '';
-document.documentElement.style.background = '';
-window.scrollTo(0, parseInt(scrollY || '0') * -1);
-const meta = document.querySelector('meta[name="theme-color"]');
-if (meta) meta.setAttribute('content', '#0c0c0f');
-}
 
 async function openTikHopeSite() {
 if (document.getElementById('tikhope-site-overlay')) return;
@@ -9387,26 +8228,24 @@ document.body.appendChild(overlay);
 requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 }
 
-function enterRedirectBlackout() {
-document.body.classList.add('redirect-active');
-document.body.style.position = 'fixed';
-document.body.style.width = '100%';
-document.body.style.top = `-${window.scrollY}px`;
-const meta = document.querySelector('meta[name="theme-color"]');
-if (meta) meta.setAttribute('content', '#140a10');
+function enterBlackout(bg, cls) {
+  const b = document.body.style;
+  if (cls) document.body.classList.add(cls); else { b.background = bg; document.documentElement.style.background = bg; }
+  b.position = 'fixed'; b.width = '100%'; b.top = '-' + window.scrollY + 'px';
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
 }
-
-
-function exitRedirectBlackout() {
-const scrollY = document.body.style.top;
-document.body.classList.remove('redirect-active');
-document.body.style.position = '';
-document.body.style.width = '';
-document.body.style.top = '';
-window.scrollTo(0, parseInt(scrollY || '0') * -1);
-const meta = document.querySelector('meta[name="theme-color"]');
-if (meta) meta.setAttribute('content', '#0c0c0f');
+function exitBlackout(cls) {
+  const b = document.body.style, y = b.top;
+  if (cls) document.body.classList.remove(cls); else { b.background = ''; document.documentElement.style.background = ''; }
+  b.position = b.width = b.top = '';
+  window.scrollTo(0, parseInt(y || '0') * -1);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0c0c0f');
 }
+const enterTikHopeBlackout = () => enterBlackout('#000');
+const exitTikHopeBlackout = () => exitBlackout();
+const enterRedirectBlackout = () => enterBlackout('#140a10', 'redirect-active');
+const exitRedirectBlackout = () => exitBlackout('redirect-active');
+
 
 function closeRedirectSite() {
 const overlay = document.getElementById('redirect-site-overlay');
@@ -9894,6 +8733,58 @@ async function confirmMoveDay() {
     btn.disabled = false;
   }
 }
+
+
+const ICO={
+up:'<path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>',
+music:'<path d="M9 18V6l12-2v12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+img:'<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21" stroke-linecap="round" stroke-linejoin="round"/>',
+video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4V10z" stroke-linecap="round" stroke-linejoin="round"/>',
+pdf:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/>',
+link:'<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round"/>'
+};
+
+/* rânduri upload */
+document.querySelectorAll('.up-row').forEach(r=>{const d=r.dataset;
+r.outerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('${d.file}').click()"><input type="file" id="${d.file}" accept="${d.acc}" style="display:none" onchange="uploadTo(this.files[0],'${d.st}','${d.to}'${d.ok?`,'${d.ok}'`:''})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;">${ICO[d.ico]}</svg><span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">${d.lbl}</span><span id="${d.st}" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span></div>`});
+
+/* label "sau link extern" */
+document.querySelectorAll('.lnk').forEach(l=>l.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);">${ICO.link}</svg>`));
+
+/* toolbar RTE generat: data-s="" = notiță, data-s="2" = editare */
+const RTE_SZ=[['txt-xs','xs','mic de tot',11],['txt-sm','s','mic',13],['','m','normal',15],['txt-lg','l','mare',17],['txt-xl','xl','foarte mare',20],['txt-xxl','xxl','titlu',24]];
+const RTE_BLUR='<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke-linecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>';
+const RTE_OFF='<line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>';
+document.querySelectorAll('.rte-gen').forEach(g=>{
+const s=g.dataset.s, sep='<div class="rte-sep"></div>';
+const btn=(id,fn,t,svg,fill)=>`<button class="rte-btn" id="${id}" onclick="${fn}" title="${t}"><svg viewBox="0 0 24 24" ${fill?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="1.8"'}>${svg}</svg></button>`;
+g.outerHTML=`<div class="rte-wrap"><div class="rte-toolbar">
+${btn('rte-bold'+s,`rteCmd('bold','${s}')`,'Bold','<path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/>',1)}${sep}
+<div class="rte-size-wrap" id="rteSizeWrap${s}"><button class="rte-btn rte-size-btn" id="rteSizeBtn${s}" onclick="toggleSizeDropdown('rteSizeDropdown${s}')" title="Mărime text"><span id="rteSizeLbl${s}">Aa</span><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 3 5 7 8 3"/></svg></button>
+<div class="rte-size-dropdown" id="rteSizeDropdown${s}">${RTE_SZ.map(([c,l,t,px])=>`<div class="rte-size-option${c?'':' active'}" onclick="applyFontSize${s}('${c}','rteSizeDropdown${s}','rteSizeLbl${s}')"><span class="rte-size-label">${l}</span><span style="font-size:${px}px">${t}</span></div>`).join('')}</div></div>${sep}
+${btn('rte-link-btn'+s,`rteToggleLinkBar('${s}')`,'Link',ICO.link)}${sep}
+${btn('rte-blur-btn'+s,`rteBlurSelected${s}()`,'Blur text selectat',RTE_BLUR)}${sep}
+${btn('rte-music-btn'+s,`rteToggleMusicBar('${s}')`,'Adaugă muzică la text selectat',ICO.music)}
+${btn('rte-music-off'+s,`rteMusicUnwrap('rte-editor${s}')`,'Elimină muzică din text',ICO.music+RTE_OFF)}
+</div>
+<div class="rte-link-bar" id="rte-link-bar${s}"><input class="rte-link-input" id="rte-link-input${s}" type="url" placeholder="https://..." onkeydown="if(event.key==='Enter')rteInsertLink('${s}')"><button class="rte-link-ok" onclick="rteInsertLink('${s}')">adaugă</button></div>
+<div class="rte-music-bar" id="rte-music-bar${s}"><div class="rte-music-upload-row" onclick="document.getElementById('rte-music-file-input${s}').click()"><input type="file" id="rte-music-file-input${s}" accept="audio/*,.mp3,.ogg,.wav,.flac,.aac,.m4a" style="display:none" onchange="uploadTo(this.files[0],'rte-music-upload-status${s}','rte-music-url-input${s}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${ICO.music}</svg><span class="rte-music-upload-lbl">alege fișier audio</span><span class="rte-music-upload-status" id="rte-music-upload-status${s}"></span></div>
+<input class="rte-link-input" id="rte-music-url-input${s}" type="text" placeholder="sau link extern (mp3, ogg...)">
+<input class="rte-link-input" id="rte-music-title-input${s}" type="text" placeholder="titlu melodie (opțional)">
+<button class="rte-link-ok" style="width:100%;text-align:center;" onclick="rteInsertMusic${s}()">adaugă muzică la text selectat</button></div>
+<div class="rte-editor" id="rte-editor${s}" contenteditable="true" data-placeholder="${s?'textul notițe...':'scrie ceva...'}" spellcheck="true"${s?'':' oninput="scheduleDraftSave()"'}></div></div>`;
+});
+
+
+/* bară descriere (photo, video, edit) */
+document.querySelectorAll('.cap-rte-gen').forEach(g=>{const p=g.dataset.p,E=`'${p}-cap-editor','${p}-cap-link-bar','${p}-cap-link-input'`;
+g.outerHTML=`<div class="cap-rte-wrap" id="${p}CapWrap"${g.dataset.hide?' style="display:none"':''}><div class="cap-rte-toolbar"><button class="rte-btn" onclick="capRteLink(${E})" title="Link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICO.link}</svg></button></div><div class="cap-rte-link-bar" id="${p}-cap-link-bar"><input class="rte-link-input" id="${p}-cap-link-input" type="url" placeholder="https://" onkeydown="if(event.key==='Enter')capRteLinkOk(${E})"><button class="rte-link-ok" onclick="capRteLinkOk(${E})">adaugă</button></div><div class="cap-rte-editor" id="${p}-cap-editor" contenteditable="true" data-placeholder="descriere..."></div></div>`});
+
+/* swatch-uri teme */
+const THEMES=[['none','✏️','implicit','#17171d'],['stars','🌠','stele','linear-gradient(160deg,#0a0a1a,#0d0820)'],['aurora','🌌','aurora','linear-gradient(135deg,#020b14,#0a1628)'],['glow','💜','glow','#08060f'],['hearts','🌸','inimi','linear-gradient(145deg,#1a0812,#220d18)'],['rain','🌧️','ploaie','linear-gradient(180deg,#070b0f,#0a0f14)'],['matrix','💚','matrix','#000800'],['gold','✨','aur','linear-gradient(135deg,#0f0900,#1a1000)']];
+[['themeSelectorGrid','selectNoteTheme'],['editThemeSelectorGrid','selectEditTheme']].forEach(([id,fn])=>{
+document.getElementById(id).innerHTML=THEMES.map(([t,i,l,bg],n)=>`<div class="theme-swatch${n?'':' selected'}" data-theme="${t}" onclick="${fn}('${t}')" style="background:${bg};"><span class="theme-swatch-icon">${i}</span><span class="theme-swatch-label">${l}</span></div>`).join('')});
+
 /* ═══════════ SFÂRȘIT MUTARE ZI ═══════════ */
 
 
