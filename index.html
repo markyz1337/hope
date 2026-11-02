@@ -9336,7 +9336,6 @@ async function openTikHopeSite() {
 if (document.getElementById('tikhope-site-overlay')) return;
 closeFab();
 closeCalPopup();
-if (SETTING_TIKHOPE_HTML === null) showToast('se incarca TikHope...');
 const code = await loadTikHopeHtml();
 if (!code) { showToast('niciun cod TikHope salvat (vezi setarile)'); return; }
 if (document.getElementById('tikhope-site-overlay')) return;
