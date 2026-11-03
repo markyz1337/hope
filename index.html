@@ -2849,80 +2849,8 @@ stroke-linecap="round"
 <div class="settings-section">
 <div class="settings-section">
 <div class="settings-section-title">navigare inițială</div>
-<div style="display:flex;flex-direction:column;gap:8px;">
-<label
-style="display:flex;align-items:center;gap:10px;cursor:pointer;"
->
-<input
-type="radio"
-name="nav-mode"
-value="today"
-style="accent-color:var(--accent)"
-/>
-<div>
-<div class="settings-row-label">
-Ziua de azi
-</div>
-<div class="settings-row-sub">
-mereu la ziua curentă
-</div>
-</div>
-</label>
-<label
-style="display:flex;align-items:center;gap:10px;cursor:pointer;"
->
-<input
-type="radio"
-name="nav-mode"
-value="last"
-style="accent-color:var(--accent)"
-/>
-<div>
-<div class="settings-row-label">
-Ultima zi cu conținut
-</div>
-<div class="settings-row-sub">
-cea mai recentă zi înregistrată
-</div>
-</div>
-</label>
-<label
-style="display:flex;align-items:center;gap:10px;cursor:pointer;"
->
-<input
-type="radio"
-name="nav-mode"
-value="saved"
-style="accent-color:var(--accent)"
-/>
-<div>
-<div class="settings-row-label">
-Ultima zi vizitată
-</div>
-<div class="settings-row-sub">
-ziua salvată în Supabase
-</div>
-</div>
-</label>
-<label
-style="display:flex;align-items:center;gap:10px;cursor:pointer;"
->
-<input
-type="radio"
-name="nav-mode"
-value="first"
-style="accent-color:var(--accent)"
-/>
-<div>
-<div class="settings-row-label">
-Prima zi cu conținut
-</div>
-<div class="settings-row-sub">
-cea mai veche înregistrare
-</div>
-</div>
-</label>
-</div>
+<div id="navModeList" style="display:flex;flex-direction:column;gap:8px;"></div>
+
 </div>
 
 
@@ -2973,48 +2901,9 @@ deschide galerie fișiere
 
 <div class="settings-section">
 <div class="settings-section-title">parole</div>
-<div class="settings-row" style="margin-bottom:6px;">
-<div class="settings-row-label">
-Parolă mod creator (curentă:
-<span id="settings-creator-pin-display">••••</span>)
-</div>
-</div>
-<div class="settings-pin-group" style="margin-bottom:14px;">
-<input
-class="settings-pin-input"
-id="settings-new-creator-pin"
-type="tel"
-maxlength="4"
-placeholder="PIN nou (4 cifre)"
-/>
-<button
-class="settings-pin-btn"
-onclick="changeCreatorPin()"
->
-schimbă
-</button>
-</div>
-<div class="settings-row" style="margin-bottom:6px;">
-<div class="settings-row-label">
-Parolă carduri private (curentă:
-<span id="settings-private-pin-display">••••</span>)
-</div>
-</div>
-<div class="settings-pin-group">
-<input
-class="settings-pin-input"
-id="settings-new-private-pin"
-type="tel"
-maxlength="4"
-placeholder="PIN nou (4 cifre)"
-/>
-<button
-class="settings-pin-btn"
-onclick="changePrivatePin()"
->
-schimbă
-</button>
-</div>
+<div class="pin-gen" data-k="creator" data-lbl="Parolă mod creator" data-fn="changeCreatorPin" data-mb="14"></div>
+<div class="pin-gen" data-k="private" data-lbl="Parolă carduri private" data-fn="changePrivatePin"></div>
+
 </div>
 
 
@@ -3036,29 +2925,8 @@ vizitatorii trebuie să introducă un PIN
 id="settings-visitor-pin-group"
 style="display:none;margin-top:8px;"
 >
-<div class="settings-row" style="margin-bottom:6px;">
-<div class="settings-row-label">
-Parolă vizitatori (curentă:
-<span id="settings-visitor-pin-display"
->••••</span
->)
-</div>
-</div>
-<div class="settings-pin-group">
-<input
-class="settings-pin-input"
-id="settings-new-visitor-pin"
-type="tel"
-maxlength="4"
-placeholder="PIN nou (4 cifre)"
-/>
-<button
-class="settings-pin-btn"
-onclick="changeVisitorPin()"
->
-schimbă
-</button>
-</div>
+<div class="pin-gen" data-k="visitor" data-lbl="Parolă vizitatori" data-fn="changeVisitorPin"></div>
+
 </div>
 <div class="settings-row" style="margin-top:14px;">
 <div>
@@ -4857,31 +4725,24 @@ prev.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: 
 next.addEventListener('touchstart', (e) => { e.stopPropagation(); }, { passive: true });
 }
 const RING_CIRC = 2 * Math.PI * 28;
-let ringProgress = 0, ringVisible = false, jumpLocked = false;
+let ringProgress = 0, jumpLocked = false;
+
 let touchStartY = 0, touchLastY = 0, overscrollActive = false, overscrollDelta = 0;
 let topscrollActive = false, topscrollDelta = 0, topJumpLocked = false;
 const OVERSCROLL_THRESHOLD = 160;
 function setRingProgress(val, which) {
-const progress = Math.max(0, Math.min(1, val));
-if (which === 'prev') {
-const offset = RING_CIRC * (1 - progress);
-const prog = document.getElementById('prevRingProgress');
-if (prog) { prog.style.strokeDashoffset = offset; prog.style.stroke = progress > 0.85 ? 'var(--accent2)' : 'var(--accent)'; }
-const ring = document.getElementById('prevRingSvg');
-if (ring) ring.style.opacity = progress > 0.02 ? '1' : '0';
-} else {
-ringProgress = progress;
-const offset = RING_CIRC * (1 - ringProgress);
-const prog = document.getElementById('nextRingProgress');
-if (prog) { prog.style.strokeDashoffset = offset; prog.style.stroke = ringProgress > 0.85 ? 'var(--accent2)' : 'var(--accent)'; }
-const ring = document.getElementById('nextRingSvg');
-if (ring) { const s = ringProgress > 0.02; if (s !== ringVisible) { ringVisible = s; ring.style.opacity = s ? '1':'0'; } }
-}
+const p = Math.max(0, Math.min(1, val));
+if (which !== 'prev') ringProgress = p;
+const prog = document.getElementById(which + 'RingProgress');
+if (prog) { prog.style.strokeDashoffset = RING_CIRC * (1 - p); prog.style.stroke = p > 0.85 ? 'var(--accent2)' : 'var(--accent)'; }
+const ring = document.getElementById(which + 'RingSvg');
+if (ring) ring.style.opacity = p > 0.02 ? '1' : '0';
 }
 function resetRing(which) {
-if (which === 'prev') { setRingProgress(0, 'prev'); topJumpLocked = false; }
-else { setRingProgress(0, 'next'); jumpLocked = false; }
+setRingProgress(0, which);
+if (which === 'prev') topJumpLocked = false; else jumpLocked = false;
 }
+
 
 function touchBlocked(e) {
   if (e.target.closest('.bottom-nav-btn,.nav-btn-outer,.pdf-entry,a,.backdrop.open')) return true;
@@ -8149,6 +8010,17 @@ ${btn('rte-music-off'+s,`rteMusicUnwrap('rte-editor${s}')`,'Elimină muzică din
 /* bară descriere (photo, video, edit) */
 document.querySelectorAll('.cap-rte-gen').forEach(g=>{const p=g.dataset.p,E=`'${p}-cap-editor','${p}-cap-link-bar','${p}-cap-link-input'`;
 g.outerHTML=`<div class="cap-rte-wrap" id="${p}CapWrap"${g.dataset.hide?' style="display:none"':''}><div class="cap-rte-toolbar"><button class="rte-btn" onclick="capRteLink(${E})" title="Link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICO.link}</svg></button></div><div class="cap-rte-link-bar" id="${p}-cap-link-bar"><input class="rte-link-input" id="${p}-cap-link-input" type="url" placeholder="https://" onkeydown="if(event.key==='Enter')capRteLinkOk(${E})"><button class="rte-link-ok" onclick="capRteLinkOk(${E})">adaugă</button></div><div class="cap-rte-editor" id="${p}-cap-editor" contenteditable="true" data-placeholder="descriere..."></div></div>`});
+
+
+/* radio navigare inițială */
+const NAV=[['today','Ziua de azi','mereu la ziua curentă'],['last','Ultima zi cu conținut','cea mai recentă zi înregistrată'],['saved','Ultima zi vizitată','ziua salvată în Supabase'],['first','Prima zi cu conținut','cea mai veche înregistrare']];
+document.getElementById('navModeList').innerHTML=NAV.map(([v,t,s])=>`<label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><input type="radio" name="nav-mode" value="${v}" style="accent-color:var(--accent)"/><div><div class="settings-row-label">${t}</div><div class="settings-row-sub">${s}</div></div></label>`).join('');
+
+/* grupuri PIN din setări */
+document.querySelectorAll('.pin-gen').forEach(g=>{const d=g.dataset;
+g.outerHTML=`<div class="settings-row" style="margin-bottom:6px;"><div class="settings-row-label">${d.lbl} (curentă: <span id="settings-${d.k}-pin-display">••••</span>)</div></div><div class="settings-pin-group"${d.mb?` style="margin-bottom:${d.mb}px;"`:''}><input class="settings-pin-input" id="settings-new-${d.k}-pin" type="tel" maxlength="4" placeholder="PIN nou (4 cifre)"/><button class="settings-pin-btn" onclick="${d.fn}()">schimbă</button></div>`});
+
+
 
 /* swatch-uri teme */
 const THEMES=[['none','✏️','implicit','#17171d'],['stars','🌠','stele','linear-gradient(160deg,#0a0a1a,#0d0820)'],['aurora','🌌','aurora','linear-gradient(135deg,#020b14,#0a1628)'],['glow','💜','glow','#08060f'],['hearts','🌸','inimi','linear-gradient(145deg,#1a0812,#220d18)'],['rain','🌧️','ploaie','linear-gradient(180deg,#070b0f,#0a0f14)'],['matrix','💚','matrix','#000800'],['gold','✨','aur','linear-gradient(135deg,#0f0900,#1a1000)']];
