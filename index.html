@@ -2110,40 +2110,8 @@ anulează
 <div class="sheet-title">adaugă poze</div>
 <div class="form-group">
 <label class="form-label">încarcă imagini pe R2</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('photo-file-input').click()"
->
-<input
-type="file"
-id="photo-file-input"
-accept="image/*"
-multiple
-style="display:none"
-onchange="uploadPhotosToR2(this.files)"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<path
-d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege imagini</span
->
-<span
-id="photo-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="photo-file-input" data-st="photo-upload-status" data-ico="up" data-acc="image/*" data-multi="1" data-fn="uploadPhotosToR2(this.files)" data-lbl="alege imagini"></div>
+
 
 <div
 id="photo-upload-previews"
@@ -2304,51 +2272,8 @@ placeholder="numele piesei..."
 </div>
 <div class="form-group">
 <label class="form-label">copertă (opțional)</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('music-cover-file-input').click()"
->
-<input
-type="file"
-id="music-cover-file-input"
-accept="image/*"
-style="display:none"
-onchange="uploadMusicCoverToR2(this.files[0])"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<rect x="3" y="3" width="18" height="18" rx="3" />
-<circle cx="8.5" cy="8.5" r="1.5" />
-<path
-d="M21 15l-5-5L5 21"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->alege copertă</span
->
-<span
-id="music-cover-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-<div
-id="music-cover-preview"
-style="display:none;flex-shrink:0;"
->
-<img
-id="music-cover-preview-img"
-style="width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2);"
-src=""
-/>
-</div>
-</div>
+<div class="cov-row" data-p="music" data-lbl="alege copertă" data-fn="uploadMusicCoverToR2"></div>
+
 
 <div style="margin-top:8px;">
 
@@ -2556,39 +2481,8 @@ style="display:none"
 id="edit-upload-section"
 style="display:none;margin-bottom:8px;"
 >
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;"
-onclick="document.getElementById('edit-file-input').click()"
->
-<input
-type="file"
-id="edit-file-input"
-style="display:none"
-onchange="handleEditFileUpload(this.files[0])"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<path
-d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4M8 8l4-4 4 4"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-<span
-id="edit-upload-label"
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->încarcă fișier</span
->
-<span
-id="edit-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-</div>
+<div class="up-row" data-file="edit-file-input" data-st="edit-upload-status" data-lid="edit-upload-label" data-ico="up" data-acc="*/*" data-fn="handleEditFileUpload(this.files[0])" data-lbl="încarcă fișier"></div>
+
 <div
 id="edit-upload-previews"
 style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"
@@ -2626,51 +2520,8 @@ style="min-height:70px;display:none"
 </div>
 <div class="form-group" id="edit-cover-group">
 <label class="form-label">copertă (opțional)</label>
-<div
-style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;margin-bottom:8px;"
-onclick="document.getElementById('edit-cover-file-input').click()"
->
-<input
-type="file"
-id="edit-cover-file-input"
-accept="image/*"
-style="display:none"
-onchange="uploadEditCoverToR2(this.files[0])"
-/>
-<svg
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="1.6"
-style="width:18px;height:18px;color:var(--text3);flex-shrink:0;"
->
-<rect x="3" y="3" width="18" height="18" rx="3" />
-<circle cx="8.5" cy="8.5" r="1.5" />
-<path
-d="M21 15l-5-5L5 21"
-stroke-linecap="round"
-stroke-linejoin="round"
-/>
-</svg>
-<span
-style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;"
->încarcă copertă</span
->
-<span
-id="edit-cover-upload-status"
-style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"
-></span>
-<div
-id="edit-cover-preview"
-style="display:none;flex-shrink:0;"
->
-<img
-id="edit-cover-preview-img"
-style="width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2);"
-src=""
-/>
-</div>
-</div>
+<div class="cov-row" data-p="edit" data-lbl="încarcă copertă" data-fn="uploadEditCoverToR2" data-mb="8"></div>
+
 <label class="form-label lnk" style="margin-bottom:7px;">sau link extern copertă</label>
 
 <input
@@ -7393,28 +7244,24 @@ exitTikHopeBlackout();
 
 
 
+function showOverlayModal(id, inner) {
+document.getElementById(id)?.remove();
+const o = document.createElement('div');
+o.id = id;
+o.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.25s;';
+o.innerHTML = `<div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">${inner}<button onclick="document.getElementById('${id}').remove()" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;">anulează</button></div>`;
+o.addEventListener('click', e => { if (e.target === o) o.remove(); });
+document.body.appendChild(o);
+requestAnimationFrame(() => { o.style.opacity = '1'; });
+}
+
 function showAccessChoiceModal() {
-const existing = document.getElementById('access-choice-overlay');
-if (existing) document.body.removeChild(existing);
-
-const overlay = document.createElement('div');
-overlay.id = 'access-choice-overlay';
-overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.25s;';
-
-overlay.innerHTML = `
-<div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">
+showOverlayModal('access-choice-overlay', `
 <div style="font-family:var(--serif);font-size:20px;font-style:italic;color:var(--accent2);font-weight:400;margin-bottom:22px;text-align:center;">ce vrei să deschizi?</div>
 <button onclick="transitionAccessToRedirect()" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;margin-bottom:10px;">despre tine ♥</button>
-
-
-<button onclick="document.body.removeChild(document.getElementById('access-choice-overlay'));openTikHopeSite()" style="width:100%;padding:13px;background:rgba(122,162,200,0.15);border:1px solid rgba(122,162,200,0.4);border-radius:12px;color:var(--blue);font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;margin-bottom:10px;">deschide clipuri</button>
-<button onclick="document.body.removeChild(document.getElementById('access-choice-overlay'))" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;">anulează</button>
-</div>`;
-
-overlay.addEventListener('click', e => { if (e.target === overlay) document.body.removeChild(overlay); });
-document.body.appendChild(overlay);
-requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+<button onclick="document.getElementById('access-choice-overlay').remove();openTikHopeSite()" style="width:100%;padding:13px;background:rgba(122,162,200,0.15);border:1px solid rgba(122,162,200,0.4);border-radius:12px;color:var(--blue);font-family:var(--serif);font-size:15px;font-style:italic;cursor:pointer;margin-bottom:10px;">deschide clipuri</button>`);
 }
+
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 
@@ -7433,15 +7280,7 @@ showRedirectModal();
 
 
 function showRedirectModal() {
-const existing = document.getElementById('redirect-modal-overlay');
-if (existing) document.body.removeChild(existing);
-
-const overlay = document.createElement('div');
-overlay.id = 'redirect-modal-overlay';
-overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.25s;';
-
-overlay.innerHTML = `
-<div style="width:100%;max-width:300px;background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:28px 24px;box-shadow:0 32px 80px rgba(0,0,0,0.65);display:flex;flex-direction:column;align-items:center;gap:0;">
+showOverlayModal('redirect-modal-overlay', `
 <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,rgba(200,80,120,0.25),rgba(230,100,140,0.12));border:1px solid rgba(220,80,120,0.35);display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
 <svg viewBox="0 0 24 24" fill="none" stroke="#f0a0b8" stroke-width="1.6" style="width:22px;height:22px;">
 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>
@@ -7453,18 +7292,9 @@ overlay.innerHTML = `
 <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">parola de acces</div>
 <div style="font-family:var(--serif);font-size:28px;color:var(--accent2);letter-spacing:0.18em;font-weight:500;">0000</div>
 </div>
-<button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'));openRedirectSite();" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;cursor:pointer;margin-bottom:8px;transition:all 0.2s;">deschide ♥</button>
-<button onclick="document.body.removeChild(document.getElementById('redirect-modal-overlay'))" style="width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:12px;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;transition:all 0.2s;">anulează</button>
-</div>
-`;
-
-overlay.addEventListener('click', e => {
-if (e.target === overlay) document.body.removeChild(overlay);
-});
-
-document.body.appendChild(overlay);
-requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+<button onclick="document.getElementById('redirect-modal-overlay').remove();openRedirectSite();" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(200,80,120,0.55),rgba(230,100,140,0.28));border:1px solid rgba(220,80,120,0.45);border-radius:12px;color:#f0a0b8;font-family:var(--serif);font-size:16px;font-style:italic;font-weight:400;cursor:pointer;margin-bottom:8px;">deschide ♥</button>`);
 }
+
 
 function enterBlackout(bg, cls) {
   const b = document.body.style;
@@ -7993,9 +7823,16 @@ r.outerHTML = d.lbl
 
 /* rânduri upload */
 document.querySelectorAll('.up-row').forEach(r=>{const d=r.dataset;
-r.outerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('${d.file}').click()"><input type="file" id="${d.file}" accept="${d.acc}" style="display:none" onchange="uploadTo(this.files[0],'${d.st}','${d.to}'${d.ok?`,'${d.ok}'`:''})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;">${ICO[d.ico]}</svg><span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">${d.lbl}</span><span id="${d.st}" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span></div>`});
+r.outerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;" onclick="document.getElementById('${d.file}').click()"><input type="file" id="${d.file}" accept="${d.acc}"${d.multi?' multiple':''} style="display:none" onchange="${d.fn||`uploadTo(this.files[0],'${d.st}','${d.to}'${d.ok?`,'${d.ok}'`:''})`}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;">${ICO[d.ico]}</svg><span${d.lid?` id="${d.lid}"`:''} style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">${d.lbl}</span><span id="${d.st}" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span></div>`});
+
+
+
+/* rânduri upload copertă (cu previzualizare) */
+document.querySelectorAll('.cov-row').forEach(r=>{const d=r.dataset,p=d.p;
+r.outerHTML=`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);cursor:pointer;${d.mb?`margin-bottom:${d.mb}px;`:''}" onclick="document.getElementById('${p}-cover-file-input').click()"><input type="file" id="${p}-cover-file-input" accept="image/*" style="display:none" onchange="${d.fn}(this.files[0])"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:18px;height:18px;color:var(--text3);flex-shrink:0;">${ICO.img}</svg><span style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.06em;">${d.lbl}</span><span id="${p}-cover-upload-status" style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-left:auto;"></span><div id="${p}-cover-preview" style="display:none;flex-shrink:0;"><img id="${p}-cover-preview-img" style="width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2);" src=""></div></div>`});
 
 /* label "sau link extern" */
+
 document.querySelectorAll('.lnk').forEach(l=>l.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;color:var(--text3);">${ICO.link}</svg>`));
 
 /* toolbar RTE generat: data-s="" = notiță, data-s="2" = editare */
