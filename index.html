@@ -6947,125 +6947,84 @@ function copyText(text, msg = 'copiat') {
 
 
 function renderR2Gallery(files) {
-files = files.filter(f => !f.key.endsWith('/') && !f.key.startsWith('thumbs/') && !f.key.startsWith('thumbs2/') && !f.key.startsWith('tikhope/') && !f.key.startsWith('tikhopethumbs/'));
-
-
-
+const body = document.getElementById('r2GalleryBody');
+files = files.filter(f => !f.key.endsWith('/') && !/^(thumbs2?|tikhope|tikhopethumbs)\//.test(f.key));
 if (!files.length) {
-document.getElementById('r2GalleryBody').innerHTML = '<div class="empty-wrap"><div class="empty-text">niciun fișier în R2</div></div>';
+body.innerHTML = '<div class="empty-wrap"><div class="empty-text">niciun fișier în R2</div></div>';
 return;
 }
 
+const usedKeys = getUsedKeys();
 const groups = {};
 files.forEach(f => {
 const folder = f.key.includes('/') ? f.key.split('/')[0] : 'altele';
-if (!groups[folder]) groups[folder] = [];
-groups[folder].push(f);
+(groups[folder] = groups[folder] || []).push(f);
 });
-
-const usedKeys = getUsedKeys();
-
-
-
-const totalSize = files.reduce((a, f) => a + f.size, 0);
-
-
 const orphans = files.filter(f => !usedKeys.has(f.key));
 const sortedOrphans = [...orphans].sort((a, b) => b.key.localeCompare(a.key));
+const visualOrder = [];
 
-let html = `
-<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-<div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;">
-<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:4px;">TOTAL</div>
-<div style="font-family:var(--serif);font-size:18px;color:var(--text)">${files.length} fișiere</div>
-<div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(totalSize)}</div>
-</div>
-<div style="flex:1;background:${orphans.length ? 'rgba(200,80,80,0.07)' : 'var(--surface)'};border:1px solid ${orphans.length ? 'rgba(200,80,80,0.25)' : 'var(--border)'};border-radius:12px;padding:12px;">
-<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:4px;">NEFOLOSITE</div>
-<div style="font-family:var(--serif);font-size:18px;color:${orphans.length ? 'var(--rose)' : 'var(--text)'}">${orphans.length} fișiere</div>
-<div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(orphans.reduce((a,f)=>a+f.size,0))}</div>
-</div>
+const sum = arr => arr.reduce((a, f) => a + f.size, 0);
+const fileIcon = k => (k.includes('music') || k.includes('audio')) ? '🎵' : k.includes('video') ? '🎬' : '📄';
+
+const stat = (title, arr, bad) => `<div style="flex:1;background:${bad ? 'rgba(200,80,80,0.07)' : 'var(--surface)'};border:1px solid ${bad ? 'rgba(200,80,80,0.25)' : 'var(--border)'};border-radius:12px;padding:12px;">
+<div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:4px;">${title}</div>
+<div style="font-family:var(--serif);font-size:18px;color:${bad ? 'var(--rose)' : 'var(--text)'}">${arr.length} fișiere</div>
+<div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${formatBytes(sum(arr))}</div>
 </div>`;
 
-const allDirectLinks = files.map(f => `${R2_PUBLIC_URL}/${f.key}`);
-html += `<button onclick="copyAllR2Links()" data-links='${JSON.stringify(allDirectLinks)}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază scriptul Scriptable (${files.length} fișiere)</button>`;
+// o singură funcție pentru thumbnail-uri (și orfane, și pe foldere)
+const cell = (f, idx, isOrphanCell) => {
+const used = usedKeys.has(f.key);
+const thumb = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key)
+? `<img src="${R2_PUBLIC_URL}/${f.key}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
+: `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${isOrphanCell ? 24 : 28}px;">${fileIcon(f.key)}</div>`;
+return `<div data-r2key="${f.key}" data-idx="${idx}" style="position:relative;aspect-ratio:1;background:${isOrphanCell ? 'rgba(200,80,80,0.06)' : 'var(--surface)'};border:1px solid ${used ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;" title="${f.key}">${thumb}`
++ (isOrphanCell ? `<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 4px;font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.key.split('/').pop()}</div>` : '')
++ (!isOrphanCell && /\.gif$/i.test(f.key) ? '<div style="position:absolute;top:5px;left:5px;font-size:11px;background:rgba(0,0,0,0.55);border-radius:6px;padding:1px 4px;">🎞️</div>' : '')
++ (!isOrphanCell && !used ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : '')
++ '</div>';
+};
 
-if (sortedOrphans.length > 0) {
+const catIcons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
+const grid = 'display:grid;grid-template-columns:repeat(3,1fr);gap:6px;';
+
+let html = `<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">${stat('TOTAL', files, false)}${stat('NEFOLOSITE', orphans, orphans.length > 0)}</div>
+<button onclick="copyAllR2Links()" data-links='${JSON.stringify(files.map(f => `${R2_PUBLIC_URL}/${f.key}`))}' id="copyAllR2Btn" style="width:100%;padding:11px;background:rgba(122,162,200,0.08);border:1px solid rgba(122,162,200,0.25);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.05em;margin-bottom:12px;">📋 copiază scriptul Scriptable (${files.length} fișiere)</button>`;
+
+if (sortedOrphans.length) {
 html += `<div style="margin-bottom:16px;">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
 <div style="font-family:var(--mono);font-size:9px;color:var(--rose);letter-spacing:0.1em;">NEFOLOSITE (${sortedOrphans.length})</div>
 <button onclick="deleteAllOrphans()" style="padding:5px 12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:20px;color:#e07070;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:0.04em;">șterge toate</button>
 </div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="orphans-grid">`;
-sortedOrphans.forEach((f, localIdx) => {
-const url = `${R2_PUBLIC_URL}/${f.key}`;
-const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
-const thumb = isImage
-? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
-: `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
-html += `<div data-r2key="${f.key}" data-idx="${localIdx}" style="position:relative;aspect-ratio:1;background:rgba(200,80,80,0.06);border:1px solid rgba(200,80,80,0.35);border-radius:10px;overflow:hidden;cursor:pointer;">
-${thumb}
-<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 4px;font-family:var(--mono);font-size:7px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.key.split('/').pop()}</div>
-</div>`;
-});
-html += `</div></div>`;
+<div style="${grid}" id="orphans-grid">${sortedOrphans.map((f, i) => cell(f, i, true)).join('')}</div></div>`;
 }
 
 html += `<div style="margin-bottom:16px;">
 <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin-bottom:10px;">DESCARCĂ PE CATEGORII</div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;">
 <button onclick="filterR2Category(null,this)" data-cat="all" style="padding:6px 12px;background:rgba(200,169,126,0.15);border:1px solid rgba(200,169,126,0.4);border-radius:20px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">toate</button>
-${['photos','music','video','gifs','pdf'].map(cat => {
-const count = files.filter(f => f.key.startsWith(cat+'/')).length;
-const icons = { photos:'🖼️', music:'🎵', video:'🎬', gifs:'🎞️', pdf:'📄' };
-return `<button onclick="filterR2Category('${cat}',this)" data-cat="${cat}" style="padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">${icons[cat]} ${cat} (${count})</button>`;
-}).join('')}
-</div>
+${Object.keys(catIcons).map(cat => `<button onclick="filterR2Category('${cat}',this)" data-cat="${cat}" style="padding:6px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">${catIcons[cat]} ${cat} (${files.filter(f => f.key.startsWith(cat + '/')).length})</button>`).join('')}
+</div></div>`;
 
-</div>`;
-const visualOrder = [];
 for (const [folder, folderFiles] of Object.entries(groups)) {
-html += `<div data-folder-section="${folder}"><div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>`;
-html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;">`;
-
-folderFiles.forEach((f) => {
-const url = `${R2_PUBLIC_URL}/${f.key}`;
-const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.key);
-const isUsed = usedKeys.has(f.key);
-
-const visualIdx = visualOrder.length;
-visualOrder.push(f);
-const thumb = isImage
-? `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" loading="lazy">`
-: `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;">${f.key.includes('music') || f.key.includes('audio') ? '🎵' : f.key.includes('video') ? '🎬' : '📄'}</div>`;
-html += `<div data-r2key="${f.key}" data-idx="${visualIdx}" style="position:relative;aspect-ratio:1;background:var(--surface);border:1px solid ${isUsed ? 'var(--border)' : 'rgba(200,80,80,0.35)'};border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;" title="${f.key}">
-${thumb}
-${/\.gif$/i.test(f.key) ? '<div style="position:absolute;top:5px;left:5px;font-size:11px;background:rgba(0,0,0,0.55);border-radius:6px;padding:1px 4px;">🎞️</div>' : ''}
-${!isUsed ? '<div style="position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--rose);box-shadow:0 0 6px rgba(200,80,80,0.6);"></div>' : ''}
-
-</div>`;
-});
-
-html += `</div></div>`;
+html += `<div data-folder-section="${folder}"><div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.1em;margin:12px 0 8px;">${folder.toUpperCase()} (${folderFiles.length})</div>
+<div style="${grid}margin-bottom:8px;">${folderFiles.map(f => cell(f, visualOrder.push(f) - 1, false)).join('')}</div></div>`;
 }
 
-document.getElementById('r2GalleryBody').innerHTML = html;
+body.innerHTML = html;
 
-const body = document.getElementById('r2GalleryBody');
-body.addEventListener('click', (e) => {
-const cell = e.target.closest('[data-r2key]');
-if (!cell) return;
-const key = cell.dataset.r2key;
-const idx = parseInt(cell.dataset.idx);
-const isOrphan = !!cell.closest('#orphans-grid');
+// onclick (nu addEventListener) ca să nu se adauge un listener nou la fiecare deschidere a galeriei
+body.onclick = e => {
+const c = e.target.closest('[data-r2key]');
+if (!c) return;
+const list = c.closest('#orphans-grid') ? sortedOrphans : visualOrder;
+const i = parseInt(c.dataset.idx);
+openR2FileDetailFromGallery(c.dataset.r2key, list[i], list, i);
+};
+}
 
-if (isOrphan) {
-openR2FileDetailFromGallery(key, sortedOrphans[idx], sortedOrphans, idx);
-} else {
-openR2FileDetailFromGallery(key, visualOrder[idx], visualOrder, idx);
-}
-});
-}
 
 
 
@@ -7089,58 +7048,30 @@ showToast('eroare la ștergere');
 
 function openR2FileDetail(key, size, isUsed, allFiles, currentIndex) {
 const url = `${R2_PUBLIC_URL}/${key}`;
-const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(key);
-const isAudio = /\.(mp3|ogg|wav|flac|aac|m4a)$/i.test(key);
-const isVideo = /\.(mp4|webm|mov)$/i.test(key);
 const fileName = key.split('/').pop();
+const isAudio = /\.(mp3|ogg|wav|flac|aac|m4a)$/i.test(key);
+const hasPrev = allFiles && currentIndex > 0;
+const hasNext = allFiles && currentIndex < allFiles.length - 1;
 
-const existingOverlay = document.getElementById('r2-detail-overlay');
-if (existingOverlay) {
-existingOverlay.querySelectorAll('audio,video').forEach(m => m.pause());
-document.body.removeChild(existingOverlay);
-}
+const old = document.getElementById('r2-detail-overlay');
+if (old) { old.querySelectorAll('audio,video').forEach(m => m.pause()); old.remove(); }
 
 const overlay = document.createElement('div');
 overlay.id = 'r2-detail-overlay';
 overlay.style.cssText = 'position:fixed;inset:0;background:rgba(4,4,8,0.92);backdrop-filter:blur(16px);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;';
-
-function closeOverlay() {
-overlay.querySelectorAll('audio,video').forEach(m => m.pause());
-if (document.body.contains(overlay)) document.body.removeChild(overlay);
-}
-
+const closeOverlay = () => { overlay.querySelectorAll('audio,video').forEach(m => m.pause()); overlay.remove(); };
 overlay.addEventListener('click', e => { if (e.target === overlay) closeOverlay(); });
 
-let previewHtml = '';
-if (isImage) {
-previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:rgba(0,0,0,0.3);overflow:hidden;display:flex;align-items:center;justify-content:center;">
-<img src="${url}" style="width:100%;height:100%;object-fit:contain;">
-</div>`;
-} else if (isAudio) {
-previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(122,200,149,0.2);background:rgba(122,200,149,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
-<div style="font-size:48px;">🎵</div>
-<audio id="r2-preview-audio" controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio>
-</div>`;
+const box = 'width:100%;height:220px;border-radius:12px;';
+const center = 'display:flex;align-items:center;justify-content:center;';
+let preview;
+if (/\.(jpg|jpeg|png|gif|webp)$/i.test(key)) preview = `<div style="${box}border:1px solid var(--border2);background:rgba(0,0,0,0.3);overflow:hidden;${center}"><img src="${url}" style="width:100%;height:100%;object-fit:contain;"></div>`;
+else if (isAudio) preview = `<div style="${box}border:1px solid rgba(122,200,149,0.2);background:rgba(122,200,149,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;"><div style="font-size:48px;">🎵</div><audio id="r2-preview-audio" controls src="${url}" style="width:85%;border-radius:8px;display:block;" preload="auto"></audio></div>`;
+else if (/\.(mp4|webm|mov)$/i.test(key)) preview = `<div style="${box}border:1px solid var(--border2);background:#000;overflow:hidden;"><video controls src="${url}" style="width:100%;height:100%;object-fit:contain;" preload="metadata"></video></div>`;
+else preview = `<div style="${box}border:1px solid rgba(160,122,200,0.2);background:rgba(160,122,200,0.07);${center}font-size:48px;">📄</div>`;
 
-} else if (isVideo) {
-previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid var(--border2);background:#000;overflow:hidden;">
-<video controls src="${url}" style="width:100%;height:100%;object-fit:contain;" preload="metadata"></video>
-</div>`;
-} else {
-previewHtml = `<div style="width:100%;height:220px;border-radius:12px;border:1px solid rgba(160,122,200,0.2);background:rgba(160,122,200,0.07);display:flex;align-items:center;justify-content:center;font-size:48px;">📄</div>`;
-}
-
-const hasPrev = allFiles && currentIndex > 0;
-const hasNext = allFiles && currentIndex < allFiles.length - 1;
-const navHtml = allFiles ? `
-<div style="display:flex;gap:8px;margin-bottom:8px;">
-<button id="r2-nav-prev" ${!hasPrev?'disabled':''} style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:${hasPrev?'var(--text2)':'var(--text4)'};font-family:var(--mono);font-size:10px;cursor:${hasPrev?'pointer':'default'};letter-spacing:0.04em;">← anterior</button>
-<button id="r2-nav-next" ${!hasNext?'disabled':''} style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:${hasNext?'var(--text2)':'var(--text4)'};font-family:var(--mono);font-size:10px;cursor:${hasNext?'pointer':'default'};letter-spacing:0.04em;">următor →</button>
-</div>` : '';
-
-const usedLabel = isUsed
-? `<span style="color:var(--green)">folosit</span>`
-: `<span style="color:var(--rose)">nefolosit</span>`;
+const nav = (id, ok, txt) => `<button id="${id}" ${ok ? '' : 'disabled'} style="flex:1;padding:10px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:${ok ? 'var(--text2)' : 'var(--text4)'};font-family:var(--mono);font-size:10px;cursor:${ok ? 'pointer' : 'default'};letter-spacing:0.04em;">${txt}</button>`;
+const act = (id, rgb, col, txt) => `<button id="${id}" style="padding:11px 8px;background:rgba(${rgb},0.1);border:1px solid rgba(${rgb},0.3);border-radius:10px;color:${col};font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">${txt}</button>`;
 
 const modal = document.createElement('div');
 modal.style.cssText = 'background:linear-gradient(180deg,#181820 0%,#111115 100%);border:1px solid var(--border2);border-radius:22px;padding:20px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto;';
@@ -7148,21 +7079,17 @@ modal.innerHTML = `
 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;">
 <div>
 <div style="font-family:var(--serif);font-size:17px;font-style:italic;color:var(--accent2);line-height:1.3;word-break:break-all;">${fileName}</div>
-<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${usedLabel}</div>
+<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.04em;">${formatBytes(size)} · ${isUsed ? '<span style="color:var(--green)">folosit</span>' : '<span style="color:var(--rose)">nefolosit</span>'}</div>
 </div>
 <button id="r2-close-btn" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">✕</button>
 </div>
-<div style="margin-bottom:16px;">${previewHtml}</div>
+<div style="margin-bottom:16px;">${preview}</div>
 <div style="font-family:var(--mono);font-size:9px;color:var(--text4);letter-spacing:0.08em;margin-bottom:8px;word-break:break-all;line-height:1.6;padding:8px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border);">${key}</div>
-${navHtml}
+${allFiles ? `<div style="display:flex;gap:8px;margin-bottom:8px;">${nav('r2-nav-prev', hasPrev, '← anterior')}${nav('r2-nav-next', hasNext, 'următor →')}</div>` : ''}
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-<button id="r2-btn-direct" style="padding:11px 8px;background:rgba(122,162,200,0.1);border:1px solid rgba(122,162,200,0.3);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📋 link direct</button>
-<button id="r2-btn-ref" style="padding:11px 8px;background:rgba(160,122,200,0.1);border:1px solid rgba(160,122,200,0.3);border-radius:10px;color:var(--purple);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📎 r2: ref</button>
-<button id="r2-btn-download" style="padding:11px 8px;background:rgba(122,200,149,0.1);border:1px solid rgba(122,200,149,0.3);border-radius:10px;color:var(--green);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">⬇️ descarcă</button>
-<button id="r2-btn-day" style="padding:11px 8px;background:rgba(200,169,126,0.1);border:1px solid rgba(200,169,126,0.3);border-radius:10px;color:var(--accent2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.04em;">📅 → ziua</button>
+${act('r2-btn-direct', '122,162,200', 'var(--blue)', '📋 link direct')}${act('r2-btn-ref', '160,122,200', 'var(--purple)', '📎 r2: ref')}${act('r2-btn-download', '122,200,149', 'var(--green)', '⬇️ descarcă')}${act('r2-btn-day', '200,169,126', 'var(--accent2)', '📅 → ziua')}
 </div>
-<button id="r2-btn-delete" style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">🗑️ șterge fișierul</button>
-`;
+<button id="r2-btn-delete" style="width:100%;padding:12px;background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:10px;color:#e07070;font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:0.06em;">🗑️ șterge fișierul</button>`;
 
 overlay.appendChild(modal);
 document.body.appendChild(overlay);
@@ -7171,24 +7098,22 @@ setTimeout(() => {
 dmAudio.pause();
 entryAudio.pause();
 syncDateMusicWaves();
-const audio = modal.querySelector('#r2-preview-audio');
-if (audio) audio.play().catch(() => {});
+modal.querySelector('#r2-preview-audio')?.play().catch(() => {});
 }, 150);
 }
 
-
-
-
-modal.querySelector('#r2-close-btn').addEventListener('click', closeOverlay);
-modal.querySelector('#r2-btn-direct').addEventListener('click', () => copyR2Link(key, 'direct'));
-modal.querySelector('#r2-btn-ref').addEventListener('click', () => copyR2Link(key, 'r2'));
-modal.querySelector('#r2-btn-download').addEventListener('click', () => downloadR2File(key));
-modal.querySelector('#r2-btn-day').addEventListener('click', async () => {
+const on = (id, fn) => modal.querySelector('#' + id)?.addEventListener('click', fn);
+const go = d => {
 closeOverlay();
-closeR2Gallery();
-await goToR2FileDay(key);
-});
-modal.querySelector('#r2-btn-delete').addEventListener('click', async () => {
+const f = allFiles[currentIndex + d];
+openR2FileDetailFromGallery(f.key, f, allFiles, currentIndex + d);
+};
+on('r2-close-btn', closeOverlay);
+on('r2-btn-direct', () => copyR2Link(key, 'direct'));
+on('r2-btn-ref', () => copyR2Link(key, 'r2'));
+on('r2-btn-download', () => downloadR2File(key));
+on('r2-btn-day', async () => { closeOverlay(); closeR2Gallery(); await goToR2FileDay(key); });
+on('r2-btn-delete', async () => {
 if (!confirm(`Ștergi ${fileName}?`)) return;
 closeOverlay();
 await deleteR2File(key);
@@ -7199,37 +7124,14 @@ const m = document.getElementById('r2GalleryModal');
 if (m) m.scrollTop = scrollPos;
 }, 300);
 });
-
-if (allFiles) {
-const prevBtn = modal.querySelector('#r2-nav-prev');
-const nextBtn = modal.querySelector('#r2-nav-next');
-if (prevBtn && hasPrev) {
-prevBtn.addEventListener('click', () => {
-closeOverlay();
-const prev = allFiles[currentIndex - 1];
-openR2FileDetailFromGallery(prev.key, prev, allFiles, currentIndex - 1);
-});
+if (hasPrev) on('r2-nav-prev', () => go(-1));
+if (hasNext) on('r2-nav-next', () => go(1));
 }
-if (nextBtn && hasNext) {
-nextBtn.addEventListener('click', () => {
-closeOverlay();
-const next = allFiles[currentIndex + 1];
-openR2FileDetailFromGallery(next.key, next, allFiles, currentIndex + 1);
-});
-}
-}
-}
-
 
 function openR2FileDetailFromGallery(key, fileObj, allFiles, currentIndex) {
-const usedKeys = getUsedKeys();
-
-
-const isUsed = usedKeys.has(key);
-
-
-openR2FileDetail(key, fileObj.size, isUsed, allFiles, currentIndex);
+openR2FileDetail(key, fileObj.size, getUsedKeys().has(key), allFiles, currentIndex);
 }
+
 
 
 
