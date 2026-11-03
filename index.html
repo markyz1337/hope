@@ -3741,11 +3741,17 @@ function dateKey(date) {
 const d = new Date(date);
 return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+const MONTHS = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+const MONTHS_CAP = MONTHS.map(m => m[0].toUpperCase() + m.slice(1));
+const MONTHS_SHORT = MONTHS.map(m => m.slice(0, 3));
+
+
 function todayKey() { return dateKey(new Date()); }
 function formatKeyLabelRo(k) {
 const d = new Date(k + 'T12:00:00');
 const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
-const months = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+const months = MONTHS;
+
 return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 function toLocal(date) {
@@ -3889,7 +3895,8 @@ const filtered = entries.filter(e => dateKey(e.posted_at) === targetKey);
 const hasDateMusic = !!dateMusicMap[targetKey];
 
 if (filtered.length > 0 || hasDateMusic) {
-label.textContent = `${filtered.length} intrări pe ${day} ${['','ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'][month]} ${year}`;
+label.textContent = `${filtered.length} intrări pe ${day} ${MONTHS_SHORT[month-1]} ${year}`;
+
 label.classList.add('visible');
 let html = `<div class="section-lbl" style="cursor:pointer;display:flex;align-items:center;gap:6px;" onclick="jumpToDateFromSearch('${targetKey}')">
 ${targetDate.toLocaleDateString('ro-RO',{year:'numeric',month:'long',day:'numeric'})}
@@ -3921,7 +3928,8 @@ const suggHtml = near.length ? `<div style="margin:16px 12px 8px;background:rgba
 <div style="font-family:var(--mono);font-size:10px;color:var(--blue);letter-spacing:0.08em;margin-bottom:12px;">DATE APROPIATE DISPONIBILE</div>${near.map(suggRow).join('')}</div>` : '';
 
 
-container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg></div><div class="empty-text">nicio intrare pe ${day} ${['','ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'][month]} ${year}</div></div>${suggHtml}`;
+container.innerHTML = `<div class="empty-wrap"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke-linecap="round"/></svg></div><div class="empty-text">nicio intrare pe ${day} ${MONTHS[month-1]} ${year}</div></div>${suggHtml}`;
+
 }
 let draftSaveTimer = null;
 const DRAFT_DEBOUNCE = 3000; // 3s după ultima tastare
@@ -4615,7 +4623,8 @@ const curMonth = now.getMonth();
 const nextBtn = document.getElementById('calPopupNextMonthBtn');
 nextBtn.disabled = !isLocked ? false : (calPopupYear === curYear && calPopupMonth === curMonth);
 
-const monthNames = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const monthNames = MONTHS_CAP;
+
 document.getElementById('calPopupMonthLbl').textContent = `${monthNames[calPopupMonth]} ${calPopupYear}`;
 const isViewingToday = !selectedDate || dateKey(selectedDate) === tk;
 const todayBtn = document.getElementById('calPopupTodayBtn');
@@ -4950,7 +4959,8 @@ const k = dateKey(e.posted_at); if (!dayTypesMap[k]) dayTypesMap[k] = new Set();
 });
 
 const dayNames = ['du','lu','ma','mi','jo','vi','sâ'];
-const monthNamesShort = ['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','noi','dec'];
+const monthNamesShort = MONTHS_SHORT;
+
 const typeColors = { note:'var(--accent)', photo:'var(--blue)', video:'var(--rose)', music:'var(--green)', pdf:'var(--purple)' };
 let lastMonth = -1, lastYear = -1, html = '';
 days.forEach(d => {
@@ -7862,7 +7872,8 @@ function moveCalNav(dir) {
 }
 
 function renderMoveCal() {
-  const names = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const names = MONTHS_CAP;
+
   document.getElementById('move-cal-lbl').textContent = `${names[moveCalMonth]} ${moveCalYear}`;
   const src = dateKey(selectedDate);
   const daysInMonth = new Date(moveCalYear, moveCalMonth + 1, 0).getDate();
