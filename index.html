@@ -843,17 +843,114 @@ transition: opacity 0.15s ease;
 .fab-main svg { width: 20px; height: 20px; transition: transform 0.3s; }
 .fab-main:hover { transform: scale(1.07); box-shadow: 0 0 50px rgba(200,169,126,0.28), var(--shadow2); }
 .fab-main.open svg { transform: rotate(45deg); }
+
+/* ── FAB stil comun (inimă / tikhope / lacăt) ── */
+.fab-main.skin { position: relative; }
+.fab-main.skin::before {
+content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+background: radial-gradient(circle at 50% 40%, var(--t1), var(--t2) 70%, var(--t3));
+}
+.fab-main.skin > svg { position: relative; z-index: 1; }
+.fab-main.skin-heart {
+--t1: rgba(200,80,120,0.32); --t2: rgba(120,35,70,0.22); --t3: rgba(40,10,25,0.15);
+--bd: rgba(240,150,185,0.5); --gl: rgba(230,100,150,0.3); color: #f4dbe4;
+}
+.fab-main.skin-tik {
+--t1: rgba(90,130,190,0.32); --t2: rgba(40,70,120,0.22); --t3: rgba(10,20,40,0.15);
+--bd: rgba(140,185,235,0.5); --gl: rgba(122,162,200,0.3); color: #d6e6f7;
+}
+.fab-main.skin-lock {
+--t1: rgba(138,122,160,0.32); --t2: rgba(75,60,100,0.22); --t3: rgba(25,18,40,0.15);
+--bd: rgba(184,168,208,0.45); --gl: rgba(138,122,160,0.3); color: #d9cfe8;
+}
+
+.fab-main.skin-plus {
+--t1: rgba(200,169,126,0.32); --t2: rgba(120,90,40,0.22); --t3: rgba(40,28,10,0.15);
+--bd: rgba(226,201,154,0.5); --gl: rgba(200,169,126,0.3); color: #f0e0c0;
+}
+
+
+/* ── FAB dual (inimă ↔ tikhope, crossfade) ── */
+.fab-main.dual { position: relative; animation: fabGlow 5s ease-in-out infinite; }
+.fab-main.dual #fabMainIcon { display: none; }
+
+/* două straturi de culoare care se alternează */
+.fab-main.dual::before,
+.fab-main.dual::after {
+content: '';
+position: absolute; inset: 0;
+border-radius: 50%;
+pointer-events: none;
+animation: fabTint 5s ease-in-out infinite;
+will-change: opacity;
+}
+.fab-main.dual::before {
+background: radial-gradient(circle at 50% 40%, rgba(200,80,120,0.32), rgba(120,35,70,0.22) 70%, rgba(40,10,25,0.15));
+}
+.fab-main.dual::after {
+background: radial-gradient(circle at 50% 40%, rgba(90,130,190,0.32), rgba(40,70,120,0.22) 70%, rgba(10,20,40,0.15));
+animation-delay: -2.5s;
+}
+
+
+.fab-dual { position: absolute; inset: 0; display: none; pointer-events: none; z-index: 1; }
+.fab-main.dual .fab-dual { display: block; }
+
+.fab-dual-icon {
+position: absolute; inset: 0;
+display: flex; align-items: center; justify-content: center;
+color: #f4dbe4;
+animation: fabSwap 5s ease-in-out infinite;
+will-change: opacity, transform, filter;
+}
+
+.fab-dual-icon.play { animation-delay: -2.5s; color: #d6e6f7; }
+
+.fab-main .fab-dual svg {
+width: 22px; height: 22px; display: block; transition: none;
+filter: drop-shadow(0 0 6px rgba(255,255,255,0.45));
+}
+.fab-dual-icon.play svg { margin-left: 2px; }
+
+@keyframes fabSwap {
+0%, 38%  { opacity: 1; transform: scale(1);   filter: blur(0); }
+50%, 88% { opacity: 0; transform: scale(0.55); filter: blur(4px); }
+100%     { opacity: 1; transform: scale(1);   filter: blur(0); }
+}
+@keyframes fabTint {
+0%, 38%  { opacity: 1; }
+50%, 88% { opacity: 0; }
+100%     { opacity: 1; }
+}
+@keyframes fabGlow {
+0%, 38%  { box-shadow: 0 0 30px rgba(230,100,150,0.35), var(--shadow2); border-color: rgba(240,150,185,0.55); }
+50%, 88% { box-shadow: 0 0 30px rgba(122,162,200,0.35), var(--shadow2); border-color: rgba(140,185,235,0.55); }
+100%     { box-shadow: 0 0 30px rgba(230,100,150,0.35), var(--shadow2); border-color: rgba(240,150,185,0.55); }
+}
+
+
+
 .cal-fab-wrap { pointer-events: all; position: relative; flex-shrink: 0; }
 .cal-fab-btn {
 width: 48px; height: 48px; border-radius: 50%;
-background: rgba(122,162,200,0.12); border: 1.5px solid rgba(122,162,200,0.35);
-color: var(--blue); cursor: pointer; display: flex; align-items: center; justify-content: center;
-box-shadow: 0 8px 28px rgba(122,162,200,0.15); transition: all 0.22s ease;
+background: rgba(8,8,12,0.96);
+border: 1px solid rgba(140,185,235,0.45);
+color: #d6e6f7; cursor: pointer; display: flex; align-items: center; justify-content: center;
+box-shadow: 0 0 24px rgba(122,162,200,0.3), var(--shadow2);
+transition: all 0.22s ease;
 backdrop-filter: blur(12px); position: relative; z-index: 2;
 }
-.cal-fab-btn:hover { background: rgba(122,162,200,0.22); border-color: rgba(122,162,200,0.6); box-shadow: 0 12px 36px rgba(122,162,200,0.25); transform: translateY(-2px) scale(1.05); }
-.cal-fab-btn.is-active { background: rgba(200,169,126,0.22); border-color: rgba(200,169,126,0.6); color: var(--accent2); box-shadow: 0 0 0 3px rgba(200,169,126,0.12), 0 12px 36px rgba(200,169,126,0.2); }
-.cal-fab-btn svg { width: 19px; height: 19px; }
+.cal-fab-btn::before {
+content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+background: radial-gradient(circle at 50% 40%, rgba(90,130,190,0.32), rgba(40,70,120,0.22) 70%, rgba(10,20,40,0.15));
+}
+.cal-fab-btn:hover { border-color: rgba(140,185,235,0.7); box-shadow: 0 0 30px rgba(122,162,200,0.4), var(--shadow2); transform: translateY(-2px) scale(1.05); }
+.cal-fab-btn.is-active { border-color: rgba(226,201,154,0.5); color: #f0e0c0; box-shadow: 0 0 24px rgba(200,169,126,0.3), var(--shadow2); }
+.cal-fab-btn.is-active::before {
+background: radial-gradient(circle at 50% 40%, rgba(200,169,126,0.32), rgba(120,90,40,0.22) 70%, rgba(40,28,10,0.15));
+}
+.cal-fab-btn svg { width: 19px; height: 19px; position: relative; z-index: 1; }
+
 .cal-popup-overlay {
 position: fixed; inset: 0; background: #0c0c0f;
 z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -1649,7 +1746,18 @@ stroke-width="1.6"
 >
 <path d="M12 5v14M5 12h14" stroke-linecap="round" />
 </svg>
+<span class="fab-dual" id="fabDual">
+<span class="fab-dual-icon heart">
+<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+</span>
+<span class="fab-dual-icon play">
+<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="7 4 20 12 7 20"/></svg>
+</span>
+</span>
+
+
 </button>
+
 </div>
 </div>
 
@@ -6145,10 +6253,18 @@ showToast(SETTING_TIKHOPE_FROM ? 'dată start TikHope salvată' : 'dată start T
 
 
 
+
 function updateFabMainMode() {
 const btn = document.getElementById('fabMain');
 const icon = document.getElementById('fabMainIcon');
 if (!btn || !icon) return;
+
+const heartOn = isLocked && isRedirectMode() && !!SETTING_REDIRECT_HTML;
+const tikOn = isLocked && isTikHopeAvailable();
+const dual = heartOn && tikOn;
+btn.classList.toggle('dual', dual);
+btn.classList.remove('skin', 'skin-heart', 'skin-tik', 'skin-lock', 'skin-plus');
+
 
 if (isLocked) {
 document.getElementById('fabWrap').classList.add('redirect-visible');
@@ -6156,38 +6272,47 @@ document.getElementById('fabWrap').classList.add('redirect-visible');
 
 if (!isLocked) {
 icon.innerHTML = `<path d="M12 5v14M5 12h14" stroke-linecap="round"/>`;
-btn.style.background = '';
-btn.style.borderColor = '';
+btn.classList.add('skin', 'skin-plus');
+btn.style.background = 'rgba(8,8,12,0.96)';
+btn.style.borderColor = 'var(--bd)';
 btn.style.color = '';
-btn.style.boxShadow = '';
+btn.style.boxShadow = '0 0 24px var(--gl), var(--shadow2)';
 btn.title = '';
 return;
 }
 
-if (isRedirectMode() && SETTING_REDIRECT_HTML) {
 
+if (dual) {
+btn.title = 'alege';
+btn.style.background = 'rgba(8,8,12,0.96)';
+btn.style.borderColor = 'rgba(255,255,255,0.22)';
+btn.style.color = '';
+btn.style.boxShadow = '';
+return;
+}
+
+let skin;
+if (heartOn) {
+skin = 'skin-heart';
 icon.innerHTML = `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linecap="round" stroke-linejoin="round"/>`;
 btn.title = 'alege';
-btn.style.background = 'linear-gradient(135deg, rgba(200,80,120,0.65), rgba(230,100,140,0.35))';
-btn.style.borderColor = 'rgba(220,80,120,0.55)';
-btn.style.color = '#f0a0b8';
-btn.style.boxShadow = '0 0 30px rgba(220,80,120,0.25), var(--shadow2)';
-} else if (!isTikHopeAvailable()) {
+} else if (!tikOn) {
+skin = 'skin-lock';
 icon.innerHTML = `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>`;
 btn.title = 'blocat';
-btn.style.background = 'linear-gradient(135deg, rgba(138,122,160,0.45), rgba(184,168,208,0.2))';
-btn.style.borderColor = 'rgba(138,122,160,0.5)';
-btn.style.color = 'var(--private2)';
-btn.style.boxShadow = '0 0 30px rgba(138,122,160,0.18), var(--shadow2)';
 } else {
+skin = 'skin-tik';
 icon.innerHTML = `<polygon points="6 3 20 12 6 21 6 3" fill="currentColor"/>`;
 btn.title = 'clipuri';
-btn.style.background = 'linear-gradient(135deg, rgba(122,162,200,0.55), rgba(160,190,230,0.3))';
-btn.style.borderColor = 'rgba(122,162,200,0.55)';
-btn.style.color = 'var(--blue)';
-btn.style.boxShadow = '0 0 30px rgba(122,162,200,0.2), var(--shadow2)';
 }
+btn.classList.add('skin', skin);
+btn.style.background = 'rgba(8,8,12,0.96)';
+btn.style.borderColor = 'var(--bd)';
+btn.style.color = '';
+btn.style.boxShadow = '0 0 24px var(--gl), var(--shadow2)';
 }
+
+
 
 
 
