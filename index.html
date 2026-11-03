@@ -6205,15 +6205,20 @@ function closeModal(name) { document.getElementById(`modal-${name}`).classList.r
 document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); }); });
 function handleFabMainClick() {
 if (isLocked) {
-if (isRedirectMode() && SETTING_REDIRECT_HTML) {
-showAccessChoiceModal();
+const heartOn = isRedirectMode() && !!SETTING_REDIRECT_HTML;
+const tikOn = isTikHopeAvailable();
+if (heartOn && tikOn) {
+showAccessChoiceModal();   // ambele active -> meniul "ce vrei să deschizi?"
+} else if (heartOn) {
+showRedirectModal();       // doar inima activă -> deschide doar inima
 } else {
-openTikHopeSite();
-}
+openTikHopeSite();         // doar TikHope activ -> deschide doar TikHope
+}                          // (niciunul activ -> cere parola de creator, ca înainte)
 return;
 }
 toggleFab();
 }
+
 
 
 
