@@ -832,6 +832,8 @@ transition: opacity 0.15s ease;
 }
 
 .fab-wrap { pointer-events: all; display: flex; flex-direction: column; align-items: flex-end; gap: 0; position: relative; }
+
+
 .fab-menu { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s; opacity: 0; margin-bottom: 8px; }
 .fab-menu.open { max-height: 500px; opacity: 1; }
 .fab-row { display: flex; align-items: center; gap: 8px; }
@@ -1731,9 +1733,11 @@ stroke-linejoin="round"
 </div>
 
 <div class="fab-wrap" id="fabWrap">
+
+
 <div class="fab-menu" id="fabMenu"></div>
 <button
-class="fab-main"
+class="fab-main skin skin-lock"
 id="fabMain"
 onclick="handleFabMainClick()"
 >
@@ -1744,7 +1748,7 @@ fill="none"
 stroke="currentColor"
 stroke-width="1.6"
 >
-<path d="M12 5v14M5 12h14" stroke-linecap="round" />
+<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke-linecap="round"/>
 </svg>
 <span class="fab-dual" id="fabDual">
 <span class="fab-dual-icon heart">
@@ -3096,6 +3100,8 @@ let dmHiddenEnabled = false;
 let dmBannerHiddenEnabled = false;
 
 let isLocked = true;
+let fabReady = false;
+
 let SETTING_TIMELOCK_MUSIC_URL = '';
 let SETTING_TITLE_RULES = [];
 let SETTING_REDIRECT_HTML = '';
@@ -3378,9 +3384,12 @@ async function bootApp() {
   setupNavButtons();
   setupOverscroll();
   setupCardTextLinks();
+  fabReady = true;
   updateFabMainMode();
 }
+
 const continueInitAfterAuth = bootApp;
+
 
 
 
@@ -6205,6 +6214,8 @@ function closeModal(name) { document.getElementById(`modal-${name}`).classList.r
 document.querySelectorAll('.backdrop').forEach(bd => { bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); }); });
 function handleFabMainClick() {
 if (isLocked) {
+if (!fabReady) return;
+
 const heartOn = isRedirectMode() && !!SETTING_REDIRECT_HTML;
 const tikOn = isTikHopeAvailable();
 if (heartOn && tikOn) {
@@ -6264,8 +6275,9 @@ const btn = document.getElementById('fabMain');
 const icon = document.getElementById('fabMainIcon');
 if (!btn || !icon) return;
 
-const heartOn = isLocked && isRedirectMode() && !!SETTING_REDIRECT_HTML;
-const tikOn = isLocked && isTikHopeAvailable();
+const heartOn = fabReady && isLocked && isRedirectMode() && !!SETTING_REDIRECT_HTML;
+const tikOn = fabReady && isLocked && isTikHopeAvailable();
+
 const dual = heartOn && tikOn;
 btn.classList.toggle('dual', dual);
 btn.classList.remove('skin', 'skin-heart', 'skin-tik', 'skin-lock', 'skin-plus');
