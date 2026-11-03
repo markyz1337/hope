@@ -2036,21 +2036,8 @@ style="margin-top:7px;width:100%;padding:9px;background:rgba(122,162,200,0.1);bo
 <div class="tgl" data-lbl="ascunde de vizitatori" data-id="html-hidden-toggle" data-fn="toggleHtmlHidden"></div>
 <div class="tgl" data-lbl="conținut privat" data-id="html-18-toggle" data-fn="toggleHtml18"></div>
 
-<div class="form-group">
-<label class="form-label">data postării</label>
-<input
-type="datetime-local"
-class="form-input"
-id="html-date"
-step="1"
-/>
-</div>
-<button class="btn-primary" onclick="submitEntry('html')">
-salvează
-</button>
-<button class="btn-secondary" onclick="closeModal('html')">
-anulează
-</button>
+<div class="sv-gen" data-t="html"></div>
+
 </div>
 </div>
 
@@ -2082,24 +2069,8 @@ style="width:5px;height:5px;border-radius:50%;background:currentColor;display:in
 </div>
 <div class="tgl" data-lbl="conținut privat" data-id="note-18-toggle" data-fn="toggleNote18"></div>
 
-<div class="form-group">
-<label class="form-label">data postării</label>
-<input
-type="datetime-local"
-class="form-input"
-id="note-date"
-step="1"
-/>
-</div>
-<button class="btn-primary" onclick="submitEntry('note')">
-salvează
-</button>
-<button class="btn-secondary" onclick="discardDraft()">
-șterge draft
-</button>
-<button class="btn-secondary" onclick="closeModal('note')">
-anulează
-</button>
+<div class="sv-gen" data-t="note" data-x="discardDraft()|șterge draft"></div>
+
 </div>
 </div>
 
@@ -2158,21 +2129,8 @@ style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:5
 </div>
 <div class="tgl" data-lbl="imagini private" data-id="photo-18-toggle" data-fn="togglePhoto18"></div>
 
-<div class="form-group">
-<label class="form-label">data postării</label>
-<input
-type="datetime-local"
-class="form-input"
-id="photo-date"
-step="1"
-/>
-</div>
-<button class="btn-primary" onclick="submitEntry('photo')">
-salvează
-</button>
-<button class="btn-secondary" onclick="closeModal('photo')">
-anulează
-</button>
+<div class="sv-gen" data-t="photo"></div>
+
 </div>
 </div>
 
@@ -2219,22 +2177,8 @@ YouTube.
 <div class="tgl" data-lbl="conținut privat" data-id="video-18-toggle" data-fn="toggleVideo18"></div>
 <div class="tgl" data-lbl="pornește automat (fără sunet)" data-id="video-autoplay-toggle" data-fn="toggleVideoAutoplay"></div>
 
+<div class="sv-gen" data-t="video"></div>
 
-<div class="form-group">
-<label class="form-label">data postării</label>
-<input
-type="datetime-local"
-class="form-input"
-id="video-date"
-step="1"
-/>
-</div>
-<button class="btn-primary" onclick="submitEntry('video')">
-salvează
-</button>
-<button class="btn-secondary" onclick="closeModal('video')">
-anulează
-</button>
 </div>
 </div>
 
@@ -2290,15 +2234,6 @@ placeholder="https://..."
 </div>
 
 <div class="form-group">
-<label class="form-label">data postării</label>
-<input
-type="datetime-local"
-class="form-input"
-id="music-date"
-step="1"
-/>
-</div>
-<div class="form-group">
 <label class="form-label">descriere (opțional)</label>
 <textarea
 class="form-textarea"
@@ -2307,12 +2242,8 @@ id="music-note"
 placeholder="de ce ai ales melodia asta..."
 ></textarea>
 </div>
-<button class="btn-primary" onclick="submitEntry('music')">
-salvează
-</button>
-<button class="btn-secondary" onclick="closeModal('music')">
-anulează
-</button>
+<div class="sv-gen" data-t="music"></div>
+
 </div>
 </div>
 
@@ -2355,21 +2286,8 @@ id="pdf-note"
 placeholder="despre ce este..."
 ></textarea>
 </div>
-<div class="form-group">
-<label class="form-label">data postării</label>
-<input
-type="datetime-local"
-class="form-input"
-id="pdf-date"
-step="1"
-/>
-</div>
-<button class="btn-primary" onclick="submitEntry('pdf')">
-salvează
-</button>
-<button class="btn-secondary" onclick="closeModal('pdf')">
-anulează
-</button>
+<div class="sv-gen" data-t="pdf"></div>
+
 </div>
 </div>
 
@@ -7820,6 +7738,15 @@ r.outerHTML = d.lbl
 ? `<div class="blur-toggle-row"${d.rid ? ` id="${d.rid}"` : ''}${d.hide ? ' style="display:none"' : ''}><label class="form-label">${d.lbl}</label>${t}</div>`
 : t;
 });
+
+/* „data postării" + salvează / (buton extra) / anulează */
+document.querySelectorAll('.sv-gen').forEach(g => { const d = g.dataset, t = d.t, [fn, lbl] = (d.x || '').split('|');
+g.outerHTML = `<div class="form-group"><label class="form-label">data postării</label><input type="datetime-local" class="form-input" id="${t}-date" step="1" /></div>`
++ `<button class="btn-primary" onclick="submitEntry('${t}')">salvează</button>`
++ (fn ? `<button class="btn-secondary" onclick="${fn}">${lbl}</button>` : '')
++ `<button class="btn-secondary" onclick="closeModal('${t}')">anulează</button>`;
+});
+
 
 /* rânduri upload */
 document.querySelectorAll('.up-row').forEach(r=>{const d=r.dataset;
