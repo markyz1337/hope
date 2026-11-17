@@ -4371,6 +4371,17 @@ if (!drop) return;
 document.querySelectorAll('.rte-size-dropdown').forEach(d => { if (d.id !== dropId) d.classList.remove('open'); });
 drop.classList.toggle('open');
 }
+
+let rteLastRange = {};
+document.addEventListener('selectionchange', () => {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+  const r = sel.getRangeAt(0);
+  document.querySelectorAll('.rte-editor').forEach(ed => {
+    if (ed.contains(r.commonAncestorContainer)) rteLastRange[ed.id] = r.cloneRange();
+  });
+});
+
 document.addEventListener('click', e => {
 if (!e.target.closest('.rte-size-wrap')) document.querySelectorAll('.rte-size-dropdown').forEach(d => d.classList.remove('open'));
 });
@@ -4380,16 +4391,25 @@ function applyFontSize2(cls, dropId, lblId) { _applyFontSizeToEditor(document.ge
 
 function _applyFontSizeToEditor(editor, cls, dropId, lblId) {
 if (!editor) return;
-editor.focus();
-const sel = window.getSelection();
-if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+let sel = window.getSelection();
+let range = null;
+if (sel && sel.rangeCount > 0 && !sel.isCollapsed && editor.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+range = sel.getRangeAt(0);
+} else if (rteLastRange[editor.id]) {
+range = rteLastRange[editor.id];
+}
+if (!range || range.collapsed) {
 showToast('selectează textul pe care vrei să-l formatezi');
 const drop = document.getElementById(dropId);
 if (drop) drop.classList.remove('open');
 return;
 }
-const range = sel.getRangeAt(0);
+editor.focus();
+sel = window.getSelection();
+sel.removeAllRanges();
+sel.addRange(range);
 const frag = range.extractContents();
+
 const tempDiv = document.createElement('div');
 tempDiv.appendChild(frag);
 tempDiv.querySelectorAll('span').forEach(s => {
@@ -7939,8 +7959,8 @@ const s=g.dataset.s, sep='<div class="rte-sep"></div>';
 const btn=(id,fn,t,svg,fill)=>`<button class="rte-btn" id="${id}" onclick="${fn}" title="${t}"><svg viewBox="0 0 24 24" ${fill?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="1.8"'}>${svg}</svg></button>`;
 g.outerHTML=`<div class="rte-wrap"><div class="rte-toolbar">
 ${btn('rte-bold'+s,`rteCmd('bold','${s}')`,'Bold','<path d="M6 4h8a4 4 0 010 8H6zM6 12h9a4 4 0 010 8H6z"/>',1)}${sep}
-<div class="rte-size-wrap" id="rteSizeWrap${s}"><button class="rte-btn rte-size-btn" id="rteSizeBtn${s}" onclick="toggleSizeDropdown('rteSizeDropdown${s}')" title="Mărime text"><span id="rteSizeLbl${s}">Aa</span><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 3 5 7 8 3"/></svg></button>
-<div class="rte-size-dropdown" id="rteSizeDropdown${s}">${RTE_SZ.map(([c,l,t,px])=>`<div class="rte-size-option${c?'':' active'}" onclick="applyFontSize${s}('${c}','rteSizeDropdown${s}','rteSizeLbl${s}')"><span class="rte-size-label">${l}</span><span style="font-size:${px}px">${t}</span></div>`).join('')}</div></div>${sep}
+<div class="rte-size-wrap" id="rteSizeWrap${s}"><button class="rte-btn rte-size-btn" id="rteSizeBtn${s}" onmousedown="event.preventDefault()" onclick="toggleSizeDropdown('rteSizeDropdown${s}')" title="Mărime text"><span id="rteSizeLbl${s}">Aa</span><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2 3 5 7 8 3"/></svg></button>
+<div class="rte-size-dropdown" id="rteSizeDropdown${s}">${RTE_SZ.map(([c,l,t,px])=>`<div class="rte-size-option${c?'':' active'}" onmousedown="event.preventDefault()" onclick="applyFontSize${s}('${c}','rteSizeDropdown${s}','rteSizeLbl${s}')"><span class="rte-size-label">${l}</span><span style="font-size:${px}px">${t}</span></div>`).join('')}</div></div>${sep}
 ${btn('rte-link-btn'+s,`rteToggleLinkBar('${s}')`,'Link',ICO.link)}${sep}
 ${btn('rte-blur-btn'+s,`rteBlurSelected${s}()`,'Blur text selectat',RTE_BLUR)}${sep}
 ${btn('rte-music-btn'+s,`rteToggleMusicBar('${s}')`,'Adaugă muzică la text selectat',ICO.music)}
